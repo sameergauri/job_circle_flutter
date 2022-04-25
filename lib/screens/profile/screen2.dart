@@ -1,0 +1,241 @@
+import 'package:flutter/material.dart';
+import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/profile/screen3.dart';
+
+class Screen2 extends StatefulWidget {
+  const Screen2({Key? key}) : super(key: key);
+
+  @override
+  State<Screen2> createState() => _Screen2State();
+}
+
+class _Screen2State extends State<Screen2> {
+  int _widgetId = 2;
+  late Widget previousWidget;
+  late TextEditingController educationController = TextEditingController();
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text("JOB CIRCLE"),
+        ),
+        bottomNavigationBar: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: ThemeButton(
+              icon: const Icon(
+                Icons.arrow_forward,
+                color: Color(0xffffffff),
+                size: 25,
+              ),
+              radious: 0,
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const Screen3()));
+              },
+              text: "NEXT",
+              themeButtonSize: ThemeButtonSize.large,
+            ),
+          ),
+        ),
+        backgroundColor: const Color(0xffed2738),
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // Card(
+              //     shape: BeveledRectangleBorder(
+              //       borderRadius: BorderRadius.circular(10.0),
+              //     ),
+              //     elevation: 4,
+              //     child: const Padding(
+              //       padding: EdgeInsets.all(20.0),
+              //       child: SizedBox(
+              //         child: Text("teddd"),
+              //         height: 50,
+              //       ),
+              //     )),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 100),
+                      decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color.fromARGB(255, 208, 208, 208),
+                              blurRadius: 10.0,
+                              offset: Offset(2, 2),
+                            ),
+                          ],
+                          color: Color(0xfffef1e9),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
+                          )),
+                      //child:
+                      // Card(
+                      //     shape: BeveledRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(10.0),
+                      //     ),
+                      //     elevation: 4,
+                      //     child: const Padding(
+                      //       padding: EdgeInsets.all(20.0),
+                      //       child: SizedBox(
+                      //         child: Text("teddd"),
+                      //         height: 200,
+                      //       ),
+                      //     )),,
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const Text(
+                            "Education Details",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: SingleChildScrollView(
+                                child: Column(children: [
+                                  _education(),
+                                ]),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // AnimatedSwitcher(
+                    //   duration: const Duration(milliseconds: 500),
+                    //   switchInCurve: Curves.easeIn,
+                    //   switchOutCurve: Curves.easeOut,
+                    //   // child: _renderWidget(),
+
+                    //   transitionBuilder: (child, animation) {
+                    //     return SlideTransition(
+                    //       position: Tween<Offset>(
+                    //               begin: Offset(1.2, 0), end: Offset(0, 0))
+                    //           .animate(animation),
+                    //       child: child,
+                    //     );
+                    //   },
+                    //   // layoutBuilder: (currentChild, _) {
+                    //   //   return currentChild!;
+                    //   // },
+                    //   child: _renderWidget(),
+                    // ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget _education() {
+    return Container(
+      key: const Key('second'),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: educationController,
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.workspace_premium),
+                  label: const Text("Education"),
+                  //border: OutlineInputBorder(),
+                  border: InputBorder.none,
+                  hintText: 'Please enter first and last name',
+
+                  suffixIcon: PopupMenuButton<Map<String, String>>(
+                    icon: const Icon(Icons.arrow_drop_down),
+                    onSelected: (Map<String, String> value) {
+                      educationController.text = value['display'].toString();
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return [
+                        {
+                          "display": "Running",
+                          "value": "Running",
+                        },
+                        {
+                          "display": "Climbing",
+                          "value": "Climbing",
+                        },
+                        {
+                          "display": "Walking",
+                          "value": "Walking",
+                        },
+                        {
+                          "display": "Swimming",
+                          "value": "Swimming",
+                        },
+                        {
+                          "display": "Soccer Practice",
+                          "value": "Soccer Practice",
+                        },
+                        {
+                          "display": "Baseball Practice",
+                          "value": "Baseball Practice",
+                        },
+                        {
+                          "display": "Football Practice",
+                          "value": "Football Practice1",
+                        },
+                      ].map<PopupMenuItem<Map<String, String>>>((value) {
+                        return PopupMenuItem(
+                            child: Text(value['display'].toString()),
+                            value: value);
+                      }).toList();
+                    },
+                  ),
+                ),
+              ),
+              const TextField(
+                decoration: InputDecoration(
+                  icon: Icon(Icons.school),
+                  label: Text("Degree/Specialization"),
+                  //border: OutlineInputBorder(),
+                  border: InputBorder.none,
+                  hintText: 'Enter lated one',
+                ),
+              ),
+              const SizedBox(height: 20),
+              const TextField(
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  icon: Icon(Icons.location_city),
+                  label: Text("Univercity / Institute"),
+                  // border: OutlineInputBorder(),
+                  hintText: 'Enter Univercity / Institutre name',
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

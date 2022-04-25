@@ -1,0 +1,253 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/dashboard.dart';
+import 'package:job_circle/screens/login.dart';
+import 'package:job_circle/screens/profile/profile.dart';
+import 'package:job_circle/screens/profile/screen1.dart';
+
+class OTPScreen extends StatefulWidget {
+  const OTPScreen({Key? key}) : super(key: key);
+
+  @override
+  State<OTPScreen> createState() => _OTPScreenState();
+}
+
+class _OTPScreenState extends State<OTPScreen> {
+  // controller
+  late TextEditingController otpChar1Controller;
+  late TextEditingController otpChar2Controller;
+  late TextEditingController otpChar3Controller;
+  late TextEditingController otpChar4Controller;
+
+  late bool vrifyButtonDisabled = true;
+  late bool resendOtpHide = true;
+  late bool resendOtpTimerHide = false;
+
+  // focus node;
+  late FocusNode otpChar1FocusNode;
+  late FocusNode otpChar2FocusNode;
+  late FocusNode otpChar3FocusNode;
+  late FocusNode otpChar4FocusNode;
+
+  // variables
+  String strOTP = '';
+  final interval = const Duration(seconds: 1);
+  final int timerMaxSeconds = 10;
+  int currentSeconds = 0;
+  late Timer timerCountdown;
+
+  String get timerText =>
+      '${((timerMaxSeconds - currentSeconds) ~/ 60).toString().padLeft(2, '0')}: ${((timerMaxSeconds - currentSeconds) % 60).toString().padLeft(2, '0')}';
+
+  @override
+  void initState() {
+    super.initState();
+    otpChar1FocusNode = FocusNode();
+    //otpChar1FocusNode.requestFocus();
+    otpChar2FocusNode = FocusNode();
+    otpChar3FocusNode = FocusNode();
+    otpChar4FocusNode = FocusNode();
+
+    otpChar1Controller = TextEditingController();
+    otpChar2Controller = TextEditingController();
+    otpChar3Controller = TextEditingController();
+    otpChar4Controller = TextEditingController();
+
+    Future.delayed(Duration.zero, () {
+      otpChar1FocusNode.requestFocus();
+      timerCountdown = startTimer();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 100,
+          ),
+          const Text(
+            'We sent OTP to verify your number',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(
+            height: 50,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: otpChar1Controller,
+                  maxLength: 1,
+                  focusNode: otpChar1FocusNode,
+                  onChanged: ((value) => {
+                        if (value != "") {otpChar2FocusNode.requestFocus()},
+                        validateOtp()
+                      }),
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    counterText: "",
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: otpChar2Controller,
+                  maxLength: 1,
+                  focusNode: otpChar2FocusNode,
+                  onChanged: ((value) => {
+                        if (value == "")
+                          {otpChar1FocusNode.requestFocus()}
+                        else
+                          {otpChar3FocusNode.requestFocus()},
+                        validateOtp()
+                      }),
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    counterText: "",
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: otpChar3Controller,
+                  maxLength: 1,
+                  focusNode: otpChar3FocusNode,
+                  onChanged: ((value) => {
+                        if (value == "")
+                          {otpChar2FocusNode.requestFocus()}
+                        else
+                          {otpChar4FocusNode.requestFocus()},
+                        validateOtp()
+                      }),
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    counterText: "",
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                width: 50,
+                child: TextField(
+                  controller: otpChar4Controller,
+                  focusNode: otpChar4FocusNode,
+                  maxLength: 1,
+                  onChanged: ((value) => {
+                        strOTP += value.toString(),
+                        if (value == "") {otpChar3FocusNode.requestFocus()},
+                        validateOtp()
+                      }),
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    counterText: "",
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Container(
+            width: 230,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ThemeButton(
+                  width: 100,
+                  themeButtonSize: ThemeButtonSize.xsmall,
+                  isText: true,
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => const Login()));
+                  },
+                  text: "Resend OTP",
+                  hide: resendOtpHide,
+                ),
+                resendOtpTimerHide == false
+                    ? Text(
+                        timerText,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    : Container(),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 60,
+          ),
+          SizedBox(
+            width: 300,
+            child: ThemeButton(
+              disabled: vrifyButtonDisabled,
+              onPressed: () {
+                Future.delayed(const Duration(seconds: 2), () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => const Screen1()));
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("OTP Verified Successfully"),
+                ));
+              },
+              text: "VARIFY OTP",
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void validateOtp() {
+    if (otpChar1Controller.text != "" &&
+        otpChar2Controller.text != "" &&
+        otpChar3Controller.text != "" &&
+        otpChar4Controller.text != "") {
+      vrifyButtonDisabled = false;
+    } else {
+      vrifyButtonDisabled = true;
+    }
+    setState(() {});
+  }
+
+  @override
+  void deactivate() {
+    timerCountdown.cancel();
+    super.deactivate();
+  }
+
+  Timer startTimer() {
+    var duration = interval;
+    return Timer.periodic(duration, (timer) {
+      setState(() {
+        currentSeconds = timer.tick;
+        if (timer.tick >= timerMaxSeconds) {
+          resendOtpHide = false;
+          resendOtpTimerHide = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+}
