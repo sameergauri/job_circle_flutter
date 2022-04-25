@@ -47,12 +47,18 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 120,
               ),
-              const Text(
-                "Login",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
+              GestureDetector(
+                onTap: (() => Future.delayed(Duration.zero, () {
+                      BottomDialog().showBottomDialog(
+                          context, _buildDialogContent(context), false);
+                    })),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
               ),
               Expanded(
@@ -210,32 +216,36 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildContinueButton(BuildContext context) {
-    return Column(
-      children: [
-        ThemeButton(
-          text: "+919004390874",
-          disabled: false,
-          onPressed: () => {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const OTPScreen()))
-          },
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        ThemeButton(
-          onPressed: () {
-            setState(() {
-              isManual = true;
-            });
-            Navigator.of(context, rootNavigator: true).pop();
-            BottomDialog()
-                .showBottomDialog(context, _buildDialogContent(context), false);
-          },
-          text: 'Enter Manually',
-          isText: true,
-        )
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ThemeButton(
+            text: "+919004390874",
+            disabled: false,
+            onPressed: () => {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OTPScreen()),
+                  (Route<dynamic> route) => false)
+            },
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          ThemeButton(
+            onPressed: () {
+              setState(() {
+                isManual = true;
+              });
+              Navigator.of(context, rootNavigator: true).pop();
+              BottomDialog().showBottomDialog(
+                  context, _buildDialogContent(context), false);
+            },
+            text: 'Enter Manually',
+            isText: true,
+          )
+        ],
+      ),
     );
   }
 
@@ -259,12 +269,16 @@ class _LoginState extends State<Login> {
         ThemeButton(
           text: "Confirm",
           onPressed: () {
-            setState(() {
-              isManual = true;
-            });
-            Navigator.of(context, rootNavigator: true).pop();
-            BottomDialog()
-                .showBottomDialog(context, _buildDialogContent(context), false);
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const OTPScreen()),
+                (Route<dynamic> route) => false);
+            // setState(() {
+            //   isManual = true;
+            // });
+            // Navigator.of(context, rootNavigator: true).pop();
+            // BottomDialog()
+            //     .showBottomDialog(context, _buildDialogContent(context), false);
           },
         ),
       ],

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/dashboard.dart';
-import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/splash.dart';
 
 void main() {
@@ -15,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true,
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
           // This is the theme of your application.
@@ -29,7 +26,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primaryColor: const Color(0xFFA32219),
           primarySwatch: Colors.red),
-      home: const Login(),
+      home: const SplashScreen(),
     );
   }
 }

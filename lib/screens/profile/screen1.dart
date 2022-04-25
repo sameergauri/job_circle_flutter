@@ -35,7 +35,7 @@ class _Screen1State extends State<Screen1> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Screen2()));
               },
               text: "NEXT",
@@ -183,7 +183,7 @@ class _Screen1State extends State<Screen1> {
                   hintText: 'Please enter first and last name',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -193,7 +193,7 @@ class _Screen1State extends State<Screen1> {
                   hintText: 'Enter Job city',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -203,7 +203,7 @@ class _Screen1State extends State<Screen1> {
                   hintText: 'Enter Job Location',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -213,7 +213,7 @@ class _Screen1State extends State<Screen1> {
                   hintText: 'Enter Mobile Number',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Row(
                 children: [
                   Container(

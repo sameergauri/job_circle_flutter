@@ -43,8 +43,10 @@ class _Screen3State extends State<Screen3> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => const Jobs()));
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Jobs()),
+                    (Route<dynamic> route) => false);
               },
               text: "NEXT",
               themeButtonSize: ThemeButtonSize.large,
@@ -209,6 +211,7 @@ class _Screen3State extends State<Screen3> {
                 hintText: 'Enter last job title',
               ),
             ),
+            const SizedBox(height: 10),
             const TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,

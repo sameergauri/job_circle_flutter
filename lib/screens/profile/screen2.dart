@@ -42,7 +42,7 @@ class _Screen2State extends State<Screen2> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Screen3()));
               },
               text: "NEXT",
@@ -215,6 +215,7 @@ class _Screen2State extends State<Screen2> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   icon: Icon(Icons.school),
@@ -224,6 +225,7 @@ class _Screen2State extends State<Screen2> {
                   hintText: 'Enter lated one',
                 ),
               ),
+              const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   border: InputBorder.none,
