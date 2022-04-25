@@ -28,7 +28,7 @@ class _Screen2State extends State<Screen2> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text("JOB CIRCLE"),
+          title: const Text(" "),
         ),
         bottomNavigationBar: Container(
           color: Colors.white,
@@ -50,33 +50,43 @@ class _Screen2State extends State<Screen2> {
             ),
           ),
         ),
-        backgroundColor: const Color(0xffed2738),
+        backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           bottom: false,
           child: Column(
             children: [
-              // Card(
-              //     shape: BeveledRectangleBorder(
-              //       borderRadius: BorderRadius.circular(10.0),
-              //     ),
-              //     elevation: 4,
-              //     child: const Padding(
-              //       padding: EdgeInsets.all(20.0),
-              //       child: SizedBox(
-              //         child: Text("teddd"),
-              //         height: 50,
-              //       ),
-              //     )),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/education.png",
+                    height: 40,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const Text(
+                    "Education",
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
               Expanded(
                 child: Stack(
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 100),
+                      margin: const EdgeInsets.only(top: 20),
                       decoration: const BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: Color.fromARGB(255, 208, 208, 208),
-                              blurRadius: 10.0,
+                              color: Color.fromARGB(255, 39, 39, 39),
+                              blurRadius: 17.0,
                               offset: Offset(2, 2),
                             ),
                           ],
@@ -102,13 +112,6 @@ class _Screen2State extends State<Screen2> {
                         children: [
                           const SizedBox(
                             height: 20,
-                          ),
-                          const Text(
-                            "Education Details",
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
                           ),
                           Expanded(
                             child: Padding(
@@ -221,7 +224,6 @@ class _Screen2State extends State<Screen2> {
                   hintText: 'Enter lated one',
                 ),
               ),
-              const SizedBox(height: 20),
               const TextField(
                 decoration: InputDecoration(
                   border: InputBorder.none,

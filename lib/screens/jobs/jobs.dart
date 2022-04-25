@@ -20,10 +20,18 @@ class _JobsState extends State<Jobs> {
 
   @override
   Widget build(BuildContext context) {
+    var _selectedIndex = 1;
     return Scaffold(
         appBar: AppBar(
           title: const Text("Jobs"),
+          bottom: const PreferredSize(
+              child: Text(
+                "Search New Jobs",
+                style: TextStyle(color: Colors.white),
+              ),
+              preferredSize: Size.zero),
           elevation: 0,
+          backgroundColor: Theme.of(context).primaryColor,
           actions: [
             SizedBox(
               width: 100,
@@ -39,7 +47,44 @@ class _JobsState extends State<Jobs> {
             ),
           ],
         ),
-        backgroundColor: Colors.red,
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Color.fromARGB(255, 124, 124, 124),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.roofing_outlined),
+                    activeIcon: Icon(Icons.roofing),
+                    label: 'Home',
+                    backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.dashboard_customize_outlined),
+                  activeIcon: Icon(Icons.dashboard_customize_rounded),
+                  label: 'Jobs',
+                  backgroundColor: Colors.blue,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.account_circle_outlined),
+                  activeIcon: Icon(Icons.account_circle_rounded),
+                  label: 'Profile',
+                  backgroundColor: Colors.blue,
+                ),
+              ],
+              type: BottomNavigationBarType.fixed,
+              currentIndex: _selectedIndex,
+              unselectedItemColor: Colors.black45,
+              selectedItemColor: Theme.of(context).primaryColor,
+              iconSize: 30,
+              onTap: (int) {},
+              elevation: 100),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -55,12 +100,13 @@ class _JobsState extends State<Jobs> {
                           {selectedJobTypeIndex = index, setState(() {})}),
                       child: Container(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: index < filterJobType.length ? 5 : 0),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                             color: selectedJobTypeIndex == index
                                 ? Colors.white.withOpacity(0.7)
-                                : Colors.transparent,
+                                : Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(60)),
                         child: Text(
                           filterJobType[index].toString(),
@@ -88,19 +134,20 @@ class _JobsState extends State<Jobs> {
                     Container(
                       height: double.infinity,
                       margin: const EdgeInsets.only(top: 0),
-                      padding: const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.only(top: 0),
                       decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(255, 208, 208, 208),
-                              blurRadius: 10.0,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                          color: Color(0xfffef1e9),
+                          // boxShadow: [
+                          //   BoxShadow(
+                          //     color: Color.fromARGB(255, 245, 245, 245),
+                          //     blurRadius: 10.0,
+                          //     offset: Offset(2, 2),
+                          //   ),
+                          // ],
+                          color: Colors.white,
+                          //  color: Color(0xfff0f1fe),
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
                           )),
                       child: Column(
                         children: [
@@ -109,29 +156,38 @@ class _JobsState extends State<Jobs> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: const [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
+                                SizedBox(
+                                  height: 40,
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    child: Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.filter_alt_outlined,
+                                          color: Colors.black,
+                                        ),
+                                        SizedBox(
+                                          width: 4,
+                                        ),
+                                        Text(
+                                          "Filter",
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      "Filtered Result",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                                 SizedBox(
-                                  height: 80,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                  height: 60,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Text("Sort by"),
+                                      // const Text("Sort by"),
+                                      const Icon(Icons.filter_list),
                                       DropdownButton<String>(
                                         style: const TextStyle(
                                             color: Colors.black87,
@@ -146,7 +202,12 @@ class _JobsState extends State<Jobs> {
                                         ].map((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
-                                            child: Text(value),
+                                            child: Text(value,
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           );
                                         }).toList(),
                                         onChanged: (_) {},
@@ -160,9 +221,10 @@ class _JobsState extends State<Jobs> {
                           Expanded(
                             flex: 1,
                             child: ListView.builder(
+                              shrinkWrap: true,
                               itemBuilder: (BuildContext, index) {
                                 return Card(
-                                  margin: EdgeInsets.only(bottom: 30),
+                                  margin: const EdgeInsets.only(bottom: 30),
                                   elevation: 0,
                                   color: Colors.transparent,
                                   shape: RoundedRectangleBorder(
@@ -176,31 +238,38 @@ class _JobsState extends State<Jobs> {
                                           children: [
                                             Image.network(
                                               'https://www.adityabirla.com/Assets/images/our-download-logo.png',
-                                              height: 100,
-                                              width: 100,
+                                              errorBuilder: ((context, error,
+                                                      stackTrace) =>
+                                                  Image.asset(
+                                                      "assets/images/male.png",
+                                                      height: 140,
+                                                      width: 120,
+                                                      fit: BoxFit.contain)),
+                                              height: 140,
+                                              width: 120,
                                               fit: BoxFit.contain,
                                             ),
                                             Container(
-                                              height: 100,
-                                              width: 100,
+                                              height: 140,
+                                              width: 120,
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                                 backgroundBlendMode:
                                                     BlendMode.darken,
-                                                gradient: LinearGradient(
+                                                gradient: const LinearGradient(
                                                     begin: FractionalOffset
                                                         .topCenter,
                                                     end: FractionalOffset
                                                         .bottomCenter,
                                                     colors: [
-                                                      Colors.grey
-                                                          .withOpacity(0.2),
-                                                      Colors.black
-                                                          .withOpacity(0.4),
+                                                      Color.fromARGB(
+                                                          57, 158, 158, 158),
+                                                      Color.fromARGB(
+                                                          203, 0, 0, 0),
                                                     ],
-                                                    stops: const [
-                                                      0.0,
+                                                    stops: [
+                                                      0.8,
                                                       1.0
                                                     ]),
                                               ),
@@ -214,16 +283,20 @@ class _JobsState extends State<Jobs> {
                                                       CrossAxisAlignment.end,
                                                   children: const [
                                                     Text(
-                                                      "",
+                                                      "  ",
                                                       style: TextStyle(
                                                           color: Colors.white,
+                                                          fontSize: 11,
                                                           fontWeight:
-                                                              FontWeight.w400),
+                                                              FontWeight.bold),
                                                     )
                                                   ],
                                                 ),
                                               ),
                                             ),
+                                            Container(
+                                              color: Colors.amber,
+                                            )
                                           ],
                                         ),
                                         // Container(
@@ -273,7 +346,7 @@ class _JobsState extends State<Jobs> {
                                         //   // ),
                                         // ),
                                         const SizedBox(
-                                          width: 10,
+                                          width: 20,
                                         ),
                                         Expanded(
                                             flex: 1,
@@ -282,7 +355,10 @@ class _JobsState extends State<Jobs> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 const Text(
-                                                  "ICICI Lombard",
+                                                  "Aditya birla Private limited ",
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w700,
@@ -310,12 +386,13 @@ class _JobsState extends State<Jobs> {
                                                       Icons.location_city,
                                                       size: 17,
                                                     ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
                                                     Text(
                                                       "Andheri",
                                                       style: TextStyle(
                                                           color: Colors.black54,
-                                                          fontWeight:
-                                                              FontWeight.bold,
                                                           fontSize: 14),
                                                     ),
                                                   ],
@@ -326,7 +403,8 @@ class _JobsState extends State<Jobs> {
                                                 ThemeButton(
                                                   onPressed: () {},
                                                   text: "APPLY",
-                                                  width: 100,
+                                                  width: 130,
+                                                  radious: 5,
                                                   color: Colors.green,
                                                   themeButtonSize:
                                                       ThemeButtonSize.xsmall,
@@ -348,8 +426,7 @@ class _JobsState extends State<Jobs> {
                                   // ),
                                 );
                               },
-                              itemCount: 33,
-                              shrinkWrap: true,
+                              itemCount: 8,
                               padding: const EdgeInsets.all(5),
                               scrollDirection: Axis.vertical,
                             ),

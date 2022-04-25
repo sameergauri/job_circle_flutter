@@ -33,13 +33,14 @@ class _LoginState extends State<Login> {
               Container(
                 height: 160.0,
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(60),
                       bottomRight: Radius.circular(60)),
-                  color: Colors.redAccent,
+                  color: Theme.of(context).primaryColor,
                   boxShadow: [
-                    BoxShadow(color: Colors.red, spreadRadius: 3),
+                    BoxShadow(
+                        color: Theme.of(context).primaryColor, spreadRadius: 3),
                   ],
                 ),
               ),

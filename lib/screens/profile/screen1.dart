@@ -21,7 +21,7 @@ class _Screen1State extends State<Screen1> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text("JOB CIRCLE"),
+          title: const Text(""),
         ),
         bottomNavigationBar: Container(
           color: Colors.white,
@@ -43,11 +43,33 @@ class _Screen1State extends State<Screen1> {
             ),
           ),
         ),
-        backgroundColor: const Color(0xffed2738),
+        backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           bottom: false,
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/id-card.png",
+                    height: 40,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const Text(
+                    "Basic Info",
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
               // Card(
               //     shape: BeveledRectangleBorder(
               //       borderRadius: BorderRadius.circular(10.0),
@@ -64,12 +86,12 @@ class _Screen1State extends State<Screen1> {
                 child: Stack(
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 100),
-                       decoration: const BoxDecoration(
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: const BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: Color.fromARGB(255, 208, 208, 208),
-                              blurRadius: 10.0,
+                              color: Color.fromARGB(255, 39, 39, 39),
+                              blurRadius: 17.0,
                               offset: Offset(2, 2),
                             ),
                           ],
@@ -93,16 +115,16 @@ class _Screen1State extends State<Screen1> {
                       //     )),,
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          const Text(
-                            "Basic Info",
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
+                          // const Text(
+                          //   "Basic Info",
+                          //   style: TextStyle(
+                          //     fontSize: 30,
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 20),
