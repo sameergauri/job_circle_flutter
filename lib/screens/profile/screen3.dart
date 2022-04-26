@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
 
@@ -45,7 +46,7 @@ class _Screen3State extends State<Screen3> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const Jobs()),
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
                     (Route<dynamic> route) => false);
               },
               text: "NEXT",

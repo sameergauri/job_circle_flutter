@@ -24,7 +24,7 @@ class _Screen1State extends State<Screen1> {
           title: const Text(""),
         ),
         bottomNavigationBar: Container(
-          color: Colors.white,
+          color: Color(0xfffef1e9),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: ThemeButton(
@@ -39,7 +39,7 @@ class _Screen1State extends State<Screen1> {
                     MaterialPageRoute(builder: (context) => const Screen2()));
               },
               text: "NEXT",
-              themeButtonSize: ThemeButtonSize.large,
+              themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
 
 class Jobs extends StatefulWidget {
   const Jobs({Key? key}) : super(key: key);
@@ -48,43 +49,6 @@ class _JobsState extends State<Jobs> {
               ]),
             ),
           ],
-        ),
-        bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Color.fromARGB(255, 124, 124, 124),
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.roofing_outlined),
-                    activeIcon: Icon(Icons.roofing),
-                    label: 'Home',
-                    backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard_customize_outlined),
-                  activeIcon: Icon(Icons.dashboard_customize_rounded),
-                  label: 'Jobs',
-                  backgroundColor: Colors.blue,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.account_circle_outlined),
-                  activeIcon: Icon(Icons.account_circle_rounded),
-                  label: 'Profile',
-                  backgroundColor: Colors.blue,
-                ),
-              ],
-              type: BottomNavigationBarType.fixed,
-              currentIndex: _selectedIndex,
-              unselectedItemColor: Colors.black45,
-              selectedItemColor: Theme.of(context).primaryColor,
-              iconSize: 30,
-              onTap: (int) {},
-              elevation: 100),
         ),
         backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
@@ -254,7 +218,7 @@ class _JobsState extends State<Jobs> {
                                         style: const TextStyle(
                                             color: Colors.black87,
                                             fontWeight: FontWeight.bold),
-                                        value: "Salary - high to low",
+                                        value: "Recomended",
                                         alignment: Alignment.bottomRight,
                                         items: <String>[
                                           'Recomended',
@@ -265,7 +229,7 @@ class _JobsState extends State<Jobs> {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     color: Colors.black,
                                                     fontSize: 16,
                                                     fontWeight:
@@ -361,52 +325,6 @@ class _JobsState extends State<Jobs> {
                                             )
                                           ],
                                         ),
-                                        // Container(
-                                        //   width: 100,
-                                        //   height: 100,
-                                        //   child: ShaderMask(
-                                        //     shaderCallback: (rect) {
-                                        //       return LinearGradient(
-                                        //         begin: Alignment.topCenter,
-                                        //         end: Alignment.bottomCenter,
-                                        //         colors: [
-                                        //           Colors.transparent,
-                                        //           Color.fromARGB(30, 0, 0, 0),
-                                        //           Color.fromARGB(65, 0, 0, 0),
-                                        //         ],
-                                        //       ).createShader(Rect.fromLTRB(0, 0,
-                                        //           rect.width, rect.height));
-                                        //     },
-                                        //     blendMode: BlendMode.darken,
-                                        //     child: Image.network(
-                                        //       'https://cdn-web.heartfulness.org/en/wp-content/uploads/2020/06/ICICI-Logo-iyd.jpg',
-                                        //       height: 90,
-                                        //       fit: BoxFit.contain,
-                                        //     ),
-                                        //   ),
-                                        //   // decoration: BoxDecoration(
-                                        //   //   backgroundBlendMode:
-                                        //   //       BlendMode.darken,
-                                        //   //   gradient: LinearGradient(
-                                        //   //       begin:
-                                        //   //           FractionalOffset.topCenter,
-                                        //   //       end: FractionalOffset
-                                        //   //           .bottomCenter,
-                                        //   //       colors: [
-                                        //   //         Colors.grey.withOpacity(0.0),
-                                        //   //         Colors.black,
-                                        //   //       ],
-                                        //   //       stops: [
-                                        //   //         0.0,
-                                        //   //         1.0
-                                        //   //       ]),
-                                        //   //   image: DecorationImage(
-                                        //   //     image: NetworkImage(
-                                        //   //         "https://cdn-web.heartfulness.org/en/wp-content/uploads/2020/06/ICICI-Logo-iyd.jpg"),
-                                        //   //     fit: BoxFit.fitWidth,
-                                        //   //   ),
-                                        //   // ),
-                                        // ),
                                         const SizedBox(
                                           width: 20,
                                         ),
@@ -472,7 +390,22 @@ class _JobsState extends State<Jobs> {
                                                       ThemeButtonSize.xsmall,
                                                 )
                                               ],
-                                            ))
+                                            )),
+                                        TextButton(
+                                          onPressed: (() {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const JobDetails()));
+                                          }),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: const [
+                                              Icon(Icons.navigate_next)
+                                            ],
+                                          ),
+                                        )
                                       ],
                                     ),
                                   ),

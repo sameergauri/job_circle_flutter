@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/screens/jobs/jobs.dart';
+import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/splash.dart';
 
 void main() {
