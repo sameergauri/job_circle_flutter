@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class JobDetails extends StatefulWidget {
   const JobDetails({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class JobDetails extends StatefulWidget {
 class _JobDetailsState extends State<JobDetails> {
   ScrollController _scrollController = ScrollController();
   final Color appBgColor = Color(0xFFdfdfe9);
-  final Color appBgScrolledColor = Color(0xFFFFFFFF);
+  final Color appBgScrolledColor = Constants.bgPanelColor;
   late Color currentAppBarColor = appBgColor;
   late double appBarElevate = 0;
   @override
@@ -46,6 +47,7 @@ class _JobDetailsState extends State<JobDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(""),
         // bottom: const PreferredSize(
@@ -71,8 +73,9 @@ class _JobDetailsState extends State<JobDetails> {
           ),
         ],
       ),
+      backgroundColor: Constants.bgPanelColor,
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: Constants.bgPanelColor,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: ThemeButton(
@@ -118,7 +121,7 @@ class _JobDetailsState extends State<JobDetails> {
                 children: [
                   Container(
                     decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Constants.bgPanelColor,
                         boxShadow: [
                           BoxShadow(
                               color: Color.fromARGB(255, 213, 213, 213),
@@ -194,9 +197,10 @@ class _JobDetailsState extends State<JobDetails> {
               height: 30,
             ),
             SizedBox(
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: Card(
+                  color: Constants.bgPanelColor,
                   elevation: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

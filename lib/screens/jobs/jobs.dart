@@ -3,6 +3,7 @@ import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class Jobs extends StatefulWidget {
   const Jobs({Key? key}) : super(key: key);
@@ -109,7 +110,7 @@ class _JobsState extends State<Jobs> {
                           //     offset: Offset(2, 2),
                           //   ),
                           // ],
-                          color: Colors.white,
+                          color: Constants.bgPanelColor,
                           //  color: Color(0xfff0f1fe),
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
@@ -249,177 +250,7 @@ class _JobsState extends State<Jobs> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemBuilder: (BuildContext, index) {
-                                return Card(
-                                  margin: const EdgeInsets.only(bottom: 30),
-                                  elevation: 0,
-                                  color: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 15),
-                                    child: Row(
-                                      children: [
-                                        Stack(
-                                          children: [
-                                            Image.network(
-                                              'https://www.adityabirla.com/Assets/images/our-download-logo.png',
-                                              errorBuilder: ((context, error,
-                                                      stackTrace) =>
-                                                  Image.asset(
-                                                      "assets/images/male.png",
-                                                      height: 140,
-                                                      width: 120,
-                                                      fit: BoxFit.contain)),
-                                              height: 140,
-                                              width: 120,
-                                              fit: BoxFit.contain,
-                                            ),
-                                            Container(
-                                              height: 140,
-                                              width: 120,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                backgroundBlendMode:
-                                                    BlendMode.darken,
-                                                gradient: const LinearGradient(
-                                                    begin: FractionalOffset
-                                                        .topCenter,
-                                                    end: FractionalOffset
-                                                        .bottomCenter,
-                                                    colors: [
-                                                      Color.fromARGB(
-                                                          57, 158, 158, 158),
-                                                      Color.fromARGB(
-                                                          203, 0, 0, 0),
-                                                    ],
-                                                    stops: [
-                                                      0.8,
-                                                      1.0
-                                                    ]),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: const [
-                                                    Text(
-                                                      "  ",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 11,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              color: Colors.amber,
-                                            )
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                          width: 20,
-                                        ),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const Text(
-                                                  "Aditya birla Private limited ",
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      fontSize: 18),
-                                                ),
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                const Text(
-                                                  "CRT(Service)",
-                                                  style: TextStyle(
-                                                      color: Colors.black54,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14),
-                                                ),
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: const [
-                                                    Icon(
-                                                      Icons.location_city,
-                                                      size: 17,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                      "Andheri",
-                                                      style: TextStyle(
-                                                          color: Colors.black54,
-                                                          fontSize: 14),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                ThemeButton(
-                                                  onPressed: () {},
-                                                  text: "APPLY",
-                                                  width: 130,
-                                                  radious: 5,
-                                                  color: Colors.green,
-                                                  themeButtonSize:
-                                                      ThemeButtonSize.xsmall,
-                                                )
-                                              ],
-                                            )),
-                                        TextButton(
-                                          onPressed: (() {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const JobDetails()));
-                                          }),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: const [
-                                              Icon(Icons.navigate_next)
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-
-                                  // ListTile(
-                                  //   leading: Image.asset(
-                                  //       "assets/images/male.png",
-                                  //       height: 90),
-                                  //   title: const Text("This is title"),
-                                  //   subtitle: const Text("This is subtitle"),
-                                  //   trailing: const Text("This is subtitle"),
-
-                                  // ),
-                                );
+                                return listViewItem(context, index);
                               },
                               itemCount: 8,
                               padding: const EdgeInsets.all(5),
@@ -435,5 +266,143 @@ class _JobsState extends State<Jobs> {
             ],
           ),
         ));
+  }
+
+  Widget listViewItem(BuildContext context, int index) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 30),
+      elevation: 0,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15, right: 15),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                Image.network(
+                  'https://www.adityabirla.com/Assets/images/our-download-logo.png',
+                  errorBuilder: ((context, error, stackTrace) => Image.asset(
+                      "assets/images/male.png",
+                      height: 140,
+                      width: 120,
+                      fit: BoxFit.contain)),
+                  height: 140,
+                  width: 120,
+                  fit: BoxFit.contain,
+                ),
+                Container(
+                  height: 140,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    backgroundBlendMode: BlendMode.darken,
+                    gradient: const LinearGradient(
+                        begin: FractionalOffset.topCenter,
+                        end: FractionalOffset.bottomCenter,
+                        colors: [
+                          Color.fromARGB(57, 158, 158, 158),
+                          Color.fromARGB(203, 0, 0, 0),
+                        ],
+                        stops: [
+                          0.8,
+                          1.0
+                        ]),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: const [
+                        Text(
+                          "  ",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  color: Colors.amber,
+                )
+              ],
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Aditya birla Private limited ",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    const Text(
+                      "CRT(Service)",
+                      style: TextStyle(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.location_city,
+                          size: 17,
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          "Andheri",
+                          style: TextStyle(color: Colors.black54, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    ThemeButton(
+                      onPressed: () {},
+                      text: "APPLY",
+                      width: 130,
+                      radious: 5,
+                      color: Colors.green,
+                      themeButtonSize: ThemeButtonSize.xsmall,
+                    )
+                  ],
+                )),
+            TextButton(
+              onPressed: (() {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const JobDetails()));
+              }),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: const [Icon(Icons.navigate_next)],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

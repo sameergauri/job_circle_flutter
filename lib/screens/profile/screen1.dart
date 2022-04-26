@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class Screen1 extends StatefulWidget {
   const Screen1({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _Screen1State extends State<Screen1> {
           title: const Text(""),
         ),
         bottomNavigationBar: Container(
-          color: Color(0xfffef1e9),
+          color: Constants.bgPanelColor,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: ThemeButton(
@@ -95,7 +96,7 @@ class _Screen1State extends State<Screen1> {
                               offset: Offset(2, 2),
                             ),
                           ],
-                          color: Color(0xfffef1e9),
+                          color: Constants.bgPanelColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(40),
                             topRight: Radius.circular(40),

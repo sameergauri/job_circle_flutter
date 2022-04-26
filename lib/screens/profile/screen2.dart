@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class Screen2 extends StatefulWidget {
   const Screen2({Key? key}) : super(key: key);
@@ -31,7 +32,7 @@ class _Screen2State extends State<Screen2> {
           title: const Text(" "),
         ),
         bottomNavigationBar: Container(
-          color: Colors.white,
+          color: Constants.bgPanelColor,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: ThemeButton(
@@ -46,7 +47,7 @@ class _Screen2State extends State<Screen2> {
                     MaterialPageRoute(builder: (context) => const Screen3()));
               },
               text: "NEXT",
-              themeButtonSize: ThemeButtonSize.large,
+              themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
         ),

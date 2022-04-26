@@ -4,6 +4,7 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class Screen3 extends StatefulWidget {
   const Screen3({Key? key}) : super(key: key);
@@ -33,7 +34,7 @@ class _Screen3State extends State<Screen3> {
           title: const Text(""),
         ),
         bottomNavigationBar: Container(
-          color: Colors.white,
+          color: Constants.bgPanelColor,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: ThemeButton(
@@ -50,7 +51,7 @@ class _Screen3State extends State<Screen3> {
                     (Route<dynamic> route) => false);
               },
               text: "NEXT",
-              themeButtonSize: ThemeButtonSize.large,
+              themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
         ),
