@@ -106,7 +106,7 @@ class _DashboardState extends State<Dashboard> {
                       //     )),,
                       child: Column(
                         children: [
-                          SizedBox(
+                         const SizedBox(
                             height: 20,
                           ),
                           const Text(
@@ -164,8 +164,8 @@ class _DashboardState extends State<Dashboard> {
       height: 50,
       color: Colors.teal,
       child: const Center(
-        child: const Text('basic',
-            style: const TextStyle(fontSize: 24, color: Colors.white)),
+        child:  Text('basic',
+            style:  TextStyle(fontSize: 24, color: Colors.white)),
       ),
     );
   }
@@ -256,11 +256,10 @@ class _DashboardState extends State<Dashboard> {
       height: 50,
       color: Colors.teal,
       child: const Center(
-        child: const Text('Experience',
-            style: const TextStyle(fontSize: 24, color: Colors.white)),
+        child:  Text('Experience',
+            style:  TextStyle(fontSize: 24, color: Colors.white)),
       ),
     );
-    ;
   }
 
   Widget _renderWidget() {
