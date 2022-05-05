@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -17,11 +18,9 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(
-        const Duration(seconds: 5),
-        () => Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const Login()),
-            (Route<dynamic> route) => false));
+        const Duration(seconds: 2),
+        () => Navigator.pushNamedAndRemoveUntil(
+            context, ERoute.login.name, (Route<dynamic> route) => false));
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
-import 'package:job_circle/screens/otp.dart';
+import 'package:job_circle/enums/enums.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -246,9 +246,7 @@ class _LoginState extends State<Login> {
             text: "+919004390874",
             disabled: false,
             onPressed: () => {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const OTPScreen()),
+              Navigator.pushNamedAndRemoveUntil(context, ERoute.otpscreen.name,
                   (Route<dynamic> route) => false)
             },
           ),
@@ -292,9 +290,7 @@ class _LoginState extends State<Login> {
         ThemeButton(
           text: "Confirm",
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const OTPScreen()),
+            Navigator.pushNamedAndRemoveUntil(context, ERoute.otpscreen.name,
                 (Route<dynamic> route) => false);
             // setState(() {
             //   isManual = true;

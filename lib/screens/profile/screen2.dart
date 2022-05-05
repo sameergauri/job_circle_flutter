@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class Screen2 extends StatefulWidget {
@@ -43,8 +42,7 @@ class _Screen2State extends State<Screen2> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const Screen3()));
+                Navigator.pushNamed(context, ERoute.screen3.name);
               },
               text: "NEXT",
               themeButtonSize: ThemeButtonSize.medium,

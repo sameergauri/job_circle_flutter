@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
-import 'package:job_circle/screens/splash.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/routes/router.dart';
 import 'package:job_circle/themes/colors.dart';
 
 void main() {
@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primaryColor: Constants.themeBgColor,
           primarySwatch: Constants.theme),
-      home: const Screen2(),
+      routes: ApplicationRouter.appRouter,
+      initialRoute: ERoute.splash.toString(),
     );
   }
 }

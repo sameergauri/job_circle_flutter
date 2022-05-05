@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
-import 'package:job_circle/components/theme_button.dart';
-import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -55,42 +53,67 @@ class _JobsState extends State<Jobs> {
         body: SafeArea(
           child: Column(
             children: [
-              const SizedBox(
+              SizedBox(
                 height: 10,
               ),
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  itemBuilder: (BuildContext, index) {
-                    return GestureDetector(
-                      onTap: (() =>
-                          {selectedJobTypeIndex = index, setState(() {})}),
-                      child: Container(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.symmetric(
-                            horizontal: index < filterJobType.length ? 5 : 0),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                            color: selectedJobTypeIndex == index
-                                ? Colors.white.withOpacity(0.7)
-                                : Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(60)),
-                        child: Text(
-                          filterJobType[index].toString(),
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: selectedJobTypeIndex == index
-                                  ? Colors.black
-                                  : Colors.white),
-                        ),
-                      ),
-                    );
-                  },
-                  itemCount: filterJobType.length,
-                  padding: const EdgeInsets.all(5),
-                  scrollDirection: Axis.horizontal,
+              Container(
+                decoration: BoxDecoration(
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: Color.fromARGB(255, 245, 245, 245),
+                  //     blurRadius: 10.0,
+                  //     offset: Offset(2, 2),
+                  //   ),
+                  // ],
+                  color: Constants.bgPanelColor,
+                  image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: NetworkImage(
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg3ffFjB4Z_ooJpcHbAUcP0m76QDcM6G7BHA&usqp=CAU")),
+
+                  //  color: Color(0xfff0f1fe),
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                height: 60,
+                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                width: double.infinity,
               ),
+              // const SizedBox(
+              //   height: 10,
+              // ),
+              // SizedBox(
+              //   height: 40,
+              //   child: ListView.builder(
+              //     itemBuilder: (BuildContext, index) {
+              //       return GestureDetector(
+              //         onTap: (() =>
+              //             {selectedJobTypeIndex = index, setState(() {})}),
+              //         child: Container(
+              //           alignment: Alignment.center,
+              //           margin: EdgeInsets.symmetric(
+              //               horizontal: index < filterJobType.length ? 5 : 0),
+              //           padding: const EdgeInsets.symmetric(horizontal: 20),
+              //           decoration: BoxDecoration(
+              //               color: selectedJobTypeIndex == index
+              //                   ? Colors.white.withOpacity(0.7)
+              //                   : Colors.white.withOpacity(0.2),
+              //               borderRadius: BorderRadius.circular(60)),
+              //           child: Text(
+              //             filterJobType[index].toString(),
+              //             style: TextStyle(
+              //                 fontSize: 16,
+              //                 color: selectedJobTypeIndex == index
+              //                     ? Colors.black
+              //                     : Colors.white),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //     itemCount: filterJobType.length,
+              //     padding: const EdgeInsets.all(5),
+              //     scrollDirection: Axis.horizontal,
+              //   ),
+              // ),
               const SizedBox(
                 height: 10,
               ),
@@ -172,15 +195,15 @@ class _JobsState extends State<Jobs> {
                                                             width:
                                                                 double.infinity,
                                                           ),
-                                                          ThemeButton(
-                                                            onPressed: () {},
-                                                            text: "APPLY",
-                                                            width: 130,
-                                                            radious: 5,
-                                                            themeButtonSize:
-                                                                ThemeButtonSize
-                                                                    .small,
-                                                          )
+                                                          // ThemeButton(
+                                                          //   onPressed: () {},
+                                                          //   text: "APPLY",
+                                                          //   width: 130,
+                                                          //   radious: 5,
+                                                          //   themeButtonSize:
+                                                          //       ThemeButtonSize
+                                                          //           .small,
+                                                          // )
                                                         ])),
                                                   ],
                                                 )),
@@ -250,7 +273,15 @@ class _JobsState extends State<Jobs> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemBuilder: (BuildContext, index) {
-                                return listViewItem(context, index);
+                                return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const JobDetails()));
+                                    },
+                                    child: listViewItem(context, index));
                               },
                               itemCount: 8,
                               padding: const EdgeInsets.all(5),
@@ -378,22 +409,22 @@ class _JobsState extends State<Jobs> {
                     const SizedBox(
                       height: 5,
                     ),
-                    ThemeButton(
-                      onPressed: () {},
-                      text: "APPLY",
-                      width: 130,
-                      radious: 5,
-                      color: Colors.green,
-                      themeButtonSize: ThemeButtonSize.xsmall,
-                    )
+                    // ThemeButton(
+                    //   onPressed: () {},
+                    //   text: "APPLY",
+                    //   width: 130,
+                    //   radious: 5,
+                    //   color: Colors.green,
+                    //   themeButtonSize: ThemeButtonSize.xsmall,
+                    // )
                   ],
                 )),
             TextButton(
               onPressed: (() {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const JobDetails()));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => const JobDetails()));
               }),
               child: Row(
                 mainAxisSize: MainAxisSize.max,

@@ -3,10 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/dashboard.dart';
-import 'package:job_circle/screens/login.dart';
-import 'package:job_circle/screens/profile/profile.dart';
-import 'package:job_circle/screens/profile/screen1.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({Key? key}) : super(key: key);
@@ -179,8 +175,7 @@ class _OTPScreenState extends State<OTPScreen> {
                   themeButtonSize: ThemeButtonSize.xsmall,
                   isText: true,
                   onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const Login()));
+                    Navigator.pushReplacementNamed(context, ERoute.login.name);
                   },
                   text: "Resend OTP",
                   hide: resendOtpHide,
@@ -203,8 +198,7 @@ class _OTPScreenState extends State<OTPScreen> {
               disabled: vrifyButtonDisabled,
               onPressed: () {
                 Future.delayed(const Duration(seconds: 2), () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Screen1()));
+                  Navigator.pushReplacementNamed(context, ERoute.screen1.name);
                 });
 
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

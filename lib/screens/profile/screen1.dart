@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class Screen1 extends StatefulWidget {
@@ -39,8 +37,7 @@ class _Screen1State extends State<Screen1> {
               radious: 0,
               onPressed: () {
                 if (basicForm.currentState!.validate()) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const Screen2()));
+                  Navigator.pushNamed(context, ERoute.screen2.name);
                 }
               },
               text: "NEXT",
