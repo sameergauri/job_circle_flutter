@@ -15,6 +15,8 @@ class Screen1 extends StatefulWidget {
 class _Screen1State extends State<Screen1> {
   late Widget previousWidget;
 
+  final basicForm = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +38,10 @@ class _Screen1State extends State<Screen1> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const Screen2()));
+                if (basicForm.currentState!.validate()) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Screen2()));
+                }
               },
               text: "NEXT",
               themeButtonSize: ThemeButtonSize.medium,
@@ -173,135 +177,159 @@ class _Screen1State extends State<Screen1> {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              const TextField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.person),
-                  label: Text("Enter your name"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Please enter first and last name',
-                ),
-              ),
-              const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  icon: Icon(Icons.location_city),
-                  label: Text("Job City"),
-                  // border: OutlineInputBorder(),
-                  hintText: 'Enter Job city',
-                ),
-              ),
-              const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  icon: Icon(Icons.maps_home_work),
-                  label: Text("Job Location"),
-                  //border: OutlineInputBorder(),
-                  hintText: 'Enter Job Location',
-                ),
-              ),
-              const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  icon: Icon(Icons.phone_android),
-                  label: Text("Mobile Number"),
-                  //border: OutlineInputBorder(),
-                  hintText: 'Enter Mobile Number',
-                ),
-              ),
-              const SizedBox(height: 30),
-              Row(
-                children: [
-                  Container(
-                    height: 100,
-                    width: 150.0,
-                    color: Colors.transparent,
-                    child: Container(
-                        decoration: BoxDecoration(
-                            // color: Colors.green,
-                            border: Border.all(color: Colors.black),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10.0))),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/male.png',
-                              scale: 11,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Radio(
-                                  value: "MALE",
-                                  groupValue: "1",
-                                  onChanged: (value) {
-                                    // setState(() {
-                                    //   _site = value;
-                                    // });
-                                  },
-                                ),
-                                const Text(
-                                  "MALE",
-                                  style: TextStyle(fontSize: 18),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
+          child: Form(
+            key: basicForm,
+            child: Column(
+              children: [
+                TextFormField(
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty && !value.contains(' ')) {
+                      return 'Please enter valid first and last name';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.person),
+                    label: Text("Enter your name"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Please enter first and last name',
                   ),
-                  const SizedBox(
-                    width: 20,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Job city';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    icon: Icon(Icons.location_city),
+                    label: Text("Job City"),
+                    // border: OutlineInputBorder(),
+                    hintText: 'Enter Job city',
                   ),
-                  Container(
-                    height: 100,
-                    width: 150.0,
-                    color: Colors.transparent,
-                    child: Container(
-                        decoration: BoxDecoration(
-                            // color: Colors.green,
-                            border: Border.all(color: Colors.black),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10.0))),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/female.png',
-                              scale: 11,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Radio(
-                                  value: "FEMALE",
-                                  groupValue: "1",
-                                  onChanged: (value) {
-                                    // setState(() {
-                                    //   _site = value;
-                                    // });
-                                  },
-                                ),
-                                const Text(
-                                  "FEMALE",
-                                  style: TextStyle(fontSize: 18),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    icon: Icon(Icons.maps_home_work),
+                    label: Text("Job Location"),
+                    //border: OutlineInputBorder(),
+                    hintText: 'Enter Job Location',
                   ),
-                ],
-              ),
-              const SizedBox(height: 30),
-            ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter Job Location';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  initialValue: "+9004390874",
+                  enabled: false,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    icon: Icon(Icons.phone_android),
+                    label: Text("Mobile Number"),
+                    //border: OutlineInputBorder(),
+                    hintText: 'Enter Mobile Number',
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 150.0,
+                      color: Colors.transparent,
+                      child: Container(
+                          decoration: BoxDecoration(
+                              // color: Colors.green,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/male.png',
+                                scale: 11,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Radio(
+                                    value: "MALE",
+                                    groupValue: "1",
+                                    onChanged: (value) {
+                                      // setState(() {
+                                      //   _site = value;
+                                      // });
+                                    },
+                                  ),
+                                  const Text(
+                                    "MALE",
+                                    style: TextStyle(fontSize: 18),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                      height: 100,
+                      width: 150.0,
+                      color: Colors.transparent,
+                      child: Container(
+                          decoration: BoxDecoration(
+                              // color: Colors.green,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/female.png',
+                                scale: 11,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Radio(
+                                    value: "FEMALE",
+                                    groupValue: "1",
+                                    onChanged: (value) {
+                                      // setState(() {
+                                      //   _site = value;
+                                      // });
+                                    },
+                                  ),
+                                  const Text(
+                                    "FEMALE",
+                                    style: TextStyle(fontSize: 18),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),

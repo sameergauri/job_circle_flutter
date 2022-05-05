@@ -96,19 +96,6 @@ class _Screen2State extends State<Screen2> {
                             topLeft: Radius.circular(40),
                             topRight: Radius.circular(40),
                           )),
-                      //child:
-                      // Card(
-                      //     shape: BeveledRectangleBorder(
-                      //       borderRadius: BorderRadius.circular(10.0),
-                      //     ),
-                      //     elevation: 4,
-                      //     child: const Padding(
-                      //       padding: EdgeInsets.all(20.0),
-                      //       child: SizedBox(
-                      //         child: Text("teddd"),
-                      //         height: 200,
-                      //       ),
-                      //     )),,
                       child: Column(
                         children: [
                           const SizedBox(
@@ -127,26 +114,6 @@ class _Screen2State extends State<Screen2> {
                         ],
                       ),
                     ),
-
-                    // AnimatedSwitcher(
-                    //   duration: const Duration(milliseconds: 500),
-                    //   switchInCurve: Curves.easeIn,
-                    //   switchOutCurve: Curves.easeOut,
-                    //   // child: _renderWidget(),
-
-                    //   transitionBuilder: (child, animation) {
-                    //     return SlideTransition(
-                    //       position: Tween<Offset>(
-                    //               begin: Offset(1.2, 0), end: Offset(0, 0))
-                    //           .animate(animation),
-                    //       child: child,
-                    //     );
-                    //   },
-                    //   // layoutBuilder: (currentChild, _) {
-                    //   //   return currentChild!;
-                    //   // },
-                    //   child: _renderWidget(),
-                    // ),
                   ],
                 ),
               ),
@@ -163,59 +130,92 @@ class _Screen2State extends State<Screen2> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              TextField(
-                controller: educationController,
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.workspace_premium),
-                  label: const Text("Education"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Please enter first and last name',
-
-                  suffixIcon: PopupMenuButton<Map<String, String>>(
-                    icon: const Icon(Icons.arrow_drop_down),
-                    onSelected: (Map<String, String> value) {
-                      educationController.text = value['display'].toString();
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return [
-                        {
-                          "display": "Running",
-                          "value": "Running",
-                        },
-                        {
-                          "display": "Climbing",
-                          "value": "Climbing",
-                        },
-                        {
-                          "display": "Walking",
-                          "value": "Walking",
-                        },
-                        {
-                          "display": "Swimming",
-                          "value": "Swimming",
-                        },
-                        {
-                          "display": "Soccer Practice",
-                          "value": "Soccer Practice",
-                        },
-                        {
-                          "display": "Baseball Practice",
-                          "value": "Baseball Practice",
-                        },
-                        {
-                          "display": "Football Practice",
-                          "value": "Football Practice1",
-                        },
-                      ].map<PopupMenuItem<Map<String, String>>>((value) {
-                        return PopupMenuItem(
-                            child: Text(value['display'].toString()),
-                            value: value);
-                      }).toList();
-                    },
+              Autocomplete(fieldViewBuilder: (BuildContext context,
+                  TextEditingController fieldTextEditingController,
+                  FocusNode fieldFocusNode,
+                  VoidCallback onFieldSubmitted) {
+                return TextField(
+                  controller: fieldTextEditingController,
+                  focusNode: fieldFocusNode,
+                  onEditingComplete: onFieldSubmitted,
+                  decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    icon: Icon(Icons.workspace_premium),
+                    label: Text("Degree/Specialization"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Enter lated one',
                   ),
-                ),
-              ),
+                );
+              }, optionsViewBuilder: (BuildContext context,
+                  AutocompleteOnSelected<PopupMenuItem> onSelected,
+                  Iterable<PopupMenuItem> options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    child: SizedBox(
+                      width: 300,
+                      child: ListView.builder(
+                        padding: EdgeInsets.all(10.0),
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final PopupMenuItem option = options.elementAt(index);
+
+                          return GestureDetector(
+                            onTap: () {
+                              onSelected(option);
+                            },
+                            child: ListTile(
+                              title: Text(option.value['display'],
+                                  style: const TextStyle(color: Colors.black)),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              }, optionsBuilder: (TextEditingValue textEditingValue) {
+                return [
+                  {
+                    "display": "Running",
+                    "value": "Running",
+                  },
+                  {
+                    "display": "Climbing",
+                    "value": "Climbing",
+                  },
+                  {
+                    "display": "Walking",
+                    "value": "Walking",
+                  },
+                  {
+                    "display": "Swimming",
+                    "value": "Swimming",
+                  },
+                  {
+                    "display": "Soccer Practice",
+                    "value": "Soccer Practice",
+                  },
+                  {
+                    "display": "Baseball Practice",
+                    "value": "Baseball Practice",
+                  },
+                  {
+                    "display": "Football Practice",
+                    "value": "Football Practice1",
+                  },
+                ]
+                    .map<PopupMenuItem<Map<String, String>>>((value) {
+                      return PopupMenuItem(
+                          child: Text(value['display'].toString()),
+                          value: value);
+                    })
+                    .where((PopupMenuItem county) => county.value['display']
+                        .toLowerCase()
+                        .startsWith(textEditingValue.text.toLowerCase()))
+                    .toList();
+              }),
               const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
