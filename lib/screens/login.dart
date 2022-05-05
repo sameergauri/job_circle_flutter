@@ -98,9 +98,32 @@ class _LoginState extends State<Login> {
             alignment: Alignment.topCenter,
             children: [
               Positioned(
-                top: 100,
+                top: 110,
                 height: 170,
-                child: Image.asset("assets/images/job-logo.png"),
+                child: Container(
+                  height: 170,
+                  width: 170,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      "assets/images/job-logo.png",
+                      height: 100,
+                      width: 100,
+                    ),
+                  ),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(0, -6),
+                          color: Color(0xffce3538),
+                          spreadRadius: 2,
+                          blurStyle: BlurStyle.inner,
+                          blurRadius: 10),
+                    ],
+                  ),
+                ),
               )
             ],
           ),

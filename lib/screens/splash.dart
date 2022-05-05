@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/screens/login.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -38,9 +39,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(60),
                       bottomRight: Radius.circular(60)),
-                  color: Colors.redAccent,
+                  color: Constants.themeBgColor,
                   boxShadow: [
-                    BoxShadow(color: Colors.red, spreadRadius: 3),
+                    BoxShadow(color: Constants.themeBgColor, spreadRadius: 3),
                   ],
                 ),
               ),
@@ -94,7 +95,30 @@ class _SplashScreenState extends State<SplashScreen> {
               Positioned(
                 top: 190,
                 height: 170,
-                child: Image.asset("assets/images/job-logo.png"),
+                child: Container(
+                  height: 170,
+                  width: 170,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      "assets/images/job-logo.png",
+                      height: 100,
+                      width: 100,
+                    ),
+                  ),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(0, -6),
+                          color: Color(0xffce3538),
+                          spreadRadius: 2,
+                          blurStyle: BlurStyle.inner,
+                          blurRadius: 10),
+                    ],
+                  ),
+                ),
               )
             ],
           ),

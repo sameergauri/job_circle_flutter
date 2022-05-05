@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/home.dart';
-import 'package:job_circle/screens/jobs/job_details.dart';
-import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/login.dart';
-import 'package:job_circle/screens/profile/screen1.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/splash.dart';
+import 'package:job_circle/themes/colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,9 +26,9 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
-          primaryColor: const Color(0xFFA32219),
-          primarySwatch: Colors.red),
-      home: const SplashScreen(),
+          primaryColor: Constants.themeBgColor,
+          primarySwatch: Constants.theme),
+      home: const Screen2(),
     );
   }
 }
