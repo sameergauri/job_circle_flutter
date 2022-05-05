@@ -15,5 +15,6 @@ enum ERoute {
   screen2,
   screen3,
   jobs,
-  jobsdetail
+  jobsdetail,
+  business_partner
 }

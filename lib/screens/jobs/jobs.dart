@@ -419,18 +419,20 @@ class _JobsState extends State<Jobs> {
                     // )
                   ],
                 )),
-            TextButton(
-              onPressed: (() {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => const JobDetails()));
-              }),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: const [Icon(Icons.navigate_next)],
-              ),
-            )
+
+            const Icon(Icons.navigate_next),
+            // TextButton(
+            //   onPressed: (() {
+            //     // Navigator.push(
+            //     //     context,
+            //     //     MaterialPageRoute(
+            //     //         builder: (context) => const JobDetails()));
+            //   }),
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.max,
+            //     children: const [Icon(Icons.navigate_next)],
+            //   ),
+            // )
           ],
         ),
       ),

@@ -35,12 +35,11 @@ class _BusinessPartnerState extends State<BusinessPartner> {
           // elevation: 0,
           title: const Text('Business Partner'),
           actions: [
-             IconButton(
-              onPressed: () {
-                // save();
-              },
-              icon: const Icon(Icons.clear)
-            ),
+            IconButton(
+                onPressed: () {
+                  // save();
+                },
+                icon: const Icon(Icons.clear)),
             IconButton(
               onPressed: () {
                 save();
@@ -56,6 +55,11 @@ class _BusinessPartnerState extends State<BusinessPartner> {
               key: formField,
               child: Column(
                 children: [
+                  Row(children: const [
+                    Expanded(child: Divider()),
+                    Text("IDENTITY"),
+                    Expanded(child: Divider()),
+                  ]),
                   Row(
                     children: [
                       Expanded(
@@ -76,10 +80,10 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                         //   ),
                         // ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.picture_as_pdf),
-                        tooltip: 'Pancard Upload PDF File',
+                      TextButton.icon(
                         onPressed: () {},
+                        icon: const Icon(Icons.upload),
+                        label: const Text('Upload pan card'),
                       ),
                     ],
                   ),
@@ -96,28 +100,34 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                           // inputFormatters: [
                           // ],
                           decoration: const InputDecoration(
-                            icon: Icon(Icons.credit_card),
-                            label: Text("Adhar Card"),
+                            counterText: "",
+                            icon: Icon(Icons.card_membership_outlined),
+                            label: Text("Aadhar card"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
                             hintText: 'Please Enter Adhar No',
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.picture_as_pdf),
-                        tooltip: 'Adhar Card Front And Back ',
+                      TextButton.icon(
                         onPressed: () {},
+                        icon: const Icon(Icons.upload),
+                        label: const Text('Upload aadhar card'),
                       ),
                     ],
                   ),
+                  Row(children: const [
+                    Expanded(child: Divider()),
+                    Text("BANK ACCOUNT DETAILS"),
+                    Expanded(child: Divider()),
+                  ]),
                   Row(
                     children: const [
                       Expanded(
                         child: TextField(
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.person_outline),
                             label: Text("Account holder name"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -169,7 +179,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                           enableSuggestions: false,
                           autocorrect: false,
                           decoration: InputDecoration(
-                            icon: Icon(Icons.lock),
+                            icon: Icon(Icons.lock_outline_rounded),
                             label: Text("Account No."),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -180,28 +190,31 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                         child: TextField(
                           keyboardType: TextInputType.number,
-                          obscureText: true,
+                          obscureText: false,
                           enableSuggestions: false,
                           autocorrect: false,
                           decoration: InputDecoration(
-                            icon: Icon(Icons.lock),
-                            label: Text("Re type account"),
+                            icon: Icon(Icons.lock_outline_rounded),
+                            label: Text("Retype account no."),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
-                            hintText: 'Re type account',
+                            hintText: 'Retype account',
                           ),
                         ),
                       ),
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
+                        flex: 1,
                         child: UserTextFormField.textBox(
                             controller,
                             'IFSC Code',
                             'Bank Ifsc code',
-                            Icons.person,
+                            Icons.balcony_outlined,
                             'Please enter ifsc code',
                             true),
                       ),
@@ -210,21 +223,24 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       //   tooltip: 'Cancel cheque attachment',
                       //   onPressed: () {},
                       // ),
-                      Padding(
-                          padding: const EdgeInsets.only(right: 30.0),
-                          child: TextButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.upload),
-                            label: const Text('Cancel cheque attachment'),
-                          ))
+                      TextButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.upload),
+                        label: const Text('Upload cancel cheque'),
+                      )
                     ],
                   ),
+                  Row(children: const [
+                    Expanded(child: Divider()),
+                    Text("CONTACT / ADDRESS DETAILS"),
+                    Expanded(child: Divider()),
+                  ]),
                   Row(
                     children: const [
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.email),
+                            icon: Icon(Icons.email_outlined),
                             label: Text("Email"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -251,7 +267,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.text_fields_outlined),
                             label: Text("Address Line 1"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -266,7 +282,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.text_fields_outlined),
                             label: Text("Address Line 2"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -281,7 +297,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.masks_sharp),
                             label: Text("Landmark"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -292,7 +308,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.code),
                             label: Text("Pincode"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,
@@ -404,7 +420,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       const Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.email_outlined),
                             label: Text("Email"),
                             //border: OutlineInputBorder(),
                             border: InputBorder.none,

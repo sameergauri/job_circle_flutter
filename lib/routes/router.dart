@@ -11,7 +11,8 @@ import 'package:job_circle/screens/otp.dart' deferred as otp;
 import 'package:job_circle/screens/jobs/jobs.dart' deferred as jobs;
 import 'package:job_circle/screens/jobs/job_details.dart'
     deferred as jobsdetails;
-
+import 'package:job_circle/screens/profile/businesspartner.dart'
+    deferred as businesspartner;
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
@@ -23,6 +24,7 @@ Future<void> get lazyLogin => login.loadLibrary();
 Future<void> get lazyOTP => otp.loadLibrary();
 Future<void> get lazyJobs => jobs.loadLibrary();
 Future<void> get lazyJobDetails => jobsdetails.loadLibrary();
+Future<void> get lazyBusinessPartner => businesspartner.loadLibrary();
 
 class ApplicationRouter {
   static var appRouter = {
@@ -72,6 +74,11 @@ class ApplicationRouter {
         future: lazyScreen3,
         builder: (snapshot, context) {
           return jobsdetails.JobDetails();
+        }),
+    ERoute.business_partner.name: (context) => FutureBuilder(
+        future: lazyBusinessPartner,
+        builder: (snapshot, context) {
+          return businesspartner.BusinessPartner();
         }),
   };
 }
