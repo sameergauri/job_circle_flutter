@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
 
 class ApplicationForm extends StatefulWidget {
@@ -23,19 +25,12 @@ class ApplicationFormState extends State<ApplicationForm> {
       appBar: AppBar(
         title: const Text('New Resume'),
         actions: [
-             IconButton(
-              onPressed: () {
-                // save();
-              },
-              icon: const Icon(Icons.clear)
-            ),
-            IconButton(
-              onPressed: () {
-               // save();
-              },
-              icon: const Icon(Icons.save),
-            ),
-          ],
+          // IconButton(
+          //     onPressed: () {
+          //       // save();
+          //     },
+          //     icon: const Icon(Icons.clear)),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -266,12 +261,31 @@ class ApplicationFormState extends State<ApplicationForm> {
                   },
                 ),
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 30,
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton.icon(onPressed: (){},icon: const Icon(Icons.upload), label: const Text('Upload your resume'),)
+                  TextButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.upload),
+                    label: const Text('Upload your resume'),
+                  )
                 ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              ThemeButton(
+                width: 200,
+                radious: 0,
+                onPressed: () {},
+                text: "SUBMIT",
+                themeButtonSize: ThemeButtonSize.small,
+              ),
+              const SizedBox(
+                height: 30,
               ),
             ],
           ),
