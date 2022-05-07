@@ -63,11 +63,22 @@ class _JobDetailsState extends State<JobDetails> {
         //backgroundColor: Theme.of(context).primaryColor,
         actions: [
           SizedBox(
-            width: 35,
-            child: Row(children: const [
+            width: 100,
+            child:
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: const [
+              Icon(
+                Icons.share_outlined,
+                color: Colors.black,
+              ),
+              SizedBox(
+                width: 15,
+              ),
               Icon(
                 Icons.favorite_border_outlined,
                 color: Colors.black,
+              ),
+              SizedBox(
+                width: 20,
               ),
             ]),
           ),
@@ -85,7 +96,9 @@ class _JobDetailsState extends State<JobDetails> {
             //   size: 25,
             // ),
             radious: 0,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, ERoute.application.name);
+            },
             text: "APPLY",
           ),
         ),

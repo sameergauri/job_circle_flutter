@@ -24,13 +24,6 @@ class ApplicationFormState extends State<ApplicationForm> {
         child: Scaffold(
       appBar: AppBar(
         title: const Text('New Resume'),
-        actions: [
-          // IconButton(
-          //     onPressed: () {
-          //       // save();
-          //     },
-          //     icon: const Icon(Icons.clear)),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -73,7 +66,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                           });
                         },
                         child: Text(
-                          'Inder-Graduate',
+                          'Under-Graduate',
                           style: TextStyle(
                               color: underGradActive == 1
                                   ? Colors.white

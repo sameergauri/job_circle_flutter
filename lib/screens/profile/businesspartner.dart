@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/enums/enums.dart';
 
 import '../../components/card_number_formatter.dart';
 import '../../components/common.dart';
@@ -34,19 +36,19 @@ class _BusinessPartnerState extends State<BusinessPartner> {
           // backgroundColor: Colors.transparent,
           // elevation: 0,
           title: const Text('Business Partner'),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  // save();
-                },
-                icon: const Icon(Icons.clear)),
-            IconButton(
-              onPressed: () {
-                save();
-              },
-              icon: const Icon(Icons.save),
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //       onPressed: () {
+          //         // save();
+          //       },
+          //       icon: const Icon(Icons.clear)),
+          //   IconButton(
+          //     onPressed: () {
+          //       save();
+          //     },
+          //     icon: const Icon(Icons.save),
+          //   ),
+          // ],
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -55,11 +57,47 @@ class _BusinessPartnerState extends State<BusinessPartner> {
               key: formField,
               child: Column(
                 children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 50.0,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 70),
+                            child: ThemeButton(
+                              width: 100,
+                              radious: 100,
+                              onPressed: () {},
+                              text: "EDIT",
+                              themeButtonSize: ThemeButtonSize.xsmall,
+                            ),
+                          ),
+                          backgroundImage: NetworkImage(
+                            "https://cdn1.iconfinder.com/data/icons/avatars-1-5/136/87-512.png",
+                          ),
+                        )
+                      ]),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Row(children: const [
-                    Expanded(child: Divider()),
-                    Text("IDENTITY"),
-                    Expanded(child: Divider()),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
+                    Text(
+                      "IDENTITY",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
                   ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: [
                       Expanded(
@@ -116,11 +154,26 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       ),
                     ],
                   ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Row(children: const [
-                    Expanded(child: Divider()),
-                    Text("BANK ACCOUNT DETAILS"),
-                    Expanded(child: Divider()),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
+                    Text(
+                      "BANK ACCOUNT DETAILS",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
                   ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: const [
                       Expanded(
@@ -230,11 +283,23 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       )
                     ],
                   ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Row(children: const [
-                    Expanded(child: Divider()),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
                     Text("CONTACT / ADDRESS DETAILS"),
-                    Expanded(child: Divider()),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
                   ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: const [
                       Expanded(
@@ -321,103 +386,257 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButtonFormField<DropdownModel>(
-                            // validator: (value) =>
-                            //     value == null ? 'Please select any type' : null,
-                            hint: const Padding(
-                              padding: EdgeInsets.only(
-                                left: 11.0,
-                              ),
-                              child: Text('Country'),
-                            ),
-                            isExpanded: false,
-                            value: selectedTyp,
-                            // isDense: true,
-                            items: typeList.map((e) {
-                              return DropdownMenuItem<DropdownModel>(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 11.0),
-                                  child: Text(e.name),
-                                ),
-                                value: e,
-                              );
-                            }).toList(),
-                            onChanged: (DropdownModel? value) {
-                              setState(() {
-                                // selectedTyp = value;
-                              });
-                            },
+                          child: Autocomplete(fieldViewBuilder: (BuildContext
+                                  context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: fieldTextEditingController,
+                          focusNode: fieldFocusNode,
+                          onEditingComplete: onFieldSubmitted,
+                          decoration: const InputDecoration(
+                            suffixIcon: Icon(Icons.arrow_drop_down),
+                            icon: Icon(Icons.workspace_premium),
+                            label: Text("Country"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Select Country',
                           ),
-                        ),
-                      ),
+                        );
+                      }, optionsViewBuilder: (BuildContext context,
+                              AutocompleteOnSelected<PopupMenuItem> onSelected,
+                              Iterable<PopupMenuItem> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            child: SizedBox(
+                              width: 300,
+                              child: ListView.builder(
+                                padding: EdgeInsets.all(10.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final PopupMenuItem option =
+                                      options.elementAt(index);
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.value['display'],
+                                          style: const TextStyle(
+                                              color: Colors.black)),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }, optionsBuilder: (TextEditingValue textEditingValue) {
+                        return [
+                          {
+                            "display": "India",
+                            "value": "India",
+                          }
+                        ]
+                            .map<PopupMenuItem<Map<String, String>>>((value) {
+                              return PopupMenuItem(
+                                  child: Text(value['display'].toString()),
+                                  value: value);
+                            })
+                            .where((PopupMenuItem county) => county
+                                .value['display']
+                                .toLowerCase()
+                                .startsWith(
+                                    textEditingValue.text.toLowerCase()))
+                            .toList();
+                      })),
                       Expanded(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButtonFormField<DropdownModel>(
-                            // validator: (value) =>
-                            //     value == null ? 'Please select any type' : null,
-                            hint: const Padding(
-                              padding: EdgeInsets.only(
-                                left: 11.0,
-                              ),
-                              child: Text('State'),
-                            ),
-                            isExpanded: false,
-                            value: selectedTyp,
-                            // isDense: true,
-                            items: typeList.map((e) {
-                              return DropdownMenuItem<DropdownModel>(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 11.0),
-                                  child: Text(e.name),
-                                ),
-                                value: e,
-                              );
-                            }).toList(),
-                            onChanged: (DropdownModel? value) {
-                              setState(() {
-                                // selectedTyp = value;
-                              });
-                            },
+                          child: Autocomplete(fieldViewBuilder: (BuildContext
+                                  context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: fieldTextEditingController,
+                          focusNode: fieldFocusNode,
+                          onEditingComplete: onFieldSubmitted,
+                          decoration: const InputDecoration(
+                            suffixIcon: Icon(Icons.arrow_drop_down),
+                            icon: Icon(Icons.workspace_premium),
+                            label: Text("State"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Select State',
                           ),
-                        ),
-                      ),
+                        );
+                      }, optionsViewBuilder: (BuildContext context,
+                              AutocompleteOnSelected<PopupMenuItem> onSelected,
+                              Iterable<PopupMenuItem> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            child: SizedBox(
+                              width: 300,
+                              child: ListView.builder(
+                                padding: EdgeInsets.all(10.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final PopupMenuItem option =
+                                      options.elementAt(index);
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.value['display'],
+                                          style: const TextStyle(
+                                              color: Colors.black)),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }, optionsBuilder: (TextEditingValue textEditingValue) {
+                        return [
+                          {
+                            "display": "India",
+                            "value": "India",
+                          }
+                        ]
+                            .map<PopupMenuItem<Map<String, String>>>((value) {
+                              return PopupMenuItem(
+                                  child: Text(value['display'].toString()),
+                                  value: value);
+                            })
+                            .where((PopupMenuItem county) => county
+                                .value['display']
+                                .toLowerCase()
+                                .startsWith(
+                                    textEditingValue.text.toLowerCase()))
+                            .toList();
+                      })),
                     ],
                   ),
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButtonFormField<DropdownModel>(
-                            // validator: (value) =>
-                            //     value == null ? 'Please select any type' : null,
-                            hint: const Padding(
-                              padding: EdgeInsets.only(
-                                left: 11.0,
+                          child: Autocomplete(fieldViewBuilder: (BuildContext
+                                  context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: fieldTextEditingController,
+                          focusNode: fieldFocusNode,
+                          onEditingComplete: onFieldSubmitted,
+                          decoration: const InputDecoration(
+                            suffixIcon: Icon(Icons.arrow_drop_down),
+                            icon: Icon(Icons.workspace_premium),
+                            label: Text("City"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Select City',
+                          ),
+                        );
+                      }, optionsViewBuilder: (BuildContext context,
+                              AutocompleteOnSelected<PopupMenuItem> onSelected,
+                              Iterable<PopupMenuItem> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            child: SizedBox(
+                              width: 300,
+                              child: ListView.builder(
+                                padding: EdgeInsets.all(10.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final PopupMenuItem option =
+                                      options.elementAt(index);
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.value['display'],
+                                          style: const TextStyle(
+                                              color: Colors.black)),
+                                    ),
+                                  );
+                                },
                               ),
-                              child: Text('City'),
                             ),
-                            isExpanded: true,
-                            value: selectedTyp,
-                            // isDense: true,
-                            items: typeList.map((e) {
-                              return DropdownMenuItem<DropdownModel>(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 11.0),
-                                  child: Text(e.name),
-                                ),
-                                value: e,
-                              );
-                            }).toList(),
-                            onChanged: (DropdownModel? value) {
-                              setState(() {
-                                // selectedTyp = value;
-                              });
-                            },
+                          ),
+                        );
+                      }, optionsBuilder: (TextEditingValue textEditingValue) {
+                        return [
+                          {
+                            "display": "India",
+                            "value": "India",
+                          }
+                        ]
+                            .map<PopupMenuItem<Map<String, String>>>((value) {
+                              return PopupMenuItem(
+                                  child: Text(value['display'].toString()),
+                                  value: value);
+                            })
+                            .where((PopupMenuItem county) => county
+                                .value['display']
+                                .toLowerCase()
+                                .startsWith(
+                                    textEditingValue.text.toLowerCase()))
+                            .toList();
+                      })),
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(children: const [
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
+                    Text(
+                      "ESCALATION DESK",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Expanded(
+                        child: Divider(
+                      thickness: 2,
+                    )),
+                  ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(children: const [
+                    Text("Level1"),
+                  ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: const [
+                      Expanded(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            icon: Icon(Icons.mobile_friendly),
+                            label: Text("Mobile"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Enter primary Mobile',
                           ),
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: TextField(
                           decoration: InputDecoration(
                             icon: Icon(Icons.email_outlined),
@@ -429,6 +648,55 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(children: const [
+                    Text("Level2"),
+                  ]),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: const [
+                      Expanded(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            icon: Icon(Icons.mobile_friendly),
+                            label: Text("Mobile"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Enter primary Mobile',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            icon: Icon(Icons.email_outlined),
+                            label: Text("Email"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Enter Email',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ThemeButton(
+                    width: 200,
+                    radious: 0,
+                    onPressed: () {},
+                    text: "SUBMIT",
+                    themeButtonSize: ThemeButtonSize.small,
+                  ),
+                  const SizedBox(
+                    height: 30,
                   ),
                 ],
               ),

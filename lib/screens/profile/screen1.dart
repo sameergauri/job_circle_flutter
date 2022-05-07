@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -22,7 +23,28 @@ class _Screen1State extends State<Screen1> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text(""),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/images/id-card.png",
+                height: 40,
+                color: Colors.white,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              const Text(
+                "Basic Info",
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
         ),
         bottomNavigationBar: Container(
           color: Constants.bgPanelColor,
@@ -50,40 +72,7 @@ class _Screen1State extends State<Screen1> {
           bottom: false,
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/images/id-card.png",
-                    height: 40,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  const Text(
-                    "Basic Info",
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-              // Card(
-              //     shape: BeveledRectangleBorder(
-              //       borderRadius: BorderRadius.circular(10.0),
-              //     ),
-              //     elevation: 4,
-              //     child: const Padding(
-              //       padding: EdgeInsets.all(20.0),
-              //       child: SizedBox(
-              //         child: Text("teddd"),
-              //         height: 50,
-              //       ),
-              //     )),
+              SmartCard(),
               Expanded(
                 child: Stack(
                   children: [

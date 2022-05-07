@@ -176,33 +176,17 @@ class _Screen2State extends State<Screen2> {
               }, optionsBuilder: (TextEditingValue textEditingValue) {
                 return [
                   {
-                    "display": "Running",
-                    "value": "Running",
+                    "display": "Graduate",
+                    "value": "",
                   },
                   {
-                    "display": "Climbing",
+                    "display": "HSC",
+                    "value": "",
+                  },
+                  {
+                    "display": "SSC",
                     "value": "Climbing",
-                  },
-                  {
-                    "display": "Walking",
-                    "value": "Walking",
-                  },
-                  {
-                    "display": "Swimming",
-                    "value": "Swimming",
-                  },
-                  {
-                    "display": "Soccer Practice",
-                    "value": "Soccer Practice",
-                  },
-                  {
-                    "display": "Baseball Practice",
-                    "value": "Baseball Practice",
-                  },
-                  {
-                    "display": "Football Practice",
-                    "value": "Football Practice1",
-                  },
+                  }
                 ]
                     .map<PopupMenuItem<Map<String, String>>>((value) {
                       return PopupMenuItem(

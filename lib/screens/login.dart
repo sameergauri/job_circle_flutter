@@ -53,7 +53,7 @@ class _LoginState extends State<Login> {
                           context, _buildDialogContent(context), false);
                     })),
                 child: const Text(
-                  "Login",
+                  "",
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,

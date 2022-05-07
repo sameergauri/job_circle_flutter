@@ -17,5 +17,7 @@ enum ERoute {
   jobs,
   jobsdetail,
   businesspartner,
-  application
+  application,
+  logintype,
+  businesspartner_confirmation
 }

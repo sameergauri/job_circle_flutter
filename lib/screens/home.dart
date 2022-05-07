@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
+import 'package:job_circle/screens/profile/businesspartner.dart';
 import 'package:job_circle/screens/profile/profile.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
 
@@ -43,6 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.blue,
               ),
               BottomNavigationBarItem(
+                
+                icon: Icon(Icons.handshake_outlined),
+                activeIcon: Icon(Icons.handshake_outlined),
+                label: 'Partner',
+                backgroundColor: Colors.blue,
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle_outlined),
                 activeIcon: Icon(Icons.account_circle_rounded),
                 label: 'Profile',
@@ -61,9 +69,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onNavigationChange(int value) {
-    if (value == 1) {
+    if (value == 2) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const Screen1()));
+      return;
+    }
+
+    if (value == 1) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const BusinessPartner()));
       return;
     }
     setState(() {

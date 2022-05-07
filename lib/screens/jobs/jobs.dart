@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -22,19 +23,40 @@ class _JobsState extends State<Jobs> {
   @override
   Widget build(BuildContext context) {
     var _selectedIndex = 1;
+
     return Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: FloatingActionButton(
+          // isExtended: true,
+
+          child: const Icon(Icons.add),
+
+          onPressed: () {
+            Navigator.pushNamed(context, ERoute.application.name);
+
+            setState(() {});
+          },
+        ),
         appBar: AppBar(
-          title: const Text("Jobs"),
-          bottom: const PreferredSize(
-              child: Text(
-                "Search New Jobs",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              preferredSize: Size.zero),
+          title: const Text("Job Circle"),
+          // bottom: const PreferredSize(
+          //     child: Text(
+          //       "Search New Jobs",
+          //       style:
+          //           TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          //     ),
+          //     preferredSize: Size.zero),
           elevation: 0,
           backgroundColor: Theme.of(context).primaryColor,
           actions: [
+            IconButton(
+                onPressed: () {
+                  showSearch(context: context, delegate: DataSearch());
+                },
+                icon: const Icon(Icons.search_outlined)),
+            SizedBox(
+              width: 10,
+            ),
             SizedBox(
               width: 100,
               child: Row(children: const [
@@ -46,38 +68,13 @@ class _JobsState extends State<Jobs> {
                   ),
                 ),
               ]),
-            ),
+            )
           ],
         ),
         backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           child: Column(
             children: [
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: Color.fromARGB(255, 245, 245, 245),
-                  //     blurRadius: 10.0,
-                  //     offset: Offset(2, 2),
-                  //   ),
-                  // ],
-                  color: Constants.bgPanelColor,
-                  image: DecorationImage(
-                      fit: BoxFit.fill,
-                      image: NetworkImage(
-                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg3ffFjB4Z_ooJpcHbAUcP0m76QDcM6G7BHA&usqp=CAU")),
-
-                  //  color: Color(0xfff0f1fe),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                height: 60,
-                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-                width: double.infinity,
-              ),
               // const SizedBox(
               //   height: 10,
               // ),
@@ -189,7 +186,7 @@ class _JobsState extends State<Jobs> {
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
                                                                     .center,
-                                                            children: [
+                                                            children: const [
                                                           SizedBox(
                                                             height: 300,
                                                             width:
@@ -270,22 +267,57 @@ class _JobsState extends State<Jobs> {
                           ),
                           Expanded(
                             flex: 1,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemBuilder: (BuildContext, index) {
-                                return GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const JobDetails()));
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: Color.fromARGB(
+                                                255, 192, 192, 192),
+                                            blurRadius: 2.0,
+                                            spreadRadius: 1),
+                                      ],
+                                      color: Constants.bgPanelColor,
+                                      image: const DecorationImage(
+                                          fit: BoxFit.fill,
+                                          image: NetworkImage(
+                                              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzhsRgBZ1tPJFXJI47f3YvYnbouanQ9YvxCA&usqp=CAU")),
+
+                                      //  color: Color(0xfff0f1fe),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    height: 45,
+                                    margin: const EdgeInsets.only(
+                                        left: 40.0, right: 40.0),
+                                    width: double.infinity,
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    itemBuilder: (BuildContext, index) {
+                                      return GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const JobDetails()));
+                                          },
+                                          child: listViewItem(context, index));
                                     },
-                                    child: listViewItem(context, index));
-                              },
-                              itemCount: 8,
-                              padding: const EdgeInsets.all(5),
-                              scrollDirection: Axis.vertical,
+                                    itemCount: 8,
+                                    padding: const EdgeInsets.all(5),
+                                    scrollDirection: Axis.vertical,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -315,16 +347,16 @@ class _JobsState extends State<Jobs> {
                   'https://www.adityabirla.com/Assets/images/our-download-logo.png',
                   errorBuilder: ((context, error, stackTrace) => Image.asset(
                       "assets/images/male.png",
-                      height: 140,
-                      width: 120,
+                      height: 100,
+                      width: 80,
                       fit: BoxFit.contain)),
-                  height: 140,
-                  width: 120,
+                  height: 100,
+                  width: 80,
                   fit: BoxFit.contain,
                 ),
                 Container(
-                  height: 140,
-                  width: 120,
+                  height: 100,
+                  width: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     backgroundBlendMode: BlendMode.darken,
@@ -375,7 +407,7 @@ class _JobsState extends State<Jobs> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                     ),
                     const SizedBox(
                       height: 5,
@@ -385,7 +417,7 @@ class _JobsState extends State<Jobs> {
                       style: TextStyle(
                           color: Colors.black54,
                           fontWeight: FontWeight.bold,
-                          fontSize: 14),
+                          fontSize: 13),
                     ),
                     const SizedBox(
                       height: 5,
@@ -436,6 +468,73 @@ class _JobsState extends State<Jobs> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class DataSearch extends SearchDelegate<String> {
+  final cities = ["Kalyan", "Thane"];
+  final recentCities = ["Kalyan", "Thane"];
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+
+    return [
+      IconButton(
+          onPressed: () {
+            query = "";
+          },
+          icon: const Icon(Icons.clear))
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+        onPressed: () {
+          close(context, "");
+        },
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
+        ));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return Card();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList = cities
+        .where(
+            (element) => element.toLowerCase().startsWith(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemBuilder: (context, index) => ListTile(
+        onTap: () {
+          //showResults(context);
+          close(context, query);
+        },
+        leading: const Icon(Icons.location_city),
+        title: RichText(
+          text: TextSpan(
+              children: [
+                TextSpan(
+                    text: suggestionList[index].substring(query.length),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black))
+              ],
+              text: suggestionList[index].substring(0, query.length),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        ),
+      ),
+      itemCount: suggestionList.length,
     );
   }
 }

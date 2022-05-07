@@ -175,7 +175,9 @@ class _OTPScreenState extends State<OTPScreen> {
                   themeButtonSize: ThemeButtonSize.xsmall,
                   isText: true,
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, ERoute.login.name);
+                    //Navigator.pushReplacementNamed(context, ERoute.login.name);
+                    Navigator.pushReplacementNamed(
+                        context, ERoute.logintype.name);
                   },
                   text: "Resend OTP",
                   hide: resendOtpHide,
@@ -198,7 +200,8 @@ class _OTPScreenState extends State<OTPScreen> {
               disabled: vrifyButtonDisabled,
               onPressed: () {
                 Future.delayed(const Duration(seconds: 2), () {
-                  Navigator.pushReplacementNamed(context, ERoute.screen1.name);
+                  Navigator.pushReplacementNamed(
+                      context, ERoute.logintype.name);
                 });
 
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

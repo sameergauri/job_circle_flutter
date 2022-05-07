@@ -15,6 +15,11 @@ import 'package:job_circle/screens/profile/businesspartner.dart'
     deferred as businesspartner;
 import 'package:job_circle/screens/profile/application.dart'
     deferred as application;
+import 'package:job_circle/screens/postlogin.dart' deferred as postlogin;
+
+import 'package:job_circle/screens/profile/businesspartner_confirm.dart'
+    deferred as businesspartnerconfirmation;
+
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
@@ -28,6 +33,9 @@ Future<void> get lazyJobs => jobs.loadLibrary();
 Future<void> get lazyJobDetails => jobsdetails.loadLibrary();
 Future<void> get lazyBusinessPartner => businesspartner.loadLibrary();
 Future<void> get lazyApplication => application.loadLibrary();
+Future<void> get lazyPostLogin => postlogin.loadLibrary();
+Future<void> get lazyBusinessPartnerConfirmation =>
+    businesspartnerconfirmation.loadLibrary();
 
 class ApplicationRouter {
   static var appRouter = {
@@ -87,6 +95,16 @@ class ApplicationRouter {
         future: lazyApplication,
         builder: (snapshot, context) {
           return application.ApplicationForm();
+        }),
+    ERoute.logintype.name: (context) => FutureBuilder(
+        future: lazyPostLogin,
+        builder: (snapshot, context) {
+          return postlogin.PostLogin();
+        }),
+    ERoute.businesspartner_confirmation.name: (context) => FutureBuilder(
+        future: lazyBusinessPartnerConfirmation,
+        builder: (snapshot, context) {
+          return businesspartnerconfirmation.BusinessPartnerConfirmation();
         }),
   };
 }
