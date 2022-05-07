@@ -139,7 +139,8 @@ class _JobsState extends State<Jobs> {
                       child: Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(right: 10, left: 15),
+                            padding: const EdgeInsets.only(
+                                right: 10, left: 15, top: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -229,13 +230,18 @@ class _JobsState extends State<Jobs> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 60,
+                                  height: 40,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       // const Text("Sort by"),
-                                      const Icon(Icons.filter_list),
+
                                       DropdownButton<String>(
+                                        icon: const Icon(
+                                          Icons.filter_list,
+                                          color: Colors.black,
+                                        ),
+                                        underline: SizedBox(),
                                         style: const TextStyle(
                                             color: Colors.black87,
                                             fontWeight: FontWeight.bold),
@@ -300,6 +306,8 @@ class _JobsState extends State<Jobs> {
                                     height: 20,
                                   ),
                                   ListView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemBuilder: (BuildContext, index) {
                                       return GestureDetector(

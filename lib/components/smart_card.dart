@@ -14,7 +14,8 @@ class SmartCard extends StatelessWidget {
       height: 150,
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(8)),
-          color: Colors.black45,
+          color: Colors.blueGrey,
+          boxShadow: [BoxShadow(blurRadius: 4)],
           border: Border.all(
               style: BorderStyle.solid, color: Colors.white, width: 1)),
       child: Row(
@@ -23,15 +24,20 @@ class SmartCard extends StatelessWidget {
             decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
                     topRight: Radius.circular(100),
                     bottomRight: Radius.circular(100))),
             height: double.infinity,
             width: 150,
-            child: Image.asset(
-              "assets/images/male.png",
-              width: 80,
-              height: 80,
-              fit: BoxFit.contain,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Image.asset(
+                "assets/images/male.png",
+                width: 80,
+                height: 80,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           const SizedBox(

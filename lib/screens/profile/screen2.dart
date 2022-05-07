@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -28,7 +29,28 @@ class _Screen2State extends State<Screen2> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text(" "),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/images/education.png",  
+                height: 30,
+                color: Colors.white,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              const Text(
+                "Education",
+                style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
         ),
         bottomNavigationBar: Container(
           color: Constants.bgPanelColor,
@@ -54,28 +76,7 @@ class _Screen2State extends State<Screen2> {
           bottom: false,
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/images/education.png",
-                    height: 40,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  const Text(
-                    "Education",
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
+              const SmartCard(),
               Expanded(
                 child: Stack(
                   children: [

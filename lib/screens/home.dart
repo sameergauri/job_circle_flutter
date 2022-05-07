@@ -44,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.blue,
               ),
               BottomNavigationBarItem(
-                
                 icon: Icon(Icons.handshake_outlined),
                 activeIcon: Icon(Icons.handshake_outlined),
                 label: 'Partner',

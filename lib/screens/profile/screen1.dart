@@ -29,7 +29,7 @@ class _Screen1State extends State<Screen1> {
             children: [
               Image.asset(
                 "assets/images/id-card.png",
-                height: 40,
+                height: 30,
                 color: Colors.white,
               ),
               const SizedBox(
@@ -38,7 +38,7 @@ class _Screen1State extends State<Screen1> {
               const Text(
                 "Basic Info",
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 25,
                   color: Colors.white,
                   fontWeight: FontWeight.w400,
                 ),
@@ -72,7 +72,7 @@ class _Screen1State extends State<Screen1> {
           bottom: false,
           child: Column(
             children: [
-              SmartCard(),
+              const SmartCard(),
               Expanded(
                 child: Stack(
                   children: [
