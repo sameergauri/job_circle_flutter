@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/label_text.dart';
+import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/themes/typography.dart';
 
 class SmartCard extends StatelessWidget {
-  const SmartCard({Key? key}) : super(key: key);
+  CardModel? model;
+  SmartCard({Key? key, this.model}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,20 +46,26 @@ class SmartCard extends StatelessWidget {
             width: 8,
           ),
           Expanded(
-              child: Column(children: [
-            const SizedBox(
-              height: 10,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                // TypographyStyle.textH3("PRATIK NAIK", Colors.white),
+                TypographyStyle.textH3(
+                    model?.cardName ?? 'Your Name', Colors.white),
+                const SizedBox(
+                  height: 10,
+                ),
+                CustomComponent.labelText(
+                    "Mobile", "+91 9004390874", Colors.white),
+                const SizedBox(
+                  height: 10,
+                ),
+                CustomComponent.labelText("", "+91 9004390874", Colors.white),
+              ],
             ),
-            TypographyStyle.textH3("PRATIK NAIK", Colors.white),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomComponent.labelText("Mobile", "+91 9004390874", Colors.white),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomComponent.labelText("", "+91 9004390874", Colors.white),
-          ]))
+          )
         ],
       ),
     );

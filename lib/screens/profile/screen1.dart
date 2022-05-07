@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/service/DataService.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Screen1 extends StatefulWidget {
   const Screen1({Key? key}) : super(key: key);
@@ -13,6 +17,13 @@ class Screen1 extends StatefulWidget {
 
 class _Screen1State extends State<Screen1> {
   late Widget previousWidget;
+
+  // Veriable Declaration
+  CardModel model = CardModel();
+  TextEditingController username = TextEditingController();
+  TextEditingController joblocation = TextEditingController();
+  TextEditingController emailadr = TextEditingController();
+  String gendor = "";
 
   final basicForm = GlobalKey<FormState>();
 
@@ -59,6 +70,7 @@ class _Screen1State extends State<Screen1> {
               radious: 0,
               onPressed: () {
                 if (basicForm.currentState!.validate()) {
+                  saveTo();
                   Navigator.pushNamed(context, ERoute.screen2.name);
                 }
               },
@@ -72,7 +84,7 @@ class _Screen1State extends State<Screen1> {
           bottom: false,
           child: Column(
             children: [
-              const SmartCard(),
+              SmartCard(model: model),
               Expanded(
                 child: Stack(
                   children: [
@@ -168,6 +180,14 @@ class _Screen1State extends State<Screen1> {
             child: Column(
               children: [
                 TextFormField(
+                  // inputFormatters: [
+                  //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                  // ],
+                  controller: username,
+                  onChanged: ((value) => {
+                        model.cardName = value,
+                        updateCard(model),
+                      }),
                   validator: (value) {
                     if (value == null ||
                         value.isEmpty && !value.contains(' ')) {
@@ -183,24 +203,25 @@ class _Screen1State extends State<Screen1> {
                     hintText: 'Please enter first and last name',
                   ),
                 ),
+                // const SizedBox(height: 10),
+                // TextFormField(
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please enter Job city';
+                //     }
+                //     return null;
+                //   },
+                //   decoration: const InputDecoration(
+                //     border: InputBorder.none,
+                //     icon: Icon(Icons.location_city),
+                //     label: Text("Job City"),
+                //     // border: OutlineInputBorder(),
+                //     hintText: 'Enter Job city',
+                //   ),
+                // ),
                 const SizedBox(height: 10),
                 TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Job city';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    icon: Icon(Icons.location_city),
-                    label: Text("Job City"),
-                    // border: OutlineInputBorder(),
-                    hintText: 'Enter Job city',
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
+                  controller: joblocation,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     icon: Icon(Icons.maps_home_work),
@@ -217,18 +238,20 @@ class _Screen1State extends State<Screen1> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
-                  initialValue: "+9004390874",
-                  enabled: false,
+                  // initialValue: "+9004390874",
+                  // enabled: false,
+                  controller: emailadr,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    icon: Icon(Icons.phone_android),
-                    label: Text("Mobile Number"),
+                    icon: Icon(Icons.email),
+                    label: Text("Email Address"),
                     //border: OutlineInputBorder(),
-                    hintText: 'Enter Mobile Number',
+                    hintText: 'test@email.com',
                   ),
                 ),
                 const SizedBox(height: 30),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       height: 100,
@@ -252,11 +275,11 @@ class _Screen1State extends State<Screen1> {
                                 children: [
                                   Radio(
                                     value: "MALE",
-                                    groupValue: "1",
+                                    groupValue: gendor,
                                     onChanged: (value) {
-                                      // setState(() {
-                                      //   _site = value;
-                                      // });
+                                      setState(() {
+                                        gendor = value.toString();
+                                      });
                                     },
                                   ),
                                   const Text(
@@ -294,11 +317,11 @@ class _Screen1State extends State<Screen1> {
                                 children: [
                                   Radio(
                                     value: "FEMALE",
-                                    groupValue: "1",
+                                    groupValue: gendor,
                                     onChanged: (value) {
-                                      // setState(() {
-                                      //   _site = value;
-                                      // });
+                                      setState(() {
+                                        gendor = value.toString();
+                                      });
                                     },
                                   ),
                                   const Text(
@@ -320,5 +343,38 @@ class _Screen1State extends State<Screen1> {
         ),
       ),
     );
+  }
+
+  updateCard(CardModel items) {
+    model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
+    // model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
+    setState(() {});
+  }
+
+  saveTo() async
+  {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      preferences.setString('username', username.text);
+      setState(() {});
+  }
+
+  save() async {
+    var result = await httppost('/userinfo', {
+      'username': username.text,
+      'jobloc': joblocation.text,
+      'emailadr': emailadr.text,
+      'gendor': gendor
+    });
+    if (result.resultKey == 1) {
+      if (result.resultValue[0].containsKey('id')) {
+        if (result.resultValue[0]["id"] > 0) {
+          print(result.resultValue[0]["id"]);
+        }
+      }
+      else
+      {
+        print('Error');
+      }
+    }
   }
 }
