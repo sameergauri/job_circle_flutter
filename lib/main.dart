@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           primaryColor: Constants.themeBgColor,
           primarySwatch: Constants.theme),
       routes: ApplicationRouter.appRouter,
-      initialRoute: ERoute.splash.toString(),
+      initialRoute: ERoute.jobs.toString(),
     );
   }
 }

@@ -102,7 +102,7 @@ class _Screen3State extends State<Screen3> {
                               offset: Offset(2, 2),
                             ),
                           ],
-                          color: Color(0xfffef1e9),
+                          color: Constants.bgPanelColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(40),
                             topRight: Radius.circular(40),
