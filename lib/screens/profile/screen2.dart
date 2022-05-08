@@ -34,7 +34,7 @@ class _Screen2State extends State<Screen2> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset(
-                "assets/images/education.png",  
+                "assets/images/education.png",
                 height: 30,
                 color: Colors.white,
               ),
@@ -90,7 +90,7 @@ class _Screen2State extends State<Screen2> {
                               offset: Offset(2, 2),
                             ),
                           ],
-                          color: Color(0xfffef1e9),
+                          color: Constants.bgPanelColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(40),
                             topRight: Radius.circular(40),

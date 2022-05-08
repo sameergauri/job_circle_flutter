@@ -38,7 +38,34 @@ class _JobsState extends State<Jobs> {
           },
         ),
         appBar: AppBar(
-          title: const Text("Job Circle"),
+          title: Container(
+            height: 40,
+            child: TextField(
+              enableInteractiveSelection: false, // will disable paste operation
+              focusNode: new AlwaysDisabledFocusNode(),
+              onTap: () {
+                showSearch(context: context, delegate: DataSearch());
+              },
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search_outlined),
+                filled: true,
+                contentPadding:
+                    const EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
+                fillColor: Colors.white,
+                hintText: 'Search job...',
+                hintStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+              ),
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+          ),
           // bottom: const PreferredSize(
           //     child: Text(
           //       "Search New Jobs",
@@ -48,28 +75,29 @@ class _JobsState extends State<Jobs> {
           //     preferredSize: Size.zero),
           elevation: 0,
           backgroundColor: Theme.of(context).primaryColor,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  showSearch(context: context, delegate: DataSearch());
-                },
-                icon: const Icon(Icons.search_outlined)),
-            SizedBox(
-              width: 10,
-            ),
-            SizedBox(
-              width: 100,
-              child: Row(children: const [
-                Icon(Icons.pin_drop),
-                Expanded(
-                  child: Text(
-                    "Mumbai",
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ]),
-            )
-          ],
+          // actions: [
+          //   // IconButton(
+          //   //     onPressed: () {
+          //   //       showSearch(context: context, delegate: DataSearch());
+          //   //     },
+          //   //     icon: const Icon(Icons.search_outlined)),
+          //   SizedBox(
+          //     width: 10,
+          //   ),
+
+          //   SizedBox(
+          //     width: 100,
+          //     child: Row(children: const [
+          //       Icon(Icons.pin_drop),
+          //       Expanded(
+          //         child: Text(
+          //           "Mumbai",
+          //           overflow: TextOverflow.ellipsis,
+          //         ),
+          //       ),
+          //     ]),
+          //   )
+          // ],
         ),
         backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
@@ -111,8 +139,31 @@ class _JobsState extends State<Jobs> {
               //     scrollDirection: Axis.horizontal,
               //   ),
               // ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Container(
+                  decoration: BoxDecoration(color: Colors.transparent),
+                  height: 30,
+                  child: Row(children: const [
+                    Icon(
+                      Icons.pin_drop,
+                      color: Colors.white,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: Text(
+                        "Searching jobs in Mumbai",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
               const SizedBox(
-                height: 10,
+                height: 5,
               ),
               Expanded(
                 flex: 1,
@@ -341,7 +392,7 @@ class _JobsState extends State<Jobs> {
 
   Widget listViewItem(BuildContext context, int index) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 30),
+      margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
       color: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -355,15 +406,15 @@ class _JobsState extends State<Jobs> {
                   'https://www.adityabirla.com/Assets/images/our-download-logo.png',
                   errorBuilder: ((context, error, stackTrace) => Image.asset(
                       "assets/images/male.png",
-                      height: 100,
+                      height: 80,
                       width: 80,
                       fit: BoxFit.contain)),
-                  height: 100,
+                  height: 80,
                   width: 80,
                   fit: BoxFit.contain,
                 ),
                 Container(
-                  height: 100,
+                  height: 80,
                   width: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -447,7 +498,7 @@ class _JobsState extends State<Jobs> {
                       ],
                     ),
                     const SizedBox(
-                      height: 5,
+                      height: 2,
                     ),
                     // ThemeButton(
                     //   onPressed: () {},
@@ -545,4 +596,9 @@ class DataSearch extends SearchDelegate<String> {
       itemCount: suggestionList.length,
     );
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }
