@@ -3,6 +3,9 @@ import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../models/card_model.dart';
 
 class Screen3 extends StatefulWidget {
   const Screen3({Key? key}) : super(key: key);
@@ -15,11 +18,19 @@ class _Screen3State extends State<Screen3> {
   int _widgetId = 2;
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
+  CardModel model = CardModel();
+  bool expirieanceFlag = false;
   @override
   void initState() {
     // TODO: implement initState
-
+    getUserDetails();
     super.initState();
+  }
+
+  getUserDetails() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    model.cardName = preferences.getString('username');
+    setState(() {});
   }
 
   @override
@@ -77,7 +88,7 @@ class _Screen3State extends State<Screen3> {
           bottom: false,
           child: Column(
             children: [
-              const SmartCard(),
+              SmartCard(model: model),
               Expanded(
                 child: Stack(
                   children: [
@@ -180,7 +191,11 @@ class _Screen3State extends State<Screen3> {
                   padding: const EdgeInsets.all(8.0),
                   child: ThemeButton(
                     width: 100,
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        expirieanceFlag = true;
+                      });
+                    },
                     themeButtonSize: ThemeButtonSize.xsmall,
                     radious: 0,
                     text: "YES",
@@ -191,7 +206,11 @@ class _Screen3State extends State<Screen3> {
                   padding: const EdgeInsets.all(8.0),
                   child: ThemeButton(
                     width: 100,
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        expirieanceFlag = false;
+                      });
+                    },
                     themeButtonSize: ThemeButtonSize.xsmall,
                     radious: 0,
                     text: "NO",
@@ -200,37 +219,46 @@ class _Screen3State extends State<Screen3> {
               ],
             ),
             const SizedBox(height: 20),
-            const TextField(
-              decoration: InputDecoration(
-                icon: Icon(Icons.badge),
-                label: Text("Job Title"),
-                //border: OutlineInputBorder(),
-                border: InputBorder.none,
-                hintText: 'Enter last job title',
-              ),
-            ),
-            const SizedBox(height: 10),
-            const TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                icon: Icon(Icons.location_city),
-                label: Text("Company's Name"),
-                // border: OutlineInputBorder(),
-                hintText: 'Enter last working company name',
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Total work experience",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Current monthly salary",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
+            Visibility(
+              visible: expirieanceFlag,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: const [
+                  TextField(
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.badge),
+                      label: Text("Job Title"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: 'Enter last job title',
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      icon: Icon(Icons.location_city),
+                      label: Text("Company's Name"),
+                      // border: OutlineInputBorder(),
+                      hintText: 'Enter last working company name',
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Total work experience",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Current monthly salary",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

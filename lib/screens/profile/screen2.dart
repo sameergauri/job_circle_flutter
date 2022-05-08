@@ -3,6 +3,9 @@ import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../models/card_model.dart';
 
 class Screen2 extends StatefulWidget {
   const Screen2({Key? key}) : super(key: key);
@@ -15,11 +18,19 @@ class _Screen2State extends State<Screen2> {
   int _widgetId = 2;
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
+  CardModel model = CardModel();
+  
   @override
   void initState() {
     // TODO: implement initState
-
+    getUserDetails();
     super.initState();
+  }
+
+  getUserDetails() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    model.cardName = preferences.getString('username');
+    setState(() {});
   }
 
   @override
@@ -76,7 +87,7 @@ class _Screen2State extends State<Screen2> {
           bottom: false,
           child: Column(
             children: [
-              const SmartCard(),
+              SmartCard(model: model),
               Expanded(
                 child: Stack(
                   children: [
