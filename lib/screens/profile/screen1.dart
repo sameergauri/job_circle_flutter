@@ -351,11 +351,10 @@ class _Screen1State extends State<Screen1> {
     setState(() {});
   }
 
-  saveTo() async
-  {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      preferences.setString('username', username.text);
-      setState(() {});
+  saveTo() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('username', username.text);
+    setState(() {});
   }
 
   save() async {
@@ -370,9 +369,7 @@ class _Screen1State extends State<Screen1> {
         if (result.resultValue[0]["id"] > 0) {
           print(result.resultValue[0]["id"]);
         }
-      }
-      else
-      {
+      } else {
         print('Error');
       }
     }

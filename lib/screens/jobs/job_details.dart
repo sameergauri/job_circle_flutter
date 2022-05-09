@@ -12,10 +12,11 @@ class JobDetails extends StatefulWidget {
 
 class _JobDetailsState extends State<JobDetails> {
   ScrollController _scrollController = ScrollController();
-  final Color appBgColor = Color(0xFFdfdfe9);
+  final Color appBgColor = Constants.themeBgColor;
   final Color appBgScrolledColor = Constants.bgPanelColor;
   late Color currentAppBarColor = appBgColor;
   late double appBarElevate = 0;
+  late Color appBarIconColor = Colors.white;
   @override
   void initState() {
     // TODO: implement initState
@@ -35,10 +36,13 @@ class _JobDetailsState extends State<JobDetails> {
       if (_scrollController.position.extentBefore > 230 &&
           currentAppBarColor == appBgColor) {
         currentAppBarColor = appBgScrolledColor;
+
+        appBarIconColor = Colors.black;
         setState(() {});
       } else if (_scrollController.position.extentBefore <= 230 &&
           currentAppBarColor == appBgScrolledColor) {
         currentAppBarColor = appBgColor;
+        appBarIconColor = Colors.white;
         setState(() {});
       }
     });
@@ -60,24 +64,26 @@ class _JobDetailsState extends State<JobDetails> {
         elevation: appBarElevate,
         backgroundColor: currentAppBarColor,
         foregroundColor: Colors.black,
+        iconTheme: IconThemeData(
+          color: appBarIconColor, //change your color here
+        ),
         //backgroundColor: Theme.of(context).primaryColor,
         actions: [
           SizedBox(
             width: 100,
-            child:
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: const [
+            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               Icon(
                 Icons.share_outlined,
-                color: Colors.black,
+                color: appBarIconColor,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 15,
               ),
               Icon(
                 Icons.favorite_border_outlined,
-                color: Colors.black,
+                color: appBarIconColor,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
             ]),
@@ -122,7 +128,7 @@ class _JobDetailsState extends State<JobDetails> {
                     //   ),
                     // ],
                     //color: Theme.of(context).primaryColor,
-                    color: Color(0xFFdfdfe9),
+                    color: Constants.themeBgColor,
                     borderRadius: BorderRadius.only(
                       bottomLeft: const Radius.circular(30),
                       bottomRight: Radius.circular(30),
@@ -312,7 +318,7 @@ class _JobDetailsState extends State<JobDetails> {
               icon,
               size: 17,
             ),
-            SizedBox(
+            const SizedBox(
               width: 3,
             ),
             Text(
