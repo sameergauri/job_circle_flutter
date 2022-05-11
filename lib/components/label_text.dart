@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 
 class CustomComponent {
-  static Widget labelText(label, text, color) {
+  static Widget labelText(icon, text, color) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: color),
+        Icon(
+          icon,
+          color: color,
+          size: 16,
         ),
-        SizedBox(
-          width: label != "" ? 10 : 0,
+        // Text(
+        //   label,
+        //   style: TextStyle(color: color),
+        // ),
+        const SizedBox(
+          width: 10,
         ),
         Text(
           text,

@@ -23,6 +23,7 @@ class _JobsState extends State<Jobs> {
   @override
   Widget build(BuildContext context) {
     var _selectedIndex = 1;
+    const localtion = "Mumbai";
 
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -154,7 +155,7 @@ class _JobsState extends State<Jobs> {
                     ),
                     Expanded(
                       child: Text(
-                        "Searching jobs in Mumbai",
+                        "Searching jobs in $localtion",
                         style: TextStyle(color: Colors.white, fontSize: 18),
                         overflow: TextOverflow.ellipsis,
                       ),

@@ -12,19 +12,25 @@ class SmartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 350,
-      height: 150,
+      width: 400,
+      height: 180,
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(8)),
-          color: Colors.blueGrey,
-          boxShadow: [BoxShadow(blurRadius: 4)],
+          //color: Colors.purple,
+
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: NetworkImage(
+                "https://i.pinimg.com/originals/df/17/b7/df17b7e4700c2c5868d5f01acd0fdeca.jpg"),
+          ),
+          boxShadow: const [BoxShadow(blurRadius: 4)],
           border: Border.all(
               style: BorderStyle.solid, color: Colors.white, width: 1)),
       child: Row(
         children: [
           Container(
             decoration: const BoxDecoration(
-                color: Colors.white,
+                color: Colors.transparent,
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(8),
                     bottomLeft: Radius.circular(8),
@@ -49,20 +55,21 @@ class SmartCard extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 // TypographyStyle.textH3("PRATIK NAIK", Colors.white),
                 TypographyStyle.textH3(
-                    model?.cardName ?? 'Your Name', Colors.white),
+                    model?.cardName ?? 'Your Name', Colors.black),
                 const SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 CustomComponent.labelText(
-                    "Mobile", "+91 9004390874", Colors.white),
+                    Icons.mobile_friendly, "+91 9004390874", Colors.black),
                 const SizedBox(
                   height: 10,
                 ),
-                CustomComponent.labelText("", "+91 9004390874", Colors.white),
+                CustomComponent.labelText(Icons.email_outlined,
+                    "pratikway.90@gmail.com", Colors.black),
               ],
             ),
           )
