@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceBase {
   callPost(String endpoint, Object params, [Map<String, String>? headers]) {
-    Uri url = Uri(host: GlobalConstants.API_Host, path: endpoint);
+    Uri url = Uri.http(GlobalConstants.API_Host, endpoint);
 
     SharedPreferences preferences = _getPreference();
 
@@ -16,9 +16,10 @@ class ServiceBase {
     return http.post(url, body: params, headers: _headers);
   }
 
-  callGet(String endpoint, [Map<String, String>? headers]) async {
-    Uri url = Uri.parse(GlobalConstants.API_Host + endpoint);
-    print(url);
+  Future<http.Response> callGet(String endpoint,
+      [Map<String, String>? headers, Map<String, String>? param]) async {
+    Uri url = Uri.http(GlobalConstants.API_Host, endpoint, param ?? {});
+
     SharedPreferences preferences = await _getPreference();
     Object? token = preferences.get("token");
 

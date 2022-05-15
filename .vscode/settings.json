@@ -1,0 +1,17 @@
+{
+    "actionButtons": {
+        "reloadButton": null,
+        "defaultColor": "white",
+        "useScripts": true,
+        "npmClient": "npm",
+        "monorepo": true,
+        "commands": [
+          {
+              "name": "$(testing-run-all-icon) Build War",
+              "command": "\"./mvnw\" clean install -f \"/Users/work/Paid/api/pom.xml\" -DskipTests",
+              "singleInstance": true
+            }
+        ]
+      
+  }
+}

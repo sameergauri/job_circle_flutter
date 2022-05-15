@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/label_text.dart';
 import 'package:job_circle/models/card_model.dart';
@@ -18,7 +16,7 @@ class SmartCard extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           //color: Colors.purple,
 
-          image: DecorationImage(
+          image: const DecorationImage(
             fit: BoxFit.cover,
             image: NetworkImage(
                 "https://i.pinimg.com/originals/df/17/b7/df17b7e4700c2c5868d5f01acd0fdeca.jpg"),
