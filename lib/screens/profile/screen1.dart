@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/components/smart_card.dart';
@@ -5,6 +8,7 @@ import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/DataService.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -354,24 +358,30 @@ class _Screen1State extends State<Screen1> {
   saveTo() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.setString('username', username.text);
+    save();
     setState(() {});
   }
 
   save() async {
-    var result = await httppost('/userinfo', {
-      'username': username.text,
-      'jobloc': joblocation.text,
-      'emailadr': emailadr.text,
-      'gendor': gendor
-    });
-    if (result.resultKey == 1) {
-      if (result.resultValue[0].containsKey('id')) {
-        if (result.resultValue[0]["id"] > 0) {
-          print(result.resultValue[0]["id"]);
-        }
-      } else {
-        print('Error');
-      }
-    }
+
+   var result = await UserDataService().getUser(1);
+    log(result);
+
+  //   var result = await httppost('/users/v1/saveStages', {
+  //     'flag':'stage_1',
+  //     'username': username.text,
+  //     'jobloc': 1,
+  //     'emailadr': emailadr.text,
+  //     'gendor': 1
+  //   });
+  //   if (result.resultKey == 1) {
+  //     if (result.resultValue[0].containsKey('id')) {
+  //       if (result.resultValue[0]["id"] > 0) {
+  //         print(result.resultValue[0]["id"]);
+  //       }
+  //     } else {
+  //       print('Error');
+  //     }
+  //   }
   }
 }

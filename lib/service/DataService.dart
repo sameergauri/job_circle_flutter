@@ -9,12 +9,12 @@ class RequestResult {
   RequestResult(this.ok, this.resultKey, this.resultValue);
 }
 
-var domainIp = "192.168.0.103:6600";
+var domainIp = "";
 
 Future<RequestResult> httpget(String route, [Map<String, String>? data]) async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var url = Uri.http(domainIp, route, data);
+    var url = Uri.http(domainIp, (route), data);
     var result = await http.get(
       url,
       headers: {
