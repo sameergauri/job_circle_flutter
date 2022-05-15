@@ -1,9 +1,10 @@
 import 'dart:convert';
-
-import 'package:http/http.dart';
+import '../models/api_response.dart';
 
 class Utils {
-  static parseResponse(response) {
-    return jsonDecode(response.body);
+  static RequestResult parseResponse(response) {
+    Map resultData = jsonDecode(response.body);
+    return RequestResult(resultData["code"], resultData["resultKey"],
+        resultData["errorMessage"], resultData["resultData"]);
   }
 }

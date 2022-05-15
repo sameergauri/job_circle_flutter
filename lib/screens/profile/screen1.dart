@@ -364,25 +364,16 @@ class _Screen1State extends State<Screen1> {
   }
 
   save() async {
-    var result = await UserDataService().getUser(1);
+    // var result = await UserDataService().getUser(1);
 
-    log(Utils.parseResponse(result.body));
+    // print(Utils.parseResponse(result).resultData);
 
-    //   var result = await httppost('/users/v1/saveStages', {
-    //     'flag':'stage_1',
-    //     'username': username.text,
-    //     'jobloc': 1,
-    //     'emailadr': emailadr.text,
-    //     'gendor': 1
-    //   });
-    //   if (result.resultKey == 1) {
-    //     if (result.resultValue[0].containsKey('id')) {
-    //       if (result.resultValue[0]["id"] > 0) {
-    //         print(result.resultValue[0]["id"]);
-    //       }
-    //     } else {
-    //       print('Error');
-    //     }
-    //   }
+    var result = await UserDataService().saveUserStages({
+      "stage": "otp",
+      "data": {
+        "mobile":"9321284090"
+      }
+    });
+    print(Utils.parseResponse(result));
   }
 }
