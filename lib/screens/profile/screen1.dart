@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -365,7 +366,7 @@ class _Screen1State extends State<Screen1> {
   save() async {
     var result = await UserDataService().getUser(1);
 
-    log(result.body);
+    log(Utils.parseResponse(result.body));
 
     //   var result = await httppost('/users/v1/saveStages', {
     //     'flag':'stage_1',
