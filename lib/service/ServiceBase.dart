@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/themes/colors.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceBase {
@@ -19,7 +19,7 @@ class ServiceBase {
         'token': token != null ? token.toString() : ''
       };
       return http.post(url,
-          body: JsonEncoder().convert(params), headers: _headers);
+          body: const JsonEncoder().convert(params), headers: _headers);
     } catch (ex) {
       print(ex);
     }
