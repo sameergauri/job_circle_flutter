@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../common/utils.dart';
+import '../service/UserDataService.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -12,6 +16,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool isManual = false;
+  TextEditingController otpcontroller = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -273,8 +279,9 @@ class _LoginState extends State<Login> {
   Widget _buildManualForm() {
     return Column(
       children: [
-        const TextField(
-          decoration: InputDecoration(
+        TextField(
+          controller: otpcontroller,
+          decoration: const InputDecoration(
             label: Text("Your mobile number"),
             prefix: Text(
               "+91",
@@ -290,8 +297,8 @@ class _LoginState extends State<Login> {
         ThemeButton(
           text: "Confirm",
           onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(context, ERoute.otpscreen.name,
-                (Route<dynamic> route) => false);
+            saveOTP();
+
             // setState(() {
             //   isManual = true;
             // });
@@ -302,5 +309,21 @@ class _LoginState extends State<Login> {
         ),
       ],
     );
+  }
+
+  saveOTP() async {
+    var result = await UserDataService().saveUserStages({
+      "stage": "otp",
+      "data": {"mobile": otpcontroller.text}
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // prefs.remove('userid');
+      // prefs.remove('user_mob');
+      prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
+      prefs.setString('user_mob',otpcontroller.text);
+      Navigator.pushNamedAndRemoveUntil(
+          context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
+    }
   }
 }

@@ -5,4 +5,6 @@ class GlobalConstants {
   static const API_Users_v1_saveStages = "/users/v1/saveStages";
 
   static const API_Users_v1_id = "/users/v1/";
+
+  static const API_master_group = "/master/v1/getByGroup";
 }

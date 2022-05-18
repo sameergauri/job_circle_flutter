@@ -75,8 +75,7 @@ class _Screen1State extends State<Screen1> {
               radious: 0,
               onPressed: () {
                 if (basicForm.currentState!.validate()) {
-                  saveTo();
-                  Navigator.pushNamed(context, ERoute.screen2.name);
+                  save();
                 }
               },
               text: "NEXT",
@@ -356,24 +355,31 @@ class _Screen1State extends State<Screen1> {
     setState(() {});
   }
 
-  saveTo() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString('username', username.text);
-    save();
-    setState(() {});
-  }
-
   save() async {
-    // var result = await UserDataService().getUser(1);
-
-    // print(Utils.parseResponse(result).resultData);
-
-    var result = await UserDataService().saveUserStages({
-      "stage": "otp",
-      "data": {
-        "mobile":"9321284090"
-      }
+    var result = await UserDataService().masterGetByGroup({
+      'groupName':'location',
+      'pageNumber':'1',
+      'pageSize':'10'
     });
-    print(Utils.parseResponse(result));
+    print(Utils.parseResponse(result).resultData);
+    return;
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.setString('username', username.text);
+    // var result = await UserDataService().saveUserStages({
+    //   "stage": "basic_info",
+    //   "data": {
+    //     "id": prefs.getInt('userid'),
+    //     "mobile":prefs.getString('user_mob'),
+    //     "first_name": username.text,
+    //     "job_location_id": 2,
+    //     "email": emailadr.text,
+    //     "gender": gendor
+    //   }
+    // });
+    // if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+    //   Navigator.pushNamed(context, ERoute.screen2.name);
+    // }
+    // setState(() {});
+    // print(Utils.parseResponse(result));
   }
 }
