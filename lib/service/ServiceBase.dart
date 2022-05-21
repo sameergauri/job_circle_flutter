@@ -26,7 +26,7 @@ class ServiceBase {
   }
 
   Future<http.Response> callGet(String endpoint,
-      [Map<String, String>? headers, Map<String, String>? param]) async {
+      {Map<String, String>? param, Map<String, String>? headers}) async {
     Uri url = Uri.http(GlobalConstants.API_Host, endpoint, param ?? {});
 
     SharedPreferences preferences = await _getPreference();

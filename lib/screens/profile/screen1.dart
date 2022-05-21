@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -7,6 +8,7 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/autocomplete.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/DataService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -24,13 +26,37 @@ class _Screen1State extends State<Screen1> {
   late Widget previousWidget;
 
   // Veriable Declaration
+  // DropdownModel ddlModel;
+  List locationList = [];
   CardModel model = CardModel();
   TextEditingController username = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
-  String gendor = "";
+  int locationid=0;
 
+  String gendor = "";
+  var ddlValues;
+  
+  late List list;
+  
   final basicForm = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    bindLocation();
+    super.initState();
+  }
+
+  bindLocation() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"]; 
+      list = ddlValues["content"];
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +101,7 @@ class _Screen1State extends State<Screen1> {
               radious: 0,
               onPressed: () {
                 if (basicForm.currentState!.validate()) {
-                  saveTo();
-                  Navigator.pushNamed(context, ERoute.screen2.name);
+                  save();
                 }
               },
               text: "NEXT",
@@ -225,22 +250,98 @@ class _Screen1State extends State<Screen1> {
                 //   ),
                 // ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: joblocation,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    icon: Icon(Icons.maps_home_work),
-                    label: Text("Job Location"),
-                    //border: OutlineInputBorder(),
-                    hintText: 'Enter Job Location',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter Job Location';
-                    }
-                    return null;
-                  },
-                ),
+                Autocomplete(fieldViewBuilder: (BuildContext context,
+                    TextEditingController fieldTextEditingController,
+                    FocusNode fieldFocusNode,
+                    VoidCallback onFieldSubmitted) {
+                  return TextField(
+                    controller: fieldTextEditingController..text="Mulund",
+                    focusNode: fieldFocusNode,
+                    onEditingComplete: onFieldSubmitted,
+
+                  
+                    decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      icon: Icon(Icons.workspace_premium),
+                      label: Text("Job Location"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: 'Enter Job Location',
+                    ),
+                  );
+                }, displayStringForOption:(PopupMenuItem option)=> option.value['value']  ,optionsViewBuilder: (BuildContext context,
+                    AutocompleteOnSelected<PopupMenuItem> onSelected,
+                    Iterable<PopupMenuItem> options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      child: SizedBox(
+                        width: 300,
+                        child: ListView.builder(
+                          padding: EdgeInsets.all(10.0),
+                          itemCount: options.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final PopupMenuItem option =
+                                options.elementAt(index);
+
+                            return GestureDetector(
+                              onTap: () {
+                                onSelected(option);
+                                locationid=option.value['id'];
+                              },
+                              child: ListTile(
+                                title: Text(option.value['value'],
+                                    style:
+                                        const TextStyle(color: Colors.black)),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                } ,optionsBuilder: (TextEditingValue textEditingValue) {
+                  return list
+                   // [
+                  //   {
+                  //     "display": "Graduate",
+                  //     "value": "",
+                  //   },
+                  //   {
+                  //     "display": "HSC",
+                  //     "value": "",
+                  //   },
+                  //   {
+                  //     "display": "SSC",
+                  //     "value": "Climbing",
+                  //   }
+                  // ]
+                      .map<PopupMenuItem<Map<String, dynamic>>>((value) {
+                        return PopupMenuItem(
+                            child: Text(value['value'].toString()),
+                            value: value);
+                      })
+                      .where((PopupMenuItem location) => location.value['value']
+                          .toLowerCase()
+                          .startsWith(textEditingValue.text.toLowerCase()))
+                      .toList();
+                }),
+                // TextFormField(
+                //   controller: joblocation,
+                //   decoration: const InputDecoration(
+                //     border: InputBorder.none,
+                //     icon: Icon(Icons.maps_home_work),
+                //     label: Text("Job Location"),
+                //     //border: OutlineInputBorder(),
+                //     hintText: 'Enter Job Location',
+                //   ),
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Enter Job Location';
+                //     }
+                //     return null;
+                //   },
+                // ),
                 const SizedBox(height: 10),
                 TextFormField(
                   // initialValue: "+9004390874",
@@ -356,24 +457,28 @@ class _Screen1State extends State<Screen1> {
     setState(() {});
   }
 
-  saveTo() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString('username', username.text);
-    save();
-    setState(() {});
-  }
-
   save() async {
-    // var result = await UserDataService().getUser(1);
-
+    // var result = await UserDataService().masterGetByGroup(
+    //     {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
     // print(Utils.parseResponse(result).resultData);
-
+    // return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('username', username.text);
     var result = await UserDataService().saveUserStages({
-      "stage": "otp",
+      "stage": "basic_info",
       "data": {
-        "mobile":"9321284090"
+        "id": prefs.getInt('userid'),
+        "mobile":prefs.getString('user_mob'),
+        "first_name": username.text,
+        "job_location_id": 2,
+        "email": emailadr.text,
+        "gender": gendor
       }
     });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      Navigator.pushNamed(context, ERoute.screen2.name);
+    }
+    setState(() {});
     print(Utils.parseResponse(result));
   }
 }

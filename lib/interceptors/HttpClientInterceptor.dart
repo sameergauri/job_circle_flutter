@@ -19,9 +19,11 @@ class HttpClientInterceptor extends http.BaseClient{
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     // TODO: implement send
-   // request.headers.putIfAbsent("token", () => )
+   request.headers.putIfAbsent("Authorization", () => "Bearer " + "put token");
   print("Inetrceptor call >>> ");
   print(request.url);
+
+
 
 
     return request.send();

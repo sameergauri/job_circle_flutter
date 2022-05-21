@@ -7,7 +7,19 @@ class UserDataService extends ServiceBase {
     return callPost(GlobalConstants.API_Users_v1_saveStages, params);
   }
 
-  Future<Response> getUser(int id) {
-    return callGet(GlobalConstants.API_Users_v1_id + id.toString());
+  authenticate(dynamic params) {
+    return callPost(GlobalConstants.API_Users_v1_authenticate, params);
+  }
+
+   validateOTP(dynamic params) {
+    return callPost(GlobalConstants.API_Users_v1_authenticate, params);
+  }
+
+  // Future<Response> getUser(int id) {
+  //   return callGet(GlobalConstants.API_Users_v1_id + id.toString());
+  // }
+
+  Future<Response> masterGetByGroup(Map<String,String> params) {
+    return callGet(GlobalConstants.API_master_group, param: params);
   }
 }

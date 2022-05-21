@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../common/utils.dart';
+import '../service/UserDataService.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({Key? key}) : super(key: key);
@@ -203,14 +207,7 @@ class _OTPScreenState extends State<OTPScreen> {
             child: ThemeButton(
               disabled: vrifyButtonDisabled,
               onPressed: () {
-                Future.delayed(const Duration(seconds: 2), () {
-                  Navigator.pushReplacementNamed(
-                      context, ERoute.logintype.name);
-                });
-
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("OTP Verified Successfully"),
-                ));
+                varifyOTP();
               },
               text: "VARIFY OTP",
             ),
@@ -250,5 +247,24 @@ class _OTPScreenState extends State<OTPScreen> {
         }
       });
     });
+  }
+
+  varifyOTP() async {
+    var result = await UserDataService().validateOTP({
+        "mobile": Utils.getPreferencesValue(ESharedPreferences.user_mobile.name), //prefs.getString('user_mob'),
+        "otp": otpChar1Controller.text +
+            otpChar2Controller.text +
+            otpChar3Controller.text +
+            otpChar4Controller.text
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("OTP Verified Successfully"),
+      ));
+    }
   }
 }
