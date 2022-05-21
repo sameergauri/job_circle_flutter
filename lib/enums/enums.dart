@@ -21,3 +21,7 @@ enum ERoute {
   logintype,
   businesspartner_confirmation
 }
+
+enum ESharedPreferences {
+    user_mobile
+}

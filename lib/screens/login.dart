@@ -312,16 +312,15 @@ class _LoginState extends State<Login> {
   }
 
   saveOTP() async {
-    var result = await UserDataService().saveUserStages({
-      "stage": "otp",
-      "data": {"mobile": otpcontroller.text}
+    var result = await UserDataService().authenticate({
+      "mobile": otpcontroller.text
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      
       // prefs.remove('userid');
       // prefs.remove('user_mob');
-      prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
-      prefs.setString('user_mob',otpcontroller.text);
+      // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
+      Utils.setPreference(ESharedPreferences.user_mobile.name,otpcontroller.text);
       Navigator.pushNamedAndRemoveUntil(
           context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
     }

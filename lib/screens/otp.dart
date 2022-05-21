@@ -246,16 +246,12 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   varifyOTP() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var result = await UserDataService().saveUserStages({
-      "stage": "validate_otp",
-      "data": {
-        "mobile": prefs.getString('user_mob'),
+    var result = await UserDataService().validateOTP({
+        "mobile": Utils.getPreferencesValue(ESharedPreferences.user_mobile.name), //prefs.getString('user_mob'),
         "otp": otpChar1Controller.text +
             otpChar2Controller.text +
             otpChar3Controller.text +
             otpChar4Controller.text
-      }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       Future.delayed(const Duration(seconds: 2), () {
