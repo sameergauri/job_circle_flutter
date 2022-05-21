@@ -5,7 +5,11 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../common/utils.dart';
+import '../../components/autocompletecustom.dart';
+import '../../models/autocompleteModel.dart';
 import '../../models/card_model.dart';
+import '../../service/UserDataService.dart';
 
 class Screen3 extends StatefulWidget {
   const Screen3({Key? key}) : super(key: key);
@@ -17,20 +21,78 @@ class Screen3 extends StatefulWidget {
 class _Screen3State extends State<Screen3> {
   int _widgetId = 2;
   late Widget previousWidget;
-  late TextEditingController educationController = TextEditingController();
   CardModel model = CardModel();
   bool expirieanceFlag = false;
+
+  var ddlValues;
+  late TextEditingController companyController = TextEditingController();
+  late List<AutoCompleteModel> jobTitleList = [];
+  late List<AutoCompleteModel> totalExperienceList = [];
+  late List<AutoCompleteModel> currentSalaryList = [];
+  AutoCompleteModel selectedJobTitle = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedtotalExperience = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedcurrentSalary = AutoCompleteModel("", "", {});
+
   @override
   void initState() {
-    // TODO: implement initState
-    getUserDetails();
+    bindJobTitle();
+    bindTotalExperiance();
+    bindCurrentSalary();
     super.initState();
   }
 
-  getUserDetails() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    model.cardName = preferences.getString('username');
-    setState(() {});
+  bindJobTitle() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      jobTitleList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedJobTitle = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindTotalExperiance() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'total_exp', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      totalExperienceList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedtotalExperience = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindCurrentSalary() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'current_salary', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      currentSalaryList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedcurrentSalary = AutoCompleteModel("0", "", {});
+      });
+    }
   }
 
   @override
@@ -75,8 +137,7 @@ class _Screen3State extends State<Screen3> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, ERoute.home.name, (Route<dynamic> route) => false);
+                save();
               },
               text: "NEXT",
               themeButtonSize: ThemeButtonSize.medium,
@@ -224,40 +285,56 @@ class _Screen3State extends State<Screen3> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                children: [
                   TextField(
-                    decoration: InputDecoration(
-                      icon: Icon(Icons.badge),
-                      label: Text("Job Title"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: 'Enter last job title',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    decoration: InputDecoration(
+                    controller: companyController,
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                       icon: Icon(Icons.location_city),
-                      label: Text("Company's Name"),
+                      label: Text("Company Name"),
                       // border: OutlineInputBorder(),
-                      hintText: 'Enter last working company name',
+                      hintText: 'Enter company name',
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Total work experience",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Current monthly salary",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  const SizedBox(height: 20),
+                  CustomControls.AutoCompleteCustom(
+                      context,
+                      "Job title",
+                      "Enter Job title",
+                      ((AutoCompleteModel item) => {
+                            setState(() {
+                              selectedJobTitle = item;
+                            }),
+                            // print(selectedEducation.label),
+                          }),
+                      selectedJobTitle,
+                      jobTitleList),
+                  const SizedBox(height: 10),
+                  CustomControls.AutoCompleteCustom(
+                      context,
+                      "Total Years Of Experience",
+                      "Enter total experience",
+                      ((AutoCompleteModel item) => {
+                            setState(() {
+                              selectedtotalExperience = item;
+                            }),
+                            // print(selectedEducation.label),
+                          }),
+                      selectedtotalExperience,
+                      totalExperienceList),
+                  const SizedBox(height: 20),
+                  CustomControls.AutoCompleteCustom(
+                      context,
+                      "Current Salary",
+                      "Enter current salary",
+                      ((AutoCompleteModel item) => {
+                            setState(() {
+                              selectedcurrentSalary = item;
+                            }),
+                            // print(selectedEducation.label),
+                          }),
+                      selectedcurrentSalary,
+                      currentSalaryList),
                 ],
               ),
             ),
@@ -265,5 +342,25 @@ class _Screen3State extends State<Screen3> {
         ),
       ),
     );
+  }
+
+  save() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().saveUserStages({
+      "stage": "experiene",
+      "data": {
+        "id": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name),
+        "experience": selectedtotalExperience.value,
+        "job_title": selectedJobTitle.value,
+        "work_experience": selectedtotalExperience.value,
+        "company_name": companyController.text
+      }
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      Navigator.pushNamedAndRemoveUntil(
+          context, ERoute.home.name, (Route<dynamic> route) => false);
+    }
+    setState(() {});
   }
 }
