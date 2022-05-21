@@ -25,4 +25,4 @@ enum ERoute {
 
 enum AdminERoute { admin_leads }
 
-enum ESharedPreferences { user_mobile }
+enum ESharedPreferences { user_mobile, user_id, user_data }

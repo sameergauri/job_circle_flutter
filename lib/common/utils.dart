@@ -14,27 +14,29 @@ class Utils {
     return await SharedPreferences.getInstance();
   }
 
-  static setPreference(String key, dynamic value) async{
-    SharedPreferences pref = await Utils.getSharedPreferences();
+  static setPreference(
+      SharedPreferences? pref, String key, dynamic value) async {
+    SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
     switch (value.runtimeType) {
       case String:
-        pref.setString(key, value);
+        pref1.setString(key, value);
         break;
       case bool:
-        pref.setBool(key, value);
+        pref1.setBool(key, value);
         break;
       case int:
-        pref.setInt(key, value);
+        pref1.setInt(key, value);
         break;
       case double:
-        pref.setDouble(key, value);
+        pref1.setDouble(key, value);
         break;
       default:
     }
   }
 
-  static dynamic getPreferencesValue(String key) async {
-    SharedPreferences pref = await Utils.getSharedPreferences();
-    return pref.get(key);
+  static dynamic getPreferencesValue(
+      SharedPreferences? pref, String key) async {
+    SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
+    return pref1.get(key);
   }
 }

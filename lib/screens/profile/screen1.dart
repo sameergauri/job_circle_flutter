@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/components/autocompletecustom.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
+import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/DataService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -32,14 +34,18 @@ class _Screen1State extends State<Screen1> {
   TextEditingController username = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
-  int locationid=0;
 
-  String gendor = "";
+  int locationid = 0;
+
+  String gender = "";
   var ddlValues;
-  
+
   late List list;
-  
+
   final basicForm = GlobalKey<FormState>();
+
+  late List<AutoCompleteModel> jobLocationList = [];
+  AutoCompleteModel selectedLocation = AutoCompleteModel("", "", {});
 
   @override
   void initState() {
@@ -52,9 +58,16 @@ class _Screen1State extends State<Screen1> {
         {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
-      // list=ddlValues["content"]; 
-      list = ddlValues["content"];
-      setState(() {});
+      // list=ddlValues["content"];
+
+      jobLocationList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedLocation = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -250,98 +263,18 @@ class _Screen1State extends State<Screen1> {
                 //   ),
                 // ),
                 const SizedBox(height: 10),
-                Autocomplete(fieldViewBuilder: (BuildContext context,
-                    TextEditingController fieldTextEditingController,
-                    FocusNode fieldFocusNode,
-                    VoidCallback onFieldSubmitted) {
-                  return TextField(
-                    controller: fieldTextEditingController..text="Mulund",
-                    focusNode: fieldFocusNode,
-                    onEditingComplete: onFieldSubmitted,
-
-                  
-                    decoration: const InputDecoration(
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      icon: Icon(Icons.workspace_premium),
-                      label: Text("Job Location"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: 'Enter Job Location',
-                    ),
-                  );
-                }, displayStringForOption:(PopupMenuItem option)=> option.value['value']  ,optionsViewBuilder: (BuildContext context,
-                    AutocompleteOnSelected<PopupMenuItem> onSelected,
-                    Iterable<PopupMenuItem> options) {
-                  return Align(
-                    alignment: Alignment.topLeft,
-                    child: Material(
-                      child: SizedBox(
-                        width: 300,
-                        child: ListView.builder(
-                          padding: EdgeInsets.all(10.0),
-                          itemCount: options.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final PopupMenuItem option =
-                                options.elementAt(index);
-
-                            return GestureDetector(
-                              onTap: () {
-                                onSelected(option);
-                                locationid=option.value['id'];
-                              },
-                              child: ListTile(
-                                title: Text(option.value['value'],
-                                    style:
-                                        const TextStyle(color: Colors.black)),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  );
-                } ,optionsBuilder: (TextEditingValue textEditingValue) {
-                  return list
-                   // [
-                  //   {
-                  //     "display": "Graduate",
-                  //     "value": "",
-                  //   },
-                  //   {
-                  //     "display": "HSC",
-                  //     "value": "",
-                  //   },
-                  //   {
-                  //     "display": "SSC",
-                  //     "value": "Climbing",
-                  //   }
-                  // ]
-                      .map<PopupMenuItem<Map<String, dynamic>>>((value) {
-                        return PopupMenuItem(
-                            child: Text(value['value'].toString()),
-                            value: value);
-                      })
-                      .where((PopupMenuItem location) => location.value['value']
-                          .toLowerCase()
-                          .startsWith(textEditingValue.text.toLowerCase()))
-                      .toList();
-                }),
-                // TextFormField(
-                //   controller: joblocation,
-                //   decoration: const InputDecoration(
-                //     border: InputBorder.none,
-                //     icon: Icon(Icons.maps_home_work),
-                //     label: Text("Job Location"),
-                //     //border: OutlineInputBorder(),
-                //     hintText: 'Enter Job Location',
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Enter Job Location';
-                //     }
-                //     return null;
-                //   },
-                // ),
+                CustomControls.AutoCompleteCustom(
+                    context,
+                    "Job Location",
+                    "Enter Job Location",
+                    ((AutoCompleteModel item) => {
+                          setState(() {
+                            selectedLocation = item;
+                          }),
+                          print(selectedLocation.label),
+                        }),
+                    selectedLocation,
+                    jobLocationList),
                 const SizedBox(height: 10),
                 TextFormField(
                   // initialValue: "+9004390874",
@@ -381,10 +314,10 @@ class _Screen1State extends State<Screen1> {
                                 children: [
                                   Radio(
                                     value: "MALE",
-                                    groupValue: gendor,
+                                    groupValue: gender,
                                     onChanged: (value) {
                                       setState(() {
-                                        gendor = value.toString();
+                                        gender = value.toString();
                                       });
                                     },
                                   ),
@@ -423,10 +356,10 @@ class _Screen1State extends State<Screen1> {
                                 children: [
                                   Radio(
                                     value: "FEMALE",
-                                    groupValue: gendor,
+                                    groupValue: gender,
                                     onChanged: (value) {
                                       setState(() {
-                                        gendor = value.toString();
+                                        gender = value.toString();
                                       });
                                     },
                                   ),
@@ -462,17 +395,36 @@ class _Screen1State extends State<Screen1> {
     //     {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
     // print(Utils.parseResponse(result).resultData);
     // return;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('username', username.text);
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    // prefs.setString('username', username.text);
+
+    String userName = username.text;
+    if (userName.isNotEmpty) {
+      final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
+
+      if (!spaceMatch.hasMatch(username.text.trim())) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please enter valid name"),
+        ));
+        return;
+      }
+    }
+
+    var firstName = username.text.trim().split(' ')[0];
+    var lastName = username.text.trim().split(' ')[1];
+
     var result = await UserDataService().saveUserStages({
       "stage": "basic_info",
       "data": {
-        "id": prefs.getInt('userid'),
-        "mobile":prefs.getString('user_mob'),
-        "first_name": username.text,
-        "job_location_id": 2,
+        "id": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name),
+        "mobile": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_mobile.name),
+        "first_name": firstName,
+        "last_name": lastName,
+        "job_location_id": selectedLocation.value,
         "email": emailadr.text,
-        "gender": gendor
+        "gender": gender
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {

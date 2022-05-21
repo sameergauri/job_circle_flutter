@@ -13,5 +13,6 @@
             }
         ]
       
-  }
+  },
+  "java.configuration.updateBuildConfiguration": "automatic"
 }

@@ -1,9 +1,11 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:mobile_number/mobile_number.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../common/utils.dart';
 import '../service/UserDataService.dart';
 
@@ -15,13 +17,49 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool isManual = false;
+  bool isManual = true;
   TextEditingController otpcontroller = TextEditingController();
+  String _mobileNumber = '';
+  List<SimCard> _simCard = <SimCard>[];
+
+  Future<void> initMobileNumberState() async {
+    if (!await MobileNumber.hasPhonePermission) {
+      await MobileNumber.requestPhonePermission;
+      return;
+    }
+    String mobileNumber = '';
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      mobileNumber = (await MobileNumber.mobileNumber)!;
+      _simCard = (await MobileNumber.getSimCards)!;
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get mobile number because of '${e.message}'");
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      isManual = false;
+      _mobileNumber = mobileNumber;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
 
+    // if (!kIsWeb && Platform.isAndroid) {
+    //   MobileNumber.listenPhonePermission((isPermissionGranted) {
+    //     if (isPermissionGranted) {
+    //       initMobileNumberState();
+    //     } else {}
+    //   });
+
+    //   initMobileNumberState();
+    // }
     Future.delayed(Duration.zero, () {
       BottomDialog()
           .showBottomDialog(context, _buildDialogContent(context), false);
@@ -249,7 +287,7 @@ class _LoginState extends State<Login> {
       child: Column(
         children: [
           ThemeButton(
-            text: "+919004390874",
+            text: _mobileNumber,
             disabled: false,
             onPressed: () => {
               Navigator.pushNamedAndRemoveUntil(context, ERoute.otpscreen.name,
@@ -281,6 +319,7 @@ class _LoginState extends State<Login> {
       children: [
         TextField(
           controller: otpcontroller,
+          maxLength: 10,
           decoration: const InputDecoration(
             label: Text("Your mobile number"),
             prefix: Text(
@@ -290,7 +329,7 @@ class _LoginState extends State<Login> {
               ),
             ),
             border: OutlineInputBorder(),
-            hintText: 'Enter a search term',
+            hintText: 'Enter your mobile number',
           ),
         ),
         const SizedBox(height: 20),
@@ -312,15 +351,14 @@ class _LoginState extends State<Login> {
   }
 
   saveOTP() async {
-    var result = await UserDataService().authenticate({
-      "mobile": otpcontroller.text
-    });
+    var result =
+        await UserDataService().authenticate({"mobile": otpcontroller.text});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      
       // prefs.remove('userid');
       // prefs.remove('user_mob');
       // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
-      Utils.setPreference(ESharedPreferences.user_mobile.name,otpcontroller.text);
+      Utils.setPreference(
+          null, ESharedPreferences.user_mobile.name, otpcontroller.text);
       Navigator.pushNamedAndRemoveUntil(
           context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
     }

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/api_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/utils.dart';
@@ -31,7 +33,7 @@ class _OTPScreenState extends State<OTPScreen> {
   late FocusNode otpChar2FocusNode;
   late FocusNode otpChar3FocusNode;
   late FocusNode otpChar4FocusNode;
-
+  String mobileno = '';
   // variables
   String strOTP = '';
   final interval = const Duration(seconds: 1);
@@ -45,6 +47,12 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      mobileno = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_mobile.name);
+      setState(() {});
+    });
+
     otpChar1FocusNode = FocusNode();
     //otpChar1FocusNode.requestFocus();
     otpChar2FocusNode = FocusNode();
@@ -74,9 +82,9 @@ class _OTPScreenState extends State<OTPScreen> {
           const SizedBox(
             height: 100,
           ),
-          const Text(
-            'We sent OTP to 900XXXXX74',
-            style: TextStyle(
+          Text(
+            'We sent OTP to $mobileno',
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -250,14 +258,25 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   varifyOTP() async {
+    String mobileno = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_mobile.name);
     var result = await UserDataService().validateOTP({
-        "mobile": Utils.getPreferencesValue(ESharedPreferences.user_mobile.name), //prefs.getString('user_mob'),
-        "otp": otpChar1Controller.text +
-            otpChar2Controller.text +
-            otpChar3Controller.text +
-            otpChar4Controller.text
+      "mobile": mobileno, //prefs.getString('user_mob'),
+      "otp": otpChar1Controller.text +
+          otpChar2Controller.text +
+          otpChar3Controller.text +
+          otpChar4Controller.text
     });
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+
+    RequestResult res = Utils.parseResponse(result);
+
+    if (res.resultKey == 'SUCCESS') {
+      dynamic data = res.resultData;
+
+      await Utils.setPreference(
+          null, ESharedPreferences.user_id.name, data['id']);
+      await Utils.setPreference(null, ESharedPreferences.user_data.name, data);
+
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pushReplacementNamed(context, ERoute.logintype.name);
       });
