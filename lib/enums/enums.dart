@@ -19,5 +19,8 @@ enum ERoute {
   businesspartner,
   application,
   logintype,
-  businesspartner_confirmation
+  businesspartner_confirmation,
+  profile_summary
 }
+
+enum AdminERoute { admin_leads }

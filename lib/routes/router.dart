@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/routes/admin_router.dart';
 import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/home.dart' deferred as home;
 import 'package:job_circle/screens/profile/profile.dart' deferred as profile;
@@ -20,6 +21,9 @@ import 'package:job_circle/screens/postlogin.dart' deferred as postlogin;
 import 'package:job_circle/screens/profile/businesspartner_confirm.dart'
     deferred as businesspartnerconfirmation;
 
+import 'package:job_circle/screens/profile/profile_summary.dart'
+    deferred as profileSummary;
+
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
@@ -36,6 +40,7 @@ Future<void> get lazyApplication => application.loadLibrary();
 Future<void> get lazyPostLogin => postlogin.loadLibrary();
 Future<void> get lazyBusinessPartnerConfirmation =>
     businesspartnerconfirmation.loadLibrary();
+Future<void> get lazyProfileSummary => profileSummary.loadLibrary();
 
 class ApplicationRouter {
   static var appRouter = {
@@ -106,5 +111,11 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return businesspartnerconfirmation.BusinessPartnerConfirmation();
         }),
+    ERoute.profile_summary.name: (context) => FutureBuilder(
+        future: lazyProfileSummary,
+        builder: (snapshot, context) {
+          return profileSummary.ProfileSummary();
+        }),
+    ...ApplicationAdminRouter.appAdminRouter
   };
 }

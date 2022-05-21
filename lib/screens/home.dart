@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
 import 'package:job_circle/screens/profile/profile.dart';
@@ -55,6 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Profile',
                 backgroundColor: Colors.blue,
               ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.admin_panel_settings),
+                activeIcon: Icon(Icons.admin_panel_settings_rounded),
+                label: 'Admin',
+                backgroundColor: Colors.blue,
+              ),
             ],
             type: BottomNavigationBarType.fixed,
             currentIndex: selectedIndex,
@@ -69,8 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void onNavigationChange(int value) {
     if (value == 2) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const Screen1()));
+      Navigator.pushNamed(context, ERoute.profile_summary.name);
+      return;
+    }
+
+    if (value == 3) {
+      Navigator.pushNamed(context, AdminERoute.admin_leads.name);
       return;
     }
 

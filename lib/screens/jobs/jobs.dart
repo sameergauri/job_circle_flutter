@@ -48,13 +48,13 @@ class _JobsState extends State<Jobs> {
                 showSearch(context: context, delegate: DataSearch());
               },
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search_outlined),
+                prefixIcon: const Icon(Icons.search_outlined),
                 filled: true,
                 contentPadding:
                     const EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
                 fillColor: Colors.white,
                 hintText: 'Search job...',
-                hintStyle: TextStyle(
+                hintStyle: const TextStyle(
                   color: Colors.grey,
                   fontSize: 18,
                 ),
@@ -62,7 +62,7 @@ class _JobsState extends State<Jobs> {
                   borderRadius: BorderRadius.circular(6.0),
                 ),
               ),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
               ),
             ),
@@ -143,21 +143,27 @@ class _JobsState extends State<Jobs> {
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.transparent),
+                  decoration: const BoxDecoration(color: Colors.transparent),
                   height: 30,
-                  child: Row(children: const [
-                    Icon(
+                  child: Row(children: [
+                    const Icon(
                       Icons.pin_drop,
                       color: Colors.white,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
-                      child: Text(
-                        "Searching jobs in $localtion",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                        overflow: TextOverflow.ellipsis,
+                      child: GestureDetector(
+                        onTap: (() {
+                          showSearch(
+                              context: context, delegate: LoacationSearch());
+                        }),
+                        child: const Text(
+                          "Searching jobs in $localtion",
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ]),
@@ -293,7 +299,7 @@ class _JobsState extends State<Jobs> {
                                           Icons.filter_list,
                                           color: Colors.black,
                                         ),
-                                        underline: SizedBox(),
+                                        underline: const SizedBox(),
                                         style: const TextStyle(
                                             color: Colors.black87,
                                             fontWeight: FontWeight.bold),
@@ -564,7 +570,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // TODO: implement buildResults
-    return Card();
+    return const Card();
   }
 
   @override
@@ -586,12 +592,79 @@ class DataSearch extends SearchDelegate<String> {
               children: [
                 TextSpan(
                     text: suggestionList[index].substring(query.length),
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.normal, color: Colors.black))
               ],
               text: suggestionList[index].substring(0, query.length),
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black)),
+        ),
+      ),
+      itemCount: suggestionList.length,
+    );
+  }
+}
+
+class LoacationSearch extends SearchDelegate<String> {
+  final cities = ["Kalyan1", "Thane1"];
+  final recentCities = ["Kalyan1", "Thane1"];
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+
+    return [
+      IconButton(
+          onPressed: () {
+            query = "";
+          },
+          icon: const Icon(Icons.clear))
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+        onPressed: () {
+          close(context, "");
+        },
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
+        ));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return const Card();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList = cities
+        .where(
+            (element) => element.toLowerCase().startsWith(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemBuilder: (context, index) => ListTile(
+        onTap: () {
+          //showResults(context);
+          close(context, query);
+        },
+        leading: const Icon(Icons.location_city),
+        title: RichText(
+          text: TextSpan(
+              children: [
+                TextSpan(
+                    text: suggestionList[index].substring(query.length),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black))
+              ],
+              text: suggestionList[index].substring(0, query.length),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black)),
         ),
       ),
       itemCount: suggestionList.length,

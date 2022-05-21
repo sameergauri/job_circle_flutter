@@ -61,13 +61,17 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Column(
         children: [
           const SizedBox(
             height: 100,
           ),
           const Text(
-            'We sent OTP to verify your number',
+            'We sent OTP to 900XXXXX74',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
