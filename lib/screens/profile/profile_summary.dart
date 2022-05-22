@@ -88,7 +88,9 @@ class _ProfileSummaryState extends State<ProfileSummary> {
             child: CardCustom(
               icon: Icons.account_circle_outlined,
               title: "Basic Info",
-              onPress: (() {print("basic info")}),
+              onPress: (() {
+                print("basic info");
+              }),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
