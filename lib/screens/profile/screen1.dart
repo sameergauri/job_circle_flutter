@@ -449,6 +449,7 @@ class _Screen1State extends State<Screen1> {
   }
 
   save() async {
+    
     // var result = await UserDataService().masterGetByGroup(
     //     {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
     // print(Utils.parseResponse(result).resultData);
@@ -483,6 +484,7 @@ class _Screen1State extends State<Screen1> {
         "job_location_id": selectedLocation.value,
         "email": emailadr.text,
         "gender": gender,
+        "dateofbirth":dateOfBirth.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
       }
