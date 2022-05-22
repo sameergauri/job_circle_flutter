@@ -1,18 +1,11 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autocompletecustom.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/autocomplete.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
-import 'package:job_circle/service/DataService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -424,7 +417,9 @@ class _Screen1State extends State<Screen1> {
         "last_name": lastName,
         "job_location_id": selectedLocation.value,
         "email": emailadr.text,
-        "gender": gender
+        "gender": gender,
+        "usertype": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_type.name),
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {

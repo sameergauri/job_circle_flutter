@@ -258,8 +258,10 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   varifyOTP() async {
+    SharedPreferences pres = await Utils.getSharedPreferences();
+
     String mobileno = await Utils.getPreferencesValue(
-        null, ESharedPreferences.user_mobile.name);
+        pres, ESharedPreferences.user_mobile.name);
     var result = await UserDataService().validateOTP({
       "mobile": mobileno, //prefs.getString('user_mob'),
       "otp": otpChar1Controller.text +
@@ -274,13 +276,38 @@ class _OTPScreenState extends State<OTPScreen> {
       dynamic data = res.resultData;
 
       await Utils.setPreference(
-          null, ESharedPreferences.user_id.name, data['id']);
-      await Utils.setPreference(null, ESharedPreferences.user_data.name, data);
+          pres, ESharedPreferences.user_id.name, data['id']);
+      await Utils.setPreference(
+          pres, ESharedPreferences.user_type.name, data['usertype']);
 
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-      });
+      await Utils.setPreference(pres, ESharedPreferences.user_data.name, data);
+      if (data['usertype'] != null) {
+        final String usertype = data['usertype'].toString();
 
+        if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, ERoute.screen1.name);
+          });
+        } else if (usertype.toString() ==
+            EUserType.jobSeeker.value.toString()) {
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(
+                context, ERoute.businesspartner_confirmation.name);
+          });
+        } else if (usertype.toString() == EUserType.employee.value.toString()) {
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, ERoute.jobs.name);
+          });
+        } else {
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+          });
+        }
+      } else {
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+        });
+      }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("OTP Verified Successfully"),
       ));

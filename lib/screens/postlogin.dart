@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -58,7 +59,12 @@ class _PostLoginState extends State<PostLogin> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await Utils.setPreference(
+                            null,
+                            ESharedPreferences.user_type.name,
+                            EUserType.jobSeeker.value);
+
                         Navigator.pushNamed(context, ERoute.screen1.name);
                         // showDatePicker(
                         //     context: context,
@@ -98,7 +104,11 @@ class _PostLoginState extends State<PostLogin> {
                       width: 20,
                     ),
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await Utils.setPreference(
+                            null,
+                            ESharedPreferences.user_type.name,
+                            EUserType.businessPartner.value);
                         Navigator.pushNamed(
                             context, ERoute.businesspartner_confirmation.name);
                       },
