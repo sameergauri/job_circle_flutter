@@ -9,7 +9,9 @@ class CustomControls {
       AutocompleteOnSelected<AutoCompleteModel> onSelected,
       AutoCompleteModel selectedItem,
       List<AutoCompleteModel> items,
-      IconData _icnos) {
+      IconData _icnos,
+      {bool? allowFreeText = false,
+      String? Function(String?)? validator}) {
     return Autocomplete(
         initialValue: TextEditingValue(
           text: (selectedItem == null ? "" : selectedItem.label),
@@ -19,24 +21,27 @@ class CustomControls {
             FocusNode fieldFocusNode,
             VoidCallback onFieldSubmitted) {
           controllr.text = selectedItem.label;
-
-          return TextField(
-            controller: controllr,
-            focusNode: fieldFocusNode,
-            onEditingComplete: onFieldSubmitted,
-            decoration: InputDecoration(
-              suffixIcon: const Icon(Icons.arrow_drop_down),
-              icon: Icon(_icnos), // Icons.workspace_premium
-              label: Text(label),
-              //border: OutlineInputBorder(),
-              border: InputBorder.none,
-              hintText: hintText,
-            ),
-          );
+          return TextFormField(
+              controller: controllr,
+              focusNode: fieldFocusNode
+                ..addListener(() {
+                  selectedItem.extra;
+                }),
+              onEditingComplete: onFieldSubmitted,
+              decoration: InputDecoration(
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                icon: Icon(_icnos), // Icons.workspace_premium
+                label: Text(label),
+                //border: OutlineInputBorder(),
+                border: InputBorder.none,
+                hintText: hintText,
+              ),
+              validator: validator);
         },
-        onSelected: (AutoCompleteModel selectedItem) {
-          onSelected(selectedItem);
-          selectedItem = selectedItem;
+        onSelected: (AutoCompleteModel _selectedItem) {
+          print(selectedItem.extra);
+          onSelected(_selectedItem);
+          selectedItem = _selectedItem;
         },
         displayStringForOption: (AutoCompleteModel option) => option.label,
         optionsBuilder: (TextEditingValue textEditingValue) {
