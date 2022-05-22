@@ -8,7 +8,8 @@ class CustomControls {
       String hintText,
       AutocompleteOnSelected<AutoCompleteModel> onSelected,
       AutoCompleteModel selectedItem,
-      List<AutoCompleteModel> items) {
+      List<AutoCompleteModel> items,
+      IconData _icnos) {
     return Autocomplete(
         initialValue: TextEditingValue(
           text: (selectedItem == null ? "" : selectedItem.label),
@@ -25,7 +26,7 @@ class CustomControls {
             onEditingComplete: onFieldSubmitted,
             decoration: InputDecoration(
               suffixIcon: const Icon(Icons.arrow_drop_down),
-              icon: const Icon(Icons.workspace_premium),
+              icon: Icon(_icnos), // Icons.workspace_premium
               label: Text(label),
               //border: OutlineInputBorder(),
               border: InputBorder.none,

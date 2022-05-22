@@ -212,7 +212,7 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedEducation,
-                  levelOfEducationList),
+                  levelOfEducationList,Icons.school_outlined),
               const SizedBox(height: 10),
               CustomControls.AutoCompleteCustom(
                   context,
@@ -225,7 +225,7 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedUniversity,
-                  universityInstitueList),
+                  universityInstitueList,Icons.school_sharp),
               const SizedBox(height: 10),
               CustomControls.AutoCompleteCustom(
                   context,
@@ -238,7 +238,7 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedDegree,
-                  degreeList),
+                  degreeList,Icons.cast_for_education),
               const SizedBox(height: 20),
             ],
           ),

@@ -320,6 +320,10 @@ class _LoginState extends State<Login> {
         TextField(
           controller: otpcontroller,
           maxLength: 10,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
           decoration: const InputDecoration(
             label: Text("Your mobile number"),
             prefix: Text(

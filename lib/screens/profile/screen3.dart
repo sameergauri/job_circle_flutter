@@ -290,7 +290,7 @@ class _Screen3State extends State<Screen3> {
                     controller: companyController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      icon: Icon(Icons.location_city),
+                      icon: Icon(Icons.abc),
                       label: Text("Company Name"),
                       // border: OutlineInputBorder(),
                       hintText: 'Enter company name',
@@ -308,7 +308,7 @@ class _Screen3State extends State<Screen3> {
                             // print(selectedEducation.label),
                           }),
                       selectedJobTitle,
-                      jobTitleList),
+                      jobTitleList,Icons.title),
                   const SizedBox(height: 10),
                   CustomControls.AutoCompleteCustom(
                       context,
@@ -321,7 +321,7 @@ class _Screen3State extends State<Screen3> {
                             // print(selectedEducation.label),
                           }),
                       selectedtotalExperience,
-                      totalExperienceList),
+                      totalExperienceList,Icons.settings),
                   const SizedBox(height: 20),
                   CustomControls.AutoCompleteCustom(
                       context,
@@ -334,7 +334,7 @@ class _Screen3State extends State<Screen3> {
                             // print(selectedEducation.label),
                           }),
                       selectedcurrentSalary,
-                      currentSalaryList),
+                      currentSalaryList,Icons.money),
                 ],
               ),
             ),

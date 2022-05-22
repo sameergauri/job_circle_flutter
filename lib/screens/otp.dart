@@ -272,18 +272,24 @@ class _OTPScreenState extends State<OTPScreen> {
 
     if (res.resultKey == 'SUCCESS') {
       dynamic data = res.resultData;
+      if (res.resultData.containsKey('msg')) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Invalid otp. please try again"),
+        ));
+      } else {
+        await Utils.setPreference(
+            null, ESharedPreferences.user_id.name, data['id']);
+        await Utils.setPreference(
+            null, ESharedPreferences.user_data.name, data);
 
-      await Utils.setPreference(
-          null, ESharedPreferences.user_id.name, data['id']);
-      await Utils.setPreference(null, ESharedPreferences.user_data.name, data);
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+        });
 
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("OTP Verified Successfully"),
-      ));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("OTP Verified Successfully"),
+        ));
+      }
     }
   }
 }
