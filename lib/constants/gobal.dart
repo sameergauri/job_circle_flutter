@@ -6,7 +6,7 @@ class GlobalConstants {
   // static const API_Host = "localhost:9090";
   static const API_Users_v1_saveStages = "/users/v1/saveStages";
 
-  static const API_Users_v1_id = "/users/v1/";
+  static const API_Users_v1_profileSummary = "/users/v1/profileSummary/";
 
   static const API_Users_v1_authenticate = "/users/v1/authenticate";
 

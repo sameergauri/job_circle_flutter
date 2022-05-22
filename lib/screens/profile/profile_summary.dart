@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/common/utils.dart';
@@ -8,6 +8,7 @@ import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/service/DataService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -29,8 +30,26 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
   String gendor = "";
-
+  late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   final basicForm = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    bindProfileSummary();
+    super.initState();
+  }
+
+  bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().getUserProfileSummary(
+        await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name));
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      var dataResult = Utils.parseResponse(result).resultData;
+      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,17 +79,21 @@ class _ProfileSummaryState extends State<ProfileSummary> {
           child: Column(
             children: [
               Center(child: SmartCard(model: model)),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(children: [
-                    basicInfo(),
-                    education(),
-                    experience(),
-                    contactDetails()
-                  ]),
+                  child: profilemodel.first_name == null
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Column(children: [
+                          basicInfo(),
+                          education(),
+                          experience(),
+                          contactDetails()
+                        ]),
                 ),
               ),
             ],
@@ -95,22 +118,25 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "PRATIK NAIK",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w200),
+                  Text(
+                    profilemodel.first_name.toString() +
+                        ' ' +
+                        profilemodel.last_name.toString(),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w200),
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Location",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "Mumbai",
-                        style: TextStyle(
+                        profilemodel.job_location_city.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
@@ -118,15 +144,15 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Gender",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "Male",
-                        style: TextStyle(
+                        profilemodel.gender.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
@@ -172,15 +198,15 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Highest Education",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "12th Pass",
-                        style: TextStyle(
+                        profilemodel.education.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
@@ -210,15 +236,15 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Level",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "Fresher",
-                        style: TextStyle(
+                        profilemodel.experience.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
@@ -249,33 +275,33 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Mobile",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "12th Pass",
-                        style: TextStyle(
+                        profilemodel.mobile.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Email",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
-                        "Pratik@gmail.com",
-                        style: TextStyle(
+                        profilemodel.email.toString(),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
