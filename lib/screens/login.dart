@@ -21,6 +21,7 @@ class _LoginState extends State<Login> {
   TextEditingController otpcontroller = TextEditingController();
   String _mobileNumber = '';
   List<SimCard> _simCard = <SimCard>[];
+  FocusNode mobileFocus = FocusNode();
 
   Future<void> initMobileNumberState() async {
     if (!await MobileNumber.hasPhonePermission) {
@@ -60,7 +61,9 @@ class _LoginState extends State<Login> {
 
     //   initMobileNumberState();
     // }
-    Future.delayed(Duration.zero, () {
+
+    Future.delayed(Duration.zero, () async {
+      await Utils.clearAllSharedPreference();
       BottomDialog()
           .showBottomDialog(context, _buildDialogContent(context), false);
     });
@@ -319,6 +322,8 @@ class _LoginState extends State<Login> {
       children: [
         TextField(
           controller: otpcontroller,
+          focusNode: mobileFocus,
+          autofocus: true,
           maxLength: 10,
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[
@@ -363,8 +368,9 @@ class _LoginState extends State<Login> {
       // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
       Utils.setPreference(
           null, ESharedPreferences.user_mobile.name, otpcontroller.text);
-      Navigator.pushNamedAndRemoveUntil(
-          context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
+      Navigator.pushNamed(context, ERoute.otpscreen.name);
+      // Navigator.pushNamedAndRemoveUntil(
+      //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
     }
   }
 }

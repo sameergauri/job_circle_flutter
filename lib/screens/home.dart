@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
@@ -15,6 +16,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final PageController pageController = PageController();
   int selectedIndex = 0;
+  dynamic userType;
+  List<BottomNavigationBarItem> bottomTabItems = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      userType = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name);
+      bindBottomTabs();
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,37 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              // BottomNavigationBarItem(
-              //     icon: Icon(Icons.roofing_outlined),
-              //     activeIcon: Icon(Icons.roofing),
-              //     label: 'Home',
-              //     backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_customize_outlined),
-                activeIcon: Icon(Icons.dashboard_customize_rounded),
-                label: 'Jobs',
-                backgroundColor: Colors.blue,
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.handshake_outlined),
-                activeIcon: Icon(Icons.handshake_outlined),
-                label: 'Partner',
-                backgroundColor: Colors.blue,
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle_outlined),
-                activeIcon: Icon(Icons.account_circle_rounded),
-                label: 'Profile',
-                backgroundColor: Colors.blue,
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.admin_panel_settings),
-                activeIcon: Icon(Icons.admin_panel_settings_rounded),
-                label: 'Admin',
-                backgroundColor: Colors.blue,
-              ),
-            ],
+            items: bottomTabItems,
             type: BottomNavigationBarType.fixed,
             currentIndex: selectedIndex,
             unselectedItemColor: Colors.black45,
@@ -74,25 +60,73 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void bindBottomTabs() {
+    bottomTabItems.add(const BottomNavigationBarItem(
+      icon: Icon(Icons.dashboard_customize_outlined),
+      activeIcon: Icon(Icons.dashboard_customize_rounded),
+      label: 'Jobs',
+      backgroundColor: Colors.blue,
+    ));
+
+    if (userType == EUserType.businessPartner.value.toString()) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.handshake_outlined),
+        activeIcon: Icon(Icons.handshake_outlined),
+        label: 'Partner',
+        backgroundColor: Colors.blue,
+      ));
+    }
+    bottomTabItems.add(const BottomNavigationBarItem(
+      icon: Icon(Icons.account_circle_outlined),
+      activeIcon: Icon(Icons.account_circle_rounded),
+      label: 'Profile',
+      backgroundColor: Colors.blue,
+    ));
+    if (userType == EUserType.employee.value.toString()) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.admin_panel_settings),
+        activeIcon: Icon(Icons.admin_panel_settings_rounded),
+        label: 'Admin',
+        backgroundColor: Colors.blue,
+      ));
+    }
+  }
+
   void onNavigationChange(int value) {
-    if (value == 2) {
-      Navigator.pushNamed(context, ERoute.profile_summary.name);
-      return;
+    BottomNavigationBarItem item =
+        bottomTabItems.getRange(value, value + 1).first;
+    switch (item.label) {
+      case "Profile":
+        Navigator.pushNamed(context, ERoute.profile_summary.name);
+        break;
+      case "Admin":
+        Navigator.pushNamed(context, AdminERoute.admin_leads.name);
+        break;
+      case "Partner":
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const BusinessPartner()));
+        break;
+      default:
     }
 
-    if (value == 3) {
-      Navigator.pushNamed(context, AdminERoute.admin_leads.name);
-      return;
-    }
-
-    if (value == 1) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const BusinessPartner()));
-      return;
-    }
     setState(() {
       selectedIndex = value;
     });
     pageController.jumpToPage(value);
+    // if (value == 2) {
+    //   Navigator.pushNamed(context, ERoute.profile_summary.name);
+    //   return;
+    // }
+
+    // if (value == 3) {
+    //   Navigator.pushNamed(context, AdminERoute.admin_leads.name);
+    //   return;
+    // }
+
+    // if (value == 1) {
+    //   Navigator.push(context,
+    //       MaterialPageRoute(builder: (context) => const BusinessPartner()));
+    //   return;
+    // }
   }
 }

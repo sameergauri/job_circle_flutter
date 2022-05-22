@@ -47,7 +47,7 @@ class _Screen1State extends State<Screen1> {
   void initState() {
     super.initState();
     bindLocation();
-    dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    dateOfBirth.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   }
 
@@ -222,6 +222,7 @@ class _Screen1State extends State<Screen1> {
             child: Column(
               children: [
                 TextFormField(
+                  autofocus: true,
                   // inputFormatters: [
                   //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                   // ],
@@ -233,7 +234,8 @@ class _Screen1State extends State<Screen1> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter valid first and last name';
-                    } else if (!spaceMatch.hasMatch(username.text.trim())) {
+                    } else if (!spaceMatch
+                        .hasMatch(username.text.trim().toTitleCase())) {
                       return 'Please enter valid first and last name';
                     }
 
@@ -295,6 +297,7 @@ class _Screen1State extends State<Screen1> {
                   //   }
                   //   return null;
                   // },
+
                   decoration: const InputDecoration(
                     icon: Icon(Icons.calendar_month),
                     label: Text("Date Of Birth"),
@@ -305,15 +308,16 @@ class _Screen1State extends State<Screen1> {
                   readOnly: true,
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now().add(const Duration(days: -(365*50))),
-                        lastDate: DateTime.now(),
-                        );
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate:
+                          DateTime.now().add(const Duration(days: -(365 * 50))),
+                      lastDate: DateTime.now(),
+                    );
 
                     if (pickedDate != null) {
                       String formattedDate =
-                          DateFormat('dd-MM-yyyy').format(pickedDate);
+                          DateFormat('yyyy-MM-dd').format(pickedDate);
                       setState(() {
                         dateOfBirth.text = formattedDate;
                         dt = DateFormat('yyyy-MM-dd HH:mm:ss')
@@ -449,7 +453,6 @@ class _Screen1State extends State<Screen1> {
   }
 
   save() async {
-    
     // var result = await UserDataService().masterGetByGroup(
     //     {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
     // print(Utils.parseResponse(result).resultData);
@@ -459,9 +462,7 @@ class _Screen1State extends State<Screen1> {
 
     String userName = username.text;
     if (userName.isNotEmpty) {
-      final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
-
-      if (!spaceMatch.hasMatch(username.text.trim())) {
+      if (!spaceMatch.hasMatch(username.text.trim().toTitleCase())) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Please enter valid name"),
         ));
@@ -471,8 +472,7 @@ class _Screen1State extends State<Screen1> {
 
     var firstName = username.text.trim().split(' ')[0];
     var lastName = username.text.trim().split(' ')[1];
-
-    var result = await UserDataService().saveUserStages({
+    var params = {
       "stage": "basic_info",
       "data": {
         "id": await Utils.getPreferencesValue(
@@ -484,11 +484,14 @@ class _Screen1State extends State<Screen1> {
         "job_location_id": selectedLocation.value,
         "email": emailadr.text,
         "gender": gender,
-        "dateofbirth":dateOfBirth.text,
+        "dateofbirth": dateOfBirth.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
       }
-    });
+    };
+
+    print(params);
+    var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       Navigator.pushNamed(context, ERoute.screen2.name);
     }

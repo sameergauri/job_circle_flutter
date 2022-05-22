@@ -73,7 +73,6 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Column(
@@ -190,9 +189,9 @@ class _OTPScreenState extends State<OTPScreen> {
                   themeButtonSize: ThemeButtonSize.xsmall,
                   isText: true,
                   onPressed: () {
+                    saveOTP();
                     //Navigator.pushReplacementNamed(context, ERoute.login.name);
-                    Navigator.pushReplacementNamed(
-                        context, ERoute.logintype.name);
+                    // Navigator.pushReplacementNamed(context, ERoute.login.name);
                   },
                   text: "Resend OTP",
                   hide: resendOtpHide,
@@ -274,6 +273,7 @@ class _OTPScreenState extends State<OTPScreen> {
     if (res.resultKey == 'SUCCESS') {
       dynamic data = res.resultData;
       if (res.resultData.containsKey('msg')) {
+        clearOTPText();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Invalid otp. please try again"),
         ));
@@ -294,28 +294,38 @@ class _OTPScreenState extends State<OTPScreen> {
           final String usertype = data['usertype'].toString();
 
           if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-            Future.delayed(const Duration(seconds: 2), () {
+            Future.delayed(const Duration(seconds: 1), () {
               Navigator.pushReplacementNamed(context, ERoute.screen1.name);
             });
           } else if (usertype.toString() ==
               EUserType.jobSeeker.value.toString()) {
-            Future.delayed(const Duration(seconds: 2), () {
-              Navigator.pushReplacementNamed(
-                  context, ERoute.businesspartner_confirmation.name);
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  ERoute.businesspartner_confirmation.name,
+                  (Route<dynamic> route) => false);
+              // Navigator.pushReplacementNamed(
+              //     context, ERoute.businesspartner_confirmation.name);
             });
           } else if (usertype.toString() ==
               EUserType.employee.value.toString()) {
-            Future.delayed(const Duration(seconds: 2), () {
-              Navigator.pushReplacementNamed(context, ERoute.jobs.name);
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, ERoute.jobs.name, (Route<dynamic> route) => false);
+              //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
             });
           } else {
-            Future.delayed(const Duration(seconds: 2), () {
-              Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.pushNamedAndRemoveUntil(context, ERoute.logintype.name,
+                  (Route<dynamic> route) => false);
+              //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
             });
           }
         } else {
-          Future.delayed(const Duration(seconds: 2), () {
-            Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.pushNamedAndRemoveUntil(context, ERoute.logintype.name,
+                (Route<dynamic> route) => false);
+            //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
           });
         }
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -323,5 +333,26 @@ class _OTPScreenState extends State<OTPScreen> {
         ));
       }
     }
+  }
+
+  saveOTP() async {
+    clearOTPText();
+
+    var result = await UserDataService().authenticate({
+      "mobile": await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name)
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("OTP Resend Successfully"),
+      ));
+    }
+  }
+
+  void clearOTPText() {
+    otpChar1Controller.text = "";
+    otpChar2Controller.text = "";
+    otpChar3Controller.text = "";
+    otpChar4Controller.text = "";
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:job_circle/enums/enums.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/api_response.dart';
@@ -38,5 +39,46 @@ class Utils {
       SharedPreferences? pref, String key) async {
     SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
     return pref1.get(key);
+  }
+
+  static clearAllSharedPreference() async {
+    SharedPreferences pref = await Utils.getSharedPreferences();
+    pref.remove(ESharedPreferences.user_data.name);
+    pref.remove(ESharedPreferences.user_id.name);
+    pref.remove(ESharedPreferences.user_mobile.name);
+    pref.remove(ESharedPreferences.user_type.name);
+  }
+}
+
+String convertToTitleCase(String text) {
+  if (text == null) {
+    return "";
+  }
+
+  if (text.length <= 1) {
+    return text.toUpperCase();
+  }
+
+  // Split string into multiple words
+  final List<String> words = text.split(' ');
+
+  // Capitalize first letter of each words
+  final capitalizedWords = words.map((word) {
+    if (word.trim().isNotEmpty) {
+      final String firstLetter = word.trim().substring(0, 1).toUpperCase();
+      final String remainingLetters = word.trim().substring(1);
+
+      return '$firstLetter$remainingLetters';
+    }
+    return '';
+  });
+
+  // Join/Merge all words back to one String
+  return capitalizedWords.join(' ');
+}
+
+extension CapitalizedStringExtension on String {
+  String toTitleCase() {
+    return convertToTitleCase(this);
   }
 }

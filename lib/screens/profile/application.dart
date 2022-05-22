@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
@@ -17,6 +18,26 @@ class ApplicationFormState extends State<ApplicationForm> {
   int graduateActive = 0;
   int exprinceActive = 0;
   int fresherActive = 0;
+
+  TextEditingController contactno = TextEditingController();
+
+  dynamic applicantName = {};
+  String mobileno = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print(await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_data.name));
+      mobileno = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_mobile.name);
+      contactno.text = mobileno;
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +60,15 @@ class ApplicationFormState extends State<ApplicationForm> {
                   hintText: 'Enter appilcation name',
                 ),
               ),
-              const TextField(
-                decoration: InputDecoration(
+              TextFormField(
+                decoration: const InputDecoration(
                   // icon: Icon(Icons.person),
                   label: Text("Contact No"),
                   //border: OutlineInputBorder(),
                   border: InputBorder.none,
                   hintText: 'Enter conctact no',
                 ),
+                controller: contactno,
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 8.0),

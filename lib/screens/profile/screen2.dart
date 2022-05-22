@@ -212,7 +212,8 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedEducation,
-                  levelOfEducationList,Icons.school_outlined),
+                  levelOfEducationList,
+                  Icons.school_outlined),
               const SizedBox(height: 10),
               CustomControls.AutoCompleteCustom(
                   context,
@@ -225,7 +226,8 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedUniversity,
-                  universityInstitueList,Icons.school_sharp),
+                  universityInstitueList,
+                  Icons.school_sharp),
               const SizedBox(height: 10),
               CustomControls.AutoCompleteCustom(
                   context,
@@ -238,7 +240,30 @@ class _Screen2State extends State<Screen2> {
                         // print(selectedEducation.label),
                       }),
                   selectedDegree,
-                  degreeList,Icons.cast_for_education),
+                  degreeList,
+                  Icons.cast_for_education),
+              const SizedBox(height: 10),
+              TextFormField(
+                // inputFormatters: [
+                //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                // ],
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                onChanged: ((value) => {}),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter valid first and last name';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.calendar_month),
+                  label: Text("Passing Year"),
+                  //border: OutlineInputBorder(),
+                  border: InputBorder.none,
+                  hintText: 'Please enter year of passing',
+                ),
+              ),
               const SizedBox(height: 20),
             ],
           ),
