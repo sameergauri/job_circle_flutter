@@ -9,6 +9,7 @@ import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class Screen1 extends StatefulWidget {
   const Screen1({Key? key}) : super(key: key);
@@ -27,6 +28,8 @@ class _Screen1State extends State<Screen1> {
   TextEditingController username = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
+  TextEditingController dateOfBirth = TextEditingController();
+  var dt;
 
   int locationid = 0;
 
@@ -42,8 +45,10 @@ class _Screen1State extends State<Screen1> {
 
   @override
   void initState() {
-    bindLocation();
     super.initState();
+    bindLocation();
+    dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   }
 
   bindLocation() async {
@@ -269,6 +274,47 @@ class _Screen1State extends State<Screen1> {
                     selectedLocation,
                     jobLocationList,
                     Icons.location_city),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: dateOfBirth,
+                  // validator: (value) {
+                  //   if (value == null ||
+                  //       value.isEmpty && !value.contains(' ')) {
+                  //     return 'Please enter valid first and last name';
+                  //   }
+                  //   return null;
+                  // },
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_month),
+                    label: Text("Date Of Birth"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Please enter date of birth',
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now().add(const Duration(days: -(365*50))),
+                        lastDate: DateTime.now(),
+                        );
+
+                    if (pickedDate != null) {
+                      String formattedDate =
+                          DateFormat('dd-MM-yyyy').format(pickedDate);
+                      setState(() {
+                        dateOfBirth.text = formattedDate;
+                        dt = DateFormat('yyyy-MM-dd HH:mm:ss')
+                            .format(pickedDate);
+                        //set output date to TextField value.
+                      });
+                    } else {
+                      // ignore: avoid_print
+                      print("Date is not selected");
+                    }
+                  },
+                ),
                 const SizedBox(height: 10),
                 TextFormField(
                   // initialValue: "+9004390874",
