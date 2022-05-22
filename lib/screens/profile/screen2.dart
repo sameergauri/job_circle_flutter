@@ -5,7 +5,11 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../common/utils.dart';
+import '../../components/autocompletecustom.dart';
+import '../../models/autocompleteModel.dart';
 import '../../models/card_model.dart';
+import '../../service/UserDataService.dart';
 
 class Screen2 extends StatefulWidget {
   const Screen2({Key? key}) : super(key: key);
@@ -19,18 +23,75 @@ class _Screen2State extends State<Screen2> {
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
   CardModel model = CardModel();
-  
+
+  var ddlValues;
+  late List<AutoCompleteModel> levelOfEducationList = [];
+  late List<AutoCompleteModel> universityInstitueList = [];
+  late List<AutoCompleteModel> degreeList = [];
+  AutoCompleteModel selectedEducation = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedUniversity = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedDegree = AutoCompleteModel("", "", {});
+
   @override
   void initState() {
-    // TODO: implement initState
-    getUserDetails();
+    bindLevelOfEducation();
+    bindUniversityEducation();
+    bindDegree();
     super.initState();
   }
 
-  getUserDetails() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    model.cardName = preferences.getString('username');
-    setState(() {});
+  bindLevelOfEducation() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'level_education', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      levelOfEducationList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedEducation = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindUniversityEducation() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'university', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      universityInstitueList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedUniversity = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindDegree() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'degree', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      degreeList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedDegree = AutoCompleteModel("0", "", {});
+      });
+    }
   }
 
   @override
@@ -75,7 +136,7 @@ class _Screen2State extends State<Screen2> {
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushNamed(context, ERoute.screen3.name);
+                save();
               },
               text: "NEXT",
               themeButtonSize: ThemeButtonSize.medium,
@@ -140,101 +201,68 @@ class _Screen2State extends State<Screen2> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              Autocomplete(fieldViewBuilder: (BuildContext context,
-                  TextEditingController fieldTextEditingController,
-                  FocusNode fieldFocusNode,
-                  VoidCallback onFieldSubmitted) {
-                return TextField(
-                  controller: fieldTextEditingController,
-                  focusNode: fieldFocusNode,
-                  onEditingComplete: onFieldSubmitted,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    icon: Icon(Icons.workspace_premium),
-                    label: Text("Degree/Specialization"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: 'Enter lated one',
-                  ),
-                );
-              }, optionsViewBuilder: (BuildContext context,
-                  AutocompleteOnSelected<PopupMenuItem> onSelected,
-                  Iterable<PopupMenuItem> options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    child: SizedBox(
-                      width: 300,
-                      child: ListView.builder(
-                        padding: EdgeInsets.all(10.0),
-                        itemCount: options.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final PopupMenuItem option = options.elementAt(index);
-
-                          return GestureDetector(
-                            onTap: () {
-                              onSelected(option);
-                            },
-                            child: ListTile(
-                              title: Text(option.value['display'],
-                                  style: const TextStyle(color: Colors.black)),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              }, optionsBuilder: (TextEditingValue textEditingValue) {
-                return [
-                  {
-                    "display": "Graduate",
-                    "value": "",
-                  },
-                  {
-                    "display": "HSC",
-                    "value": "",
-                  },
-                  {
-                    "display": "SSC",
-                    "value": "Climbing",
-                  }
-                ]
-                    .map<PopupMenuItem<Map<String, String>>>((value) {
-                      return PopupMenuItem(
-                          child: Text(value['display'].toString()),
-                          value: value);
-                    })
-                    .where((PopupMenuItem county) => county.value['display']
-                        .toLowerCase()
-                        .startsWith(textEditingValue.text.toLowerCase()))
-                    .toList();
-              }),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "Level Of Education",
+                  "Enter Level Of Education",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedEducation = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedEducation,
+                  levelOfEducationList,Icons.school_outlined),
               const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.school),
-                  label: Text("Degree/Specialization"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Enter lated one',
-                ),
-              ),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "University / Institute",
+                  "Enter college name",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedUniversity = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedUniversity,
+                  universityInstitueList,Icons.school_sharp),
               const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  icon: Icon(Icons.location_city),
-                  label: Text("Univercity / Institute"),
-                  // border: OutlineInputBorder(),
-                  hintText: 'Enter Univercity / Institutre name',
-                ),
-              ),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "Degree / Specialization",
+                  "Enter degree",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedDegree = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedDegree,
+                  degreeList,Icons.cast_for_education),
               const SizedBox(height: 20),
             ],
           ),
         ),
       ),
     );
+  }
+
+  save() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().saveUserStages({
+      "stage": "education",
+      "data": {
+        "id": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name),
+        "education": selectedEducation.value,
+        "degree_spc": selectedDegree.value,
+        "university": selectedUniversity.value,
+        // "passing_year": emailadr.text,
+      }
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      Navigator.pushNamed(context, ERoute.screen3.name);
+    }
+    setState(() {});
   }
 }

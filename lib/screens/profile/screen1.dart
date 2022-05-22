@@ -267,7 +267,8 @@ class _Screen1State extends State<Screen1> {
                           print(selectedLocation.label),
                         }),
                     selectedLocation,
-                    jobLocationList),
+                    jobLocationList,
+                    Icons.location_city),
                 const SizedBox(height: 10),
                 TextFormField(
                   // initialValue: "+9004390874",
