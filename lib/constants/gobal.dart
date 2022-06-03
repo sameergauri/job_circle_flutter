@@ -13,4 +13,6 @@ class GlobalConstants {
   static const API_Users_v1_validateOTP = "/users/v1/validateOtp";
 
   static const API_master_group = "/master/v1/getByGroup";
+
+  static const API_lead_counts = "/leads/v1/getLeads";
 }
