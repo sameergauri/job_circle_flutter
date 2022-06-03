@@ -3,6 +3,8 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
+import 'package:job_circle/service/applicationService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplicationForm extends StatefulWidget {
   const ApplicationForm({Key? key}) : super(key: key);
@@ -20,8 +22,9 @@ class ApplicationFormState extends State<ApplicationForm> {
   int fresherActive = 0;
 
   TextEditingController contactno = TextEditingController();
+  TextEditingController applicationname = TextEditingController();
 
-  dynamic applicantName = {};
+  // dynamic applicantName = {};
   String mobileno = "";
 
   @override
@@ -51,8 +54,9 @@ class ApplicationFormState extends State<ApplicationForm> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: applicationname,
+                decoration: const InputDecoration(
                   // icon: Icon(Icons.person),
                   label: Text("Application Name"),
                   //border: OutlineInputBorder(),
@@ -61,6 +65,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                 ),
               ),
               TextFormField(
+                controller: contactno,
                 decoration: const InputDecoration(
                   // icon: Icon(Icons.person),
                   label: Text("Contact No"),
@@ -68,7 +73,6 @@ class ApplicationFormState extends State<ApplicationForm> {
                   border: InputBorder.none,
                   hintText: 'Enter conctact no',
                 ),
-                controller: contactno,
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 8.0),
@@ -295,7 +299,9 @@ class ApplicationFormState extends State<ApplicationForm> {
               ThemeButton(
                 width: 200,
                 radious: 0,
-                onPressed: () {},
+                onPressed: () {
+                  save();
+                },
                 text: "SUBMIT",
                 themeButtonSize: ThemeButtonSize.small,
               ),
@@ -307,5 +313,27 @@ class ApplicationFormState extends State<ApplicationForm> {
         ),
       ),
     ));
+  }
+
+  save() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await ApplicationService().saveApplication({
+      'flag': 'save',
+      "applicantName": applicationname.text.trim(),
+      "contactNo": contactno.text.trim(),
+      "experience": "string",
+      "id": 0,
+      "level": "string",
+      "process": "string",
+      "qualification": "string",
+      "resume": "string",
+      "shortListFor": "string",
+      "sourceId": await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_id.name),
+      "uid": 2
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      
+    }
   }
 }

@@ -15,4 +15,5 @@ class GlobalConstants {
   static const API_master_group = "/master/v1/getByGroup";
 
   static const API_lead_counts = "/leads/v1/getLeads";
+  static const API_leads_v1 = "/leads/v1";
 }
