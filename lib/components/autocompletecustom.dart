@@ -44,6 +44,7 @@ class CustomControls {
           selectedItem = _selectedItem;
         },
         displayStringForOption: (AutoCompleteModel option) => option.label,
+        optionsMaxHeight: double.infinity,
         optionsBuilder: (TextEditingValue textEditingValue) {
           if (textEditingValue.text == '') {
             return const Iterable<AutoCompleteModel>.empty();

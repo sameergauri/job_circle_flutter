@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autocompletecustom.dart';
@@ -62,7 +64,8 @@ class _Screen1State extends State<Screen1> {
           .map<AutoCompleteModel>(
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
-
+      final productId = ModalRoute.of(context)!.settings.arguments;
+      print(productId);
       setState(() {
         selectedLocation = AutoCompleteModel("0", "", {});
       });
@@ -125,7 +128,10 @@ class _Screen1State extends State<Screen1> {
           bottom: false,
           child: Column(
             children: [
-              SmartCard(model: model),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SmartCard(model: model),
+              ),
               Expanded(
                 child: Stack(
                   children: [
@@ -335,6 +341,10 @@ class _Screen1State extends State<Screen1> {
                   // initialValue: "+9004390874",
                   // enabled: false,
                   controller: emailadr,
+                  onChanged: ((value) => {
+                        model.email = value,
+                        updateCard(model),
+                      }),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     icon: Icon(Icons.email),
@@ -437,7 +447,7 @@ class _Screen1State extends State<Screen1> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 200),
               ],
             ),
           ),
@@ -448,6 +458,8 @@ class _Screen1State extends State<Screen1> {
 
   updateCard(CardModel items) {
     model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
+    model.email = items.email;
+
     // model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
     setState(() {});
   }
@@ -472,13 +484,14 @@ class _Screen1State extends State<Screen1> {
 
     var firstName = username.text.trim().split(' ')[0];
     var lastName = username.text.trim().split(' ')[1];
+    var mobilenumber = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_mobile.name);
     var params = {
       "stage": "basic_info",
       "data": {
         "id": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_id.name),
-        "mobile": await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_mobile.name),
+        "mobile": mobilenumber,
         "first_name": firstName,
         "last_name": lastName,
         "job_location_id": selectedLocation.value,
@@ -490,9 +503,14 @@ class _Screen1State extends State<Screen1> {
       }
     };
 
-    print(params);
+    CardModel model = CardModel();
+    model.mobile = mobilenumber;
+    model.cardName = (firstName + " " + lastName).toTitleCase();
+    model.email = emailadr.text;
     var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      await Utils.setPreference(
+          prefs, ESharedPreferences.user_data.name, jsonEncode(model));
       Navigator.pushNamed(context, ERoute.screen2.name);
     }
     setState(() {});

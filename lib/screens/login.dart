@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -63,7 +64,7 @@ class _LoginState extends State<Login> {
     // }
 
     Future.delayed(Duration.zero, () async {
-      await Utils.clearAllSharedPreference();
+      await AppUtils.clearSession();
       BottomDialog()
           .showBottomDialog(context, _buildDialogContent(context), false);
     });

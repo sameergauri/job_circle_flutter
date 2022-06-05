@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
+import 'package:job_circle/models/card_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/utils.dart';
@@ -98,6 +101,10 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: TextField(
                   controller: otpChar1Controller,
                   maxLength: 1,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   focusNode: otpChar1FocusNode,
                   onChanged: ((value) => {
                         if (value != "") {otpChar2FocusNode.requestFocus()},
@@ -118,6 +125,10 @@ class _OTPScreenState extends State<OTPScreen> {
                   controller: otpChar2Controller,
                   maxLength: 1,
                   focusNode: otpChar2FocusNode,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   onChanged: ((value) => {
                         if (value == "")
                           {otpChar1FocusNode.requestFocus()}
@@ -139,6 +150,10 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: TextField(
                   controller: otpChar3Controller,
                   maxLength: 1,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   focusNode: otpChar3FocusNode,
                   onChanged: ((value) => {
                         if (value == "")
@@ -161,6 +176,10 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: TextField(
                   controller: otpChar4Controller,
                   focusNode: otpChar4FocusNode,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   maxLength: 1,
                   onChanged: ((value) => {
                         strOTP += value.toString(),
@@ -272,6 +291,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
     if (res.resultKey == 'SUCCESS') {
       dynamic data = res.resultData;
+
       if (res.resultData.containsKey('msg')) {
         clearOTPText();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -279,34 +299,45 @@ class _OTPScreenState extends State<OTPScreen> {
         ));
       } else {
         await Utils.setPreference(
-            null, ESharedPreferences.user_id.name, data['id']);
-        await Utils.setPreference(
-            null, ESharedPreferences.user_data.name, data);
-
-        await Utils.setPreference(
             pres, ESharedPreferences.user_id.name, data['id']);
+
         await Utils.setPreference(
             pres, ESharedPreferences.user_type.name, data['usertype']);
 
-        await Utils.setPreference(
-            pres, ESharedPreferences.user_data.name, data);
+        CardModel model = CardModel();
+        model.mobile = mobileno;
+        model.cardName = (data['firstName'] + " " + data['lastName']);
+        model.email = data['email'];
+        await Utils.setPreference(pres, ESharedPreferences.user_data.name,
+            jsonEncode(model.toJson()));
+
         if (data['usertype'] != null) {
           final String usertype = data['usertype'].toString();
 
           if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.pushReplacementNamed(context, ERoute.screen1.name);
-            });
+            ERoute nextRoute = ERoute.screen1;
+            if (data['firstName'] == '') {
+              nextRoute = ERoute.screen1;
+            } else if (data['education'] == null || data['firstName'] == 0) {
+              nextRoute = ERoute.screen2;
+            } else if (data['experience'] == null || data['experience'] == 0) {
+              nextRoute = ERoute.screen3;
+            } else {
+              nextRoute = ERoute.home;
+            }
+            Navigator.pushNamedAndRemoveUntil(
+                context, nextRoute.value, (Route<dynamic> route) => false);
+            // Future.delayed(const Duration(seconds: 1), () {
+            //   // Navigator.pushReplacementNamed(context, nextRoute.value);
+            // });
           } else if (usertype.toString() ==
-              EUserType.jobSeeker.value.toString()) {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  ERoute.businesspartner_confirmation.name,
-                  (Route<dynamic> route) => false);
-              // Navigator.pushReplacementNamed(
-              //     context, ERoute.businesspartner_confirmation.name);
-            });
+              EUserType.businessPartner.value.toString()) {
+            //Future.delayed(const Duration(seconds: 1), () {
+            Navigator.pushNamedAndRemoveUntil(context, ERoute.partnerHome.name,
+                (Route<dynamic> route) => false);
+            // Navigator.pushReplacementNamed(
+            //     context, ERoute.businesspartner_confirmation.name);
+            // });
           } else if (usertype.toString() ==
               EUserType.employee.value.toString()) {
             Future.delayed(const Duration(seconds: 1), () {

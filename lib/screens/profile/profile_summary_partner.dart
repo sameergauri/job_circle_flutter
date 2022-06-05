@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
@@ -12,14 +11,14 @@ import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileSummary extends StatefulWidget {
-  const ProfileSummary({Key? key}) : super(key: key);
+class ProfileSummaryPartner extends StatefulWidget {
+  const ProfileSummaryPartner({Key? key}) : super(key: key);
 
   @override
-  State<ProfileSummary> createState() => _ProfileSummaryState();
+  State<ProfileSummaryPartner> createState() => _ProfileSummaryPartnerState();
 }
 
-class _ProfileSummaryState extends State<ProfileSummary> {
+class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
   late Widget previousWidget;
 
   // Veriable Declaration
@@ -76,11 +75,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
           bottom: false,
           child: Column(
             children: [
-              Center(
-                  child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SmartCard(model: model),
-              )),
+              Center(child: SmartCard(model: model)),
               const SizedBox(
                 height: 20,
               ),
@@ -101,18 +96,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                               title: "",
                               child: ThemeButton(
                                 text: "Sign Out",
-                                onPressed: () {
-                                  Future.delayed(const Duration(seconds: 0),
-                                      () async {
-                                    await AppUtils.clearSession();
-                                    Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        ERoute.login.value,
-                                        (Route<dynamic> route) => false);
-                                    // Navigator.pushReplacementNamed(context, nextRoute.value);
-                                  });
-                                  //
-                                },
+                                onPressed: () {},
                                 themeButtonSize: ThemeButtonSize.medium,
                               ))
                         ]),
@@ -134,8 +118,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
               icon: Icons.account_circle_outlined,
               title: "Basic Info",
               onPress: (() {
-                Navigator.pushNamed(context, ERoute.screen1.value,
-                    arguments: 1);
+                print("basic info");
               }),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -146,7 +129,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                         ' ' +
                         profilemodel.last_name.toString(),
                     style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w300),
+                        fontSize: 22, fontWeight: FontWeight.w200),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -155,7 +138,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Location",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.job_location_city.toString(),
@@ -171,7 +154,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Gender",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.gender.toString(),
@@ -187,7 +170,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       Text(
                         "Date Of Birth",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         "11 AUG 1989",
@@ -213,9 +196,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
           SizedBox(
             width: double.infinity,
             child: CardCustom(
-              onPress: (() {
-                print("basic info");
-              }),
               icon: Icons.school_outlined,
               title: "Education",
               child: Column(
@@ -228,7 +208,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Highest Education",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.education.toString(),
@@ -254,9 +234,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
           SizedBox(
             width: double.infinity,
             child: CardCustom(
-              onPress: (() {
-                print("basic info");
-              }),
               icon: Icons.business_center_outlined,
               title: "Experience",
               child: Column(
@@ -269,7 +246,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Level",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.experience.toString(),
@@ -308,7 +285,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Mobile",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.mobile.toString(),
@@ -326,7 +303,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       const Text(
                         "Email",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15, fontWeight: FontWeight.w200),
                       ),
                       Text(
                         profilemodel.email.toString(),
@@ -360,7 +337,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 Row(
                   children: [
                     Icon(icon),
-                    const SizedBox(
+                    SizedBox(
                       width: 10,
                     ),
                     Text(
@@ -376,7 +353,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                           children: [
                             if (isedit == true)
                               IconButton(
-                                icon: const Icon(Icons.edit, size: 18),
+                                icon: Icon(Icons.edit, size: 18),
                                 onPressed: onPress,
                               )
                           ],
@@ -397,22 +374,22 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     setState(() {});
   }
 
-  // saveTo() async {
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  //   preferences.setString('username', username.text);
-  //   save();
-  //   setState(() {});
-  // }
+  saveTo() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('username', username.text);
+    save();
+    setState(() {});
+  }
 
-  // save() async {
-  //   // var result = await UserDataService().getUser(1);
+  save() async {
+    // var result = await UserDataService().getUser(1);
 
-  //   // print(Utils.parseResponse(result).resultData);
+    // print(Utils.parseResponse(result).resultData);
 
-  //   var result = await UserDataService().saveUserStages({
-  //     "stage": "otp",
-  //     "data": {"mobile": "9321284090"}
-  //   });
-  //   print(Utils.parseResponse(result));
-  // }
+    var result = await UserDataService().saveUserStages({
+      "stage": "otp",
+      "data": {"mobile": "9321284090"}
+    });
+    print(Utils.parseResponse(result));
+  }
 }

@@ -7,10 +7,10 @@
         "monorepo": true,
         "commands": [
           {
-              "name": "$(testing-run-all-icon) Build War",
-              "command": "\"./mvnw\" clean install -f \"/Users/work/Paid/api/pom.xml\" -DskipTests",
-              "singleInstance": true
-            }
+            "name": "$(cloud-upload) Deploy to Ec2",
+            "command": "chmod +x ./build_deploy.sh && ./build_deploy.sh",
+            "singleInstance": true
+          },
         ]
       
   },

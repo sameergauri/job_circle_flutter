@@ -148,7 +148,10 @@ class _Screen2State extends State<Screen2> {
           bottom: false,
           child: Column(
             children: [
-              SmartCard(model: model),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SmartCard(model: model),
+              ),
               Expanded(
                 child: Stack(
                   children: [

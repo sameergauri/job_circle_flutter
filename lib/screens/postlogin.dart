@@ -65,7 +65,7 @@ class _PostLoginState extends State<PostLogin> {
                             ESharedPreferences.user_type.name,
                             EUserType.jobSeeker.value);
 
-                        Navigator.pushNamed(context, ERoute.screen1.name);
+                        Navigator.pushNamed(context, ERoute.screen1.value);
                         // showDatePicker(
                         //     context: context,
                         //     initialDate: DateTime.now(),

@@ -1,9 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
 class GlobalConstants {
-  static const API_Host =
-      "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
-  // static const API_Host = "localhost:9090";
+  //static const API_Host = "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
+  static const API_Host = "localhost:9090";
   static const API_Users_v1_saveStages = "/users/v1/saveStages";
 
   static const API_Users_v1_profileSummary = "/users/v1/profileSummary/";
@@ -16,4 +15,6 @@ class GlobalConstants {
 
   static const API_lead_counts = "/leads/v1/getLeads";
   static const API_leads_v1 = "/leads/v1";
+
+  static const API_jobs_v1_search = "/jobs/v1/search";
 }

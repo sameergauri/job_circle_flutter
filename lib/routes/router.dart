@@ -3,6 +3,7 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/routes/admin_router.dart';
 import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/home.dart' deferred as home;
+import 'package:job_circle/screens/partnerhome.dart' deferred as partnerhome;
 import 'package:job_circle/screens/profile/profile.dart' deferred as profile;
 import 'package:job_circle/screens/profile/screen1.dart' deferred as screen1;
 import 'package:job_circle/screens/profile/screen2.dart' deferred as screen2;
@@ -24,9 +25,15 @@ import 'package:job_circle/screens/profile/businesspartner_confirm.dart'
 import 'package:job_circle/screens/profile/profile_summary.dart'
     deferred as profileSummary;
 
+import 'package:job_circle/screens/profile/profile_summary_partner.dart'
+    deferred as profileSummaryPartner;
+import 'package:job_circle/screens/statistics/statistic.dart'
+    deferred as statistic;
+
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
+Future<void> get lazyPartnerHome => partnerhome.loadLibrary();
 Future<void> get lazyProfile => profile.loadLibrary();
 Future<void> get lazyScreen1 => screen1.loadLibrary();
 Future<void> get lazyScreen2 => screen2.loadLibrary();
@@ -41,6 +48,9 @@ Future<void> get lazyPostLogin => postlogin.loadLibrary();
 Future<void> get lazyBusinessPartnerConfirmation =>
     businesspartnerconfirmation.loadLibrary();
 Future<void> get lazyProfileSummary => profileSummary.loadLibrary();
+Future<void> get lazyStatistic => statistic.loadLibrary();
+Future<void> get lazyProfileSummaryPartner =>
+    profileSummaryPartner.loadLibrary();
 
 class ApplicationRouter {
   static var appRouter = {
@@ -61,22 +71,27 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return home.HomeScreen();
         }),
+    ERoute.partnerHome.name: (context) => FutureBuilder(
+        future: lazyPartnerHome,
+        builder: (snapshot, context) {
+          return partnerhome.PartnerHomeScreen();
+        }),
     ERoute.profile.name: (context) => FutureBuilder(
         future: lazyProfile,
         builder: (snapshot, context) {
           return profile.ProfileScreen();
         }),
-    ERoute.screen1.name: (context) => FutureBuilder(
+    ERoute.screen1.value: (context) => FutureBuilder(
         future: lazyScreen1,
         builder: (snapshot, context) {
           return screen1.Screen1();
         }),
-    ERoute.screen2.name: (context) => FutureBuilder(
+    ERoute.screen2.value: (context) => FutureBuilder(
         future: lazyScreen2,
         builder: (snapshot, context) {
           return screen2.Screen2();
         }),
-    ERoute.screen3.name: (context) => FutureBuilder(
+    ERoute.screen3.value: (context) => FutureBuilder(
         future: lazyScreen3,
         builder: (snapshot, context) {
           return screen3.Screen3();
@@ -115,6 +130,16 @@ class ApplicationRouter {
         future: lazyProfileSummary,
         builder: (snapshot, context) {
           return profileSummary.ProfileSummary();
+        }),
+    ERoute.profile_summary_partner.name: (context) => FutureBuilder(
+        future: lazyProfileSummaryPartner,
+        builder: (snapshot, context) {
+          return profileSummaryPartner.ProfileSummaryPartner();
+        }),
+    ERoute.stats.name: (context) => FutureBuilder(
+        future: lazyStatistic,
+        builder: (snapshot, context) {
+          return statistic.Statestics();
         }),
     ...ApplicationAdminRouter.appAdminRouter
   };

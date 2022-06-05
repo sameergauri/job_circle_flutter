@@ -1,0 +1,8 @@
+import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/service/ServiceBase.dart';
+
+class LeadService extends ServiceBase {
+  getLoadCounts(dynamic params) {
+    return callPost(GlobalConstants.API_lead_counts, params);
+  }
+}
