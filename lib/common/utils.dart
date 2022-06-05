@@ -38,15 +38,21 @@ class Utils {
   static dynamic getPreferencesValue(
       SharedPreferences? pref, String key) async {
     SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
-    return pref1.get(key);
+    var s = pref1.get(key);
+    return s;
   }
 
-  static clearAllSharedPreference() async {
+  static clearAllSharedPreferences() async {
     SharedPreferences pref = await Utils.getSharedPreferences();
     pref.remove(ESharedPreferences.user_data.name);
     pref.remove(ESharedPreferences.user_id.name);
     pref.remove(ESharedPreferences.user_mobile.name);
     pref.remove(ESharedPreferences.user_type.name);
+  }
+
+  static clearAllSharedPreference(SharedPreferences? pref, String key) async {
+    SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
+    return pref1.remove(key);
   }
 }
 

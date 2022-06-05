@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
-import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/service/JobSearchService.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class Jobs extends StatefulWidget {
@@ -19,31 +22,37 @@ class _JobsState extends State<Jobs> {
     "Night shift"
   ];
   late int selectedJobTypeIndex = 0;
+  late List jobItems = [];
+  @override
+  void initState() {
+    super.initState();
+    bindJobItems();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var _selectedIndex = 1;
+    //var _selectedIndex = 1;
     const localtion = "Mumbai";
 
     return Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        floatingActionButton: FloatingActionButton(
-          // isExtended: true,
+        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        // floatingActionButton: FloatingActionButton(
+        //   // isExtended: true,
 
-          child: const Icon(Icons.add),
+        //   child: const Icon(Icons.add),
 
-          onPressed: () {
-            Navigator.pushNamed(context, ERoute.application.name);
+        //   onPressed: () {
+        //     Navigator.pushNamed(context, ERoute.application.name);
 
-            setState(() {});
-          },
-        ),
+        //     setState(() {});
+        //   },
+        // ),
         appBar: AppBar(
-          title: Container(
+          title: SizedBox(
             height: 40,
             child: TextField(
               enableInteractiveSelection: false, // will disable paste operation
-              focusNode: new AlwaysDisabledFocusNode(),
+              focusNode: AlwaysDisabledFocusNode(),
               onTap: () {
                 showSearch(context: context, delegate: DataSearch());
               },
@@ -376,9 +385,10 @@ class _JobsState extends State<Jobs> {
                                                     builder: (context) =>
                                                         const JobDetails()));
                                           },
-                                          child: listViewItem(context, index));
+                                          child: listViewItem(
+                                              context, index, jobItems[index]));
                                     },
-                                    itemCount: 8,
+                                    itemCount: jobItems.length,
                                     padding: const EdgeInsets.all(5),
                                     scrollDirection: Axis.vertical,
                                   ),
@@ -397,7 +407,7 @@ class _JobsState extends State<Jobs> {
         ));
   }
 
-  Widget listViewItem(BuildContext context, int index) {
+  Widget listViewItem(BuildContext context, int index, item) {
     return Card(
       margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
@@ -410,7 +420,7 @@ class _JobsState extends State<Jobs> {
             Stack(
               children: [
                 Image.network(
-                  'https://www.adityabirla.com/Assets/images/our-download-logo.png',
+                  item['icon'],
                   errorBuilder: ((context, error, stackTrace) => Image.asset(
                       "assets/images/male.png",
                       height: 80,
@@ -468,19 +478,19 @@ class _JobsState extends State<Jobs> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Aditya birla Private limited ",
+                    Text(
+                      item['companyname'],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 16),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
-                    const Text(
-                      "CRT(Service)",
-                      style: TextStyle(
+                    Text(
+                      item['rolename'],
+                      style: const TextStyle(
                           color: Colors.black54,
                           fontWeight: FontWeight.bold,
                           fontSize: 13),
@@ -535,6 +545,15 @@ class _JobsState extends State<Jobs> {
         ),
       ),
     );
+  }
+
+  void bindJobItems() async {
+    var result = await JobSearchService().getJobSearch({});
+    RequestResult res = Utils.parseResponse(result);
+
+    setState(() {
+      jobItems = res.resultData as List;
+    });
   }
 }
 
@@ -603,6 +622,25 @@ class DataSearch extends SearchDelegate<String> {
       itemCount: suggestionList.length,
     );
   }
+
+  // void locationList() async {
+  //   var result = await UserDataService().masterGetByGroup(
+  //       {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+  //   if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+  //     ddlValues = Utils.parseResponse(result).resultData;
+  //     // list=ddlValues["content"];
+
+  //     jobLocationList = (ddlValues["content"] as List)
+  //         .map<AutoCompleteModel>(
+  //             (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+  //         .toList();
+  //     final productId = ModalRoute.of(context)!.settings.arguments;
+  //     print(productId);
+  //     setState(() {
+  //       selectedLocation = AutoCompleteModel("0", "", {});
+  //     });
+  //   }
+  // }
 }
 
 class LoacationSearch extends SearchDelegate<String> {

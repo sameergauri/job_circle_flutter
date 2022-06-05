@@ -149,77 +149,56 @@ class _Screen3State extends State<Screen3> {
           bottom: false,
           child: Column(
             children: [
-              SmartCard(model: model),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SmartCard(model: model),
+              ),
               Expanded(
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(255, 39, 39, 39),
-                              blurRadius: 17.0,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                          color: Constants.bgPanelColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          )),
-                      //child:
-                      // Card(
-                      //     shape: BeveledRectangleBorder(
-                      //       borderRadius: BorderRadius.circular(10.0),
-                      //     ),
-                      //     elevation: 4,
-                      //     child: const Padding(
-                      //       padding: EdgeInsets.all(20.0),
-                      //       child: SizedBox(
-                      //         child: Text("teddd"),
-                      //         height: 200,
-                      //       ),
-                      //     )),,
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: SingleChildScrollView(
-                                child: Column(children: [
-                                  _education(),
-                                ]),
-                              ),
-                            ),
-                          ),
-                        ],
+                child: Container(
+                  margin: const EdgeInsets.only(top: 20),
+                  decoration: const BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromARGB(255, 39, 39, 39),
+                          blurRadius: 17.0,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                      color: Constants.bgPanelColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
+                      )),
+                  //child:
+                  // Card(
+                  //     shape: BeveledRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //     ),
+                  //     elevation: 4,
+                  //     child: const Padding(
+                  //       padding: EdgeInsets.all(20.0),
+                  //       child: SizedBox(
+                  //         child: Text("teddd"),
+                  //         height: 200,
+                  //       ),
+                  //     )),,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-
-                    // AnimatedSwitcher(
-                    //   duration: const Duration(milliseconds: 500),
-                    //   switchInCurve: Curves.easeIn,
-                    //   switchOutCurve: Curves.easeOut,
-                    //   // child: _renderWidget(),
-
-                    //   transitionBuilder: (child, animation) {
-                    //     return SlideTransition(
-                    //       position: Tween<Offset>(
-                    //               begin: Offset(1.2, 0), end: Offset(0, 0))
-                    //           .animate(animation),
-                    //       child: child,
-                    //     );
-                    //   },
-                    //   // layoutBuilder: (currentChild, _) {
-                    //   //   return currentChild!;
-                    //   // },
-                    //   child: _renderWidget(),
-                    // ),
-                  ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: SingleChildScrollView(
+                            child: Column(children: [
+                              _education(),
+                            ]),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -339,6 +318,7 @@ class _Screen3State extends State<Screen3> {
                       selectedcurrentSalary,
                       currentSalaryList,
                       Icons.money),
+                  const SizedBox(height: 200),
                 ],
               ),
             ),

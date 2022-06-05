@@ -1,25 +1,53 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/label_text.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/themes/typography.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SmartCard extends StatelessWidget {
-  CardModel? model;
-  SmartCard({Key? key, this.model}) : super(key: key);
+class SmartCard extends StatefulWidget {
+  final CardModel? model;
+  const SmartCard({Key? key, this.model}) : super(key: key);
+  @override
+  State<SmartCard> createState() => _SmartCardState();
+}
+
+class _SmartCardState extends State<SmartCard> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      SharedPreferences prefs = await Utils.getSharedPreferences();
+      String mobile = await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_mobile.name);
+
+      widget.model?.mobile = mobile;
+      dynamic user_data = await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_data.name);
+      if (user_data != null) {
+        CardModel crd = CardModel.fromJson(jsonDecode(user_data));
+        widget.model?.cardName = crd.cardName;
+        widget.model?.mobile = crd.mobile;
+        widget.model?.email = crd.email;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 400,
-      height: 180,
+      height: 150,
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           //color: Colors.purple,
 
           image: const DecorationImage(
             fit: BoxFit.cover,
-            image: NetworkImage(
-                "https://i.pinimg.com/originals/df/17/b7/df17b7e4700c2c5868d5f01acd0fdeca.jpg"),
+            image: AssetImage("../assets/images/abc.jpeg"),
           ),
           boxShadow: const [BoxShadow(blurRadius: 4)],
           border: Border.all(
@@ -57,17 +85,21 @@ class SmartCard extends StatelessWidget {
                 ),
                 // TypographyStyle.textH3("PRATIK NAIK", Colors.white),
                 TypographyStyle.textH3(
-                    model?.cardName ?? 'Your Name', Colors.black),
+                    widget.model?.cardName ?? 'Your Name', Colors.black),
                 const SizedBox(
                   height: 20,
                 ),
                 CustomComponent.labelText(
-                    Icons.mobile_friendly, "+91 9004390874", Colors.black),
+                    widget.model?.mobile == null ? null : Icons.mobile_friendly,
+                    widget.model?.mobile ?? '',
+                    Colors.black),
                 const SizedBox(
                   height: 10,
                 ),
-                CustomComponent.labelText(Icons.email_outlined,
-                    "pratikway.90@gmail.com", Colors.black),
+                CustomComponent.labelText(
+                    widget.model?.email == null ? null : Icons.email_outlined,
+                    widget.model?.email ?? '',
+                    Colors.black),
               ],
             ),
           )
