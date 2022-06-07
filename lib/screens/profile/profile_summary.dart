@@ -9,8 +9,12 @@ import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/profile/screen1.dart';
+import 'package:job_circle/screens/profile/screen2.dart';
+import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class ProfileSummary extends StatefulWidget {
   const ProfileSummary({Key? key}) : super(key: key);
@@ -134,8 +138,9 @@ class _ProfileSummaryState extends State<ProfileSummary> {
               icon: Icons.account_circle_outlined,
               title: "Basic Info",
               onPress: (() {
-                Navigator.pushNamed(context, ERoute.screen1.value,
-                    arguments: 1);
+                // Navigator.pushNamed(context, ERoute.screen1.value,
+                //     arguments: 1);
+                sendToBasicInfo();
               }),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -183,15 +188,16 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         "Date Of Birth",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        "11 AUG 1989",
-                        style: TextStyle(
+                        DateFormat('MMMM dd,yyyy').format(DateTime.parse(
+                            profilemodel.dateofbirth.toString())),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
@@ -214,7 +220,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
             width: double.infinity,
             child: CardCustom(
               onPress: (() {
-                print("basic info");
+                sendToEducation();
               }),
               icon: Icons.school_outlined,
               title: "Education",
@@ -255,7 +261,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
             width: double.infinity,
             child: CardCustom(
               onPress: (() {
-                print("basic info");
+                sendToExperience();
               }),
               icon: Icons.business_center_outlined,
               title: "Experience",
@@ -415,4 +421,47 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   //   });
   //   print(Utils.parseResponse(result));
   // }
+
+  sendToBasicInfo() async {
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Screen1(
+          prevPageModel: profilemodel,
+        ),
+      ),
+    );
+    if (result != null) {
+      profilemodel.first_name = result.first_name;
+      profilemodel.last_name = result.last_name;
+      profilemodel.job_location_city = result.job_location_city;
+      profilemodel.gender = result.gender;
+
+      setState(() {});
+    }
+  }
+
+  sendToEducation() async {
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Screen2(
+          prevPageModel: profilemodel,
+        ),
+      ),
+    );
+    if (result != null) {}
+  }
+
+  sendToExperience() async {
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Screen3(
+          prevPageModel: profilemodel,
+        ),
+      ),
+    );
+    if (result != null) {}
+  }
 }

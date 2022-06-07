@@ -1,4 +1,3 @@
-import 'package:http/http.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/service/ServiceBase.dart';
 

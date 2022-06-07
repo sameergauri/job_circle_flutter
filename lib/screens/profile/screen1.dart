@@ -14,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 class Screen1 extends StatefulWidget {
-  const Screen1({Key? key}) : super(key: key);
+  const Screen1({Key? key, this.prevPageModel}) : super(key: key);
+  final dynamic prevPageModel;
 
   @override
   State<Screen1> createState() => _Screen1State();
@@ -51,6 +52,16 @@ class _Screen1State extends State<Screen1> {
     bindLocation();
     dateOfBirth.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+    if (widget.prevPageModel != null) {
+      username.text = widget.prevPageModel.first_name +
+          " " +
+          widget.prevPageModel.last_name;
+      selectedLocation = AutoCompleteModel(
+          widget.prevPageModel.job_location_id.toString(),
+          widget.prevPageModel.job_location_city, {});
+      emailadr.text = widget.prevPageModel.email.toString();
+      gender = widget.prevPageModel.gender.toString();
+    }
   }
 
   bindLocation() async {
@@ -65,10 +76,12 @@ class _Screen1State extends State<Screen1> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
       final productId = ModalRoute.of(context)!.settings.arguments;
-      print(productId);
-      setState(() {
-        selectedLocation = AutoCompleteModel("0", "", {});
-      });
+
+      // 07/06/2022
+      // print(productId);
+      // setState(() {
+      //   selectedLocation = AutoCompleteModel("0", "", {});
+      // });
     }
   }
 
@@ -118,7 +131,7 @@ class _Screen1State extends State<Screen1> {
                   save();
                 }
               },
-              text: "NEXT",
+              text: widget.prevPageModel == null ? "NEXT" : "SAVE",
               themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
@@ -509,11 +522,21 @@ class _Screen1State extends State<Screen1> {
     model.email = emailadr.text;
     var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      await Utils.setPreference(
-          prefs, ESharedPreferences.user_data.name, jsonEncode(model));
-      Navigator.pushNamed(context, ERoute.screen2.name);
+      if (widget.prevPageModel == null) {
+        await Utils.setPreference(
+            prefs, ESharedPreferences.user_data.name, jsonEncode(model));
+        Navigator.pushNamed(context, ERoute.screen2.name);
+      } else {
+        widget.prevPageModel.first_name = firstName;
+        widget.prevPageModel.last_name = lastName;
+        widget.prevPageModel.job_location_city = selectedLocation.label;
+        widget.prevPageModel.job_location_id =
+            int.parse(selectedLocation.value);
+        widget.prevPageModel.gender = gender;
+
+        Navigator.pop(context, widget.prevPageModel);
+      }
     }
     setState(() {});
-    print(Utils.parseResponse(result));
   }
 }

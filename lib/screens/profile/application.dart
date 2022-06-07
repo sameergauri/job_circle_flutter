@@ -6,6 +6,10 @@ import 'package:job_circle/models/autocomplete.dart';
 import 'package:job_circle/service/applicationService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../components/autocompletecustom.dart';
+import '../../models/autocompleteModel.dart';
+import '../../service/UserDataService.dart';
+
 class ApplicationForm extends StatefulWidget {
   const ApplicationForm({Key? key}) : super(key: key);
 
@@ -24,6 +28,14 @@ class ApplicationFormState extends State<ApplicationForm> {
   TextEditingController contactno = TextEditingController();
   TextEditingController applicationname = TextEditingController();
 
+  var ddlValues;
+  late List<AutoCompleteModel> shortList = [];
+  late List<AutoCompleteModel> proccessList = [];
+  late List<AutoCompleteModel> levelList = [];
+  AutoCompleteModel selectedshort = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedproccess = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedlevel = AutoCompleteModel("", "", {});
+
   // dynamic applicantName = {};
   String mobileno = "";
 
@@ -31,6 +43,11 @@ class ApplicationFormState extends State<ApplicationForm> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    // Bind All Dropdown
+    bindShortList();
+    bindProccessList();
+    bindLevelList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       print(await Utils.getPreferencesValue(
@@ -40,6 +57,60 @@ class ApplicationFormState extends State<ApplicationForm> {
       contactno.text = mobileno;
       setState(() {});
     });
+  }
+
+  bindShortList() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'cmp_short', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      shortList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedshort = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindProccessList() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'appl_status', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      proccessList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedproccess = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindLevelList() async {
+    var result = await UserDataService().masterGetByGroup(
+        {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      levelList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedlevel = AutoCompleteModel("0", "", {});
+      });
+    }
   }
 
   @override
@@ -193,93 +264,45 @@ class ApplicationFormState extends State<ApplicationForm> {
                   )
                 ],
               ),
-              DropdownButtonHideUnderline(
-                child: DropdownButtonFormField<DropdownModel>(
-                  // validator: (value) =>
-                  //     value == null ? 'Please select any type' : null,
-                  hint: const Padding(
-                    padding: EdgeInsets.only(
-                      left: 11.0,
-                    ),
-                    child: Text('Shortlist For'),
-                  ),
-                  isExpanded: true,
-                  value: selectedTyp,
-                  // isDense: true,
-                  items: typeList.map((e) {
-                    return DropdownMenuItem<DropdownModel>(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 11.0),
-                        child: Text(e.name),
-                      ),
-                      value: e,
-                    );
-                  }).toList(),
-                  onChanged: (DropdownModel? value) {
-                    setState(() {
-                      // selectedTyp = value;
-                    });
-                  },
-                ),
-              ),
-              DropdownButtonHideUnderline(
-                child: DropdownButtonFormField<DropdownModel>(
-                  // validator: (value) =>
-                  //     value == null ? 'Please select any type' : null,
-                  hint: const Padding(
-                    padding: EdgeInsets.only(
-                      left: 11.0,
-                    ),
-                    child: Text('Process'),
-                  ),
-                  isExpanded: true,
-                  value: selectedTyp,
-                  // isDense: true,
-                  items: typeList.map((e) {
-                    return DropdownMenuItem<DropdownModel>(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 11.0),
-                        child: Text(e.name),
-                      ),
-                      value: e,
-                    );
-                  }).toList(),
-                  onChanged: (DropdownModel? value) {
-                    setState(() {
-                      // selectedTyp = value;
-                    });
-                  },
-                ),
-              ),
-              DropdownButtonHideUnderline(
-                child: DropdownButtonFormField<DropdownModel>(
-                  // validator: (value) =>
-                  //     value == null ? 'Please select any type' : null,
-                  hint: const Padding(
-                    padding: EdgeInsets.only(
-                      left: 11.0,
-                    ),
-                    child: Text('Level'),
-                  ),
-                  isExpanded: true,
-                  value: selectedTyp,
-                  // isDense: true,
-                  items: typeList.map((e) {
-                    return DropdownMenuItem<DropdownModel>(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 11.0),
-                        child: Text(e.name),
-                      ),
-                      value: e,
-                    );
-                  }).toList(),
-                  onChanged: (DropdownModel? value) {
-                    setState(() {
-                      // selectedTyp = value;
-                    });
-                  },
-                ),
-              ),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "Shortlist For",
+                  "Select shortlist",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedshort = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedshort,
+                  shortList,
+                  Icons.list),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "Proccess",
+                  "Select proccess",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedproccess = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedproccess,
+                  proccessList,
+                  Icons.circle_outlined),
+              CustomControls.AutoCompleteCustom(
+                  context,
+                  "Level",
+                  "Select level",
+                  ((AutoCompleteModel item) => {
+                        setState(() {
+                          selectedlevel = item;
+                        }),
+                        // print(selectedEducation.label),
+                      }),
+                  selectedlevel,
+                  levelList,
+                  Icons.label),
               const SizedBox(
                 height: 30,
               ),
@@ -318,22 +341,20 @@ class ApplicationFormState extends State<ApplicationForm> {
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var result = await ApplicationService().saveApplication({
-      'flag': 'save',
       "applicantName": applicationname.text.trim(),
       "contactNo": contactno.text.trim(),
       "experience": "string",
       "id": 0,
-      "level": "string",
-      "process": "string",
+      "level": selectedlevel.value,
+      "process": selectedproccess.value,
       "qualification": "string",
       "resume": "string",
-      "shortListFor": "string",
+      "shortListFor": selectedshort.value,
       "sourceId": await Utils.getPreferencesValue(
           prefs, ESharedPreferences.user_id.name),
-      "uid": 2
+      "uid": await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_id.name)
     });
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      
-    }
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {}
   }
 }

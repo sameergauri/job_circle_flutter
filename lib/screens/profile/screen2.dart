@@ -12,8 +12,8 @@ import '../../models/card_model.dart';
 import '../../service/UserDataService.dart';
 
 class Screen2 extends StatefulWidget {
-  const Screen2({Key? key}) : super(key: key);
-
+  const Screen2({Key? key, this.prevPageModel}) : super(key: key);
+  final dynamic prevPageModel;
   @override
   State<Screen2> createState() => _Screen2State();
 }
@@ -37,6 +37,17 @@ class _Screen2State extends State<Screen2> {
     bindLevelOfEducation();
     bindUniversityEducation();
     bindDegree();
+    if (widget.prevPageModel != null) {
+      selectedEducation = AutoCompleteModel(
+          widget.prevPageModel.education_id.toString(),
+          widget.prevPageModel.education, {});
+      selectedUniversity = AutoCompleteModel(
+          widget.prevPageModel.univercity_id.toString(),
+          widget.prevPageModel.univercity, {});
+      selectedDegree = AutoCompleteModel(
+          widget.prevPageModel.degree_spc_id.toString(),
+          widget.prevPageModel.degree_spc ?? '', {});
+    }
     super.initState();
   }
 
@@ -52,9 +63,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      setState(() {
-        selectedEducation = AutoCompleteModel("0", "", {});
-      });
+      // setState(() {
+      //   selectedEducation = AutoCompleteModel("0", "", {});
+      // });
     }
   }
 
@@ -70,9 +81,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      setState(() {
-        selectedUniversity = AutoCompleteModel("0", "", {});
-      });
+      // setState(() {
+      //   selectedUniversity = AutoCompleteModel("0", "", {});
+      // });
     }
   }
 
@@ -88,9 +99,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      setState(() {
-        selectedDegree = AutoCompleteModel("0", "", {});
-      });
+      // setState(() {
+      //   selectedDegree = AutoCompleteModel("0", "", {});
+      // });
     }
   }
 

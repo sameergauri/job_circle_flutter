@@ -5,6 +5,7 @@ import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/momsView.dart';
 import 'package:mobile_number/mobile_number.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../common/utils.dart';
@@ -115,8 +116,8 @@ class _LoginState extends State<Login> {
                   child: SizedBox(
                     height: 100,
                     child: Column(
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'MADE IN INDIA',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -124,10 +125,10 @@ class _LoginState extends State<Login> {
                               decoration: TextDecoration.none,
                               color: Colors.black87),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           '@ All rights reserved - 2022-23',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -135,6 +136,15 @@ class _LoginState extends State<Login> {
                               decoration: TextDecoration.none,
                               color: Colors.black54),
                         ),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MasterOfMasterView()));
+                            },
+                            child: const Text('Opem Moms Page'))
                       ],
                     ),
                   ),
@@ -312,7 +322,7 @@ class _LoginState extends State<Login> {
             },
             text: 'Enter Manually',
             isText: true,
-          )
+          ),
         ],
       ),
     );

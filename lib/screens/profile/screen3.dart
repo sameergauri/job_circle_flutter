@@ -12,7 +12,8 @@ import '../../models/card_model.dart';
 import '../../service/UserDataService.dart';
 
 class Screen3 extends StatefulWidget {
-  const Screen3({Key? key}) : super(key: key);
+  const Screen3({Key? key, this.prevPageModel}) : super(key: key);
+  final dynamic prevPageModel;
 
   @override
   State<Screen3> createState() => _Screen3State();
@@ -38,6 +39,18 @@ class _Screen3State extends State<Screen3> {
     bindJobTitle();
     bindTotalExperiance();
     bindCurrentSalary();
+    if (widget.prevPageModel != null) {
+      companyController.text = widget.prevPageModel.companyName ?? '';
+      selectedJobTitle = AutoCompleteModel(
+          widget.prevPageModel.job_title_id.toString(),
+          widget.prevPageModel.job_title ?? '', {});
+      selectedtotalExperience = AutoCompleteModel(
+          widget.prevPageModel.work_experience_id.toString(),
+          widget.prevPageModel.work_experience ?? '', {});
+      // selectedcurrentSalary = AutoCompleteModel(
+      //     widget.prevPageModel.degree_spc_id.toString(),
+      //     widget.prevPageModel.degree_spc ?? '', {});
+    }
     super.initState();
   }
 
