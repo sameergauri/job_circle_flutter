@@ -47,9 +47,11 @@ class _Screen3State extends State<Screen3> {
       selectedtotalExperience = AutoCompleteModel(
           widget.prevPageModel.work_experience_id.toString(),
           widget.prevPageModel.work_experience ?? '', {});
-      // selectedcurrentSalary = AutoCompleteModel(
-      //     widget.prevPageModel.degree_spc_id.toString(),
-      //     widget.prevPageModel.degree_spc ?? '', {});
+      selectedcurrentSalary = AutoCompleteModel(
+          widget.prevPageModel.degree_spc_id.toString(),
+          widget.prevPageModel.degree_spc ?? '', {});
+      expirieanceFlag =
+          widget.prevPageModel.experience_flag == 1 ? true : false;
     }
     super.initState();
   }
@@ -67,7 +69,7 @@ class _Screen3State extends State<Screen3> {
           .toList();
 
       setState(() {
-        selectedJobTitle = AutoCompleteModel("0", "", {});
+        //selectedJobTitle = AutoCompleteModel("0", "", {});
       });
     }
   }
@@ -85,7 +87,7 @@ class _Screen3State extends State<Screen3> {
           .toList();
 
       setState(() {
-        selectedtotalExperience = AutoCompleteModel("0", "", {});
+        // selectedtotalExperience = AutoCompleteModel("0", "", {});
       });
     }
   }
@@ -103,7 +105,7 @@ class _Screen3State extends State<Screen3> {
           .toList();
 
       setState(() {
-        selectedcurrentSalary = AutoCompleteModel("0", "", {});
+        //selectedcurrentSalary = AutoCompleteModel("0", "", {});
       });
     }
   }
@@ -152,7 +154,7 @@ class _Screen3State extends State<Screen3> {
               onPressed: () {
                 save();
               },
-              text: "NEXT",
+              text: widget.prevPageModel == null ? "NEXT" : "Save",
               themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
@@ -355,8 +357,13 @@ class _Screen3State extends State<Screen3> {
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      Navigator.pushNamedAndRemoveUntil(
-          context, ERoute.home.name, (Route<dynamic> route) => false);
+      if (widget.prevPageModel == null) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, ERoute.home.name, (Route<dynamic> route) => false);
+      } else {
+        widget.prevPageModel.experience = selectedtotalExperience.label;
+        Navigator.pop(context, widget.prevPageModel);
+      }
     }
     setState(() {});
   }

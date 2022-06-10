@@ -22,6 +22,8 @@ class _Screen2State extends State<Screen2> {
   int _widgetId = 2;
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
+  late TextEditingController passingController = TextEditingController();
+  // late TextEditingController educationController = TextEditingController();
   CardModel model = CardModel();
 
   var ddlValues;
@@ -47,6 +49,7 @@ class _Screen2State extends State<Screen2> {
       selectedDegree = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
+      passingController.text = widget.prevPageModel.passing_year;
     }
     super.initState();
   }
@@ -63,9 +66,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedEducation = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        //selectedEducation = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -81,9 +84,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedUniversity = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        // selectedUniversity = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -99,9 +102,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedDegree = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        // selectedDegree = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -149,7 +152,7 @@ class _Screen2State extends State<Screen2> {
               onPressed: () {
                 save();
               },
-              text: "NEXT",
+              text: widget.prevPageModel == null ? "NEXT" : "Save",
               themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
@@ -261,6 +264,7 @@ class _Screen2State extends State<Screen2> {
                 // inputFormatters: [
                 //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                 // ],
+                controller: passingController,
                 keyboardType: TextInputType.number,
                 maxLength: 4,
                 onChanged: ((value) => {}),
@@ -296,11 +300,17 @@ class _Screen2State extends State<Screen2> {
         "education": selectedEducation.value,
         "degree_spc": selectedDegree.value,
         "university": selectedUniversity.value,
-        // "passing_year": emailadr.text,
+        "passing_year": passingController.text,
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      Navigator.pushNamed(context, ERoute.screen3.name);
+      if (widget.prevPageModel == null) {
+        Navigator.pushNamed(context, ERoute.screen3.name);
+      } else {
+        widget.prevPageModel.education = selectedEducation.label;
+        widget.prevPageModel.education_id = int.parse(selectedEducation.value);
+        Navigator.pop(context, widget.prevPageModel);
+      }
     }
     setState(() {});
   }

@@ -56,9 +56,10 @@ class _Screen1State extends State<Screen1> {
       username.text = widget.prevPageModel.first_name +
           " " +
           widget.prevPageModel.last_name;
-      selectedLocation = AutoCompleteModel(
-          widget.prevPageModel.job_location_id.toString(),
-          widget.prevPageModel.job_location_city, {});
+      selectedLocation = widget.prevPageModel.job_location_city == null
+          ? AutoCompleteModel("", "", {})
+          : AutoCompleteModel(widget.prevPageModel.job_location_id.toString(),
+              widget.prevPageModel.job_location_city, {});
       emailadr.text = widget.prevPageModel.email.toString();
       gender = widget.prevPageModel.gender.toString();
     }

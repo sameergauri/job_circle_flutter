@@ -436,7 +436,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       profilemodel.last_name = result.last_name;
       profilemodel.job_location_city = result.job_location_city;
       profilemodel.gender = result.gender;
-
       setState(() {});
     }
   }
@@ -450,7 +449,10 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         ),
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      profilemodel.education = result.education;
+      setState(() {});
+    }
   }
 
   sendToExperience() async {
@@ -462,6 +464,9 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         ),
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      profilemodel.experience = result.experience;
+      setState(() {});
+    }
   }
 }

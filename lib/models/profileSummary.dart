@@ -23,6 +23,8 @@ class ProfileSummaryModel {
   int? work_experience_id;
   String? dateofbirth;
   String? companyName;
+  String? passing_year;
+  int? experience_flag;
 
   ProfileSummaryModel(
       {this.id,
@@ -46,7 +48,9 @@ class ProfileSummaryModel {
       this.job_title_id,
       this.work_experience_id,
       this.dateofbirth,
-      this.companyName});
+      this.companyName,
+      this.passing_year,
+      this.experience_flag});
 
   factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
     return ProfileSummaryModel(
@@ -72,6 +76,8 @@ class ProfileSummaryModel {
       work_experience_id: map['work_experience_id'],
       dateofbirth: map['dateofbirth'],
       companyName: map['company_name'],
+      passing_year: map['passing_year'],
+      experience_flag: map['experience_flag'],
     );
   }
 }

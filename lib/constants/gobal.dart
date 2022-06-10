@@ -19,4 +19,6 @@ class GlobalConstants {
   static const API_master_v1 = "/master/v1";
 
   static const API_jobs_v1_search = "/jobs/v1/search";
+
+  static const API_jobs_v1_getJobDetailsById = "/jobs/v1/getJobDetailsById";
 }
