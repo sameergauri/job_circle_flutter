@@ -33,6 +33,7 @@ class _SmartCardState extends State<SmartCard> {
         widget.model?.mobile = crd.mobile;
         widget.model?.email = crd.email;
       }
+      setState(() {});
     });
   }
 
@@ -47,7 +48,7 @@ class _SmartCardState extends State<SmartCard> {
 
           image: const DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage("../assets/images/abc.jpeg"),
+            image: AssetImage("./assets/images/abc.jpeg"),
           ),
           boxShadow: const [BoxShadow(blurRadius: 4)],
           border: Border.all(
@@ -85,7 +86,11 @@ class _SmartCardState extends State<SmartCard> {
                 ),
                 // TypographyStyle.textH3("PRATIK NAIK", Colors.white),
                 TypographyStyle.textH3(
-                    widget.model?.cardName ?? 'Your Name', Colors.black),
+                    (widget.model?.cardName == '' ||
+                            widget.model?.cardName == null
+                        ? 'Your Name'
+                        : widget.model?.cardName),
+                    Colors.black),
                 const SizedBox(
                   height: 20,
                 ),
@@ -97,8 +102,12 @@ class _SmartCardState extends State<SmartCard> {
                   height: 10,
                 ),
                 CustomComponent.labelText(
-                    widget.model?.email == null ? null : Icons.email_outlined,
-                    widget.model?.email ?? '',
+                    widget.model?.email == null || widget.model?.email == 'null'
+                        ? null
+                        : Icons.email_outlined,
+                    widget.model?.email == null || widget.model?.email == 'null'
+                        ? ''
+                        : widget.model?.email,
                     Colors.black),
               ],
             ),

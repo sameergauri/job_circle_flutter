@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,7 +56,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   bindJobTitle() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -73,7 +74,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   bindTotalExperiance() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'total_exp', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -91,7 +92,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   bindCurrentSalary() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'current_salary', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;

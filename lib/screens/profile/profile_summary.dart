@@ -436,7 +436,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       profilemodel.last_name = result.last_name;
       profilemodel.job_location_city = result.job_location_city;
       profilemodel.gender = result.gender;
-
+      profilemodel.languages = result.languages;
       setState(() {});
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +23,7 @@ class _Screen2State extends State<Screen2> {
   int _widgetId = 2;
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
+  late TextEditingController passingYearController = TextEditingController();
   CardModel model = CardModel();
 
   var ddlValues;
@@ -47,12 +49,13 @@ class _Screen2State extends State<Screen2> {
       selectedDegree = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
+      passingYearController.text = widget.prevPageModel.passing_year;
     }
     super.initState();
   }
 
   bindLevelOfEducation() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'level_education', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -70,7 +73,7 @@ class _Screen2State extends State<Screen2> {
   }
 
   bindUniversityEducation() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'university', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -88,7 +91,7 @@ class _Screen2State extends State<Screen2> {
   }
 
   bindDegree() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'degree', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -258,6 +261,7 @@ class _Screen2State extends State<Screen2> {
                   Icons.cast_for_education),
               const SizedBox(height: 10),
               TextFormField(
+                controller: passingYearController,
                 // inputFormatters: [
                 //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                 // ],
@@ -296,7 +300,7 @@ class _Screen2State extends State<Screen2> {
         "education": selectedEducation.value,
         "degree_spc": selectedDegree.value,
         "university": selectedUniversity.value,
-        // "passing_year": emailadr.text,
+        "passing_year": passingYearController.text,
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {

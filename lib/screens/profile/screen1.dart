@@ -9,7 +9,9 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:responsive_grid/responsive_grid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
@@ -44,6 +46,7 @@ class _Screen1State extends State<Screen1> {
   final basicForm = GlobalKey<FormState>();
 
   late List<AutoCompleteModel> jobLocationList = [];
+  late List languageList = [];
   AutoCompleteModel selectedLocation = AutoCompleteModel("", "", {});
 
   @override
@@ -65,16 +68,30 @@ class _Screen1State extends State<Screen1> {
   }
 
   bindLocation() async {
-    var result = await UserDataService().masterGetByGroup(
-        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+    var result = await MasterService().masterGetByGroups({
+      'groupName': 'location,language',
+      'pageNumber': '1',
+      'pageSize': '1000'
+    });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
 
-      jobLocationList = (ddlValues["content"] as List)
-          .map<AutoCompleteModel>(
-              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
-          .toList();
+      for (var e in (ddlValues["content"] as List)) {
+        if (e['group_name'] == 'location') {
+          jobLocationList
+              .add(AutoCompleteModel(e['id'].toString(), e['value'], e));
+        } else if (e['group_name'] == 'language') {
+          e['checked'] = false;
+          languageList.add(e);
+        }
+      }
+      languageList.sort((a, b) => a['order'].compareTo(b['order']));
+      setState(() {});
+      // jobLocationList =
+      //     .map<AutoCompleteModel>(
+      //         (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+      //     .toList();
       final productId = ModalRoute.of(context)!.settings.arguments;
 
       // 07/06/2022
@@ -239,6 +256,7 @@ class _Screen1State extends State<Screen1> {
           child: Form(
             key: basicForm,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   autofocus: true,
@@ -247,7 +265,8 @@ class _Screen1State extends State<Screen1> {
                   // ],
                   controller: username,
                   onChanged: ((value) => {
-                        model.cardName = value,
+                        model.cardName = value.toTitleCase(),
+                        // username.text = model.cardName!,
                         updateCard(model),
                       }),
                   validator: (value) {
@@ -373,12 +392,12 @@ class _Screen1State extends State<Screen1> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: 100,
+                      height: 60,
                       width: 150.0,
                       color: Colors.transparent,
                       child: Container(
@@ -387,7 +406,7 @@ class _Screen1State extends State<Screen1> {
                               border: Border.all(color: Colors.black),
                               borderRadius: const BorderRadius.all(
                                   Radius.circular(10.0))),
-                          child: Column(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
@@ -397,18 +416,20 @@ class _Screen1State extends State<Screen1> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Radio(
-                                    value: "MALE",
-                                    groupValue: gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        gender = value.toString();
-                                      });
-                                    },
-                                  ),
+                                  Transform.scale(
+                                      scale: 0.8,
+                                      child: Radio(
+                                        value: "MALE",
+                                        groupValue: gender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            gender = value.toString();
+                                          });
+                                        },
+                                      )),
                                   const Text(
                                     "MALE",
-                                    style: TextStyle(fontSize: 18),
+                                    style: TextStyle(fontSize: 12),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
@@ -420,7 +441,7 @@ class _Screen1State extends State<Screen1> {
                       width: 20,
                     ),
                     Container(
-                      height: 100,
+                      height: 60,
                       width: 150.0,
                       color: Colors.transparent,
                       child: Container(
@@ -429,7 +450,7 @@ class _Screen1State extends State<Screen1> {
                               border: Border.all(color: Colors.black),
                               borderRadius: const BorderRadius.all(
                                   Radius.circular(10.0))),
-                          child: Column(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
@@ -439,18 +460,20 @@ class _Screen1State extends State<Screen1> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Radio(
-                                    value: "FEMALE",
-                                    groupValue: gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        gender = value.toString();
-                                      });
-                                    },
-                                  ),
+                                  Transform.scale(
+                                      scale: 0.8,
+                                      child: Radio(
+                                        value: "FEMALE",
+                                        groupValue: gender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            gender = value.toString();
+                                          });
+                                        },
+                                      )),
                                   const Text(
                                     "FEMALE",
-                                    style: TextStyle(fontSize: 18),
+                                    style: TextStyle(fontSize: 12),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
@@ -459,6 +482,30 @@ class _Screen1State extends State<Screen1> {
                           )),
                     ),
                   ],
+                ),
+                const SizedBox(height: 30),
+                Text(
+                  "Language Known",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+                Container(
+                  child: ResponsiveGridRow(children: [
+                    for (var s in languageList)
+                      ResponsiveGridCol(
+                        xs: 4,
+                        md: 3,
+                        child: CheckboxListTile(
+                          title: Text(s['value'] ?? ''),
+                          value: s['checked'],
+                          onChanged: (newValue) {
+                            s['checked'] = !s['checked'];
+                            setState(() {});
+                          },
+                          controlAffinity: ListTileControlAffinity
+                              .leading, //  <-- leading Checkbox
+                        ),
+                      )
+                  ]),
                 ),
                 const SizedBox(height: 200),
               ],
@@ -499,6 +546,11 @@ class _Screen1State extends State<Screen1> {
     var lastName = username.text.trim().split(' ')[1];
     var mobilenumber = await Utils.getPreferencesValue(
         prefs, ESharedPreferences.user_mobile.name);
+    var selectedLanguages = languageList
+        .where((element) => element['checked'] == true)
+        .map((e) => e['value'])
+        .toList();
+
     var params = {
       "stage": "basic_info",
       "data": {
@@ -507,6 +559,7 @@ class _Screen1State extends State<Screen1> {
         "mobile": mobilenumber,
         "first_name": firstName,
         "last_name": lastName,
+        "languages": selectedLanguages,
         "job_location_id": selectedLocation.value,
         "email": emailadr.text,
         "gender": gender,

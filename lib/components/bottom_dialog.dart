@@ -8,6 +8,7 @@ class BottomDialog {
       isDismissible: dismissable,
       barrierColor: Colors.black.withOpacity(0.6),
       isScrollControlled: true,
+      enableDrag: false,
       // transitionDuration: const Duration(milliseconds: 400),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(

@@ -4,6 +4,7 @@ import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
 import 'package:job_circle/service/applicationService.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/autocompletecustom.dart';
@@ -60,7 +61,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindShortList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'cmp_short', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -78,7 +79,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindProccessList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'appl_status', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -96,7 +97,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindLevelList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
