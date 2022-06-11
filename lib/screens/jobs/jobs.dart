@@ -383,7 +383,10 @@ class _JobsState extends State<Jobs> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const JobDetails()));
+                                                        JobDetails(
+                                                          id: jobItems[index]
+                                                              ['id'],
+                                                        )));
                                           },
                                           child: listViewItem(
                                               context, index, jobItems[index]));

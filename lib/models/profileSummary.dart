@@ -25,6 +25,8 @@ class ProfileSummaryModel {
   String? companyName;
   List? languages;
   int? passing_year;
+  int? experience_flag;
+  String? job_location_city;
 
   ProfileSummaryModel(
       {this.id,
@@ -50,7 +52,9 @@ class ProfileSummaryModel {
       this.dateofbirth,
       this.companyName,
       this.languages,
-      this.passing_year});
+      this.passing_year,
+      this.experience_flag,
+      this.job_location_city});
 
   factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
     List languages = [];
@@ -83,6 +87,8 @@ class ProfileSummaryModel {
       companyName: map['company_name'],
       passing_year: map['passing_year'],
       languages: languages,
+      job_location_city: map['job_location_city'],
+      experience_flag: map['experience_flag'],
     );
   }
 }

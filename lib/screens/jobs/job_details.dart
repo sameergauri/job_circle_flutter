@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/service/DataService.dart';
+import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/themes/colors.dart';
 
+import '../../common/utils.dart';
+import '../profile/application.dart';
+
 class JobDetails extends StatefulWidget {
-  const JobDetails({Key? key}) : super(key: key);
+  const JobDetails({Key? key, this.id}) : super(key: key);
+  final int? id;
 
   @override
   State<JobDetails> createState() => _JobDetailsState();
@@ -17,10 +24,15 @@ class _JobDetailsState extends State<JobDetails> {
   late Color currentAppBarColor = appBgColor;
   late double appBarElevate = 0;
   late Color appBarIconColor = Colors.white;
+
+  JobDetailsModel jobDetailsModel = JobDetailsModel();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
+    // Calling For Job Details
+    getJobDetails();
 
     _scrollController.addListener(() {
       if (_scrollController.position.extentBefore > 0 && appBarElevate == 0) {
@@ -46,6 +58,16 @@ class _JobDetailsState extends State<JobDetails> {
         setState(() {});
       }
     });
+  }
+
+  getJobDetails() async {
+    var result =
+        await JobSearchService().getJobDetails({'id': widget.id.toString()});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      jobDetailsModel =
+          JobDetailsModel.fromMap(Utils.parseResponse(result).resultData);
+      setState(() {});
+    }
   }
 
   @override
@@ -103,7 +125,13 @@ class _JobDetailsState extends State<JobDetails> {
             // ),
             radious: 0,
             onPressed: () {
-              Navigator.pushNamed(context, ERoute.application.name);
+              // Navigator.pushNamed(context, ERoute.application.name);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ApplicationForm(
+                            prevModel: jobDetailsModel,
+                          )));
             },
             text: "APPLY",
           ),
@@ -112,197 +140,223 @@ class _JobDetailsState extends State<JobDetails> {
       body: SafeArea(
           child: SingleChildScrollView(
         controller: _scrollController,
-        child: Column(
-          children: [
-            Stack(children: [
-              Container(
-                height: 230,
-                margin: const EdgeInsets.only(top: 0),
-                padding: const EdgeInsets.only(top: 0),
-                decoration: const BoxDecoration(
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Color.fromARGB(255, 245, 245, 245),
-                    //     blurRadius: 10.0,
-                    //     offset: Offset(2, 2),
-                    //   ),
-                    // ],
-                    //color: Theme.of(context).primaryColor,
-                    color: Constants.themeBgColor,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: const Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    )),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+        child: jobDetailsModel.id == null
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(
+                  Stack(children: [
+                    Container(
+                      height: 230,
+                      margin: const EdgeInsets.only(top: 0),
+                      padding: const EdgeInsets.only(top: 0),
+                      decoration: const BoxDecoration(
+                          // boxShadow: [
+                          //   BoxShadow(
+                          //     color: Color.fromARGB(255, 245, 245, 245),
+                          //     blurRadius: 10.0,
+                          //     offset: Offset(2, 2),
+                          //   ),
+                          // ],
+                          //color: Theme.of(context).primaryColor,
+                          color: Constants.themeBgColor,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: const Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                          )),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                              color: Constants.bgPanelColor,
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Color.fromARGB(255, 213, 213, 213),
+                                    spreadRadius: 1),
+                              ],
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25))),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Image.network(
+                                  jobDetailsModel.icon.toString(),
+                                  errorBuilder: ((context, error, stackTrace) =>
+                                      Image.asset("assets/images/male.png",
+                                          height: 100,
+                                          width: 120,
+                                          fit: BoxFit.contain)),
+                                  height: 100,
+                                  width: 120,
+                                  fit: BoxFit.contain,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  // jobDetailsModel.name
+                                  jobDetailsModel.name.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      fontFamily: "Roboto"),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                const Text(
+                                  "CRT(Service)",
+                                  style: TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.location_city,
+                                      size: 17,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      jobDetailsModel.location.toString(),
+                                      style: const TextStyle(
+                                          color: Colors.black54, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          width: MediaQuery.of(context).size.width - 50,
+                        ),
+                      ],
+                    ),
+                  ]),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  SizedBox(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Card(
                         color: Constants.bgPanelColor,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color.fromARGB(255, 213, 213, 213),
-                              spreadRadius: 1),
-                        ],
-                        borderRadius: BorderRadius.all(Radius.circular(25))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Image.network(
-                            'https://www.adityabirla.com/Assets/images/our-download-logo.png',
-                            errorBuilder: ((context, error, stackTrace) =>
-                                Image.asset("assets/images/male.png",
-                                    height: 100,
-                                    width: 120,
-                                    fit: BoxFit.contain)),
-                            height: 100,
-                            width: 120,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text(
-                            "Aditya Birla Private LTD",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                fontFamily: "Roboto"),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          const Text(
-                            "CRT(Service)",
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.location_city,
-                                size: 17,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "Andheri",
-                                style: TextStyle(
-                                    color: Colors.black54, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ],
+                        elevation: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.admin_panel_settings,
+                                            "Role",
+                                            jobDetailsModel.rolename
+                                                .toString())),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.share_location,
+                                            "Work Location",
+                                            jobDetailsModel.location
+                                                .toString())),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                keyPair(
+                                    Icons.engineering,
+                                    "Key Responsiblility",
+                                    jobDetailsModel.key_responsible.toString()),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                keyPair(Icons.work_outline, "Eligibility",
+                                    jobDetailsModel.eligibility.toString()),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                keyPair(Icons.schedule, "Shift Timing",
+                                    jobDetailsModel.shifttime.toString()),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.account_tree,
+                                            "Process",
+                                            jobDetailsModel.process
+                                                .toString())),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.grading,
+                                            "Interview Rounds",
+                                            jobDetailsModel.inteviewrounds
+                                                .toString())),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.payments,
+                                            "CTC/Inhand",
+                                            jobDetailsModel.ctcdesc
+                                                .toString())),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                        child: keyPair(
+                                            Icons.credit_score,
+                                            "Payment Clause",
+                                            jobDetailsModel.paymentclause ??
+                                                '')),
+                                  ],
+                                ),
+                              ]),
+                        ),
                       ),
                     ),
-                    width: MediaQuery.of(context).size.width - 50,
-                  ),
+                  )
                 ],
               ),
-            ]),
-            const SizedBox(
-              height: 30,
-            ),
-            SizedBox(
-              child: SizedBox(
-                width: double.infinity,
-                child: Card(
-                  color: Constants.bgPanelColor,
-                  elevation: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: keyPair(Icons.admin_panel_settings,
-                                      "Role", "Exceutive")),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: keyPair(Icons.share_location,
-                                      "Work Location", "Thane-Kasarvadavali")),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          keyPair(Icons.engineering, "Key Responsiblility",
-                              "-Handling renewal of ABHI Policy of existing customers on call. \n-To ensure the most efficient caller and will be responsible forachieving standard targets relating to Renewal/Persistency and service improvement."),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          keyPair(Icons.work_outline, "Eligibility",
-                              "-Graduate\n-Fresher\n-Age 21-28 years.\n-English,Hindi.\n-Candidate should be from nearby Thane only."),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          keyPair(Icons.schedule, "Shift Timing",
-                              "-Day Rotational\n-One day rotational Week-off"),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: keyPair(Icons.account_tree, "Process",
-                                      "Renewal")),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: keyPair(Icons.grading,
-                                      "Interview Rounds", "HR, TL & Manager")),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: keyPair(Icons.payments, "CTC/Inhand",
-                                      "15000 / Take Home")),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: keyPair(Icons.credit_score,
-                                      "Payment Clause", "90 Days")),
-                            ],
-                          ),
-                        ]),
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
       )),
     );
   }

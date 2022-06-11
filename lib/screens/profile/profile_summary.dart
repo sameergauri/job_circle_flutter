@@ -450,7 +450,10 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         ),
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      profilemodel.education = result.education;
+      setState(() {});
+    }
   }
 
   sendToExperience() async {
@@ -462,6 +465,9 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         ),
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      profilemodel.experience = result.experience;
+      setState(() {});
+    }
   }
 }

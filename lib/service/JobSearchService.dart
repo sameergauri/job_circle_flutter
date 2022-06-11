@@ -5,4 +5,8 @@ class JobSearchService extends ServiceBase {
   getJobSearch(Map<String, String> params) {
     return callGet(GlobalConstants.API_jobs_v1_search, param: params);
   }
+
+  getJobDetails(Map<String, String> params) {
+    return callGet(GlobalConstants.API_jobs_v1_getJobDetailsById, param: params);
+  }
 }

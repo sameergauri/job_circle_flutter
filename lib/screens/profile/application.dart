@@ -12,7 +12,8 @@ import '../../models/autocompleteModel.dart';
 import '../../service/UserDataService.dart';
 
 class ApplicationForm extends StatefulWidget {
-  const ApplicationForm({Key? key}) : super(key: key);
+  const ApplicationForm({Key? key, this.prevModel}) : super(key: key);
+  final dynamic prevModel;
 
   @override
   State<ApplicationForm> createState() => ApplicationFormState();
@@ -49,6 +50,10 @@ class ApplicationFormState extends State<ApplicationForm> {
     bindShortList();
     bindProccessList();
     bindLevelList();
+
+    if (widget.prevModel != null) {
+      applicationname.text = widget.prevModel.name;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       print(await Utils.getPreferencesValue(

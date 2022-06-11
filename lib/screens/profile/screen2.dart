@@ -24,6 +24,7 @@ class _Screen2State extends State<Screen2> {
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
   late TextEditingController passingYearController = TextEditingController();
+  // late TextEditingController educationController = TextEditingController();
   CardModel model = CardModel();
 
   var ddlValues;
@@ -66,9 +67,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedEducation = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        //selectedEducation = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -84,9 +85,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedUniversity = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        // selectedUniversity = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -102,9 +103,9 @@ class _Screen2State extends State<Screen2> {
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
 
-      // setState(() {
-      //   selectedDegree = AutoCompleteModel("0", "", {});
-      // });
+      setState(() {
+        // selectedDegree = AutoCompleteModel("0", "", {});
+      });
     }
   }
 
@@ -152,7 +153,7 @@ class _Screen2State extends State<Screen2> {
               onPressed: () {
                 save();
               },
-              text: "NEXT",
+              text: widget.prevPageModel == null ? "NEXT" : "Save",
               themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
@@ -261,10 +262,10 @@ class _Screen2State extends State<Screen2> {
                   Icons.cast_for_education),
               const SizedBox(height: 10),
               TextFormField(
-                controller: passingYearController,
                 // inputFormatters: [
                 //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                 // ],
+                controller: passingYearController,
                 keyboardType: TextInputType.number,
                 maxLength: 4,
                 onChanged: ((value) => {}),
@@ -304,7 +305,13 @@ class _Screen2State extends State<Screen2> {
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      Navigator.pushNamed(context, ERoute.screen3.name);
+      if (widget.prevPageModel == null) {
+        Navigator.pushNamed(context, ERoute.screen3.name);
+      } else {
+        widget.prevPageModel.education = selectedEducation.label;
+        widget.prevPageModel.education_id = int.parse(selectedEducation.value);
+        Navigator.pop(context, widget.prevPageModel);
+      }
     }
     setState(() {});
   }
