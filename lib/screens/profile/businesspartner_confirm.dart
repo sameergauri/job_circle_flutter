@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:job_circle/themes/typography.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessPartnerConfirmation extends StatefulWidget {
   const BusinessPartnerConfirmation({Key? key}) : super(key: key);
@@ -38,8 +43,7 @@ class _BusinessPartnerConfirmationState
               ),
               radious: 0,
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, ERoute.home.name, (Route<dynamic> route) => false);
+                save();
               },
               text: "I AGREE",
               themeButtonSize: ThemeButtonSize.medium,
@@ -128,5 +132,73 @@ class _BusinessPartnerConfirmationState
             )
           ]),
         )));
+  }
+
+  save() async {
+    // var result = await UserDataService().masterGetByGroup(
+    //     {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+    // print(Utils.parseResponse(result).resultData);
+    // return;
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    // prefs.setString('username', username.text);
+
+    String userName = username.text;
+    if (userName.isNotEmpty) {
+      if (!GlobalConstants.spaceMatch
+          .hasMatch(username.text.trim().toTitleCase())) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please enter valid name"),
+        ));
+        return;
+      }
+    }
+
+    var firstName = username.text.trim().split(' ')[0];
+    var lastName = username.text.trim().split(' ')[1];
+    var mobilenumber = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_mobile.name);
+
+    var params = {
+      "stage": "basic_info",
+      "data": {
+        "id": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name),
+        "mobile": mobilenumber,
+        "first_name": firstName,
+        "last_name": lastName,
+        "languages": [],
+        "job_location_id": 0,
+        "email": emailadr.text,
+        "gender": "",
+        "dateofbirth": null,
+        "usertype": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_type.name),
+      }
+    };
+
+    // CardModel model = CardModel();
+    // model.mobile = mobilenumber;
+    // model.cardName = (firstName + " " + lastName).toTitleCase();
+    // model.email = emailadr.text;
+    var result = await UserDataService().saveUserStages(params);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      Navigator.pushNamedAndRemoveUntil(
+          context, ERoute.home.name, (Route<dynamic> route) => false);
+      // if (widget.prevPageModel == null) {
+      //   await Utils.setPreference(
+      //       prefs, ESharedPreferences.user_data.name, jsonEncode(model));
+      //   Navigator.pushNamed(context, ERoute.screen2.name);
+      // } else {
+      //   widget.prevPageModel.first_name = firstName;
+      //   widget.prevPageModel.last_name = lastName;
+      //   widget.prevPageModel.job_location_city = selectedLocation.label;
+      //   widget.prevPageModel.job_location_id =
+      //       int.parse(selectedLocation.value);
+      //   widget.prevPageModel.gender = gender;
+
+      //   Navigator.pop(context, widget.prevPageModel);
+      // }
+    }
+    setState(() {});
   }
 }

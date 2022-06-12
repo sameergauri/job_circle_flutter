@@ -322,7 +322,8 @@ class _JobDetailsState extends State<JobDetails> {
                                         child: keyPair(
                                             Icons.grading,
                                             "Interview Rounds",
-                                            jobDetailsModel.inteviewrounds
+                                            jobDetailsModel.inteviewrounds!
+                                                .join(' > ')
                                                 .toString())),
                                   ],
                                 ),

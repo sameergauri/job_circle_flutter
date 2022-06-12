@@ -87,7 +87,7 @@ class ProfileSummaryModel {
       companyName: map['company_name'],
       passing_year: map['passing_year'],
       languages: languages,
-      job_location_city: map['job_location_city'],
+      job_location_city: map['job_location'],
       experience_flag: map['experience_flag'],
     );
   }

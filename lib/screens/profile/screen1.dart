@@ -5,6 +5,7 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autocompletecustom.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
@@ -247,7 +248,6 @@ class _Screen1State extends State<Screen1> {
         ));
   }
 
-  final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   Widget basicInfo() {
     return Container(
       key: const Key('second'),
@@ -273,7 +273,7 @@ class _Screen1State extends State<Screen1> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter valid first and last name';
-                    } else if (!spaceMatch
+                    } else if (!GlobalConstants.spaceMatch
                         .hasMatch(username.text.trim().toTitleCase())) {
                       return 'Please enter valid first and last name';
                     }
@@ -535,7 +535,8 @@ class _Screen1State extends State<Screen1> {
 
     String userName = username.text;
     if (userName.isNotEmpty) {
-      if (!spaceMatch.hasMatch(username.text.trim().toTitleCase())) {
+      if (!GlobalConstants.spaceMatch
+          .hasMatch(username.text.trim().toTitleCase())) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Please enter valid name"),
         ));

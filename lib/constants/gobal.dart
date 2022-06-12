@@ -1,6 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
 class GlobalConstants {
+  static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
+
   static const API_Host =
       "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   // static const API_Host = "localhost:9090";

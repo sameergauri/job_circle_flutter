@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/smart_card.dart';
@@ -34,10 +35,14 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   String gendor = "";
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   final basicForm = GlobalKey<FormState>();
-
+  final spinkit = const SpinKitRotatingCircle(
+    color: Colors.white,
+    size: 50.0,
+  );
   @override
   void initState() {
     bindProfileSummary();
+
     super.initState();
   }
 
@@ -180,6 +185,22 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       ),
                       Text(
                         profilemodel.gender.toString(),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Languages",
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w300),
+                      ),
+                      Text(
+                        profilemodel.languages!.join(',').toString(),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
