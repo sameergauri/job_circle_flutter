@@ -35,6 +35,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   TextEditingController username = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
+  String usertype = '0';
   String gendor = "";
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   final basicForm = GlobalKey<FormState>();
@@ -44,8 +45,12 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   );
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      usertype = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name);
+      setState(() {});
+    });
     bindProfileSummary();
-
     super.initState();
   }
 
@@ -132,10 +137,22 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                               ),
                             ],
                           ),
-                          education(),
-                          experience(),
-                          contactDetails(),
-                          uploadCV(),
+                          Visibility(
+                              visible:
+                                  (int.parse(usertype) == 1 ? true : false),
+                              child: education()),
+                          Visibility(
+                              visible:
+                                  (int.parse(usertype) == 1 ? true : false),
+                              child: experience()),
+                          Visibility(
+                              visible:
+                                  (int.parse(usertype) == 1 ? true : false),
+                              child: contactDetails()),
+                          Visibility(
+                              visible:
+                                  (int.parse(usertype) == 1 ? true : false),
+                              child: uploadCV()),
                           Padding(
                             padding: const EdgeInsets.only(left: 3, right: 3),
                             child: CardCustom(

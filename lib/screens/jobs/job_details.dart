@@ -125,6 +125,7 @@ class _JobDetailsState extends State<JobDetails> {
             // ),
             radious: 0,
             onPressed: () {
+              // print(jobDetailsModel);
               // Navigator.pushNamed(context, ERoute.application.name);
               Navigator.push(
                   context,

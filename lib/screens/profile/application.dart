@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
@@ -41,6 +43,8 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   // dynamic applicantName = {};
   String mobileno = "";
+  dynamic localStoregData;
+  dynamic userinfo;
 
   @override
   void initState() {
@@ -52,16 +56,16 @@ class ApplicationFormState extends State<ApplicationForm> {
     bindProccessList();
     bindLevelList();
 
-    if (widget.prevModel != null) {
-      applicationname.text = widget.prevModel.name;
-    }
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      print(await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_data.name));
-      mobileno = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_mobile.name);
-      contactno.text = mobileno;
+      userinfo = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_data.name);
+      // mobileno = await Utils.getPreferencesValue(
+      //     null, ESharedPreferences.user_mobile.name);
+      localStoregData = jsonDecode(userinfo);
+      contactno.text = localStoregData["mobile"];
+      if (widget.prevModel != null) {
+        applicationname.text = localStoregData["cardName"];
+      }
       setState(() {});
     });
   }
@@ -405,11 +409,11 @@ class ApplicationFormState extends State<ApplicationForm> {
     var result = await ApplicationService().saveApplication({
       "applicantName": applicationname.text.trim(),
       "contactNo": contactno.text.trim(),
-      "experience": "string",
       "id": 0,
       "level": selectedlevel.value,
       "process": selectedproccess.value,
-      "qualification": "string",
+      "qualification": underGradActive == 1 ? 'Under-Graduate' : 'Graduate',
+      "experience": exprinceActive == 1 ? 'Exprience' : 'Fresher',
       "resume": "string",
       "shortListFor": selectedshort.value,
       "sourceId": await Utils.getPreferencesValue(

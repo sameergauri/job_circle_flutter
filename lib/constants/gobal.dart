@@ -28,4 +28,10 @@ class GlobalConstants {
   static const API_jobs_v1_search = "/jobs/v1/search";
 
   static const API_jobs_v1_getJobDetailsById = "/jobs/v1/getJobDetailsById";
+
+  static const API_partner_v1 = "/partner/v1";
+
+  static const API_partner_get_v1 = "/partner/v1/";
+
+  static const API_partner_v1_user = "partner/v1/user/";
 }
