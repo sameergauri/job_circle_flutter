@@ -1,9 +1,13 @@
 // ignore_for_file: avoid_unnecessary_containers
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/moms.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/service/partnerService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,17 +62,59 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   List typeList = [];
   DropdownModel selectedTyp = DropdownModel();
   var ddlValues;
+  dynamic addressDetails;
+  dynamic escalationDesk;
 
   @override
   void initState() {
     getCountryList();
     getStateList();
     getCityList();
+    getPartnerDetails();
     super.initState();
   }
 
+  getPartnerDetails() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    int userid =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    var result = await PartnerService().getPartnerUser(userid);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      if (ddlValues != null) {
+        businessid = ddlValues['id'];
+        panno.text = ddlValues['panNo'].toString();
+        adharno.text = ddlValues['aadhaarno'].toString();
+        acholdername.text = ddlValues['bankAccHolderName'].toString();
+        bankname.text = ddlValues['bankName'].toString();
+        actype.text = ddlValues['bankAccType'].toString();
+        ifsccode.text = ddlValues['bankIFSC'].toString();
+        acno.text = ddlValues['bankAccNo'].toString();
+        reacno.text = ddlValues['bankAccNo'].toString();
+        addressDetails = jsonDecode(ddlValues['addressDetails']);
+        emailid.text = addressDetails['email'].toString();
+        pincode.text = addressDetails['pincode'].toString();
+        landmark.text = addressDetails['landmark'].toString();
+        mobno.text = addressDetails['mobileNo'].toString();
+        adr1.text = addressDetails['addressLine1'].toString();
+        adr2.text = addressDetails['addressLine2'].toString();
+        selectedCountry = AutoCompleteModel(
+            addressDetails['countryId'].toString(),
+            addressDetails['country'].toString(), {});
+        selectedState = AutoCompleteModel(addressDetails['stateId'].toString(),
+            addressDetails['state'].toString(), {});
+        selectedCity = AutoCompleteModel(addressDetails['cityId'].toString(),
+            addressDetails['city'].toString(), {});
+        escalationDesk = jsonDecode(ddlValues['escalationDesk']);
+        levelmobno1.text = escalationDesk[0]['mobileNo'].toString();
+        levelemail1.text = escalationDesk[0]['emailAddress'].toString();
+      }
+    }
+    setState(() {});
+  }
+
   getCountryList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'country', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -83,7 +129,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   }
 
   getStateList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'state', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -98,7 +144,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   }
 
   getCityList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'city', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -899,15 +945,15 @@ class _BusinessPartnerState extends State<BusinessPartner> {
           "addressLine1": adr1.text,
           "addressLine2": adr2.text,
           "city": selectedCity.label,
-          "cityid": selectedCity.value,
+          "cityId": selectedCity.value,
           "country": selectedCountry.label,
-          "countryid": selectedCountry.value,
+          "countryId": selectedCountry.value,
           "email": emailid.text,
           "landmark": landmark.text,
           "mobileNo": mobno.text,
           "pincode": pincode.text,
           "state": selectedState.label,
-          "stateid": selectedState.value
+          "stateId": selectedState.value
         },
         "bankAccHolderName": acholdername.text,
         "bankAccNo": acno.text,

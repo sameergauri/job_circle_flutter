@@ -10,4 +10,8 @@ class PartnerService extends ServiceBase {
   Future<Response> getPartner(int id) {
     return callGet(GlobalConstants.API_partner_get_v1 + id.toString());
   }
+
+  Future<Response> getPartnerUser(int id) {
+    return callGet(GlobalConstants.API_partner_v1_user + id.toString());
+  }
 }
