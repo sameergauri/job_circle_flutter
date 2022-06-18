@@ -22,11 +22,11 @@ class TypographyStyle {
   }
 
   static Widget textH3(
-    String text,
+    String? text,
     Color? color,
   ) {
     return Text(
-      text,
+      text!,
       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: color),
     );
   }

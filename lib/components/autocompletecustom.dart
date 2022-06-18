@@ -11,7 +11,8 @@ class CustomControls {
       List<AutoCompleteModel> items,
       IconData _icnos,
       {bool? allowFreeText = false,
-      String? Function(String?)? validator}) {
+      String? Function(String?)? validator,
+      Function? onClick}) {
     return Autocomplete(
         initialValue: TextEditingValue(
           text: (selectedItem == null ? "" : selectedItem.label),
@@ -22,6 +23,9 @@ class CustomControls {
             VoidCallback onFieldSubmitted) {
           controllr.text = selectedItem.label;
           return TextFormField(
+              onTap: (() {
+                onClick!();
+              }),
               controller: controllr,
               focusNode: fieldFocusNode
                 ..addListener(() {

@@ -4,7 +4,7 @@ class ProfileSummaryModel {
   int? id;
   String? first_name;
   String? last_name;
-  String? job_location_city;
+  String? job_location;
   int? mobile;
   String? job_title;
   String? univercity;
@@ -23,14 +23,16 @@ class ProfileSummaryModel {
   int? work_experience_id;
   String? dateofbirth;
   String? companyName;
-  String? passing_year;
-  int? experience_flag;
+  List? languages;
+  int? passing_year;
+  String? job_location_city;
+  int? has_experience;
 
   ProfileSummaryModel(
       {this.id,
       this.first_name,
       this.last_name,
-      this.job_location_city,
+      this.job_location,
       this.mobile,
       this.job_title,
       this.univercity,
@@ -49,15 +51,22 @@ class ProfileSummaryModel {
       this.work_experience_id,
       this.dateofbirth,
       this.companyName,
+      this.languages,
       this.passing_year,
-      this.experience_flag});
+      this.job_location_city,
+      this.has_experience});
 
   factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
+    List languages = [];
+    if (map['languages'] != null) {
+      languages = jsonDecode(map['languages']);
+    }
+
     return ProfileSummaryModel(
       id: map['id']?.toInt(),
       first_name: map['first_name'],
       last_name: map['last_name'],
-      job_location_city: map['job_location_city'],
+      job_location: map['job_location'],
       mobile: map['mobile']?.toInt(),
       job_title: map['job_title'],
       univercity: map['univercity'],
@@ -74,10 +83,12 @@ class ProfileSummaryModel {
       experience_id: map['experience_id'],
       job_title_id: map['job_title_id'],
       work_experience_id: map['work_experience_id'],
-      dateofbirth: map['dateofbirth'],
+      dateofbirth: map['dateofbirth'] ?? '2000-01-01',
       companyName: map['company_name'],
       passing_year: map['passing_year'],
-      experience_flag: map['experience_flag'],
+      languages: languages,
+      job_location_city: map['job_location'],
+      has_experience: map['has_experience'],
     );
   }
 }

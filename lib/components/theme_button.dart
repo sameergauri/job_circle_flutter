@@ -13,12 +13,14 @@ class ThemeButton extends StatelessWidget {
   final Icon? icon;
   final Color? color;
   final double? fontsize;
+  final Border? border;
 
   const ThemeButton(
       {Key? key,
       required this.onPressed,
       this.text,
       this.isText = false,
+      this.border,
       this.themeButtonSize = ThemeButtonSize.medium,
       this.width = 0,
       this.disabled = false,
@@ -38,11 +40,12 @@ class ThemeButton extends StatelessWidget {
             height: themeButtonSize == ThemeButtonSize.large
                 ? 60
                 : themeButtonSize == ThemeButtonSize.small
-                    ? 35
+                    ? 40
                     : themeButtonSize == ThemeButtonSize.xsmall
                         ? 30
                         : 50,
             decoration: BoxDecoration(
+              border: border,
               color: isText == true
                   ? Colors.transparent
                   : disabled

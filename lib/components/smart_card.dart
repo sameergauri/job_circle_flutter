@@ -33,6 +33,7 @@ class _SmartCardState extends State<SmartCard> {
         widget.model?.mobile = crd.mobile;
         widget.model?.email = crd.email;
       }
+      setState(() {});
     });
   }
 
@@ -47,7 +48,7 @@ class _SmartCardState extends State<SmartCard> {
 
           image: const DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage("../assets/images/abc.jpeg"),
+            image: AssetImage("./assets/images/abc.jpeg"),
           ),
           boxShadow: const [BoxShadow(blurRadius: 4)],
           border: Border.all(
@@ -55,25 +56,32 @@ class _SmartCardState extends State<SmartCard> {
       child: Row(
         children: [
           Container(
-            decoration: const BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                    topRight: Radius.circular(100),
-                    bottomRight: Radius.circular(100))),
-            height: double.infinity,
-            width: 150,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Image.asset(
-                "assets/images/male.png",
-                width: 80,
-                height: 80,
-                fit: BoxFit.contain,
+              decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                      topRight: Radius.circular(100),
+                      bottomRight: Radius.circular(100))),
+              height: double.infinity,
+              width: 150,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: CircleAvatar(
+                  backgroundImage: AssetImage("assets/images/male.png"),
+                ),
+              )
+              //  Padding(
+              //   padding: const EdgeInsets.all(14),
+              //   child:
+              // Image.asset(
+              //     "assets/images/male.png",
+              //     width: 80,
+              //     height: 80,
+              //     fit: BoxFit.contain,
+              //   ),
+              // ),
               ),
-            ),
-          ),
           const SizedBox(
             width: 8,
           ),
@@ -85,7 +93,11 @@ class _SmartCardState extends State<SmartCard> {
                 ),
                 // TypographyStyle.textH3("PRATIK NAIK", Colors.white),
                 TypographyStyle.textH3(
-                    widget.model?.cardName ?? 'Your Name', Colors.black),
+                    (widget.model?.cardName == '' ||
+                            widget.model?.cardName == null
+                        ? 'Your Name'
+                        : widget.model?.cardName),
+                    Colors.black),
                 const SizedBox(
                   height: 20,
                 ),
@@ -97,8 +109,12 @@ class _SmartCardState extends State<SmartCard> {
                   height: 10,
                 ),
                 CustomComponent.labelText(
-                    widget.model?.email == null ? null : Icons.email_outlined,
-                    widget.model?.email ?? '',
+                    widget.model?.email == null || widget.model?.email == 'null'
+                        ? null
+                        : Icons.email_outlined,
+                    widget.model?.email == null || widget.model?.email == 'null'
+                        ? ''
+                        : widget.model?.email,
                     Colors.black),
               ],
             ),

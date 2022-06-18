@@ -18,8 +18,4 @@ class UserDataService extends ServiceBase {
   Future<Response> getUserProfileSummary(int id) {
     return callGet(GlobalConstants.API_Users_v1_profileSummary + id.toString());
   }
-
-  Future<Response> masterGetByGroup(Map<String, String> params) {
-    return callGet(GlobalConstants.API_master_group, param: params);
-  }
 }

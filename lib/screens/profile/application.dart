@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
 import 'package:job_circle/service/applicationService.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/autocompletecustom.dart';
@@ -65,7 +67,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindShortList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'cmp_short', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -83,7 +85,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindProccessList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'appl_status', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -101,7 +103,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   bindLevelList() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -281,6 +283,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                       }),
                   selectedshort,
                   shortList,
+                  // onClick: () => {showCompanyDialog(context)},
                   Icons.list),
               CustomControls.AutoCompleteCustom(
                   context,
@@ -343,6 +346,60 @@ class ApplicationFormState extends State<ApplicationForm> {
     ));
   }
 
+/*
+  showCompanyDialog(context) {
+    BottomDialog().showBottomDialog(
+        enableDrag: true,
+        context,
+        IntrinsicHeight(
+          child: Container(
+              width: double.maxFinite,
+              clipBehavior: Clip.antiAlias,
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(16),
+                      ),
+                    ),
+                    height: 7,
+                    width: 60,
+                  ),
+                  Material(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height - 120,
+                          width: double.infinity,
+                        ),
+                        // ThemeButton(
+                        //   onPressed: () {},
+                        //   text: "APPLY",
+                        //   width: 130,
+                        //   radious: 5,
+                        //   themeButtonSize:
+                        //       ThemeButtonSize
+                        //           .small,
+                        // )
+                      ])),
+                ],
+              )),
+        ),
+        true);
+  }
+*/
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var result = await ApplicationService().saveApplication({

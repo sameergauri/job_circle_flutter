@@ -10,4 +10,12 @@ class MasterService extends ServiceBase {
   Future<Response> getMaster(Map<String, String> params) {
     return callGet(GlobalConstants.API_master_v1, param: params);
   }
+
+  Future<Response> masterGetByGroup(Map<String, String> params) {
+    return callGet(GlobalConstants.API_master_group, param: params);
+  }
+
+  Future<Response> masterGetByGroups(Map<String, String> params) {
+    return callGet(GlobalConstants.API_master_groups, param: params);
+  }
 }

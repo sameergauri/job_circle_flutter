@@ -17,7 +17,7 @@ class JobDetailsModel {
   String? minctc;
   String? maxctc;
   String? ctcdesc;
-  String? inteviewrounds;
+  List? inteviewrounds;
   int? payout;
   String? payoutval;
   String? paymentclause;
@@ -50,6 +50,11 @@ class JobDetailsModel {
       this.payoutval});
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
+    List inteviewrounds = [];
+    if (map['inteviewrounds'] != null) {
+      inteviewrounds = jsonDecode(map['inteviewrounds']);
+    }
+
     return JobDetailsModel(
       id: map['id']?.toInt(),
       compnayid: map['compnayid']?.toInt(),
@@ -65,7 +70,7 @@ class JobDetailsModel {
       minctc: map['minctc'],
       maxctc: map['maxctc'],
       ctcdesc: map['ctcdesc'],
-      inteviewrounds: map['inteviewrounds'],
+      inteviewrounds: inteviewrounds,
       payout: map['payout']?.toInt(),
       paymentclause: map['paymentclause'],
       active: map['active']?.toInt(),

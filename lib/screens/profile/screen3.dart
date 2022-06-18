@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,14 +51,13 @@ class _Screen3State extends State<Screen3> {
       selectedcurrentSalary = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
-      expirieanceFlag =
-          widget.prevPageModel.experience_flag == 1 ? true : false;
+      expirieanceFlag = widget.prevPageModel.has_experience == 1 ? true : false;
     }
     super.initState();
   }
 
   bindJobTitle() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -75,7 +75,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   bindTotalExperiance() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'total_exp', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -93,7 +93,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   bindCurrentSalary() async {
-    var result = await UserDataService().masterGetByGroup(
+    var result = await MasterService().masterGetByGroup(
         {'groupName': 'current_salary', 'pageNumber': '1', 'pageSize': '10'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
@@ -353,7 +353,8 @@ class _Screen3State extends State<Screen3> {
         "experience": selectedtotalExperience.value,
         "job_title": selectedJobTitle.value,
         "work_experience": selectedtotalExperience.value,
-        "company_name": companyController.text
+        "company_name": companyController.text,
+        "has_experience": expirieanceFlag ? 1 : 0
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -362,6 +363,8 @@ class _Screen3State extends State<Screen3> {
             context, ERoute.home.name, (Route<dynamic> route) => false);
       } else {
         widget.prevPageModel.experience = selectedtotalExperience.label;
+        widget.prevPageModel.has_experience = expirieanceFlag ? 1 : 0;
+
         Navigator.pop(context, widget.prevPageModel);
       }
     }

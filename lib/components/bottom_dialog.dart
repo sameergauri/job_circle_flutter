@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class BottomDialog {
-  void showBottomDialog(BuildContext context, Widget widget, bool dismissable) {
+  void showBottomDialog(BuildContext context, Widget widget, bool dismissable,
+      {bool? enableDrag = false}) {
     showModalBottomSheet(
       // barrierLabel: "showGeneralDialog",
       // barrierDismissible: dismissable,
       isDismissible: dismissable,
       barrierColor: Colors.black.withOpacity(0.6),
       isScrollControlled: true,
+      enableDrag: enableDrag ?? false,
       // transitionDuration: const Duration(milliseconds: 400),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(

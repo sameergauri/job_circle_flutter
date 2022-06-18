@@ -6,7 +6,6 @@ import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/momsView.dart';
-import 'package:mobile_number/mobile_number.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../common/utils.dart';
 import '../service/UserDataService.dart';
@@ -22,33 +21,33 @@ class _LoginState extends State<Login> {
   bool isManual = true;
   TextEditingController otpcontroller = TextEditingController();
   String _mobileNumber = '';
-  List<SimCard> _simCard = <SimCard>[];
+  //List<SimCard> _simCard = <SimCard>[];
   FocusNode mobileFocus = FocusNode();
 
-  Future<void> initMobileNumberState() async {
-    if (!await MobileNumber.hasPhonePermission) {
-      await MobileNumber.requestPhonePermission;
-      return;
-    }
-    String mobileNumber = '';
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      mobileNumber = (await MobileNumber.mobileNumber)!;
-      _simCard = (await MobileNumber.getSimCards)!;
-    } on PlatformException catch (e) {
-      debugPrint("Failed to get mobile number because of '${e.message}'");
-    }
+  // Future<void> initMobileNumberState() async {
+  //   if (!await MobileNumber.hasPhonePermission) {
+  //     await MobileNumber.requestPhonePermission;
+  //     return;
+  //   }
+  //   String mobileNumber = '';
+  //   // Platform messages may fail, so we use a try/catch PlatformException.
+  //   try {
+  //     mobileNumber = (await MobileNumber.mobileNumber)!;
+  //     _simCard = (await MobileNumber.getSimCards)!;
+  //   } on PlatformException catch (e) {
+  //     debugPrint("Failed to get mobile number because of '${e.message}'");
+  //   }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
+  // If the widget was removed from the tree while the asynchronous platform
+  // message was in flight, we want to discard the reply rather than calling
+  // // setState to update our non-existent appearance.
+  // if (!mounted) return;
 
-    setState(() {
-      isManual = false;
-      _mobileNumber = mobileNumber;
-    });
-  }
+  // setState(() {
+  //   isManual = false;
+  //   _mobileNumber = mobileNumber;
+  // });
+  // }
 
   @override
   void initState() {
@@ -236,7 +235,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildContinueText() {
     return const Text(
-      'Hey, Pratik Naik',
+      'Hey, Welcome',
       style: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,

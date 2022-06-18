@@ -33,8 +33,8 @@ class _MasterOfMasterState extends State<MasterOfMaster> {
   }
 
   bindGroups() async {
-    var result = await UserDataService().masterGetByGroup(
-        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+    var result = await MasterService().masterGetByGroup(
+        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '100'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
