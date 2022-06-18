@@ -85,7 +85,7 @@ class _Screen1State extends State<Screen1> {
               .add(AutoCompleteModel(e['id'].toString(), e['value'], e));
         } else if (e['group_name'] == 'language') {
           e['checked'] = false;
-          if (widget.prevPageModel.languages != null) {
+          if (widget.prevPageModel?.languages != null) {
             if (widget.prevPageModel.languages.indexOf(e['value']) > -1) {
               e['checked'] = true;
             }

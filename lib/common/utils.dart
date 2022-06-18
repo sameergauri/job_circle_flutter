@@ -61,7 +61,7 @@ class Utils {
   }
 
   static resolveImage(img) {
-    return GlobalConstants.ASSET_URL + img;
+    return GlobalConstants.ASSET_URL + (img ?? '');
   }
 
   static getMimType(fileName) {
