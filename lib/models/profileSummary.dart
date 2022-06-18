@@ -27,6 +27,7 @@ class ProfileSummaryModel {
   int? passing_year;
   String? job_location_city;
   int? has_experience;
+  String? profile_pic;
 
   ProfileSummaryModel(
       {this.id,
@@ -54,7 +55,8 @@ class ProfileSummaryModel {
       this.languages,
       this.passing_year,
       this.job_location_city,
-      this.has_experience});
+      this.has_experience,
+      this.profile_pic});
 
   factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
     List languages = [];
@@ -63,32 +65,32 @@ class ProfileSummaryModel {
     }
 
     return ProfileSummaryModel(
-      id: map['id']?.toInt(),
-      first_name: map['first_name'],
-      last_name: map['last_name'],
-      job_location: map['job_location'],
-      mobile: map['mobile']?.toInt(),
-      job_title: map['job_title'],
-      univercity: map['univercity'],
-      experience: map['experience'],
-      gender: map['gender'],
-      work_experience: map['work_experience'],
-      degree_spc: map['degree_spc'],
-      email: map['email'],
-      education: map['education'],
-      job_location_id: map['job_location_id'],
-      education_id: map['education_id'],
-      degree_spc_id: map['degree_spc_id'],
-      univercity_id: map['univercity_id'],
-      experience_id: map['experience_id'],
-      job_title_id: map['job_title_id'],
-      work_experience_id: map['work_experience_id'],
-      dateofbirth: map['dateofbirth'] ?? '2000-01-01',
-      companyName: map['company_name'],
-      passing_year: map['passing_year'],
-      languages: languages,
-      job_location_city: map['job_location'],
-      has_experience: map['has_experience'],
-    );
+        id: map['id']?.toInt(),
+        first_name: map['first_name'],
+        last_name: map['last_name'],
+        job_location: map['job_location'],
+        mobile: map['mobile']?.toInt(),
+        job_title: map['job_title'],
+        univercity: map['univercity'],
+        experience: map['experience'],
+        gender: map['gender'],
+        work_experience: map['work_experience'],
+        degree_spc: map['degree_spc'],
+        email: map['email'],
+        education: map['education'],
+        job_location_id: map['job_location_id'],
+        education_id: map['education_id'],
+        degree_spc_id: map['degree_spc_id'],
+        univercity_id: map['univercity_id'],
+        experience_id: map['experience_id'],
+        job_title_id: map['job_title_id'],
+        work_experience_id: map['work_experience_id'],
+        dateofbirth: map['dateofbirth'] ?? '2000-01-01',
+        companyName: map['company_name'],
+        passing_year: map['passing_year'],
+        languages: languages,
+        job_location_city: map['job_location'],
+        has_experience: map['has_experience'],
+        profile_pic: map['profile_pic']);
   }
 }

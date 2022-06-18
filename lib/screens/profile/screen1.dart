@@ -85,10 +85,17 @@ class _Screen1State extends State<Screen1> {
               .add(AutoCompleteModel(e['id'].toString(), e['value'], e));
         } else if (e['group_name'] == 'language') {
           e['checked'] = false;
+          if (widget.prevPageModel?.languages != null) {
+            if (widget.prevPageModel.languages.indexOf(e['value']) > -1) {
+              e['checked'] = true;
+            }
+          }
+
           languageList.add(e);
         }
       }
       languageList.sort((a, b) => a['order'].compareTo(b['order']));
+
       setState(() {});
       // jobLocationList =
       //     .map<AutoCompleteModel>(
@@ -588,6 +595,7 @@ class _Screen1State extends State<Screen1> {
         widget.prevPageModel.job_location_id =
             int.parse(selectedLocation.value);
         widget.prevPageModel.gender = gender;
+        widget.prevPageModel.languages = selectedLanguages;
 
         Navigator.pop(context, widget.prevPageModel);
       }
