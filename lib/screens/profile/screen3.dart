@@ -51,8 +51,7 @@ class _Screen3State extends State<Screen3> {
       selectedcurrentSalary = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
-      expirieanceFlag =
-          widget.prevPageModel.experience_flag == 1 ? true : false;
+      expirieanceFlag = widget.prevPageModel.has_experience == 1 ? true : false;
     }
     super.initState();
   }
@@ -354,7 +353,8 @@ class _Screen3State extends State<Screen3> {
         "experience": selectedtotalExperience.value,
         "job_title": selectedJobTitle.value,
         "work_experience": selectedtotalExperience.value,
-        "company_name": companyController.text
+        "company_name": companyController.text,
+        "has_experience": expirieanceFlag ? 1 : 0
       }
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -363,6 +363,8 @@ class _Screen3State extends State<Screen3> {
             context, ERoute.home.name, (Route<dynamic> route) => false);
       } else {
         widget.prevPageModel.experience = selectedtotalExperience.label;
+        widget.prevPageModel.has_experience = expirieanceFlag ? 1 : 0;
+
         Navigator.pop(context, widget.prevPageModel);
       }
     }

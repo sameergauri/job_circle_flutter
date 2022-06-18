@@ -56,25 +56,32 @@ class _SmartCardState extends State<SmartCard> {
       child: Row(
         children: [
           Container(
-            decoration: const BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                    topRight: Radius.circular(100),
-                    bottomRight: Radius.circular(100))),
-            height: double.infinity,
-            width: 150,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Image.asset(
-                "assets/images/male.png",
-                width: 80,
-                height: 80,
-                fit: BoxFit.contain,
+              decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                      topRight: Radius.circular(100),
+                      bottomRight: Radius.circular(100))),
+              height: double.infinity,
+              width: 150,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: CircleAvatar(
+                  backgroundImage: AssetImage("assets/images/male.png"),
+                ),
+              )
+              //  Padding(
+              //   padding: const EdgeInsets.all(14),
+              //   child:
+              // Image.asset(
+              //     "assets/images/male.png",
+              //     width: 80,
+              //     height: 80,
+              //     fit: BoxFit.contain,
+              //   ),
+              // ),
               ),
-            ),
-          ),
           const SizedBox(
             width: 8,
           ),

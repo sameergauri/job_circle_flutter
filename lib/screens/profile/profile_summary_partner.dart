@@ -87,8 +87,8 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                         )
                       : Column(children: [
                           basicInfo(),
-                          education(),
-                          experience(),
+                          // education(),
+                          // experience(),
                           contactDetails(),
                           CardCustom(
                               isedit: false,
@@ -131,54 +131,6 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w200),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Location",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w200),
-                      ),
-                      Text(
-                        profilemodel.job_location_city.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Gender",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w200),
-                      ),
-                      Text(
-                        profilemodel.gender.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        "Date Of Birth",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w200),
-                      ),
-                      Text(
-                        "11 AUG 1989",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  )
                 ],
               ),
             ),
