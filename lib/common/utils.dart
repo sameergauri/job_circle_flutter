@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:path/path.dart' as p;
 import '../models/api_response.dart';
 
 class Utils {
+  static final dynamic mimTypes = jsonDecode(
+      '{".pdf":"application/pdf", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".png": "image/png"}');
+
   static RequestResult parseResponse(response) {
     Map resultData = jsonDecode(response.body);
     return RequestResult(resultData["code"], resultData["resultKey"],
@@ -53,6 +58,15 @@ class Utils {
   static clearAllSharedPreference(SharedPreferences? pref, String key) async {
     SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
     return pref1.remove(key);
+  }
+
+  static resolveImage(img) {
+    return GlobalConstants.ASSET_URL + img;
+  }
+
+  static getMimType(fileName) {
+    var extention = p.extension(fileName);
+    return mimTypes[extention];
   }
 }
 

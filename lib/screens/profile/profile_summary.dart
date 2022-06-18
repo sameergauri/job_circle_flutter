@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
@@ -19,7 +18,6 @@ import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 
 class ProfileSummary extends StatefulWidget {
   const ProfileSummary({Key? key}) : super(key: key);
@@ -30,6 +28,7 @@ class ProfileSummary extends StatefulWidget {
 
 class _ProfileSummaryState extends State<ProfileSummary> {
   late Widget previousWidget;
+  var profile_final_pic = "";
 
   // Veriable Declaration
   CardModel model = CardModel();
@@ -58,6 +57,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
     }
     setState(() {});
   }
@@ -105,16 +105,29 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                           Stack(
                             children: [
                               basicInfo(),
-                              const Positioned(
-                                top: 10,
-                                left: 20,
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: CircleAvatar(
-                                    backgroundImage:
-                                        AssetImage("assets/images/male.png"),
-                                  ),
+                              Positioned(
+                                top: 0,
+                                left: (MediaQuery.of(context).size.width / 2) -
+                                    60,
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 120,
+                                      width: 120,
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                            Image.network(profile_final_pic)
+                                                .image,
+                                      ),
+                                    ),
+                                    TextButton(
+                                        onPressed: () async {
+                                          var data =
+                                              await uploadFile(['jpeg', 'jpg']);
+                                          await save(data['fileName']);
+                                        },
+                                        child: Text("Change Photo"))
+                                  ],
                                 ),
                               ),
                             ],
@@ -448,9 +461,13 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Icon(
+                    Icons.picture_as_pdf,
+                    size: 80,
+                  ),
                   TextButton.icon(
                     onPressed: () async {
-                      uploadFile();
+                      var data = await uploadFile(['pdf']);
                     },
                     icon: const Icon(Icons.upload),
                     label: const Text('Upload Resume'),
@@ -585,21 +602,68 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     }
   }
 
-  uploadFile() async {
+  uploadFile(allowExt) async {
+    showLoaderDialog(context);
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc'],
-    );
+        type: FileType.custom,
+        allowedExtensions: allowExt,
+        withReadStream: true);
 
     if (result != null) {
-      //File file = File.fromRawPath(result.files.single.bytes!);
-
-      FileUploadService().uploadSingleFile(
-          "cv",
-          result.files.single.bytes!
-              .toList()); // File file = File(result.files.single.readStream.first!);
+      var res =
+          await FileUploadService().uploadSingleFile("cv", result.files.single);
+      var resultD = Utils.parseResponse(res);
+      Navigator.pop(context);
+      if (resultD.resultKey == 'SUCCESS') {
+        return resultD.resultData[0];
+      }
+      // File file = File(result.files.single.readStream.first!);
     } else {
+      return null;
       // User canceled the picker
     }
+    Navigator.pop(context);
+  }
+
+  showLoaderDialog(BuildContext context) {
+    // const spinkit = SpinKitRotatingCircle(
+    //   color: Colors.white,
+    //   size: 50.0,
+    // );
+    AlertDialog alert = AlertDialog(
+      content: Row(
+        children: [
+          const CircularProgressIndicator(),
+          Container(
+              margin: const EdgeInsets.only(left: 7),
+              child: const Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  save(filePath) async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().saveUserStages({
+      "stage": "profile_pic",
+      "data": {
+        "id": await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name),
+        "profile_pic": filePath
+      }
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      profilemodel.profile_pic = filePath;
+      profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+    }
+    setState(() {});
   }
 }

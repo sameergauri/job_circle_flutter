@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:html';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -55,34 +56,38 @@ Future<RequestResult> httppost(String route, [dynamic data]) async {
   }
 }
 
-Future<RequestResult> httpSingleFile(String route, List<int> file) async {
-  SharedPreferences prefs;
-  try {
-    prefs = await SharedPreferences.getInstance();
-    //var url = "http://$domainIp/$route";
-    Uri url = Uri.http(GlobalConstants.API_Host, route);
-    // var formdata = FormData();
-    // formdata.append("file", file);
-    http.MultipartRequest request = http.MultipartRequest("POST", url);
+// // Future<RequestResult> httpSingleFile(String route, objFile) async {
+// //   SharedPreferences prefs;
+// //   try {
+// //     var request = http.MultipartRequest('POST',
+// //         Uri.parse('http://localhost:9090/files/v1/multiUpload?folder=cv'));
 
-    http.MultipartFile multipartFile =
-        http.MultipartFile.fromBytes("files", file);
+// //     request.headers['Content-Type'] = 'multipart/form-data';
+// //     request.files.add(http.MultipartFile(
+// //         'files', objFile.readStream, objFile.size,
+// //         filename: objFile.name));
+// //     // request.files.add(await http.MultipartFile.fromPath(
+// //     //   'files', '/Users/admin/Desktop/bcom.jpeg'));
 
-    request.files.add(multipartFile);
+// //     var result = await request.send();
 
-    http.StreamedResponse response = await request.send();
+// //     var data = await http.Response.fromStream(result)
+// //         .then((response) {
+// //           if (response.statusCode == 200) {
+// //             // print("Uploaded! ");
+// //             // print('response.body ' + response.body);
+// //             return jsonDecode(response.body);
+// //           }
+// //           return response.reasonPhrase;
+// //         })
+// //         .catchError((err) => err)
+// //         .whenComplete(() {});
 
-    // var result = await http.post(Uri.parse(url), body: formdata, headers: {
-    //   'Content-Type': 'multipart/form-data',
-    //   'access-token': prefs.getString("token").toString(),
-    // });
-
-    // Map resultData = jsonDecode(result.body);
-    return RequestResult(true, 1, "");
-    // return RequestResult(
-    //     true, response["resultKey"], resultData["resultValue"]);
-  } catch (ex) {
-    return RequestResult(false, 0,
-        "Connection failed (OS Error: Network is unreachable, errno = 101)");
-  }
-}
+// //     return RequestResult(true, data["resultKey"], data["resultData"]);
+// //     //   // return RequestResult(
+// //     //   //     true, response["resultKey"], resultData["resultValue"ß]);
+// //   } catch (ex) {
+// //     return RequestResult(false, 0,
+// //         "Connection failed (OS Error: Network is unreachable, errno = 101)");
+// //   }
+// }
