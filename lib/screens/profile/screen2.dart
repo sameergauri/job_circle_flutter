@@ -50,7 +50,7 @@ class _Screen2State extends State<Screen2> {
       selectedDegree = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
-      passingYearController.text = widget.prevPageModel.passing_year;
+      passingYearController.text = widget.prevPageModel.passing_year.toString();
     }
     super.initState();
   }

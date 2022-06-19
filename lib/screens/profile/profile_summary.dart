@@ -29,13 +29,15 @@ class ProfileSummary extends StatefulWidget {
 class _ProfileSummaryState extends State<ProfileSummary> {
   late Widget previousWidget;
   var profile_final_pic = "";
+  var profile_cv_link = "";
+  var profile_cv_file = "";
 
   // Veriable Declaration
   CardModel model = CardModel();
   TextEditingController username = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
-  String usertype = '0';
+  var usertype = 0;
   String gendor = "";
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   final basicForm = GlobalKey<FormState>();
@@ -48,6 +50,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
+
       setState(() {});
     });
     bindProfileSummary();
@@ -63,6 +66,8 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromMap(dataResult);
       profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
+      profile_cv_file = getFileName(profile_cv_link);
     }
     setState(() {});
   }
@@ -129,29 +134,36 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                         onPressed: () async {
                                           var data =
                                               await uploadFile(['jpeg', 'jpg']);
-                                          await save(data['fileName']);
+                                          var payload = {
+                                            "stage": "profile_pic",
+                                            "data": {
+                                              "id": await Utils
+                                                  .getPreferencesValue(
+                                                      null,
+                                                      ESharedPreferences
+                                                          .user_id.name),
+                                              "profile_pic": data['fileName']
+                                            }
+                                          };
+                                          await save(data['fileName'], payload);
                                         },
-                                        child: Text("Change Photo"))
+                                        child: const Text("Change Photo"))
                                   ],
                                 ),
                               ),
                             ],
                           ),
                           Visibility(
-                              visible:
-                                  (int.parse(usertype) == 1 ? true : false),
+                              visible: (usertype == 1 ? true : false),
                               child: education()),
                           Visibility(
-                              visible:
-                                  (int.parse(usertype) == 1 ? true : false),
+                              visible: (usertype == 1 ? true : false),
                               child: experience()),
                           Visibility(
-                              visible:
-                                  (int.parse(usertype) == 1 ? true : false),
+                              visible: (usertype == 1 ? true : false),
                               child: contactDetails()),
                           Visibility(
-                              visible:
-                                  (int.parse(usertype) == 1 ? true : false),
+                              visible: (usertype == 1 ? true : false),
                               child: uploadCV()),
                           Padding(
                             padding: const EdgeInsets.only(left: 3, right: 3),
@@ -182,22 +194,81 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                       height: 20,
                                     ),
                                     ThemeButton(
+                                      icon: profilemodel.partner_request == 1
+                                          ? Icon(
+                                              Icons.check_box_rounded,
+                                              color: Colors.green,
+                                            )
+                                          : null,
                                       isText: true,
                                       radious: 8,
                                       border: Border.all(width: 1),
-                                      text:
-                                          "Become Sourcing Partner and start earing.",
+                                      text: profilemodel.partner_request == 0
+                                          ? "Become Sourcing Partner and start earing."
+                                          : "Request already send. Click to cancel",
                                       onPressed: () {
-                                        Future.delayed(
-                                            const Duration(seconds: 0),
-                                            () async {
-                                          await AppUtils.clearSession();
-                                          Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              ERoute.login.value,
-                                              (Route<dynamic> route) => false);
-                                          // Navigator.pushReplacementNamed(context, nextRoute.value);
-                                        });
+                                        // set up the button
+                                        Widget cancelButton = TextButton(
+                                            child: Text("Cancel"),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            });
+                                        Widget okButton = TextButton(
+                                          child: Text(
+                                              profilemodel.partner_request == 0
+                                                  ? "Send Request"
+                                                  : "Cancel Request"),
+                                          onPressed: () async {
+                                            var payload = {
+                                              "stage": "partnerRequest",
+                                              "data": {
+                                                "id": await Utils
+                                                    .getPreferencesValue(
+                                                        null,
+                                                        ESharedPreferences
+                                                            .user_id.name),
+                                                "partner_request": (profilemodel
+                                                            .partner_request ==
+                                                        0
+                                                    ? 1
+                                                    : 0)
+                                              }
+                                            };
+                                            showLoaderDialog(context);
+                                            await save('', payload);
+
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                        // set up the AlertDialog
+                                        AlertDialog alert = AlertDialog(
+                                          title: Text("Request"),
+                                          content: Text(profilemodel
+                                                      .partner_request ==
+                                                  0
+                                              ? "Do you want to send request to became business partner with us?"
+                                              : "Do you want to cancel request?"),
+                                          actions: [cancelButton, okButton],
+                                        );
+                                        // show the dialog
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return alert;
+                                          },
+                                        );
+
+                                        // Future.delayed(
+                                        //     const Duration(seconds: 0),
+                                        //     () async {
+                                        //   await AppUtils.clearSession();
+                                        //   Navigator.pushNamedAndRemoveUntil(
+                                        //       context,
+                                        //       ERoute.login.value,
+                                        //       (Route<dynamic> route) => false);
+                                        //   // Navigator.pushReplacementNamed(context, nextRoute.value);
+                                        // });
                                         //
                                       },
                                       themeButtonSize: ThemeButtonSize.small,
@@ -218,7 +289,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
 
   Widget basicInfo() {
     return Padding(
-      padding: const EdgeInsets.only(left: 3, top: 65, right: 3),
+      padding: const EdgeInsets.only(left: 3, top: 100, right: 3),
       child: Column(
         children: [
           SizedBox(
@@ -379,7 +450,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                     children: [
                       if (profilemodel.has_experience == 1)
                         const Text(
-                          "Level",
+                          "Years of Experience",
                           style: TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w300),
                         ),
@@ -478,16 +549,41 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.picture_as_pdf,
-                    size: 80,
-                  ),
+                  if (profilemodel.cv_link != null &&
+                      profilemodel.cv_link != "")
+                    Image.asset('./assets/images/cv_doc.png', height: 50),
+                  if (profilemodel.cv_link != null &&
+                      profilemodel.cv_link != "")
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(profile_cv_file,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w900, fontSize: 16)),
+                          Text(
+                              "Last Updated On ${profilemodel.cv_upladted_date}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 14))
+                        ],
+                      ),
+                    ),
                   TextButton.icon(
                     onPressed: () async {
                       var data = await uploadFile(['pdf']);
+                      var payload = {
+                        "stage": "upload_cv",
+                        "data": {
+                          "id": await Utils.getPreferencesValue(
+                              null, ESharedPreferences.user_id.name),
+                          "cv_link": data['fileName']
+                        }
+                      };
+                      await save(data['fileName'], payload);
                     },
                     icon: const Icon(Icons.upload),
-                    label: const Text('Upload Resume'),
+                    label: const Text('Upload'),
                   ),
                 ],
               ),
@@ -667,20 +763,37 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     );
   }
 
-  save(filePath) async {
+  save(filePath, data) async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().saveUserStages({
-      "stage": "profile_pic",
-      "data": {
-        "id": await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name),
-        "profile_pic": filePath
-      }
-    });
+    var result = await UserDataService().saveUserStages(data);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      profilemodel.profile_pic = filePath;
-      profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      if (data['stage'] == 'profile_pic') {
+        profilemodel.profile_pic = filePath;
+        profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      } else if (data['stage'] == 'upload_cv') {
+        profilemodel.cv_link = filePath;
+        profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
+        profile_cv_file = getFileName(profile_cv_link);
+
+        profilemodel.cv_upladted_date =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+      } else if (data['stage'] == 'partnerRequest') {
+        profilemodel.partner_request = data['data']['partner_request'];
+      }
     }
     setState(() {});
+  }
+
+  getFileName(fileName) {
+    //fileName = 'cv/IMG_20220412_WA0001_1655577229796.jpg';
+    if (fileName == null) return "";
+    var fileNamea = "";
+    var extention = "";
+    try {
+      var index = fileName.lastIndexOf("_");
+      fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
+      extention = Utils.getExtention(fileName);
+    } catch (ex) {}
+    return fileNamea + extention;
   }
 }

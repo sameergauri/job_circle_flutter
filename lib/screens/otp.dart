@@ -301,8 +301,8 @@ class _OTPScreenState extends State<OTPScreen> {
         await Utils.setPreference(
             pres, ESharedPreferences.user_id.name, data['id']);
 
-        await Utils.setPreference(
-            pres, ESharedPreferences.user_type.name, data['usertype']);
+        await Utils.setPreference(pres, ESharedPreferences.user_type.name,
+            int.parse(data['usertype']));
 
         CardModel model = CardModel();
         model.mobile = mobileno;
