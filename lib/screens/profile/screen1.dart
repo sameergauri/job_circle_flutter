@@ -492,7 +492,7 @@ class _Screen1State extends State<Screen1> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                Text(
+                const Text(
                   "Language Known",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
@@ -500,7 +500,8 @@ class _Screen1State extends State<Screen1> {
                   child: ResponsiveGridRow(children: [
                     for (var s in languageList)
                       ResponsiveGridCol(
-                        xs: 4,
+                        xs: 6,
+                        sm: 4,
                         md: 3,
                         child: CheckboxListTile(
                           title: Text(s['value'] ?? ''),

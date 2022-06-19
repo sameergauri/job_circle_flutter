@@ -68,6 +68,10 @@ class Utils {
     var extention = p.extension(fileName);
     return mimTypes[extention];
   }
+
+  static getExtention(fileName) {
+    return p.extension(fileName);
+  }
 }
 
 String convertToTitleCase(String text) {

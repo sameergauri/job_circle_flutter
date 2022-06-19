@@ -345,18 +345,22 @@ class _Screen3State extends State<Screen3> {
 
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().saveUserStages({
-      "stage": "experiene",
-      "data": {
-        "id": await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name),
-        "experience": selectedtotalExperience.value,
-        "job_title": selectedJobTitle.value,
-        "work_experience": selectedtotalExperience.value,
-        "company_name": companyController.text,
-        "has_experience": expirieanceFlag ? 1 : 0
-      }
-    });
+    var payload = {
+      "id": await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_id.name),
+      "experience": selectedtotalExperience.value == ""
+          ? "0"
+          : selectedtotalExperience.value,
+      "job_title": selectedJobTitle.value == "" ? "0" : selectedJobTitle.value,
+      "work_experience": selectedtotalExperience.value == ""
+          ? "0"
+          : selectedtotalExperience.value,
+      "company_name": companyController.text,
+      "has_experience": expirieanceFlag ? 1 : 0
+    };
+    print(payload);
+    var result = await UserDataService()
+        .saveUserStages({"stage": "experiene", "data": payload});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       if (widget.prevPageModel == null) {
         Navigator.pushNamedAndRemoveUntil(
