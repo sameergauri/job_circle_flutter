@@ -235,7 +235,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildContinueText() {
     return const Text(
-      'Hey, Welcome',
+      'Hi, Welcome',
       style: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,

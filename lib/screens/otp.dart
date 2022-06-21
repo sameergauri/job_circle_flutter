@@ -234,7 +234,7 @@ class _OTPScreenState extends State<OTPScreen> {
               onPressed: () {
                 varifyOTP();
               },
-              text: "VARIFY OTP",
+              text: "LOGIN OTP",
             ),
           )
         ],
