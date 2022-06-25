@@ -149,7 +149,7 @@ class _JobDetailsState extends State<JobDetails> {
                 children: [
                   Stack(children: [
                     Container(
-                      height: 230,
+                      height: 190,
                       margin: const EdgeInsets.only(top: 0),
                       padding: const EdgeInsets.only(top: 0),
                       decoration: const BoxDecoration(
@@ -211,34 +211,24 @@ class _JobDetailsState extends State<JobDetails> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                const Text(
-                                  "CRT(Service)",
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.location_city,
-                                      size: 17,
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      jobDetailsModel.location.toString(),
-                                      style: const TextStyle(
-                                          color: Colors.black54, fontSize: 14),
-                                    ),
-                                  ],
-                                ),
+                                // Row(
+                                //   crossAxisAlignment: CrossAxisAlignment.center,
+                                //   mainAxisAlignment: MainAxisAlignment.center,
+                                //   children: [
+                                //     const Icon(
+                                //       Icons.location_city,
+                                //       size: 17,
+                                //     ),
+                                //     const SizedBox(
+                                //       width: 5,
+                                //     ),
+                                //     Text(
+                                //       jobDetailsModel.location.toString(),
+                                //       style: const TextStyle(
+                                //           color: Colors.black54, fontSize: 14),
+                                //     ),
+                                //   ],
+                                // ),
                               ],
                             ),
                           ),

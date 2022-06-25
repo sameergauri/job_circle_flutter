@@ -5,7 +5,7 @@ class GlobalConstants {
 
   static const API_Host =
       "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
-  // static const API_Host = "localhost:9090";
+  //static const API_Host = "localhost:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const ASSET_DEFAULT_IMAGE = "assets/images/male.png";
   // static const API_Host =
@@ -37,4 +37,9 @@ class GlobalConstants {
   static const API_partner_get_v1 = "/partner/v1/";
 
   static const API_partner_v1_user = "partner/v1/user/";
+
+  static const API_company_v1_all = "/company/v1/all";
+
+  static const API_jobs_v1_getDistinctProcessAndLevels =
+      "jobs/v1/getDistinctProcessAndLevels";
 }

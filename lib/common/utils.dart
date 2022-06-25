@@ -85,6 +85,46 @@ class Utils {
     } catch (ex) {}
     return fileNamea + extention;
   }
+
+  static showLoaderDialog(BuildContext context, String message) {
+    // const spinkit = SpinKitRotatingCircle(
+    //   color: Colors.white,
+    //   size: 50.0,
+    // );
+    AlertDialog alert = AlertDialog(
+      content: Row(
+        children: [
+          const CircularProgressIndicator(),
+          Container(
+              margin: const EdgeInsets.only(left: 7),
+              child: Text(message == "" ? "Loading..." : message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  static showLoaderDialogWithWidget(
+      BuildContext context, Widget widget, int timeout) {
+    // const spinkit = SpinKitRotatingCircle(
+    //   color: Colors.white,
+    //   size: 50.0,
+    // );
+    AlertDialog alert = AlertDialog(content: widget);
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }
 
 String convertToTitleCase(String text) {
