@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/profile/businesspartner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,18 +13,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final PageController pageController = PageController();
   int selectedIndex = 0;
-  dynamic userType;
+  late dynamic userType;
   List<BottomNavigationBarItem> bottomTabItems = [];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    Future.delayed(Duration.zero, () async {
       userType = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
-      bindBottomTabs();
-      setState(() {});
     });
+    bindBottomTabs();
+    setState(() {});
   }
 
   @override
@@ -48,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
             items: bottomTabItems,
             type: BottomNavigationBarType.fixed,
             currentIndex: selectedIndex,
+            showUnselectedLabels: true,
             unselectedItemColor: Colors.black45,
             selectedItemColor: Theme.of(context).primaryColor,
             iconSize: 30,

@@ -20,12 +20,19 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    Future.delayed(Duration.zero, () async {
       userType = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
-      bindBottomTabs();
-      setState(() {});
     });
+    bindBottomTabs();
+    setState(() {});
+  }
+
+  calldata() async {
+    userType = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+    bindBottomTabs();
+    setState(() {});
   }
 
   @override

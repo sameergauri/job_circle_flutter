@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/components/cv.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocomplete.dart';
@@ -46,6 +48,8 @@ class ApplicationFormState extends State<ApplicationForm> {
   dynamic localStoregData;
   dynamic userinfo;
 
+  ProfileCv profileCv = ProfileCv();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -55,6 +59,11 @@ class ApplicationFormState extends State<ApplicationForm> {
     bindShortList();
     bindProccessList();
     bindLevelList();
+
+    // profileCv.profile_cv_file = "abc.pdf";
+    // profileCv.cv_link = "abc.pdf";
+    // profileCv.cv_upladted_date = "2033";
+    // profileCv.profile_cv_link = "lin";
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       userinfo = await Utils.getPreferencesValue(
@@ -321,11 +330,18 @@ class ApplicationFormState extends State<ApplicationForm> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.upload),
-                    label: const Text('Upload your resume'),
-                  )
+                  CVWidget(
+                      profileCv: profileCv,
+                      // cv_link: profileCv['cv_link'],
+                      // cv_upladted_date: profileCv['cv_upladted_date'],
+                      // profile_cv_file: profileCv['profile_cv_file'],
+                      // profile_cv_link: profileCv['profile_cv_link'],
+                      onUpload: (fileName, payload) async => {
+                            setState(
+                              () => {},
+                            )
+                            // await saveProfile(fileName, payload)
+                          }),
                 ],
               ),
               const SizedBox(
@@ -422,5 +438,17 @@ class ApplicationFormState extends State<ApplicationForm> {
           prefs, ESharedPreferences.user_id.name)
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {}
+  }
+
+  saveProfile(filePath, data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      profileCv.cv_link = filePath;
+      profileCv.profile_cv_link = Utils.resolveImage(profileCv.cv_link);
+      profileCv.profile_cv_file = Utils.getFileName(profileCv.profile_cv_link);
+      profileCv.cv_upladted_date =
+          DateFormat('MMM dd, yyyy').format(DateTime.now());
+    }
+    setState(() {});
   }
 }

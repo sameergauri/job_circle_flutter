@@ -72,6 +72,19 @@ class Utils {
   static getExtention(fileName) {
     return p.extension(fileName);
   }
+
+  static getFileName(fileName) {
+    //fileName = 'cv/IMG_20220412_WA0001_1655577229796.jpg';
+    if (fileName == null) return "";
+    var fileNamea = "";
+    var extention = "";
+    try {
+      var index = fileName.lastIndexOf("_");
+      fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
+      extention = Utils.getExtention(fileName);
+    } catch (ex) {}
+    return fileNamea + extention;
+  }
 }
 
 String convertToTitleCase(String text) {

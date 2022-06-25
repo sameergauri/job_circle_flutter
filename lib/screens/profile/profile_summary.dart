@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/components/cv.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
@@ -45,6 +46,8 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     color: Colors.white,
     size: 50.0,
   );
+
+  bool get kDebugMode => false;
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -67,7 +70,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       profilemodel = ProfileSummaryModel.fromMap(dataResult);
       profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
       profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
-      profile_cv_file = getFileName(profile_cv_link);
+      profile_cv_file = Utils.getFileName(profile_cv_link);
     }
     setState(() {});
   }
@@ -164,10 +167,26 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                               child: contactDetails()),
                           Visibility(
                               visible: (usertype == 1 ? true : false),
-                              child: uploadCV()),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 3, right: 3),
+                                child: cardCustom(
+                                    icon: Icons.file_copy,
+                                    isedit: false,
+                                    title: "Resume",
+                                    child: CVWidget(
+                                        profileCv: ProfileCv(
+                                            cv_link: profilemodel.cv_link,
+                                            profile_cv_link: profile_cv_link,
+                                            cv_upladted_date:
+                                                profilemodel.cv_upladted_date,
+                                            profile_cv_file: profile_cv_file),
+                                        onUpload: (fileName, payload) async =>
+                                            {await save(fileName, payload)})),
+                              )),
                           Padding(
                             padding: const EdgeInsets.only(left: 3, right: 3),
-                            child: CardCustom(
+                            child: cardCustom(
                                 isedit: false,
                                 title: "",
                                 child: Column(
@@ -195,7 +214,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                     ),
                                     ThemeButton(
                                       icon: profilemodel.partner_request == 1
-                                          ? Icon(
+                                          ? const Icon(
                                               Icons.check_box_rounded,
                                               color: Colors.green,
                                             )
@@ -209,7 +228,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                       onPressed: () {
                                         // set up the button
                                         Widget cancelButton = TextButton(
-                                            child: Text("Cancel"),
+                                            child: const Text("Cancel"),
                                             onPressed: () {
                                               Navigator.pop(context);
                                             });
@@ -243,7 +262,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                         );
                                         // set up the AlertDialog
                                         AlertDialog alert = AlertDialog(
-                                          title: Text("Request"),
+                                          title: const Text("Request"),
                                           content: Text(profilemodel
                                                       .partner_request ==
                                                   0
@@ -294,7 +313,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         children: [
           SizedBox(
             width: double.infinity,
-            child: CardCustom(
+            child: cardCustom(
               // icon: Icons.account_circle_outlined,
               title: "",
               onPress: (() {
@@ -394,7 +413,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         children: [
           SizedBox(
             width: double.infinity,
-            child: CardCustom(
+            child: cardCustom(
               onPress: (() {
                 sendToEducation();
               }),
@@ -435,7 +454,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         children: [
           SizedBox(
             width: double.infinity,
-            child: CardCustom(
+            child: cardCustom(
               onPress: (() {
                 sendToExperience();
               }),
@@ -484,7 +503,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
         children: [
           SizedBox(
             width: double.infinity,
-            child: CardCustom(
+            child: cardCustom(
               isedit: false,
               icon: Icons.alternate_email_outlined,
               title: "Contact Details",
@@ -534,67 +553,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     );
   }
 
-  Widget uploadCV() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, right: 3),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: CardCustom(
-              isedit: false,
-              icon: Icons.file_copy,
-              title: "Resume",
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (profilemodel.cv_link != null &&
-                      profilemodel.cv_link != "")
-                    Image.asset('./assets/images/cv_doc.png', height: 50),
-                  if (profilemodel.cv_link != null &&
-                      profilemodel.cv_link != "")
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(profile_cv_file,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w900, fontSize: 16)),
-                          Text(
-                              "Last Updated On ${profilemodel.cv_upladted_date}",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500, fontSize: 14))
-                        ],
-                      ),
-                    ),
-                  TextButton.icon(
-                    onPressed: () async {
-                      var data = await uploadFile(['pdf']);
-                      var payload = {
-                        "stage": "upload_cv",
-                        "data": {
-                          "id": await Utils.getPreferencesValue(
-                              null, ESharedPreferences.user_id.name),
-                          "cv_link": data['fileName']
-                        }
-                      };
-                      await save(data['fileName'], payload);
-                    },
-                    icon: const Icon(Icons.upload),
-                    label: const Text('Upload'),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Card CardCustom(
+  Card cardCustom(
       {required String title,
       IconData? icon,
       Widget? child,
@@ -717,7 +676,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
 
   uploadFile(allowExt) async {
     showLoaderDialog(context);
-
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: allowExt,
@@ -733,10 +691,10 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       }
       // File file = File(result.files.single.readStream.first!);
     } else {
+      Navigator.pop(context);
       return null;
       // User canceled the picker
     }
-    Navigator.pop(context);
   }
 
   showLoaderDialog(BuildContext context) {
@@ -764,7 +722,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   }
 
   save(filePath, data) async {
-    SharedPreferences prefs = await Utils.getSharedPreferences();
     var result = await UserDataService().saveUserStages(data);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       if (data['stage'] == 'profile_pic') {
@@ -773,7 +730,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       } else if (data['stage'] == 'upload_cv') {
         profilemodel.cv_link = filePath;
         profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
-        profile_cv_file = getFileName(profile_cv_link);
+        profile_cv_file = Utils.getFileName(profile_cv_link);
 
         profilemodel.cv_upladted_date =
             DateFormat('MMM dd, yyyy').format(DateTime.now());
@@ -782,18 +739,5 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       }
     }
     setState(() {});
-  }
-
-  getFileName(fileName) {
-    //fileName = 'cv/IMG_20220412_WA0001_1655577229796.jpg';
-    if (fileName == null) return "";
-    var fileNamea = "";
-    var extention = "";
-    try {
-      var index = fileName.lastIndexOf("_");
-      fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
-      extention = Utils.getExtention(fileName);
-    } catch (ex) {}
-    return fileNamea + extention;
   }
 }
