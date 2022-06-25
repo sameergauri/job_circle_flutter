@@ -115,9 +115,9 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         Navigator.pushNamed(context, ERoute.stats.name);
         break;
       case "Profile":
-        if (userType == EUserType.jobSeeker.value.toString()) {
+        if (userType == EUserType.jobSeeker.value) {
           Navigator.pushNamed(context, ERoute.profile_summary.name);
-        } else if (userType == EUserType.businessPartner.value.toString()) {
+        } else if (userType == EUserType.businessPartner.value) {
           Navigator.pushNamed(context, ERoute.profile_summary_partner.name);
         }
         break;

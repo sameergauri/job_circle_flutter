@@ -1,9 +1,12 @@
 // ignore_for_file: avoid_unnecessary_containers
 
 import 'dart:convert';
+import 'dart:html';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/moms.dart';
@@ -17,6 +20,9 @@ import '../../components/card_number_formatter.dart';
 import '../../components/common.dart';
 import '../../models/autocomplete.dart';
 import '../../models/autocompleteModel.dart';
+import '../../models/businesspartnerModel.dart';
+import '../../models/profileSummary.dart';
+import '../../service/FileUploadService.dart';
 import '../../service/UserDataService.dart';
 
 class BusinessPartner extends StatefulWidget {
@@ -48,6 +54,14 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   final TextEditingController levelmobno2 = TextEditingController();
   final TextEditingController levelemail2 = TextEditingController();
   final GlobalKey<FormState> formField = GlobalKey<FormState>();
+
+  late ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  var profile_final_pic = "";
+  var profile_cv_link = "";
+  var profile_cv_file = "";
+
+  //Upload Veriable
+  BusinessPartnerFileUploadModel filemodel = BusinessPartnerFileUploadModel();
 
   // Auto Completed Dropdown
   late List<AutoCompleteModel> countryList = [];
@@ -108,7 +122,26 @@ class _BusinessPartnerState extends State<BusinessPartner> {
         escalationDesk = jsonDecode(ddlValues['escalationDesk']);
         levelmobno1.text = escalationDesk[0]['mobileNo'].toString();
         levelemail1.text = escalationDesk[0]['emailAddress'].toString();
+
+        filemodel.panCardLink = ddlValues['panDoc'].toString();
+        filemodel.panFileName = getFileName(filemodel.panCardLink);
+        filemodel.panDateTime =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+
+        filemodel.adharCardLink = ddlValues['aadhaarDoc'].toString();
+        filemodel.adharCardFileName = getFileName(filemodel.adharCardLink);
+        filemodel.adharCardDateTime =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+
+        filemodel.cancelChequeLink = ddlValues['bankCancelCheckDoc'].toString();
+        filemodel.cancelChequeFileName = getFileName(filemodel.adharCardLink);
+        filemodel.cancelChequeDateTime =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+      } else {
+        // Navigator.pop(context);
       }
+    } else {
+      // Navigator.pop(context);
     }
     setState(() {});
   }
@@ -233,11 +266,29 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                         //   ),
                         // ),
                       ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.upload),
-                        label: const Text('Upload pan card'),
-                      ),
+                      // TextButton.icon(
+                      //   onPressed: () async {
+                      //     var data = await uploadFile(['pdf']);
+                      //     var payload = {
+                      //       "stage": "upload_cv",
+                      //       "data": {
+                      //         "id": await Utils.getPreferencesValue(
+                      //             null, ESharedPreferences.user_id.name),
+                      //         "cv_link": data['fileName']
+                      //       }
+                      //     };
+                      //     await saveFile(data['fileName'], payload);
+                      //   },
+                      //   icon: const Icon(Icons.upload),
+                      //   label: const Text('Upload pan card'),
+                      // ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: uploadCV('pandcard', filemodel.panCardLink,
+                              filemodel.panFileName, filemodel.panDateTime))
                     ],
                   ),
                   Row(
@@ -268,11 +319,21 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.upload),
-                        label: const Text('Upload aadhar card'),
-                      ),
+                      // TextButton.icon(
+                      //   onPressed: () {},
+                      //   icon: const Icon(Icons.upload),
+                      //   label: const Text('Upload aadhar card'),
+                      // ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: uploadCV(
+                              'adharcard',
+                              filemodel.adharCardLink,
+                              filemodel.adharCardFileName,
+                              filemodel.adharCardDateTime))
                     ],
                   ),
                   const SizedBox(
@@ -419,11 +480,21 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       //   tooltip: 'Cancel cheque attachment',
                       //   onPressed: () {},
                       // ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.upload),
-                        label: const Text('Upload cancel cheque'),
-                      )
+                      // TextButton.icon(
+                      //   onPressed: () {},
+                      //   icon: const Icon(Icons.upload),
+                      //   label: const Text('Upload cancel cheque'),
+                      // )
+                    ],
+                  ),
+                   Row(
+                    children: [
+                      Expanded(
+                          child: uploadCV(
+                              'cancelChq',
+                              filemodel.cancelChequeLink,
+                              filemodel.cancelChequeFileName,
+                              filemodel.cancelChequeDateTime))
                     ],
                   ),
                   const SizedBox(
@@ -939,7 +1010,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
       var params = {
         "uid": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_id.name),
-        "aadhaarDoc": "string",
+        "aadhaarDoc": filemodel.adharCardLink,
         "aadhaarno": adharno.text,
         "addressDetail": {
           "addressLine1": adr1.text,
@@ -958,7 +1029,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
         "bankAccHolderName": acholdername.text,
         "bankAccNo": acno.text,
         "bankAccType": actype.text,
-        "bankCancelCheckDoc": "string",
+        "bankCancelCheckDoc": filemodel.cancelChequeLink,
         "bankIFSC": ifsccode.text,
         "bankName": bankname.text,
         "escalationDesks": [
@@ -970,13 +1041,226 @@ class _BusinessPartnerState extends State<BusinessPartner> {
           }
         ],
         "id": businessid,
-        "panDoc": "string",
+        "panDoc": filemodel.panCardLink,
         "panNo": panno.text
       };
+      showLoaderDialog(context);
       var result = await PartnerService().savePartner(params);
       if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-        print('save');
+        var returnData = Utils.parseResponse(result).resultData;
+        businessid = returnData['id'];
+        Navigator.pop(context);
+        const SnackBar(
+          content: Text('Data Save Successfully'),
+          // action: SnackBarAction(
+          //   label: 'Undo',
+          //   onPressed: () {
+          //     // Some code to undo the change.
+          //   },
+          // ),
+        );
+        setState(() {});
+      } else {
+        Navigator.pop(context);
       }
     }
+  }
+
+  uploadFile(allowExt) async {
+    showLoaderDialog(context);
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: allowExt,
+        withReadStream: true);
+
+    if (result != null) {
+      var res =
+          await FileUploadService().uploadSingleFile("cv", result.files.single);
+      var resultD = Utils.parseResponse(res);
+      Navigator.pop(context);
+      if (resultD.resultKey == 'SUCCESS') {
+        return resultD.resultData[0];
+      }
+      // File file = File(result.files.single.readStream.first!);
+    } else {
+      return null;
+      // User canceled the picker
+    }
+    Navigator.pop(context);
+  }
+
+  showLoaderDialog(BuildContext context) {
+    // const spinkit = SpinKitRotatingCircle(
+    //   color: Colors.white,
+    //   size: 50.0,
+    // );
+    AlertDialog alert = AlertDialog(
+      content: Row(
+        children: [
+          const CircularProgressIndicator(),
+          Container(
+              margin: const EdgeInsets.only(left: 7),
+              child: const Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  saveFile(filePath, data, typeOfuplaod) async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      if (data['stage'] == 'profile_pic') {
+        profilemodel.profile_pic = filePath;
+        profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      } else if (data['stage'] == 'upload_cv') {
+        String pathOfFile = filePath;
+        if (typeOfuplaod == 'pandcard') {
+          filemodel.panCardLink = Utils.resolveImage(pathOfFile);
+          filemodel.panFileName = getFileName(filemodel.panCardLink);
+          filemodel.panDateTime =
+              DateFormat('MMM dd, yyyy').format(DateTime.now());
+        } else if (typeOfuplaod == 'adharcard') {
+          filemodel.adharCardLink = Utils.resolveImage(pathOfFile);
+          filemodel.adharCardFileName = getFileName(filemodel.adharCardLink);
+          filemodel.adharCardDateTime =
+              DateFormat('MMM dd, yyyy').format(DateTime.now());
+        } else {
+          filemodel.cancelChequeLink = Utils.resolveImage(pathOfFile);
+          filemodel.cancelChequeFileName = getFileName(filemodel.cancelChequeLink);
+          filemodel.cancelChequeDateTime =
+              DateFormat('MMM dd, yyyy').format(DateTime.now());
+        }
+      } else if (data['stage'] == 'partnerRequest') {
+        profilemodel.partner_request = data['data']['partner_request'];
+      }
+    }
+    setState(() {});
+  }
+
+  getFileName(fileName) {
+    if (fileName == null) return "";
+    var fileNamea = "";
+    var extention = "";
+    try {
+      var index = fileName.lastIndexOf("_");
+      fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
+      extention = Utils.getExtention(fileName);
+    } catch (ex) {}
+    return fileNamea + extention;
+  }
+
+  Widget uploadCV(String typeOfUpload, fileLink, fileName, fileDateTime) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3, right: 3),
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: CardCustom(
+              isedit: false,
+              icon: Icons.file_copy,
+              title: "",
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (fileLink != null && fileLink != "")
+                    Image.asset('./assets/images/cv_doc.png', height: 50),
+                  if (fileLink != null && fileLink != "")
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(fileName,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w900, fontSize: 16)),
+                          Text("Last Updated On ${fileDateTime.toString()}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 14))
+                        ],
+                      ),
+                    ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      var data = await uploadFile(['pdf']);
+                      var payload = {
+                        "stage": "upload_cv",
+                        "data": {
+                          "id": await Utils.getPreferencesValue(
+                              null, ESharedPreferences.user_id.name),
+                          "cv_link": data['fileName']
+                        }
+                      };
+                      await saveFile(data['fileName'], payload, typeOfUpload);
+                    },
+                    icon: const Icon(Icons.upload),
+                    label: const Text('Upload'),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Card CardCustom(
+      {required String title,
+      IconData? icon,
+      Widget? child,
+      bool? isedit = true,
+      Function()? onPress}) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w400),
+                ),
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (isedit == true)
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 18),
+                            onPressed: onPress,
+                          )
+                      ],
+                    ))
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              child: child,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
