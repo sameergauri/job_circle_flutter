@@ -93,7 +93,7 @@ class _CVWidgetState extends State<CVWidget> {
   }
 
   uploadFile(allowExt) async {
-    showLoaderDialog(context);
+    Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: allowExt,
@@ -113,29 +113,5 @@ class _CVWidgetState extends State<CVWidget> {
       return null;
       // User canceled the picker
     }
-  }
-
-  showLoaderDialog(BuildContext context) {
-    // const spinkit = SpinKitRotatingCircle(
-    //   color: Colors.white,
-    //   size: 50.0,
-    // );
-    AlertDialog alert = AlertDialog(
-      content: Row(
-        children: [
-          const CircularProgressIndicator(),
-          Container(
-              margin: const EdgeInsets.only(left: 7),
-              child: const Text("Loading...")),
-        ],
-      ),
-    );
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
   }
 }

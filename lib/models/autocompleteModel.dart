@@ -1,6 +1,6 @@
 class AutoCompleteModel {
   String value;
   String label;
-  Object extra;
+  dynamic extra;
   AutoCompleteModel(this.value, this.label, this.extra);
 }

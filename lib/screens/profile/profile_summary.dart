@@ -253,7 +253,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                                     : 0)
                                               }
                                             };
-                                            showLoaderDialog(context);
+                                            Utils.showLoaderDialog(context, "");
                                             await save('', payload);
 
                                             Navigator.pop(context);
@@ -675,7 +675,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   }
 
   uploadFile(allowExt) async {
-    showLoaderDialog(context);
+    Utils.showLoaderDialog(context, "Uploading...");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: allowExt,
@@ -695,30 +695,6 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       return null;
       // User canceled the picker
     }
-  }
-
-  showLoaderDialog(BuildContext context) {
-    // const spinkit = SpinKitRotatingCircle(
-    //   color: Colors.white,
-    //   size: 50.0,
-    // );
-    AlertDialog alert = AlertDialog(
-      content: Row(
-        children: [
-          const CircularProgressIndicator(),
-          Container(
-              margin: const EdgeInsets.only(left: 7),
-              child: const Text("Loading...")),
-        ],
-      ),
-    );
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
   }
 
   save(filePath, data) async {

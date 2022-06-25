@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
@@ -29,7 +30,9 @@ class ServiceBase {
   Future<http.Response> callGet(String endpoint,
       {Map<String, String>? param, Map<String, String>? headers}) async {
     Uri url = Uri.http(GlobalConstants.API_Host, endpoint, param ?? {});
-
+    if (kDebugMode) {
+      print(url);
+    }
     SharedPreferences preferences = await Utils.getSharedPreferences();
     Object? token = Utils.getPreferencesValue(preferences, "token");
 

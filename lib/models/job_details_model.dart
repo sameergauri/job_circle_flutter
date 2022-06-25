@@ -24,6 +24,7 @@ class JobDetailsModel {
   String? icon;
   String? location;
   int? active;
+  int? spoc;
   JobDetailsModel(
       {this.id,
       this.compnayid,
@@ -47,7 +48,8 @@ class JobDetailsModel {
       this.icon,
       this.name,
       this.address,
-      this.payoutval});
+      this.payoutval,
+      this.spoc});
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
     List inteviewrounds = [];
@@ -79,6 +81,7 @@ class JobDetailsModel {
       name: map['name'],
       address: map['address'],
       payoutval: map['payoutval'],
+      spoc: map['spoc'],
     );
   }
 }
