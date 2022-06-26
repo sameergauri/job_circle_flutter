@@ -437,7 +437,55 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
                     ],
-                  )
+                  ),
+                   const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "University / Institite",
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w300),
+                      ),
+                      Text(
+                        profilemodel.univercity.toString(),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
+                   const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Degree / Specialization",
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w300),
+                      ),
+                      Text(
+                        profilemodel.degree_spc.toString(),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Passing Year",
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w300),
+                      ),
+                      Text(
+                        profilemodel.passing_year.toString(),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -486,7 +534,45 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                               fontSize: 15, fontWeight: FontWeight.w300),
                         ),
                     ],
-                  )
+                  ),
+                  const SizedBox(height: 10),
+                  Visibility(
+                    visible: profilemodel.has_experience == 1 ,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Company Name",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w300),
+                        ),
+                        Text(
+                          profilemodel.companyName.toString(),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Visibility(
+                    visible: profilemodel.has_experience == 1 ,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Job Title",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w300),
+                        ),
+                        Text(
+                          profilemodel.job_title.toString(),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

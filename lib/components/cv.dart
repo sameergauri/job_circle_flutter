@@ -48,10 +48,14 @@ class _CVWidgetState extends State<CVWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            widget.profileCv.profile_cv_file!.replaceRange(
-                                25,
-                                widget.profileCv.profile_cv_file!.length,
-                                '...'),
+                            widget.profileCv.profile_cv_file!.length >= 25
+                                ? widget.profileCv.profile_cv_file!
+                                    .replaceRange(
+                                        25,
+                                        widget
+                                            .profileCv.profile_cv_file!.length,
+                                        '...')
+                                : widget.profileCv.profile_cv_file.toString(),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                                 fontWeight: FontWeight.w900, fontSize: 16)),

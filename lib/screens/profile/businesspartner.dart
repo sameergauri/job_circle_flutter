@@ -206,26 +206,39 @@ class _BusinessPartnerState extends State<BusinessPartner> {
               child: Column(
                 children: [
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 50.0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 70),
-                            child: ThemeButton(
-                              width: 100,
-                              radious: 100,
-                              onPressed: () {},
-                              text: "EDIT",
-                              themeButtonSize: ThemeButtonSize.xsmall,
-                            ),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 50.0,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 70),
+                          child: ThemeButton(
+                            width: 100,
+                            radious: 100,
+                            onPressed: () async {
+                              var data = await uploadFile(['jpeg', 'jpg']);
+                              var payload = {
+                                "stage": "profile_pic",
+                                "data": {
+                                  "id": await Utils.getPreferencesValue(
+                                      null, ESharedPreferences.user_id.name),
+                                  "profile_pic": data['fileName']
+                                }
+                              };
+                              await saveFile(
+                                  data['fileName'], payload, 'profile_pic');
+                            },
+                            text: "EDIT",
+                            themeButtonSize: ThemeButtonSize.xsmall,
                           ),
-                          backgroundImage: const NetworkImage(
-                            "https://cdn1.iconfinder.com/data/icons/avatars-1-5/136/87-512.png",
-                          ),
-                        )
-                      ]),
+                        ),
+                        backgroundImage: const NetworkImage(
+                          "https://cdn1.iconfinder.com/data/icons/avatars-1-5/136/87-512.png",
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -487,7 +500,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       // )
                     ],
                   ),
-                   Row(
+                  Row(
                     children: [
                       Expanded(
                           child: uploadCV(
@@ -1042,7 +1055,8 @@ class _BusinessPartnerState extends State<BusinessPartner> {
         ],
         "id": businessid,
         "panDoc": filemodel.panCardLink,
-        "panNo": panno.text
+        "panNo": panno.text,
+        "profilepic": profilemodel.profile_pic
       };
       showLoaderDialog(context);
       var result = await PartnerService().savePartner(params);
@@ -1124,18 +1138,22 @@ class _BusinessPartnerState extends State<BusinessPartner> {
       } else if (data['stage'] == 'upload_cv') {
         String pathOfFile = filePath;
         if (typeOfuplaod == 'pandcard') {
-          filemodel.panCardLink = Utils.resolveImage(pathOfFile);
+          // filemodel.panCardLink = Utils.resolveImage(pathOfFile);
+          filemodel.panCardLink = pathOfFile;
           filemodel.panFileName = getFileName(filemodel.panCardLink);
           filemodel.panDateTime =
               DateFormat('MMM dd, yyyy').format(DateTime.now());
         } else if (typeOfuplaod == 'adharcard') {
-          filemodel.adharCardLink = Utils.resolveImage(pathOfFile);
+          // filemodel.adharCardLink = Utils.resolveImage(pathOfFile);
+          filemodel.adharCardLink = pathOfFile;
           filemodel.adharCardFileName = getFileName(filemodel.adharCardLink);
           filemodel.adharCardDateTime =
               DateFormat('MMM dd, yyyy').format(DateTime.now());
         } else {
-          filemodel.cancelChequeLink = Utils.resolveImage(pathOfFile);
-          filemodel.cancelChequeFileName = getFileName(filemodel.cancelChequeLink);
+          // filemodel.cancelChequeLink = Utils.resolveImage(pathOfFile);
+          filemodel.cancelChequeLink = pathOfFile;
+          filemodel.cancelChequeFileName =
+              getFileName(filemodel.cancelChequeLink);
           filemodel.cancelChequeDateTime =
               DateFormat('MMM dd, yyyy').format(DateTime.now());
         }
