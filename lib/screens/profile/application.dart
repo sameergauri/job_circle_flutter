@@ -447,7 +447,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                 decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.arrow_drop_down),
                     // Icons.workspace_premium
-                    label: Text("ShortList for"),
+                    label: Text("Applied For"),
                     //border: OutlineInputBorder(),
                     border: InputBorder.none,
                     hintText: "Select Company",
@@ -572,34 +572,29 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   openCompanyJobsDetails() async {
-    Map<String, String> params = {
-      "companyId": selectedshort.value,
-      "page": "1",
-      "size": "100"
-    };
+    Map<String, String> params = {"companyid": selectedshort.value};
 
-    var result = await JobSearchService().getJobSearch(params);
+    var result = await JobSearchService().getDistinctProcessAndLevels(params);
     var resultData = Utils.parseResponse(result);
     if (resultData.resultKey == "SUCCESS") {
       var jobList = (resultData.resultData as List).map<AutoCompleteModel>((e) {
-        return AutoCompleteModel(e['id'].toString(), e['companyname'], e);
+        return AutoCompleteModel(e['id'].toString(), e['process_name'], e);
       }).toList();
 
       showDialog(
           context: context,
           builder: (BuildContext context) {
             return DialogList(
-              dialogTitle: "Process & Role",
+              dialogTitle: "Process & Level",
               isCustomTile: true,
               tile: (data) {
+                print(data.extra);
                 return ListTile(
-                  title: Text(data.extra["id"].toString() +
-                      " " +
-                      data.extra["process"].toString()),
-                  subtitle: Text(data.extra["rolename"].toString()),
+                  title: Text(data.extra["process_name"].toString()),
+                  subtitle: Text(data.extra["level"].toString()),
                   onTap: () => {
-                    selectProcess(data.extra["process"], data),
-                    selectLevel(data.extra["rolename"], data),
+                    selectProcess(data.extra["process_name"], data),
+                    selectLevel(data.extra["level"], data),
                     paymentClause = data.extra["paymentClause"],
                     spoc = data.extra["spoc"],
                     jobId = data.extra["id"],
