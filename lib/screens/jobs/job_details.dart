@@ -261,7 +261,7 @@ class _JobDetailsState extends State<JobDetails> {
                                   children: [
                                     Expanded(
                                         child: keyPair(
-                                            Icons.admin_panel_settings,
+                                            "male.png",
                                             "Role",
                                             jobDetailsModel.rolename
                                                 .toString())),
@@ -270,7 +270,7 @@ class _JobDetailsState extends State<JobDetails> {
                                     ),
                                     Expanded(
                                         child: keyPair(
-                                            Icons.share_location,
+                                            "location.png",
                                             "Work Location",
                                             jobDetailsModel.location
                                                 .toString())),
@@ -280,18 +280,18 @@ class _JobDetailsState extends State<JobDetails> {
                                   height: 25,
                                 ),
                                 keyPair(
-                                    Icons.engineering,
+                                    "keyresponsibility.png",
                                     "Key Responsiblility",
                                     jobDetailsModel.key_responsible.toString()),
                                 const SizedBox(
                                   height: 25,
                                 ),
-                                keyPair(Icons.work_outline, "Eligibility",
+                                keyPair("elligibility.png", "Eligibility",
                                     jobDetailsModel.eligibility.toString()),
                                 const SizedBox(
                                   height: 25,
                                 ),
-                                keyPair(Icons.schedule, "Shift Timing",
+                                keyPair("shifttime.png", "Shift Timing",
                                     jobDetailsModel.shifttime.toString()),
                                 const SizedBox(
                                   height: 25,
@@ -302,7 +302,7 @@ class _JobDetailsState extends State<JobDetails> {
                                   children: [
                                     Expanded(
                                         child: keyPair(
-                                            Icons.account_tree,
+                                            "male.png",
                                             "Process",
                                             jobDetailsModel.process
                                                 .toString())),
@@ -311,7 +311,7 @@ class _JobDetailsState extends State<JobDetails> {
                                     ),
                                     Expanded(
                                         child: keyPair(
-                                            Icons.grading,
+                                            "interview_round.png",
                                             "Interview Rounds",
                                             jobDetailsModel.inteviewrounds!
                                                 .join(' > ')
@@ -327,7 +327,7 @@ class _JobDetailsState extends State<JobDetails> {
                                   children: [
                                     Expanded(
                                         child: keyPair(
-                                            Icons.payments,
+                                            "rupee.png",
                                             "CTC/Inhand",
                                             jobDetailsModel.ctcdesc
                                                 .toString())),
@@ -336,7 +336,7 @@ class _JobDetailsState extends State<JobDetails> {
                                     ),
                                     Expanded(
                                         child: keyPair(
-                                            Icons.credit_score,
+                                            "paymentclause.png",
                                             "Payment Clause",
                                             jobDetailsModel.paymentclause ??
                                                 '')),
@@ -353,17 +353,19 @@ class _JobDetailsState extends State<JobDetails> {
     );
   }
 
-  Column keyPair(IconData icon, String key, String value) {
+  Column keyPair(String imageName, String key, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(
-              icon,
-              size: 17,
-            ),
+            Image.asset("assets/images/" + imageName,
+                height: 20, width: 20, fit: BoxFit.contain),
+            // Icon(
+            //   icon,
+            //   size: 17,
+            // ),
             const SizedBox(
               width: 3,
             ),

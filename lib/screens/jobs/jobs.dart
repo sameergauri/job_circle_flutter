@@ -7,6 +7,8 @@ import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 
+import '../../service/masterService.dart';
+
 class Jobs extends StatefulWidget {
   const Jobs({Key? key}) : super(key: key);
 
@@ -23,6 +25,8 @@ class _JobsState extends State<Jobs> {
   ];
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
+  List<String> citiesList = [];
+
   @override
   void initState() {
     super.initState();
@@ -561,12 +565,24 @@ class _JobsState extends State<Jobs> {
 }
 
 class DataSearch extends SearchDelegate<String> {
-  final cities = ["Kalyan", "Thane"];
+  List<String> cities = [];
+  List dataList = [];
   final recentCities = ["Kalyan", "Thane"];
+  void bindLocation() async {
+    var result = await MasterService().masterGetByGroups(
+        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      dynamic resultValue = Utils.parseResponse(result).resultData['content'];
+      for (var i = 0; i < resultValue.length; i++) {
+        cities.add(resultValue[i]['value']);
+      }
+    }
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
     // TODO: implement buildActions
+    bindLocation();
 
     return [
       IconButton(
