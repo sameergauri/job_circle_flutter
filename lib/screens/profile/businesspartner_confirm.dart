@@ -3,7 +3,6 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:job_circle/themes/typography.dart';
@@ -183,7 +182,7 @@ class _BusinessPartnerConfirmationState
     var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       Navigator.pushNamedAndRemoveUntil(
-          context, ERoute.home.name, (Route<dynamic> route) => false);
+          context, ERoute.partnerHome.name, (Route<dynamic> route) => false);
       // if (widget.prevPageModel == null) {
       //   await Utils.setPreference(
       //       prefs, ESharedPreferences.user_data.name, jsonEncode(model));

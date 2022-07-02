@@ -26,6 +26,21 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
     });
     bindBottomTabs();
     setState(() {});
+
+    /// WidgetsBinding.instance.addObserver(this);
+  }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   // if (state == AppLifecycleState.resumed) {
+  //   //   print("resumed");
+  //   // }
+  // }
+
+  @override
+  void dispose() {
+    //  WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   calldata() async {
@@ -65,14 +80,13 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   }
 
   void bindBottomTabs() {
-    if (userType == EUserType.businessPartner.value.toString()) {
-      bottomTabItems.add(const BottomNavigationBarItem(
-        icon: Icon(Icons.numbers),
-        activeIcon: Icon(Icons.numbers_outlined),
-        label: 'Home',
-        backgroundColor: Colors.blue,
-      ));
-    }
+    bottomTabItems.add(const BottomNavigationBarItem(
+      icon: Icon(Icons.numbers),
+      activeIcon: Icon(Icons.numbers_outlined),
+      label: 'Home',
+      backgroundColor: Colors.blue,
+    ));
+
     bottomTabItems.add(const BottomNavigationBarItem(
       icon: Icon(Icons.dashboard_customize_outlined),
       activeIcon: Icon(Icons.dashboard_customize_rounded),

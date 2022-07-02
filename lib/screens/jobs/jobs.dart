@@ -3,9 +3,7 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
-import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/service/JobSearchService.dart';
-import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import '../../service/masterService.dart';
@@ -28,12 +26,27 @@ class _JobsState extends State<Jobs> {
   late List jobItems = [];
   List<String> citiesList = [];
   List<LocationItem> locations = [];
+  late ScrollController _controllerListView;
+
+  var _page = 0;
+  var _hasNextPage = true;
+  var _isFirstLoadRunning = false;
+  var _isLoadMoreRunning = false;
+  final _pageSize = 10;
 
   @override
   void initState() {
     super.initState();
-    bindJobItems();
+
+    bindItems();
+    _controllerListView = ScrollController()..addListener(_loadMore);
     bindLocation();
+  }
+
+  @override
+  void dispose() {
+    _controllerListView.removeListener(_loadMore);
+    super.dispose();
   }
 
   @override
@@ -349,6 +362,7 @@ class _JobsState extends State<Jobs> {
                           Expanded(
                             flex: 1,
                             child: SingleChildScrollView(
+                              controller: _controllerListView,
                               child: Column(
                                 children: [
                                   const SizedBox(
@@ -404,13 +418,28 @@ class _JobsState extends State<Jobs> {
                                             //                     ['id'],
                                             //               )));
                                           },
-                                          child: listViewItem(
-                                              context, index, jobItems[index]));
+                                          child: Column(
+                                            children: [
+                                              listViewItem_new(context, index,
+                                                  jobItems[index]),
+                                              const SizedBox(
+                                                height: 20,
+                                              )
+                                            ],
+                                          ));
                                     },
                                     itemCount: jobItems.length,
                                     padding: const EdgeInsets.all(5),
                                     scrollDirection: Axis.vertical,
                                   ),
+                                  if (_isLoadMoreRunning == true)
+                                    const Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 10, bottom: 40),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -510,7 +539,7 @@ class _JobsState extends State<Jobs> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['companyname'],
+                      item['companyname'] ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -519,31 +548,7 @@ class _JobsState extends State<Jobs> {
                     const SizedBox(
                       height: 5,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 0, right: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item['rolename'],
-                            style: const TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13),
-                          ),
-                          Text(
-                            item['process'],
-                            style: const TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+
                     if (item['location'] != null)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -563,7 +568,34 @@ class _JobsState extends State<Jobs> {
                         ],
                       ),
                     const SizedBox(
-                      height: 2,
+                      height: 5,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0, right: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (item['rolename'] != null)
+                            Text(
+                              item['rolename'],
+                              style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13),
+                            ),
+                          if (item['process'] != null)
+                            Text(
+                              item['process'],
+                              style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 5,
                     ),
                     // ThemeButton(
                     //   onPressed: () {},
@@ -595,12 +627,189 @@ class _JobsState extends State<Jobs> {
     );
   }
 
-  void bindJobItems() async {
-    var result = await JobSearchService().getJobSearch({});
-    RequestResult res = Utils.parseResponse(result);
+  Widget listViewItem_new(BuildContext context, int index, item) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: Color.fromARGB(255, 213, 213, 213),
+              width: 0.0,
+              style: BorderStyle.solid), //Border.all
 
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10.0),
+            topRight: Radius.circular(10.0),
+            bottomLeft: Radius.circular(10.0),
+            bottomRight: Radius.circular(10.0),
+          ),
+          //BorderRadius.only
+          /************************************/
+          /* The BoxShadow widget  is here */
+          /************************************/
+          boxShadow: const [
+            BoxShadow(
+              color: Color.fromARGB(255, 219, 219, 219),
+              offset: Offset(
+                1.0,
+                1.0,
+              ),
+              blurRadius: 10.0,
+              spreadRadius: 2.0,
+            ), //BoxShadow
+            BoxShadow(
+              color: Colors.white,
+              offset: Offset(0.0, 0.0),
+              blurRadius: 0.0,
+              spreadRadius: 0.0,
+            ), //BoxShadow
+          ],
+        ),
+        child: Card(
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 0.1,
+          color: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, left: 15, right: 15),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.account_balance,
+                                size: 20,
+                                color: Color.fromARGB(255, 118, 118, 118),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                item['companyname'] ?? '',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          if (item['location'] != null)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.location_pin,
+                                  size: 17,
+                                  color: Color.fromARGB(255, 118, 118, 118),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  item['location'] ?? '',
+                                  style: const TextStyle(
+                                      color: Colors.black54, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0, right: 30),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                if (item['rolename'] != null &&
+                                    item['process'] != null)
+                                  const Icon(
+                                    Icons.person,
+                                    size: 17,
+                                    color: Color.fromARGB(255, 118, 118, 118),
+                                  ),
+                                if (item['rolename'] != null)
+                                  Text(
+                                    item['rolename'],
+                                    style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                                if (item['rolename'] != null &&
+                                    item['process'] != null)
+                                  const Text(
+                                    " | ",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                                if (item['process'] != null)
+                                  Text(
+                                    item['process'],
+                                    style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )),
+                  const Icon(Icons.navigate_next),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _loadMore() async {
+    if (_hasNextPage == true &&
+        _isLoadMoreRunning == false &&
+        (_controllerListView.position.maxScrollExtent -
+                (_controllerListView.position.maxScrollExtent -
+                    _controllerListView.position.extentAfter) <
+            100)) {
+      bindItems();
+    }
+  }
+
+  void bindItems() async {
     setState(() {
-      jobItems = res.resultData as List;
+      _isLoadMoreRunning = true; // Display a progress indicator at the bottom
+    });
+    _page += 1; // Increase _page by 1
+    try {
+      var result = await JobSearchService().getJobSearch(
+          {"page": _page.toString(), "size": _pageSize.toString()});
+      RequestResult res = Utils.parseResponse(result);
+      var list = res.resultData as List;
+      setState(() {
+        jobItems.addAll(list);
+        if (list.length < _pageSize) {
+          _hasNextPage = false;
+        }
+      });
+    } catch (err) {
+      print('Something went wrong!');
+    }
+    setState(() {
+      _isLoadMoreRunning = false; // Display a progress indicator at the bottom
     });
   }
 }

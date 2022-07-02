@@ -70,40 +70,48 @@ class _StatesticsState extends State<Statestics> {
           ),
       body: SafeArea(
           child: SingleChildScrollView(
-        child: ResponsiveGridRow(children: [
-          for (var s in leadCounts)
-            ResponsiveGridCol(
-              xs: 6,
-              md: 3,
-              child: SizedBox(
-                height: 100,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "${s['title']}",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w200,
+        child: RefreshIndicator(
+          onRefresh: () {
+            return Future.delayed(Duration(seconds: 1), () {
+              // showing snackbar
+              getCountData();
+            });
+          },
+          child: ResponsiveGridRow(children: [
+            for (var s in leadCounts)
+              ResponsiveGridCol(
+                xs: 6,
+                md: 3,
+                child: SizedBox(
+                  height: 100,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${s['title']}",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w200,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          "${s['count']}",
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.w700),
-                        ),
-                      ],
+                          Text(
+                            "${s['count']}",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
                     ),
+                    color: HexColor("${s['color']}"),
                   ),
-                  color: HexColor("${s['color']}"),
                 ),
               ),
-            ),
-        ]),
+          ]),
+        ),
       )),
     );
   }

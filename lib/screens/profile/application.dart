@@ -278,7 +278,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                 controller: applicationname,
                 decoration: const InputDecoration(
                   // icon: Icon(Icons.person),
-                  label: Text("Application Name"),
+                  label: Text("Applicant Name"),
                   //border: OutlineInputBorder(),
                   border: InputBorder.none,
                   hintText: 'Enter appilcation name',
@@ -621,17 +621,14 @@ class ApplicationFormState extends State<ApplicationForm> {
       "jobid": jobId,
       "level": selectedLevel.value,
       "levelId": 0,
-      "doj": "2022-06-24T17:23:36.161Z",
+      "doj": "2000-01-01T00:00:00.000Z",
       "process": selectedProcess.value,
       "processId": 0,
       "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
       "isExperienced": exprinceActive,
       "resume": profileCv.cv_link ?? "",
       "shortListFor": int.parse(selectedshort.value),
-      "sourceId": (userType == EUserType.businessPartner.value ||
-              userType == EUserType.employee.value
-          ? userId
-          : 0),
+      "sourceId": userId,
       "attr_status": "",
       "exp_max": 0,
       "sp_inv_no": "",
@@ -639,14 +636,11 @@ class ApplicationFormState extends State<ApplicationForm> {
       "sp_payment_status": "",
       "exp_min": 0,
       "completeStatus": 0,
-      "status": 0,
+      "status": 1,
       "remark": "",
       "paymentClause": paymentClause,
       "spoc": spoc,
-      "uid": (userType == EUserType.businessPartner.value ||
-              userType == EUserType.employee.value
-          ? userId
-          : 0),
+      "uid": userId,
     };
 
     var result = await ApplicationService().saveApplication(param);
