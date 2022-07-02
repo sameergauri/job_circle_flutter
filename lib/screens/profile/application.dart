@@ -46,6 +46,8 @@ class ApplicationFormState extends State<ApplicationForm> {
   TextEditingController shorListController = TextEditingController();
   TextEditingController levelController = TextEditingController();
   TextEditingController processController = TextEditingController();
+  bool isGraduatValidate = false;
+  bool isExpValidate = false;
 
   var ddlValues;
   late int userType = -1;
@@ -56,6 +58,8 @@ class ApplicationFormState extends State<ApplicationForm> {
   AutoCompleteModel selectedProcess = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedLevel = AutoCompleteModel("", "", {});
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
+
+  final _formKey = GlobalKey<FormState>();
 
   // dynamic applicantName = {};
   String mobileno = "";
@@ -128,7 +132,6 @@ class ApplicationFormState extends State<ApplicationForm> {
   selectLevel(level, extra) {
     levelController.text = level;
     selectedLevel = AutoCompleteModel(level, level, extra);
-    ;
   }
 
   bindUserDetails() async {
@@ -271,300 +274,357 @@ class ApplicationFormState extends State<ApplicationForm> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              TextField(
-                enabled: (userType == EUserType.jobSeeker.value ? false : true),
-                controller: applicationname,
-                decoration: const InputDecoration(
-                  // icon: Icon(Icons.person),
-                  label: Text("Application Name"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Enter appilcation name',
-                ),
-              ),
-              TextFormField(
-                maxLength: 10,
-                enabled: (userType == EUserType.jobSeeker.value ? false : true),
-                controller: contactno,
-                decoration: const InputDecoration(
-                  // icon: Icon(Icons.person),
-                  label: Text("Contact No"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Enter conctact no',
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Align(
-                    alignment: Alignment.topLeft, child: Text('Qualification')),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            underGradActive = 1;
-                            graduateActive = 0;
-                          });
-                        },
-                        child: Text(
-                          'Under-Graduate',
-                          style: TextStyle(
-                              color: underGradActive == 1
-                                  ? Colors.white
-                                  : Colors.black),
-                        ),
-                        style: ButtonStyle(
-                          backgroundColor: underGradActive == 1
-                              ? MaterialStateProperty.all(Colors.red)
-                              : MaterialStateProperty.all(Colors.grey[300]),
-                        ),
-                      ),
-                    ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter application name';
+                    }
+                  },
+                  enabled:
+                      (userType == EUserType.jobSeeker.value ? false : true),
+                  controller: applicationname,
+                  decoration: const InputDecoration(
+                    // icon: Icon(Icons.person),
+                    label: Text("Application Name *"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Enter appilcation name',
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            underGradActive = 0;
-                            graduateActive = 1;
-                          });
-                        },
-                        child: Text(
-                          'Graduate',
-                          style: TextStyle(
-                              color: graduateActive == 1
-                                  ? Colors.white
-                                  : Colors.black),
-                        ),
-                        style: ButtonStyle(
-                          backgroundColor: graduateActive == 1
-                              ? MaterialStateProperty.all(Colors.red)
-                              : MaterialStateProperty.all(Colors.grey[300]),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Text('Work Experience')),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            exprinceActive = 1;
-                            fresherActive = 0;
-                          });
-                        },
-                        child: Text(
-                          'Exprience',
-                          style: TextStyle(
-                              color: exprinceActive == 1
-                                  ? Colors.white
-                                  : Colors.black),
-                        ),
-                        style: ButtonStyle(
-                          backgroundColor: exprinceActive == 1
-                              ? MaterialStateProperty.all(Colors.red)
-                              : MaterialStateProperty.all(Colors.grey[300]),
-                        ),
-                      ),
-                    ),
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter contact no';
+                    }
+                  },
+                  maxLength: 10,
+                  enabled:
+                      (userType == EUserType.jobSeeker.value ? false : true),
+                  controller: contactno,
+                  decoration: const InputDecoration(
+                    // icon: Icon(Icons.person),
+                    label: Text("Contact No *"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Enter conctact no',
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            exprinceActive = 0;
-                            fresherActive = 1;
-                          });
-                        },
-                        child: Text(
-                          'Fresher',
-                          style: TextStyle(
-                              color: fresherActive == 1
-                                  ? Colors.white
-                                  : Colors.black),
-                        ),
-                        style: ButtonStyle(
-                          backgroundColor: fresherActive == 1
-                              ? MaterialStateProperty.all(Colors.red)
-                              : MaterialStateProperty.all(Colors.grey[300]),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text('Qualification *')),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              underGradActive = 1;
+                              graduateActive = 0;
+                              isGraduatValidate=false;
+                            });
+                          },
+                          child: Text(
+                            'Under-Graduate',
+                            style: TextStyle(
+                                color: underGradActive == 1
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: underGradActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
                         ),
                       ),
                     ),
-                  )
-                ],
-              ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              underGradActive = 0;
+                              graduateActive = 1;
+                              isGraduatValidate=false;
+                            });
+                          },
+                          child: Text(
+                            'Graduate',
+                            style: TextStyle(
+                                color: graduateActive == 1
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: graduateActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Visibility(
+                  visible: isGraduatValidate,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Qualification is required',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text('Work Experience *')),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              exprinceActive = 1;
+                              fresherActive = 0;
+                              isExpValidate=false;
+                            });
+                          },
+                          child: Text(
+                            'Exprience',
+                            style: TextStyle(
+                                color: exprinceActive == 1
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: exprinceActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              exprinceActive = 0;
+                              fresherActive = 1;
+                              isExpValidate=false;
+                            });
+                          },
+                          child: Text(
+                            'Fresher',
+                            style: TextStyle(
+                                color: fresherActive == 1
+                                    ? Colors.white
+                                    : Colors.black),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: fresherActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Visibility(
+                  visible: isExpValidate,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: const [
+                      Text('Work Experience is required',
+                          style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+                TextFormField(
+                  controller: shorListController,
+                  enabled: enableShortListFor,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any company';
+                    }
+                  },
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      // Icons.workspace_premium
+                      label: Text("Applied For *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: "Select Company",
+                      prefixIcon: Icon(Icons.list)),
+                ),
+                TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any process';
+                    }
+                  },
+                  controller: processController,
+                  enabled: enableProcess,
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            tile: null,
+                            dialogTitle: "Process",
+                            onSelected: (AutoCompleteModel model) => {
+                              processController.text = model.label,
+                              selectedProcess = model,
+                              Navigator.pop(context)
+                            },
+                            itemsData: proccessList,
+                          );
+                        });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      // Icons.workspace_premium
+                      label: Text("Proccess *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: "Select proccess",
+                      prefixIcon: Icon(Icons.circle_outlined)),
+                ),
 
-              TextFormField(
-                controller: shorListController,
-                enabled: enableShortListFor,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Company Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            shorListController.text = model.label,
-                            selectedshort = model,
-                            Navigator.pop(context),
-                            if (userType == EUserType.businessPartner.value)
-                              {openCompanyJobsDetails()}
-                            else
-                              {
-                                if (selectedshort.value != model.value)
-                                  {bindProccessLevelList(model.value)},
-                                proccessList = [],
-                                levelList = [],
-                              },
-                            resetProcessLevel(),
-                          },
-                          itemsData: shortList,
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("Applied For"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select Company",
-                    prefixIcon: Icon(Icons.list)),
-              ),
-              TextFormField(
-                controller: processController,
-                enabled: enableProcess,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          tile: null,
-                          dialogTitle: "Process",
-                          onSelected: (AutoCompleteModel model) => {
-                            processController.text = model.label,
-                            selectedProcess = model,
-                            Navigator.pop(context)
-                          },
-                          itemsData: proccessList,
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("Proccess"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select proccess",
-                    prefixIcon: Icon(Icons.circle_outlined)),
-              ),
-
-              TextFormField(
-                controller: levelController,
-                enabled: enableLevel,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Level Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            levelController.text = model.label,
-                            selectedLevel = model,
-                            Navigator.pop(context)
-                          },
-                          itemsData: levelList
-                              .where((element) =>
-                                  element.extra['process_name'] ==
-                                  selectedProcess.value)
-                              .toList(),
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("Level"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select level",
-                    prefixIcon: Icon(Icons.person)),
-              ),
-              // CustomControls.AutoCompleteCustom(
-              //     context,
-              //     "Level",
-              //     "Select level",
-              //     ((AutoCompleteModel item) => {
-              //           setState(() {
-              //             selectedlevel = item;
-              //           }),
-              //           // print(selectedEducation.label),
-              //         }),
-              //     selectedlevel,
-              //     levelList,
-              //     Icons.label),
-              // const SizedBox(
-              //   height: 30,
-              // ),
-              const SizedBox(
-                height: 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CVWidget(
-                      profileCv: profileCv,
-                      // cv_link: profileCv['cv_link'],
-                      // cv_upladted_date: profileCv['cv_upladted_date'],
-                      // profile_cv_file: profileCv['profile_cv_file'],
-                      // profile_cv_link: profileCv['profile_cv_link'],
-                      onUpload: (fileName, payload) async => {
-                            setState(
-                              () => {},
-                            )
-                            // await saveProfile(fileName, payload)
-                          }),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              ThemeButton(
-                width: 200,
-                radious: 0,
-                onPressed: () {
-                  save();
-                },
-                text: "SUBMIT",
-                themeButtonSize: ThemeButtonSize.small,
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-            ],
+                TextFormField(
+                  controller: levelController,
+                  enabled: enableLevel,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any Level';
+                    }
+                  },
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Level Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              levelController.text = model.label,
+                              selectedLevel = model,
+                              Navigator.pop(context)
+                            },
+                            itemsData: levelList
+                                .where((element) =>
+                                    element.extra['process_name'] ==
+                                    selectedProcess.value)
+                                .toList(),
+                          );
+                        });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      // Icons.workspace_premium
+                      label: Text("Level *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: "Select level",
+                      prefixIcon: Icon(Icons.person)),
+                ),
+                // CustomControls.AutoCompleteCustom(
+                //     context,
+                //     "Level",
+                //     "Select level",
+                //     ((AutoCompleteModel item) => {
+                //           setState(() {
+                //             selectedlevel = item;
+                //           }),
+                //           // print(selectedEducation.label),
+                //         }),
+                //     selectedlevel,
+                //     levelList,
+                //     Icons.label),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CVWidget(
+                        profileCv: profileCv,
+                        // cv_link: profileCv['cv_link'],
+                        // cv_upladted_date: profileCv['cv_upladted_date'],
+                        // profile_cv_file: profileCv['profile_cv_file'],
+                        // profile_cv_link: profileCv['profile_cv_link'],
+                        onUpload: (fileName, payload) async => {
+                              setState(
+                                () => {},
+                              )
+                              // await saveProfile(fileName, payload)
+                            }),
+                  ],
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                ThemeButton(
+                  width: 200,
+                  radious: 0,
+                  onPressed: () {
+                    save();
+                  },
+                  text: "SUBMIT",
+                  themeButtonSize: ThemeButtonSize.small,
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -609,58 +669,73 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   save() async {
-    Utils.showLoaderDialog(context, "Saving...");
-    SharedPreferences prefs = await Utils.getSharedPreferences();
-    var userId =
-        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
-    var param = {
-      "applicantName": applicationname.text.trim(),
-      "companyName": selectedshort.label,
-      "contactNo": int.parse(contactno.text.trim()),
-      "id": leadID,
-      "jobid": jobId,
-      "level": selectedLevel.value,
-      "levelId": 0,
-      "doj": "2022-06-24T17:23:36.161Z",
-      "process": selectedProcess.value,
-      "processId": 0,
-      "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
-      "isExperienced": exprinceActive,
-      "resume": profileCv.cv_link ?? "",
-      "shortListFor": int.parse(selectedshort.value),
-      "sourceId": (userType == EUserType.businessPartner.value ||
-              userType == EUserType.employee.value
-          ? userId
-          : 0),
-      "attr_status": "",
-      "exp_max": 0,
-      "sp_inv_no": "",
-      "sp_payout": "",
-      "sp_payment_status": "",
-      "exp_min": 0,
-      "completeStatus": 0,
-      "status": 0,
-      "remark": "",
-      "paymentClause": paymentClause,
-      "spoc": spoc,
-      "uid": (userType == EUserType.businessPartner.value ||
-              userType == EUserType.employee.value
-          ? userId
-          : 0),
-    };
-
-    var result = await ApplicationService().saveApplication(param);
-    var apiresult = Utils.parseResponse(result);
-    if (apiresult.resultKey == 'SUCCESS') {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Request has been submitted successfully"),
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(apiresult.errorMessage),
-      ));
+    bool validate = _formKey.currentState!.validate();
+    if (graduateActive == 0 && underGradActive == 0) {
+      setState(() {
+        isGraduatValidate = true;
+      });
     }
-    Navigator.pop(context);
+    if (exprinceActive == 0 && fresherActive == 0) {
+      setState(() {
+        isExpValidate = true;
+      });
+    }
+    if (_formKey.currentState!.validate() &&
+        !isGraduatValidate &&
+        !isExpValidate) {
+      Utils.showLoaderDialog(context, "Saving...");
+      SharedPreferences prefs = await Utils.getSharedPreferences();
+      var userId = await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_id.name);
+      var param = {
+        "applicantName": applicationname.text.trim(),
+        "companyName": selectedshort.label,
+        "contactNo": int.parse(contactno.text.trim()),
+        "id": leadID,
+        "jobid": jobId,
+        "level": selectedLevel.value,
+        "levelId": 0,
+        "doj": "2022-06-24T17:23:36.161Z",
+        "process": selectedProcess.value,
+        "processId": 0,
+        "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
+        "isExperienced": exprinceActive,
+        "resume": profileCv.cv_link ?? "",
+        "shortListFor": int.parse(selectedshort.value),
+        "sourceId": (userType == EUserType.businessPartner.value ||
+                userType == EUserType.employee.value
+            ? userId
+            : 0),
+        "attr_status": "",
+        "exp_max": 0,
+        "sp_inv_no": "",
+        "sp_payout": "",
+        "sp_payment_status": "",
+        "exp_min": 0,
+        "completeStatus": 0,
+        "status": 0,
+        "remark": "",
+        "paymentClause": paymentClause,
+        "spoc": spoc,
+        "uid": (userType == EUserType.businessPartner.value ||
+                userType == EUserType.employee.value
+            ? userId
+            : 0),
+      };
+
+      var result = await ApplicationService().saveApplication(param);
+      var apiresult = Utils.parseResponse(result);
+      if (apiresult.resultKey == 'SUCCESS') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Request has been submitted successfully"),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiresult.errorMessage),
+        ));
+      }
+      Navigator.pop(context);
+    }
   }
 
   saveProfile(filePath, data) async {
