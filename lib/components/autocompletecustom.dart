@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 
 class CustomControls {
+  static bool get kDebugMode => false;
+
   static Autocomplete<AutoCompleteModel> AutoCompleteCustom(
       BuildContext context,
       String label,
@@ -15,7 +17,7 @@ class CustomControls {
       Function? onClick}) {
     return Autocomplete(
         initialValue: TextEditingValue(
-          text: (selectedItem == null ? "" : selectedItem.label),
+          text: selectedItem.label,
         ),
         fieldViewBuilder: (BuildContext context,
             TextEditingController controllr,
@@ -43,7 +45,9 @@ class CustomControls {
               validator: validator);
         },
         onSelected: (AutoCompleteModel _selectedItem) {
-          print(selectedItem.extra);
+          if (kDebugMode) {
+            print(selectedItem.extra);
+          }
           onSelected(_selectedItem);
           selectedItem = _selectedItem;
         },

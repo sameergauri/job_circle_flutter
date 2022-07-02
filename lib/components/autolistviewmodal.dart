@@ -25,7 +25,6 @@ class _DialogListState extends State<DialogList> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _runFilter('');
   }

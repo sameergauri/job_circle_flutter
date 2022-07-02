@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/service/JobSearchService.dart';
@@ -26,11 +27,13 @@ class _JobsState extends State<Jobs> {
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
   List<String> citiesList = [];
+  List<LocationItem> locations = [];
 
   @override
   void initState() {
     super.initState();
     bindJobItems();
+    bindLocation();
   }
 
   @override
@@ -170,7 +173,8 @@ class _JobsState extends State<Jobs> {
                       child: GestureDetector(
                         onTap: (() {
                           showSearch(
-                              context: context, delegate: LoacationSearch());
+                              context: context,
+                              delegate: LocationSearch(locations: locations));
                         }),
                         child: const Text(
                           "Searching jobs in $localtion",
@@ -320,8 +324,8 @@ class _JobsState extends State<Jobs> {
                                         alignment: Alignment.bottomRight,
                                         items: <String>[
                                           'Recomended',
-                                          'Salary - high to low',
-                                          'Distance - newr to far',
+                                          // 'Salary - high to low',
+                                          // 'Distance - newr to far',
                                           'Newer Jobs'
                                         ].map((String value) {
                                           return DropdownMenuItem<String>(
@@ -368,9 +372,9 @@ class _JobsState extends State<Jobs> {
                                       //  color: Color(0xfff0f1fe),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    height: 45,
+                                    height: 80,
                                     margin: const EdgeInsets.only(
-                                        left: 40.0, right: 40.0),
+                                        left: 20.0, right: 20.0),
                                     width: double.infinity,
                                   ),
                                   const SizedBox(
@@ -383,14 +387,22 @@ class _JobsState extends State<Jobs> {
                                     itemBuilder: (BuildContext, index) {
                                       return GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        JobDetails(
-                                                          id: jobItems[index]
-                                                              ['id'],
-                                                        )));
+                                            Navigator.pushNamed(
+                                              context,
+                                              ERoute.jobsdetail.name,
+                                              arguments: {
+                                                'id': jobItems[index]['id']
+                                              },
+                                            );
+
+                                            //   Navigator.push(
+                                            //       context,
+                                            //       MaterialPageRoute(
+                                            //           builder: (context) =>
+                                            //               JobDetails(
+                                            //                 id: jobItems[index]
+                                            //                     ['id'],
+                                            //               )));
                                           },
                                           child: listViewItem(
                                               context, index, jobItems[index]));
@@ -414,6 +426,18 @@ class _JobsState extends State<Jobs> {
         ));
   }
 
+  void bindLocation() async {
+    var result = await MasterService().masterGetByGroups(
+        {'groupName': 'city', 'pageNumber': '1', 'pageSize': '1000'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      dynamic resultValue = Utils.parseResponse(result).resultData['content'];
+      for (var i = 0; i < resultValue.length; i++) {
+        locations.add(LocationItem(
+            id: resultValue[i]['id'], name: resultValue[i]['value']));
+      }
+    }
+  }
+
   Widget listViewItem(BuildContext context, int index, item) {
     return Card(
       margin: const EdgeInsets.only(bottom: 20),
@@ -424,62 +448,62 @@ class _JobsState extends State<Jobs> {
         padding: const EdgeInsets.only(left: 15, right: 15),
         child: Row(
           children: [
-            Stack(
-              children: [
-                Image.network(
-                  item['icon'],
-                  errorBuilder: ((context, error, stackTrace) => Image.asset(
-                      "assets/images/male.png",
-                      height: 80,
-                      width: 80,
-                      fit: BoxFit.contain)),
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.contain,
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    backgroundBlendMode: BlendMode.darken,
-                    gradient: const LinearGradient(
-                        begin: FractionalOffset.topCenter,
-                        end: FractionalOffset.bottomCenter,
-                        colors: [
-                          Color.fromARGB(57, 158, 158, 158),
-                          Color.fromARGB(203, 0, 0, 0),
-                        ],
-                        stops: [
-                          0.8,
-                          1.0
-                        ]),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [
-                        Text(
-                          "  ",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.amber,
-                )
-              ],
-            ),
-            const SizedBox(
-              width: 20,
-            ),
+            // Stack(
+            //   children: [
+            //     Image.network(
+            //       item['icon'],
+            //       errorBuilder: ((context, error, stackTrace) => Image.asset(
+            //           "assets/images/company.png",
+            //           height: 80,
+            //           width: 80,
+            //           fit: BoxFit.contain)),
+            //       height: 80,
+            //       width: 80,
+            //       fit: BoxFit.contain,
+            //     ),
+            //     Container(
+            //       height: 80,
+            //       width: 80,
+            //       decoration: BoxDecoration(
+            //         borderRadius: BorderRadius.circular(10),
+            //         backgroundBlendMode: BlendMode.darken,
+            //         gradient: const LinearGradient(
+            //             begin: FractionalOffset.topCenter,
+            //             end: FractionalOffset.bottomCenter,
+            //             colors: [
+            //               Color.fromARGB(57, 158, 158, 158),
+            //               Color.fromARGB(203, 0, 0, 0),
+            //             ],
+            //             stops: [
+            //               0.8,
+            //               1.0
+            //             ]),
+            //       ),
+            //       child: Padding(
+            //         padding: const EdgeInsets.all(8.0),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           crossAxisAlignment: CrossAxisAlignment.end,
+            //           children: const [
+            //             Text(
+            //               "  ",
+            //               style: TextStyle(
+            //                   color: Colors.white,
+            //                   fontSize: 11,
+            //                   fontWeight: FontWeight.bold),
+            //             )
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //     Container(
+            //       color: Colors.amber,
+            //     )
+            //   ],
+            // ),
+            // const SizedBox(
+            //   width: 20,
+            // ),
             Expanded(
                 flex: 1,
                 child: Column(
@@ -495,32 +519,49 @@ class _JobsState extends State<Jobs> {
                     const SizedBox(
                       height: 5,
                     ),
-                    Text(
-                      item['rolename'],
-                      style: const TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0, right: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item['rolename'],
+                            style: const TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13),
+                          ),
+                          Text(
+                            item['process'],
+                            style: const TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Icon(
-                          Icons.location_city,
-                          size: 17,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "Andheri",
-                          style: TextStyle(color: Colors.black54, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                    if (item['location'] != null)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.location_pin,
+                            size: 17,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            item['location'] ?? '',
+                            style: const TextStyle(
+                                color: Colors.black54, fontSize: 14),
+                          ),
+                        ],
+                      ),
                     const SizedBox(
                       height: 2,
                     ),
@@ -568,21 +609,10 @@ class DataSearch extends SearchDelegate<String> {
   List<String> cities = [];
   List dataList = [];
   final recentCities = ["Kalyan", "Thane"];
-  void bindLocation() async {
-    var result = await MasterService().masterGetByGroups(
-        {'groupName': 'location', 'pageNumber': '1', 'pageSize': '10'});
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      dynamic resultValue = Utils.parseResponse(result).resultData['content'];
-      for (var i = 0; i < resultValue.length; i++) {
-        cities.add(resultValue[i]['value']);
-      }
-    }
-  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
     // TODO: implement buildActions
-    bindLocation();
 
     return [
       IconButton(
@@ -662,7 +692,11 @@ class DataSearch extends SearchDelegate<String> {
   // }
 }
 
-class LoacationSearch extends SearchDelegate<String> {
+class LocationSearch extends SearchDelegate<String> {
+  List<LocationItem> locations = [];
+
+  LocationSearch({required this.locations});
+
   final cities = ["Kalyan1", "Thane1"];
   final recentCities = ["Kalyan1", "Thane1"];
 
@@ -699,9 +733,9 @@ class LoacationSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestionList = cities
-        .where(
-            (element) => element.toLowerCase().startsWith(query.toLowerCase()))
+    final suggestionList = locations
+        .where((element) =>
+            element.name!.toLowerCase().startsWith(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
@@ -715,11 +749,11 @@ class LoacationSearch extends SearchDelegate<String> {
           text: TextSpan(
               children: [
                 TextSpan(
-                    text: suggestionList[index].substring(query.length),
+                    text: suggestionList[index].name!.substring(query.length),
                     style: const TextStyle(
                         fontWeight: FontWeight.normal, color: Colors.black))
               ],
-              text: suggestionList[index].substring(0, query.length),
+              text: suggestionList[index].name!.substring(0, query.length),
               style: const TextStyle(
                   fontWeight: FontWeight.bold, color: Colors.black)),
         ),
@@ -727,6 +761,12 @@ class LoacationSearch extends SearchDelegate<String> {
       itemCount: suggestionList.length,
     );
   }
+}
+
+class LocationItem {
+  String? name;
+  int? id;
+  LocationItem({this.name, this.id});
 }
 
 class AlwaysDisabledFocusNode extends FocusNode {
