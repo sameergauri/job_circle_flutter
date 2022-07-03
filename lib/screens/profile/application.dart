@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/autocompleteModel.dart';
 import '../../service/UserDataService.dart';
+import '../../service/masterService.dart';
 
 class ApplicationForm extends StatefulWidget {
   const ApplicationForm({Key? key, this.isnew = false}) : super(key: key);
@@ -47,7 +48,15 @@ class ApplicationFormState extends State<ApplicationForm> {
   TextEditingController applicationname = TextEditingController();
   TextEditingController shorListController = TextEditingController();
   TextEditingController levelController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
+  TextEditingController interviewController = TextEditingController();
   TextEditingController processController = TextEditingController();
+  TextEditingController dateOfSelection = TextEditingController();
+  TextEditingController dateOfJoin = TextEditingController();
+  TextEditingController remarkController = TextEditingController();
+  var dtSelection;
+  var dtDOJ;
+
   bool isGraduatValidate = false;
   bool isExpValidate = false;
 
@@ -56,9 +65,13 @@ class ApplicationFormState extends State<ApplicationForm> {
   late List<AutoCompleteModel> shortList = [];
   late List<AutoCompleteModel> proccessList = [];
   late List<AutoCompleteModel> levelList = [];
+  late List<AutoCompleteModel> statusList = [];
+  late List<AutoCompleteModel> interviewList = [];
   AutoCompleteModel selectedshort = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedProcess = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedLevel = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedStatus = AutoCompleteModel("", "", {});
+  AutoCompleteModel selectedInterview = AutoCompleteModel("", "", {});
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
 
   final _formKey = GlobalKey<FormState>();
@@ -139,6 +152,9 @@ class ApplicationFormState extends State<ApplicationForm> {
     if (widget.isnew != true) {
       // bindUserDetails();
     }
+    bindUserDetails();
+    bindStatusList();
+    bindInterViewList();
     //Navigator.pop(context);
     // bindProccessList();
     // bindLevelList();
@@ -271,23 +287,44 @@ class ApplicationFormState extends State<ApplicationForm> {
     });
   }
 
-  // bindLevelList() async {
-  //   var result = await MasterService().masterGetByGroup(
-  //       {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
-  //   if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-  //     ddlValues = Utils.parseResponse(result).resultData;
-  //     // list=ddlValues["content"];
+  bindStatusList() async {
+    var result = await MasterService().masterGetByGroup(
+        {'groupName': 'join_status', 'pageNumber': '1', 'pageSize': '100'});
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
 
-  //     levelList = (ddlValues["content"] as List)
-  //         .map<AutoCompleteModel>(
-  //             (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
-  //         .toList();
+      statusList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
 
-  //     setState(() {
-  //       selectedLevel = AutoCompleteModel("0", "", {});
-  //     });
-  //   }
-  // }
+      setState(() {
+        selectedStatus = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
+
+  bindInterViewList() async {
+    var result = await MasterService().masterGetByGroup({
+      'groupName': 'interview_rounds',
+      'pageNumber': '1',
+      'pageSize': '100'
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      interviewList = (ddlValues["content"] as List)
+          .map<AutoCompleteModel>(
+              (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
+          .toList();
+
+      setState(() {
+        selectedInterview = AutoCompleteModel("0", "", {});
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -622,8 +659,163 @@ class ApplicationFormState extends State<ApplicationForm> {
                 const SizedBox(
                   height: 15,
                 ),
+                TextFormField(
+                  controller: statusController,
+                  enabled: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any status';
+                    }
+                  },
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                              dialogTitle: "Status",
+                              onSelected: (AutoCompleteModel model) => {
+                                    statusController.text = model.label,
+                                    selectedStatus = model,
+                                    Navigator.pop(context)
+                                  },
+                              itemsData: statusList);
+                        });
+                    setState(() {
+                      statusController.text = selectedStatus.label;
+                    });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      label: Text("Status *"),
+                      border: InputBorder.none,
+                      hintText: "Select status",
+                      prefixIcon: Icon(Icons.person)),
+                ),
+                TextFormField(
+                  controller: interviewController,
+                  enabled: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any interview by';
+                    }
+                  },
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                              dialogTitle: "Interview",
+                              onSelected: (AutoCompleteModel model) => {
+                                    interviewController.text = model.label,
+                                    selectedInterview = model,
+                                    Navigator.pop(context)
+                                  },
+                              itemsData: interviewList);
+                        });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      // Icons.workspace_premium
+                      label: Text("Interview bay *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: "Select interview",
+                      prefixIcon: Icon(Icons.person)),
+                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: dateOfSelection,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.calendar_month),
+                          label: Text("Date Of Selection"),
+                          //border: OutlineInputBorder(),
+                          border: InputBorder.none,
+                          hintText: 'Select Dos.',
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate:
+                                // DateTime.now().add(const Duration(days: -(365 * 50))),
+                                DateTime.now(),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 120)),
+                          );
+
+                          if (pickedDate != null) {
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                            setState(() {
+                              dateOfSelection.text = formattedDate;
+                              dtSelection = DateFormat('yyyy-MM-dd HH:mm:ss')
+                                  .format(pickedDate);
+                              //set output date to TextField value.
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        controller: dateOfJoin,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.calendar_month),
+                          label: Text("Date Of Joining"),
+                          //border: OutlineInputBorder(),
+                          border: InputBorder.none,
+                          hintText: 'Select Doj.',
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate:
+                                // DateTime.now().add(const Duration(days: -(365 * 50))),
+                                DateTime.now(),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 120)),
+                          );
+
+                          if (pickedDate != null) {
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                            setState(() {
+                              dateOfJoin.text = formattedDate;
+                              dtDOJ = DateFormat('yyyy-MM-dd HH:mm:ss')
+                                  .format(pickedDate);
+                              //set output date to TextField value.
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Visibility(
+                  visible: statusController.text == 'Join' ? true : false,
+                  child: TextFormField(
+                    validator: (val) {
+                      if (val == null && statusController.text != 'Join') {
+                        return 'Remark is required';
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.person),
+                      label: Text("Remark *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: 'Please enter reson for not joining',
+                    ),
+                    controller: remarkController,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CVWidget(
                         profileCv: profileCv,
@@ -640,7 +832,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                   ],
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 40,
                 ),
                 ThemeButton(
                   width: 200,
@@ -726,7 +918,8 @@ class ApplicationFormState extends State<ApplicationForm> {
         "jobid": jobId,
         "level": selectedLevel.value,
         "levelId": 0,
-        "doj": "2022-06-24T17:23:36.161Z",
+        "doj": dtDOJ,
+        "dos": dtSelection,
         "process": selectedProcess.value,
         "processId": 0,
         "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
@@ -744,8 +937,9 @@ class ApplicationFormState extends State<ApplicationForm> {
         "sp_payment_status": "",
         "exp_min": 0,
         "completeStatus": 0,
-        "status": 1,
-        "remark": "",
+        "interview": selectedInterview.value,
+        "status": selectedStatus.value,
+        "remark": remarkController.text,
         "paymentClause": paymentClause,
         "spoc": spoc,
         "uid": (userType == EUserType.businessPartner.value ||
