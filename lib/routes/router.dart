@@ -102,7 +102,7 @@ class ApplicationRouter {
           return jobs.Jobs();
         }),
     ERoute.jobsdetail.name: (context) => FutureBuilder(
-        future: lazyScreen3,
+        future: lazyJobDetails,
         builder: (snapshot, context) {
           return jobsdetails.JobDetails();
         }),

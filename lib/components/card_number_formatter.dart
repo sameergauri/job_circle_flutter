@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 class CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue previousValue,
-    TextEditingValue nextValue,
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
   ) {
-    var inputText = nextValue.text;
+    var inputText = newValue.text;
 
-    if (nextValue.selection.baseOffset == 0) {
-      return nextValue;
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
     }
 
     // ignore: unnecessary_new
@@ -24,7 +24,7 @@ class CardNumberFormatter extends TextInputFormatter {
     }
 
     var string = bufferString.toString();
-    return nextValue.copyWith(
+    return newValue.copyWith(
       text: string,
       // ignore: unnecessary_new
       selection: new TextSelection.collapsed(

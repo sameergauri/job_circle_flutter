@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/routes/router.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/themes/colors.dart';
 
 void main() {
@@ -35,6 +36,17 @@ class MyApp extends StatelessWidget {
           primaryColor: Constants.themeBgColor,
           primarySwatch: Constants.theme),
       routes: ApplicationRouter.appRouter,
+      // onGenerateRoute: (settings) {
+      //   if (settings.name == ERoute.jobsdetail.name) {
+      //     final args = settings.arguments;
+
+      //     // Then, extract the required data from the arguments and
+      //     // pass the data to the correct screen.
+      //     return MaterialPageRoute(builder: (context) {
+      //       return JobDetails(i);
+      //     });
+      //   }
+      // },
       initialRoute: ERoute.jobs.toString(),
     );
   }

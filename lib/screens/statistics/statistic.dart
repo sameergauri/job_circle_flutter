@@ -13,15 +13,14 @@ class Statestics extends StatefulWidget {
 
 class _StatesticsState extends State<Statestics> {
   dynamic leadCounts = [];
+  var userId = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      getCountData();
-      setState(() {});
-    });
+
+    getCountData();
   }
 
   @override
@@ -110,8 +109,10 @@ class _StatesticsState extends State<Statestics> {
   }
 
   getCountData() async {
+    userId =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     var result = await LeadService().getLoadCounts({
-      "data": {"flag": "partner_dashboard", "sourceid": 1}
+      "data": {"flag": "partner_dashboard", "sourceid": userId}
     });
     var d = Utils.parseResponse(result);
     if (d.resultKey == 'SUCCESS') {
