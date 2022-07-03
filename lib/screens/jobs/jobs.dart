@@ -423,7 +423,7 @@ class _JobsState extends State<Jobs> {
                                               listViewItem_new(context, index,
                                                   jobItems[index]),
                                               const SizedBox(
-                                                height: 20,
+                                                height: 12,
                                               )
                                             ],
                                           ));
@@ -704,6 +704,52 @@ class _JobsState extends State<Jobs> {
                           const SizedBox(
                             height: 15,
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0, right: 30),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                if (item['rolename'] != null &&
+                                    item['process'] != null)
+                                  const Icon(
+                                    Icons.person,
+                                    size: 17,
+                                    color: Color.fromARGB(255, 118, 118, 118),
+                                  ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                if (item['process'] != null)
+                                  Text(
+                                    item['process'],
+                                    style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                                if (item['rolename'] != null &&
+                                    item['process'] != null)
+                                  const Text(
+                                    " | ",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                                if (item['rolename'] != null)
+                                  Text(
+                                    item['rolename'],
+                                    style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
                           if (item['location'] != null)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -723,49 +769,6 @@ class _JobsState extends State<Jobs> {
                                 ),
                               ],
                             ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 0, right: 30),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                if (item['rolename'] != null &&
-                                    item['process'] != null)
-                                  const Icon(
-                                    Icons.person,
-                                    size: 17,
-                                    color: Color.fromARGB(255, 118, 118, 118),
-                                  ),
-                                if (item['rolename'] != null)
-                                  Text(
-                                    item['rolename'],
-                                    style: const TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
-                                if (item['rolename'] != null &&
-                                    item['process'] != null)
-                                  const Text(
-                                    " | ",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
-                                if (item['process'] != null)
-                                  Text(
-                                    item['process'],
-                                    style: const TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
-                              ],
-                            ),
-                          ),
                         ],
                       )),
                   const Icon(Icons.navigate_next),

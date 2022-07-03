@@ -30,6 +30,7 @@ class JobDetailsModel {
   List<String>? languageKnow;
   String? boundrylmit;
   String? emptype;
+  String? salary;
   JobDetailsModel(
       {this.id,
       this.compnayid,
@@ -59,7 +60,8 @@ class JobDetailsModel {
       this.spoc,
       this.languageKnow,
       this.boundrylmit,
-      this.emptype});
+      this.emptype,
+      this.salary});
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
     List<String> inteviewrounds = [];
@@ -102,6 +104,7 @@ class JobDetailsModel {
         spoc: map['spoc'],
         languageKnow: languageknown,
         boundrylmit: map['boundarylimits'],
-        emptype: map['emptype']);
+        emptype: map['emptype'],
+        salary: map['ctcdesc']);
   }
 }

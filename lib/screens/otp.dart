@@ -311,54 +311,10 @@ class _OTPScreenState extends State<OTPScreen> {
         await Utils.setPreference(pres, ESharedPreferences.user_data.name,
             jsonEncode(model.toJson()));
 
-        if (data['usertype'] != null) {
-          final String usertype = data['usertype'].toString();
+        await Utils.setPreference(
+            pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
+        Utils.gotoScreen(context, data);
 
-          if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-            ERoute nextRoute = ERoute.screen1;
-            if (data['firstName'] == '') {
-              nextRoute = ERoute.screen1;
-            } else if (data['education'] == null || data['firstName'] == 0) {
-              nextRoute = ERoute.screen2;
-            } else if (data['experience'] == null || data['experience'] == 0) {
-              nextRoute = ERoute.screen3;
-            } else {
-              nextRoute = ERoute.home;
-            }
-            Navigator.pushNamedAndRemoveUntil(
-                context, nextRoute.value, (Route<dynamic> route) => false);
-            // Future.delayed(const Duration(seconds: 1), () {
-            //   // Navigator.pushReplacementNamed(context, nextRoute.value);
-            // });
-          } else if (usertype.toString() ==
-              EUserType.businessPartner.value.toString()) {
-            //Future.delayed(const Duration(seconds: 1), () {
-            Navigator.pushNamedAndRemoveUntil(context, ERoute.partnerHome.name,
-                (Route<dynamic> route) => false);
-            // Navigator.pushReplacementNamed(
-            //     context, ERoute.businesspartner_confirmation.name);
-            // });
-          } else if (usertype.toString() ==
-              EUserType.employee.value.toString()) {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, ERoute.jobs.name, (Route<dynamic> route) => false);
-              //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
-            });
-          } else {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.pushNamedAndRemoveUntil(context, ERoute.logintype.name,
-                  (Route<dynamic> route) => false);
-              //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-            });
-          }
-        } else {
-          Future.delayed(const Duration(seconds: 1), () {
-            Navigator.pushNamedAndRemoveUntil(context, ERoute.logintype.name,
-                (Route<dynamic> route) => false);
-            //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-          });
-        }
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("OTP Verified Successfully"),
         ));

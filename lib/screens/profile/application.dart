@@ -18,8 +18,9 @@ import '../../models/autocompleteModel.dart';
 import '../../service/UserDataService.dart';
 
 class ApplicationForm extends StatefulWidget {
-  const ApplicationForm({Key? key, this.prevModel}) : super(key: key);
-  final dynamic prevModel;
+  const ApplicationForm({Key? key, this.isnew = false}) : super(key: key);
+
+  final bool? isnew;
 
   @override
   State<ApplicationForm> createState() => ApplicationFormState();
@@ -40,6 +41,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   bool enableShortListFor = true;
   bool enableProcess = true;
   bool enableLevel = true;
+  dynamic prevModel;
 
   TextEditingController contactno = TextEditingController();
   TextEditingController applicationname = TextEditingController();
@@ -68,13 +70,45 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   ProfileCv profileCv = ProfileCv();
 
+  var enableApplicantName = true;
+
+  var enableContactNo = true;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    // Bind All Dropdown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      dynamic args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null && args["isnew"] != true) {
+        enableApplicantName = false;
+        enableContactNo = false;
+        bindUserDetails();
+      }
 
+      if (args != null && args["prevModel"] != null) {
+        prevModel = args["prevModel"] as dynamic;
+        shorListController.text = prevModel?.name;
+        selectedshort = AutoCompleteModel(
+            prevModel.compnayid.toString(), prevModel?.name, prevModel);
+        paymentClause = prevModel?.paymentclause;
+
+        selectProcess(prevModel.process, prevModel);
+        selectLevel(prevModel?.rolename, prevModel);
+
+        jobId = prevModel?.id;
+
+        spoc = prevModel?.spoc;
+
+        enableShortListFor = false;
+
+        bindProccessLevelList(prevModel.compnayid.toString());
+        setState(() {});
+      }
+    });
+    // Bind All Dropdown
+    print("Load complete11111");
     // profileCv.profile_cv_file = "abc.pdf";
     // profileCv.cv_link = "abc.pdf";
     // profileCv.cv_upladted_date = "2033";
@@ -95,30 +129,16 @@ class ApplicationFormState extends State<ApplicationForm> {
       }
       setState(() {});
     });
-    if (widget.prevModel != null) {
-      shorListController.text = widget.prevModel?.name;
-      selectedshort = AutoCompleteModel(widget.prevModel.compnayid.toString(),
-          widget.prevModel?.name, widget.prevModel);
-      paymentClause = widget.prevModel?.paymentclause;
 
-      selectProcess(widget.prevModel.process, widget.prevModel);
-      selectLevel(widget.prevModel?.rolename, widget.prevModel);
-
-      jobId = widget.prevModel?.id;
-
-      spoc = widget.prevModel?.spoc;
-
-      enableShortListFor = false;
-
-      bindProccessLevelList(widget.prevModel.compnayid.toString());
-    }
     enableProcess = false;
     enableLevel = false;
     setState(() {});
 
     //bindShortList();
     bindCompanyList();
-    bindUserDetails();
+    if (widget.isnew != true) {
+      // bindUserDetails();
+    }
     //Navigator.pop(context);
     // bindProccessList();
     // bindLevelList();
@@ -143,12 +163,17 @@ class ApplicationFormState extends State<ApplicationForm> {
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      applicationname.text = profilemodel.first_name.toString().toTitleCase() +
+          " " +
+          profilemodel.last_name.toString().toTitleCase();
+      contactno.text = profilemodel.mobile.toString();
+
       if (profilemodel.has_experience == 1) {
-        // exprinceActive = 1;
+        exprinceActive = 1;
         fresherActive = 0;
       } else {
         exprinceActive = 0;
-        // fresherActive = 1;
+        fresherActive = 1;
       }
       if (profilemodel.education != null) {
         if (profilemodel.education?.toLowerCase() == 'under graduate') {
@@ -284,8 +309,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                       return 'Please enter application name';
                     }
                   },
-                  enabled:
-                      (userType == EUserType.jobSeeker.value ? false : true),
+                  enabled: enableApplicantName,
                   controller: applicationname,
                   decoration: const InputDecoration(
                     // icon: Icon(Icons.person),
@@ -303,8 +327,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     }
                   },
                   maxLength: 10,
-                  enabled:
-                      (userType == EUserType.jobSeeker.value ? false : true),
+                  enabled: enableContactNo,
                   controller: contactno,
                   decoration: const InputDecoration(
                     // icon: Icon(Icons.person),
@@ -326,13 +349,15 @@ class ApplicationFormState extends State<ApplicationForm> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              underGradActive = 1;
-                              graduateActive = 0;
-                              isGraduatValidate = false;
-                            });
-                          },
+                          onPressed: userType == EUserType.jobSeeker.value
+                              ? null
+                              : () {
+                                  setState(() {
+                                    underGradActive = 1;
+                                    graduateActive = 0;
+                                    isGraduatValidate = false;
+                                  });
+                                },
                           child: Text(
                             'Under-Graduate',
                             style: TextStyle(
@@ -352,13 +377,15 @@ class ApplicationFormState extends State<ApplicationForm> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              underGradActive = 0;
-                              graduateActive = 1;
-                              isGraduatValidate = false;
-                            });
-                          },
+                          onPressed: userType == EUserType.jobSeeker.value
+                              ? null
+                              : () {
+                                  setState(() {
+                                    underGradActive = 0;
+                                    graduateActive = 1;
+                                    isGraduatValidate = false;
+                                  });
+                                },
                           child: Text(
                             'Graduate',
                             style: TextStyle(
@@ -400,13 +427,15 @@ class ApplicationFormState extends State<ApplicationForm> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              exprinceActive = 1;
-                              fresherActive = 0;
-                              isExpValidate = false;
-                            });
-                          },
+                          onPressed: userType == EUserType.jobSeeker.value
+                              ? null
+                              : () {
+                                  setState(() {
+                                    exprinceActive = 1;
+                                    fresherActive = 0;
+                                    isExpValidate = false;
+                                  });
+                                },
                           child: Text(
                             'Exprience',
                             style: TextStyle(
@@ -426,13 +455,15 @@ class ApplicationFormState extends State<ApplicationForm> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              exprinceActive = 0;
-                              fresherActive = 1;
-                              isExpValidate = false;
-                            });
-                          },
+                          onPressed: userType == EUserType.jobSeeker.value
+                              ? null
+                              : () {
+                                  setState(() {
+                                    exprinceActive = 0;
+                                    fresherActive = 1;
+                                    isExpValidate = false;
+                                  });
+                                },
                           child: Text(
                             'Fresher',
                             style: TextStyle(
@@ -713,7 +744,7 @@ class ApplicationFormState extends State<ApplicationForm> {
         "sp_payment_status": "",
         "exp_min": 0,
         "completeStatus": 0,
-        "status": 0,
+        "status": 1,
         "remark": "",
         "paymentClause": paymentClause,
         "spoc": spoc,

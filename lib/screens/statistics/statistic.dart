@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/service/LeadService.dart';
@@ -33,12 +34,11 @@ class _StatesticsState extends State<Statestics> {
         child: const Icon(Icons.add),
 
         onPressed: () {
-          Navigator.pushNamed(context, ERoute.application.name);
-
-          setState(() {});
+          Navigator.pushNamed(context, ERoute.application.name,
+              arguments: {"isnew": true});
         },
       ),
-      appBar: AppBar(title: Text("Dashboard")
+      appBar: AppBar(title: const Text("Dashboard")
           // SizedBox(
           //   height: 40,
           //   child: TextField(
@@ -72,7 +72,7 @@ class _StatesticsState extends State<Statestics> {
           child: SingleChildScrollView(
         child: RefreshIndicator(
           onRefresh: () {
-            return Future.delayed(Duration(seconds: 1), () {
+            return Future.delayed(const Duration(seconds: 1), () {
               // showing snackbar
               getCountData();
             });
@@ -92,7 +92,7 @@ class _StatesticsState extends State<Statestics> {
                           Expanded(
                             child: Text(
                               "${s['title']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w200,
                               ),
@@ -100,7 +100,7 @@ class _StatesticsState extends State<Statestics> {
                           ),
                           Text(
                             "${s['count']}",
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.w700),
                           ),
                         ],

@@ -34,8 +34,10 @@ class _JobDetailsState extends State<JobDetails> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
-
-      setState(() {});
+      dynamic args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null && args["id"] != null) {
+        getJobDetails(args["id"]);
+      }
     });
     // Future.delayed(const Duration(milliseconds: 10), () {
     //   // dynamic args = ModalRoute.of(context)!.settings.arguments;
@@ -43,7 +45,7 @@ class _JobDetailsState extends State<JobDetails> {
     // });
     // Calling For Job Details
     // getJobDetails(arguments["id"]);
-    getJobDetails(1);
+
     _scrollController.addListener(() {
       if (_scrollController.position.extentBefore > 0 && appBarElevate == 0) {
         appBarElevate = 3;
@@ -282,41 +284,61 @@ class _JobDetailsState extends State<JobDetails> {
                                         CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      keyPair(
-                                          "keyresponsibility.png",
-                                          "Job Description",
-                                          jobDetailsModel.key_responsible
-                                              .toString(),
-                                          true),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
-                                      keyPair(
-                                          "elligibility.png",
-                                          "Eligibility",
-                                          jobDetailsModel.eligibility
-                                              .toString(),
-                                          true),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
+                                      if (jobDetailsModel.key_responsible !=
+                                              null &&
+                                          jobDetailsModel.key_responsible != "")
+                                        keyPair(
+                                            "keyresponsibility.png",
+                                            "Job Description",
+                                            jobDetailsModel.key_responsible
+                                                .toString(),
+                                            true),
+                                      if (jobDetailsModel.key_responsible !=
+                                              null &&
+                                          jobDetailsModel.key_responsible != "")
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                      if (jobDetailsModel.eligibility != null &&
+                                          jobDetailsModel.eligibility != "")
+                                        keyPair(
+                                            "elligibility.png",
+                                            "Eligibility",
+                                            jobDetailsModel.eligibility
+                                                .toString(),
+                                            true),
+                                      if (jobDetailsModel.eligibility != null &&
+                                          jobDetailsModel.eligibility != "")
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Expanded(
-                                              child: keyPair(
-                                                  "male.png",
-                                                  "Language Know",
-                                                  jobDetailsModel.languageKnow!
-                                                      .join(', ')
-                                                      .toString(),
-                                                  false)),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
+                                          if (jobDetailsModel.languageKnow !=
+                                                  null &&
+                                              jobDetailsModel
+                                                      .languageKnow!.length >
+                                                  0)
+                                            Expanded(
+                                                child: keyPair(
+                                                    "languages.png",
+                                                    "Language Required",
+                                                    jobDetailsModel
+                                                        .languageKnow!
+                                                        .join(', ')
+                                                        .toString(),
+                                                    false)),
+                                          if (jobDetailsModel.languageKnow !=
+                                                  null &&
+                                              jobDetailsModel.languageKnow !=
+                                                  "")
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
                                           Expanded(
                                               child: keyPair(
                                                   "education_d.png",
@@ -330,16 +352,77 @@ class _JobDetailsState extends State<JobDetails> {
                                         height: 1,
                                       ),
                                       const SizedBox(
-                                        height: 25,
+                                        height: 15,
                                       ),
-                                      keyPair(
-                                          "shifttimes.png",
-                                          "Shift Timing",
-                                          jobDetailsModel.shifttime.toString(),
-                                          true),
+                                      Visibility(
+                                          child: Column(
+                                            children: [
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                      child: keyPair(
+                                                          "shifttimes.png",
+                                                          "Shift Timing",
+                                                          jobDetailsModel
+                                                              .shifttime
+                                                              .toString(),
+                                                          false)),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  if (jobDetailsModel
+                                                              .shiftdesc !=
+                                                          null &&
+                                                      jobDetailsModel
+                                                              .shiftdesc !=
+                                                          "")
+                                                    Expanded(
+                                                        child: keyPair(
+                                                            "weeklyoff.png",
+                                                            "Weekly Off",
+                                                            jobDetailsModel
+                                                                .shiftdesc
+                                                                .toString(),
+                                                            false)),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          visible: ((jobDetailsModel
+                                                          .shifttime !=
+                                                      null &&
+                                                  jobDetailsModel.shifttime !=
+                                                      "") ||
+                                              jobDetailsModel.shiftdesc !=
+                                                      null &&
+                                                  jobDetailsModel.shiftdesc !=
+                                                      "")),
+
+                                      const Divider(
+                                        height: 1,
+                                      ),
                                       const SizedBox(
-                                        height: 25,
+                                        height: 15,
                                       ),
+                                      if (jobDetailsModel.salary != null &&
+                                          jobDetailsModel.salary != "")
+                                        keyPair(
+                                            "salary.png",
+                                            "Salary",
+                                            jobDetailsModel.salary.toString(),
+                                            true),
+                                      if (jobDetailsModel.salary != null &&
+                                          jobDetailsModel.salary != "")
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
@@ -350,19 +433,22 @@ class _JobDetailsState extends State<JobDetails> {
                                               child: keyPair(
                                                   "location.png",
                                                   "Work Location",
-                                                  jobDetailsModel.location
-                                                      .toString(),
+                                                  jobDetailsModel.location ??
+                                                      'N/A',
                                                   false)),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          Expanded(
-                                              child: keyPair(
-                                                  "area.png",
-                                                  "Boundary limits",
-                                                  jobDetailsModel.boundrylmit
-                                                      .toString(),
-                                                  false)),
+                                          if (jobDetailsModel.boundrylmit !=
+                                                  null &&
+                                              jobDetailsModel.boundrylmit != "")
+                                            Expanded(
+                                                child: keyPair(
+                                                    "area.png",
+                                                    "Boundary limits",
+                                                    jobDetailsModel.boundrylmit
+                                                        .toString(),
+                                                    false)),
                                         ],
                                       ),
                                       const Divider(
@@ -393,7 +479,7 @@ class _JobDetailsState extends State<JobDetails> {
                                           Expanded(
                                               child: keyPair(
                                                   "emptype.png",
-                                                  "Employee Type",
+                                                  "Employment Type",
                                                   jobDetailsModel.emptype
                                                       .toString(),
                                                   false)),
@@ -402,9 +488,27 @@ class _JobDetailsState extends State<JobDetails> {
                                       // const Divider(
                                       //   height: 1,
                                       // ),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
+                                      if (usertype ==
+                                          EUserType.businessPartner.value)
+                                        Row(children: const [
+                                          SizedBox(
+                                            height: 50,
+                                          ),
+                                          Expanded(
+                                              child: Divider(
+                                            thickness: 1,
+                                          )),
+                                          Text(
+                                            "Commercial",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Expanded(
+                                              child: Divider(
+                                            thickness: 2,
+                                          )),
+                                        ]),
+
                                       if (usertype ==
                                           EUserType.businessPartner.value)
                                         Row(
@@ -419,7 +523,7 @@ class _JobDetailsState extends State<JobDetails> {
                                                     "Payout",
                                                     jobDetailsModel.payout
                                                         .toString(),
-                                                    true)),
+                                                    false)),
                                             const SizedBox(
                                               width: 10,
                                             ),
@@ -430,7 +534,7 @@ class _JobDetailsState extends State<JobDetails> {
                                                     jobDetailsModel
                                                             .paymentclause ??
                                                         '',
-                                                    true)),
+                                                    false)),
                                           ],
                                         ),
                                     ]),
@@ -458,12 +562,17 @@ class _JobDetailsState extends State<JobDetails> {
                     radious: 0,
                     themeButtonSize: ThemeButtonSize.small,
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ApplicationForm(
-                                    prevModel: jobDetailsModel,
-                                  )));
+                      Navigator.pushNamed(context, ERoute.application.name,
+                          arguments: {
+                            "isnew": false,
+                            "prevModel": jobDetailsModel,
+                          });
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => ApplicationForm(
+                      //               prevModel: jobDetailsModel,
+                      //             )));
                     },
                     text: "APPLY",
                   ),
@@ -473,14 +582,20 @@ class _JobDetailsState extends State<JobDetails> {
                     radious: 0,
                     themeButtonSize: ThemeButtonSize.small,
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ApplicationForm(
-                                    prevModel: jobDetailsModel,
-                                  )));
+                      Navigator.pushNamed(context, ERoute.application.name,
+                          arguments: {
+                            "isnew": true,
+                            "prevModel": jobDetailsModel,
+                          });
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => ApplicationForm(
+                      //               prevModel: jobDetailsModel,
+                      //               isnew: true,
+                      //             )));
                     },
-                    text: "Source",
+                    text: "New Line-up",
                   ),
                 // IconButton(
                 //   icon: Icon(Icons.arrow_forward),

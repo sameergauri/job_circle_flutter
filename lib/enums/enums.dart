@@ -31,7 +31,13 @@ enum ERoute {
 
 enum AdminERoute { admin_leads }
 
-enum ESharedPreferences { user_mobile, user_id, user_data, user_type }
+enum ESharedPreferences {
+  user_mobile,
+  user_id,
+  user_data,
+  user_type,
+  user_rawData
+}
 
 enum EUserType {
   jobSeeker(1),

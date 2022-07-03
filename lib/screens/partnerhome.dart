@@ -24,6 +24,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       userType = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
     });
+
     bindBottomTabs();
     setState(() {});
 

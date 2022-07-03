@@ -125,6 +125,56 @@ class Utils {
       },
     );
   }
+
+  static gotoScreen(context, data) {
+    if (data['usertype'] != null) {
+      final String usertype = data['usertype'].toString();
+
+      if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
+        ERoute nextRoute = ERoute.screen1;
+        if (data['firstName'] == '') {
+          nextRoute = ERoute.screen1;
+        } else if (data['education'] == null || data['firstName'] == 0) {
+          nextRoute = ERoute.screen2;
+        } else if (data['experience'] == null || data['experience'] == 0) {
+          nextRoute = ERoute.screen3;
+        } else {
+          nextRoute = ERoute.home;
+        }
+        Navigator.pushNamedAndRemoveUntil(
+            context, nextRoute.value, (Route<dynamic> route) => false);
+        // Future.delayed(const Duration(seconds: 1), () {
+        //   // Navigator.pushReplacementNamed(context, nextRoute.value);
+        // });
+      } else if (usertype.toString() ==
+          EUserType.businessPartner.value.toString()) {
+        //Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pushNamedAndRemoveUntil(
+            context, ERoute.partnerHome.name, (Route<dynamic> route) => false);
+        // Navigator.pushReplacementNamed(
+        //     context, ERoute.businesspartner_confirmation.name);
+        // });
+      } else if (usertype.toString() == EUserType.employee.value.toString()) {
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushNamedAndRemoveUntil(
+              context, ERoute.jobs.name, (Route<dynamic> route) => false);
+          //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
+        });
+      } else {
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushNamedAndRemoveUntil(
+              context, ERoute.logintype.name, (Route<dynamic> route) => false);
+          //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+        });
+      }
+    } else {
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pushNamedAndRemoveUntil(
+            context, ERoute.logintype.name, (Route<dynamic> route) => false);
+        //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
+      });
+    }
+  }
 }
 
 String convertToTitleCase(String text) {

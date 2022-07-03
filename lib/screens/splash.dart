@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -17,10 +20,40 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    checkSession();
+  }
+
+  checkSession() async {
+    try {
+      var userId = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_id.name);
+      if (userId != null) {
+        var userRawData = await Utils.getPreferencesValue(
+            null, ESharedPreferences.user_rawData.name);
+        if (userRawData != null) {
+          var data = jsonDecode(userRawData);
+          Timer(const Duration(seconds: 2),
+              () => {Utils.gotoScreen(context, data)});
+        } else {
+          gotoLogin();
+        }
+      } else {
+        gotoLogin();
+      }
+    } catch (e) {
+      gotoLogin();
+    } finally {}
+  }
+
+  gotoLogin() {
     Timer(
         const Duration(seconds: 2),
-        () => Navigator.pushNamedAndRemoveUntil(
-            context, ERoute.login.name, (Route<dynamic> route) => false));
+        () => {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, ERoute.login.name, (Route<dynamic> route) => false)
+              // Navigator.pushNamedAndRemoveUntil(
+              //     context, ERoute.login.name, (Route<dynamic> route) => false)
+            });
   }
 
   @override

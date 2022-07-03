@@ -301,22 +301,23 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                     ),
                   if (usertype == EUserType.jobSeeker.value)
                     const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Date Of Birth",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        DateFormat('MMMM dd,yyyy').format(DateTime.parse(
-                            profilemodel.dateofbirth.toString())),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  )
+                  if (usertype == EUserType.jobSeeker.value)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Date Of Birth",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w300),
+                        ),
+                        Text(
+                          DateFormat('MMMM dd,yyyy').format(DateTime.parse(
+                              profilemodel.dateofbirth.toString())),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                        )
+                      ],
+                    )
                 ],
               ),
             ),
