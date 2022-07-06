@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
 import '../../components/autocompletecustom.dart';
+import '../../components/autolistviewmodal.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/card_model.dart';
 import '../../service/UserDataService.dart';
@@ -24,7 +25,8 @@ class _Screen2State extends State<Screen2> {
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
   late TextEditingController passingYearController = TextEditingController();
-  // late TextEditingController educationController = TextEditingController();
+  late TextEditingController universityController = TextEditingController();
+  late TextEditingController degreeController = TextEditingController();
   CardModel model = CardModel();
 
   var ddlValues;
@@ -44,12 +46,17 @@ class _Screen2State extends State<Screen2> {
       selectedEducation = AutoCompleteModel(
           widget.prevPageModel.education_id.toString(),
           widget.prevPageModel.education, {});
+      educationController.text = widget.prevPageModel.education.toString();
+
       selectedUniversity = AutoCompleteModel(
           widget.prevPageModel.univercity_id.toString(),
           widget.prevPageModel.univercity, {});
+      universityController.text = widget.prevPageModel.univercity.toString();
+
       selectedDegree = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
+      degreeController.text = widget.prevPageModel.degree_spc.toString();
       passingYearController.text = widget.prevPageModel.passing_year.toString();
     }
     super.initState();
@@ -219,47 +226,141 @@ class _Screen2State extends State<Screen2> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              CustomControls.AutoCompleteCustom(
-                  context,
-                  "Level Of Education",
-                  "Enter Level Of Education",
-                  ((AutoCompleteModel item) => {
-                        setState(() {
-                          selectedEducation = item;
-                        }),
-                        // print(selectedEducation.label),
-                      }),
-                  selectedEducation,
-                  levelOfEducationList,
-                  Icons.school_outlined),
+              // CustomControls.AutoCompleteCustom(
+              //     context,
+              //     "Level Of Education",
+              //     "Enter Level Of Education",
+              //     ((AutoCompleteModel item) => {
+              //           setState(() {
+              //             selectedEducation = item;
+              //           }),
+              //           // print(selectedEducation.label),
+              //         }),
+              //     selectedEducation,
+              //     levelOfEducationList,
+              //     Icons.school_outlined),
+              TextFormField(
+                // validator: (value) {
+                //   if (value == null || value.isEmpty) {
+                //     return 'Please select any job location';
+                //   }
+                // },
+                controller: educationController,
+                enabled: true,
+                onTap: (() {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogList(
+                          tile: null,
+                          dialogTitle: "Level Of Education",
+                          onSelected: (AutoCompleteModel model) => {
+                            educationController.text = model.label,
+                            selectedEducation = model,
+                            Navigator.pop(context)
+                          },
+                          itemsData: levelOfEducationList,
+                        );
+                      });
+                }),
+                decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    // Icons.workspace_premium
+                    label: Text("Level Of Education"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: "Select level of education",
+                    prefixIcon: Icon(Icons.school_outlined)),
+              ),
               const SizedBox(height: 10),
-              CustomControls.AutoCompleteCustom(
-                  context,
-                  "University / Institute",
-                  "Enter college name",
-                  ((AutoCompleteModel item) => {
-                        setState(() {
-                          selectedUniversity = item;
-                        }),
-                        // print(selectedEducation.label),
-                      }),
-                  selectedUniversity,
-                  universityInstitueList,
-                  Icons.school_sharp),
+              // CustomControls.AutoCompleteCustom(
+              //     context,
+              //     "University / Institute",
+              //     "Enter college name",
+              //     ((AutoCompleteModel item) => {
+              //           setState(() {
+              //             selectedUniversity = item;
+              //           }),
+              //           // print(selectedEducation.label),
+              //         }),
+              //     selectedUniversity,
+              //     universityInstitueList,
+              //     Icons.school_sharp),
+              TextFormField(
+                // validator: (value) {
+                //   if (value == null || value.isEmpty) {
+                //     return 'Please select any job location';
+                //   }
+                // },
+                controller: universityController,
+                enabled: true,
+                onTap: (() {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogList(
+                          tile: null,
+                          dialogTitle: "University / Institute",
+                          onSelected: (AutoCompleteModel model) => {
+                            universityController.text = model.label,
+                            selectedUniversity = model,
+                            Navigator.pop(context)
+                          },
+                          itemsData: universityInstitueList,
+                        );
+                      });
+                }),
+                decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    // Icons.workspace_premium
+                    label: Text("University / Institute"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: "Select university / institute",
+                    prefixIcon: Icon(Icons.school_sharp)),
+              ),
               const SizedBox(height: 10),
-              CustomControls.AutoCompleteCustom(
-                  context,
-                  "Degree / Specialization",
-                  "Enter degree",
-                  ((AutoCompleteModel item) => {
-                        setState(() {
-                          selectedDegree = item;
-                        }),
-                        // print(selectedEducation.label),
-                      }),
-                  selectedDegree,
-                  degreeList,
-                  Icons.cast_for_education),
+              // CustomControls.AutoCompleteCustom(
+              //     context,
+              //     "Degree / Specialization",
+              //     "Enter degree",
+              //     ((AutoCompleteModel item) => {
+              //           setState(() {
+              //             selectedDegree = item;
+              //           }),
+              //           // print(selectedEducation.label),
+              //         }),
+              //     selectedDegree,
+              //     degreeList,
+              //     Icons.cast_for_education),
+              TextFormField(
+                controller: degreeController,
+                enabled: true,
+                onTap: (() {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogList(
+                          tile: null,
+                          dialogTitle: "Degree / Specialization",
+                          onSelected: (AutoCompleteModel model) => {
+                            degreeController.text = model.label,
+                            selectedDegree = model,
+                            Navigator.pop(context)
+                          },
+                          itemsData: degreeList,
+                        );
+                      });
+                }),
+                decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    // Icons.workspace_premium
+                    label: Text("Degree / Specialization"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: "Select degree / specialization",
+                    prefixIcon: Icon(Icons.cast_for_education)),
+              ),
               const SizedBox(height: 10),
               TextFormField(
                 // inputFormatters: [
@@ -308,8 +409,26 @@ class _Screen2State extends State<Screen2> {
       if (widget.prevPageModel == null) {
         Navigator.pushNamed(context, ERoute.screen3.name);
       } else {
-        widget.prevPageModel.education = selectedEducation.label;
-        widget.prevPageModel.education_id = int.parse(selectedEducation.value);
+        if (selectedEducation.label.isNotEmpty) {
+          widget.prevPageModel.education = selectedEducation.label;
+          widget.prevPageModel.education_id =
+              int.parse(selectedEducation.value);
+        }
+
+        if (selectedUniversity.label.isNotEmpty) {
+          widget.prevPageModel.univercity = selectedUniversity.label;
+          widget.prevPageModel.univercity_id =
+              int.parse(selectedUniversity.value);
+        }
+
+        if (selectedDegree.label.isNotEmpty) {
+          widget.prevPageModel.degree_spc = selectedDegree.label;
+          widget.prevPageModel.degree_spc_id = int.parse(selectedDegree.value);
+        }
+        if (passingYearController.text != "") {
+          widget.prevPageModel.passing_year = int.parse(passingYearController.text);
+        }
+
         Navigator.pop(context, widget.prevPageModel);
       }
     }

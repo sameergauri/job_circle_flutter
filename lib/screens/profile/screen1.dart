@@ -16,6 +16,8 @@ import 'package:responsive_grid/responsive_grid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
+import '../../components/autolistviewmodal.dart';
+
 class Screen1 extends StatefulWidget {
   const Screen1({Key? key, this.prevPageModel}) : super(key: key);
   final dynamic prevPageModel;
@@ -35,6 +37,7 @@ class _Screen1State extends State<Screen1> {
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
+  TextEditingController jobLocationController = TextEditingController();
   var dt;
 
   int locationid = 0;
@@ -64,6 +67,7 @@ class _Screen1State extends State<Screen1> {
           ? AutoCompleteModel("", "", {})
           : AutoCompleteModel(widget.prevPageModel.job_location_id.toString(),
               widget.prevPageModel.job_location_city, {});
+      jobLocationController.text= widget.prevPageModel.job_location_city == null ? '' : widget.prevPageModel.job_location_city.toString();          
       emailadr.text = widget.prevPageModel.email.toString();
       gender = widget.prevPageModel.gender.toString();
     }
@@ -312,26 +316,59 @@ class _Screen1State extends State<Screen1> {
                 //   ),
                 // ),
                 const SizedBox(height: 10),
-                CustomControls.AutoCompleteCustom(
-                  context,
-                  "Job Location",
-                  "Enter Job Location",
-                  ((AutoCompleteModel item) => {
-                        setState(() {
-                          selectedLocation = item;
-                        }),
-                        print(selectedLocation.label),
-                      }),
-                  selectedLocation,
-                  jobLocationList,
-                  Icons.location_city,
+                // CustomControls.AutoCompleteCustom(
+                //   context,
+                //   "Job Location",
+                //   "Enter Job Location",
+                //   ((AutoCompleteModel item) => {
+                //         setState(() {
+                //           selectedLocation = item;
+                //         }),
+                //         print(selectedLocation.label),
+                //       }),
+                //   selectedLocation,
+                //   jobLocationList,
+                //   Icons.location_city,
+                //   validator: (value) {
+                //     if (value == null ||
+                //         value.isEmpty && !value.contains(' ')) {
+                //       return 'Please enter valid job location';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                TextFormField(
                   validator: (value) {
-                    if (value == null ||
-                        value.isEmpty && !value.contains(' ')) {
-                      return 'Please enter valid job location';
+                    if (value == null || value.isEmpty) {
+                      return 'Please select any job location';
                     }
-                    return null;
                   },
+                  controller: jobLocationController,
+                  enabled: true,
+                  onTap: (() {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            tile: null,
+                            dialogTitle: "Job Location",
+                            onSelected: (AutoCompleteModel model) => {
+                              jobLocationController.text = model.label,
+                              selectedLocation = model,
+                              Navigator.pop(context)
+                            },
+                            itemsData: jobLocationList,
+                          );
+                        });
+                  }),
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      // Icons.workspace_premium
+                      label: Text("Job Location *"),
+                      //border: OutlineInputBorder(),
+                      border: InputBorder.none,
+                      hintText: "Select job location",
+                      prefixIcon: Icon(Icons.location_city)),
                 ),
                 const SizedBox(height: 10),
                 TextFormField(

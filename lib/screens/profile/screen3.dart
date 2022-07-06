@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
 import '../../components/autocompletecustom.dart';
+import '../../components/autolistviewmodal.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/card_model.dart';
 import '../../service/UserDataService.dart';
@@ -28,6 +29,9 @@ class _Screen3State extends State<Screen3> {
 
   var ddlValues;
   late TextEditingController companyController = TextEditingController();
+  late TextEditingController jobTitleController = TextEditingController();
+  late TextEditingController totalOfExpController = TextEditingController();
+  late TextEditingController currentSalaryController = TextEditingController();
   late List<AutoCompleteModel> jobTitleList = [];
   late List<AutoCompleteModel> totalExperienceList = [];
   late List<AutoCompleteModel> currentSalaryList = [];
@@ -45,12 +49,15 @@ class _Screen3State extends State<Screen3> {
       selectedJobTitle = AutoCompleteModel(
           widget.prevPageModel.job_title_id.toString(),
           widget.prevPageModel.job_title ?? '', {});
+      jobTitleController.text = widget.prevPageModel.job_title ?? '';
       selectedtotalExperience = AutoCompleteModel(
           widget.prevPageModel.work_experience_id.toString(),
           widget.prevPageModel.work_experience ?? '', {});
+      totalOfExpController.text = widget.prevPageModel.work_experience ?? '';
       selectedcurrentSalary = AutoCompleteModel(
           widget.prevPageModel.degree_spc_id.toString(),
           widget.prevPageModel.degree_spc ?? '', {});
+      currentSalaryController.text = widget.prevPageModel.work_experience ?? '';
       expirieanceFlag = widget.prevPageModel.has_experience == 1 ? true : false;
     }
     super.initState();
@@ -292,47 +299,146 @@ class _Screen3State extends State<Screen3> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  CustomControls.AutoCompleteCustom(
-                      context,
-                      "Job title",
-                      "Enter Job title",
-                      ((AutoCompleteModel item) => {
-                            setState(() {
-                              selectedJobTitle = item;
-                            }),
-                            // print(selectedEducation.label),
-                          }),
-                      selectedJobTitle,
-                      jobTitleList,
-                      Icons.admin_panel_settings_outlined),
+                  // CustomControls.AutoCompleteCustom(
+                  //     context,
+                  //     "Job title",
+                  //     "Enter Job title",
+                  //     ((AutoCompleteModel item) => {
+                  //           setState(() {
+                  //             selectedJobTitle = item;
+                  //           }),
+                  //           // print(selectedEducation.label),
+                  //         }),
+                  //     selectedJobTitle,
+                  //     jobTitleList,
+                  //     Icons.admin_panel_settings_outlined),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select any job title';
+                      }
+                    },
+                    controller: jobTitleController,
+                    enabled: true,
+                    onTap: (() {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogList(
+                              tile: null,
+                              dialogTitle: "Job title",
+                              onSelected: (AutoCompleteModel model) => {
+                                jobTitleController.text = model.label,
+                                selectedJobTitle = model,
+                                Navigator.pop(context)
+                              },
+                              itemsData: jobTitleList,
+                            );
+                          });
+                    }),
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down),
+                        // Icons.workspace_premium
+                        label: Text("Job title"),
+                        //border: OutlineInputBorder(),
+                        border: InputBorder.none,
+                        hintText: "Select job title",
+                        prefixIcon: Icon(Icons.admin_panel_settings_outlined)),
+                  ),
                   const SizedBox(height: 10),
-                  CustomControls.AutoCompleteCustom(
-                      context,
-                      "Total Years Of Experience",
-                      "Enter total experience",
-                      ((AutoCompleteModel item) => {
-                            setState(() {
-                              selectedtotalExperience = item;
-                            }),
-                            // print(selectedEducation.label),
-                          }),
-                      selectedtotalExperience,
-                      totalExperienceList,
-                      Icons.event_repeat_outlined),
+                  // CustomControls.AutoCompleteCustom(
+                  //     context,
+                  //     "Total Years Of Experience",
+                  //     "Enter total experience",
+                  //     ((AutoCompleteModel item) => {
+                  //           setState(() {
+                  //             selectedtotalExperience = item;
+                  //           }),
+                  //           // print(selectedEducation.label),
+                  //         }),
+                  //     selectedtotalExperience,
+                  //     totalExperienceList,
+                  //     Icons.event_repeat_outlined),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select any job experience';
+                      }
+                    },
+                    controller: totalOfExpController,
+                    enabled: true,
+                    onTap: (() {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogList(
+                              tile: null,
+                              dialogTitle: "Total Years Of Experience",
+                              onSelected: (AutoCompleteModel model) => {
+                                totalOfExpController.text = model.label,
+                                selectedtotalExperience = model,
+                                Navigator.pop(context)
+                              },
+                              itemsData: totalExperienceList,
+                            );
+                          });
+                    }),
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down),
+                        // Icons.workspace_premium
+                        label: Text("Total Years Of Experience"),
+                        //border: OutlineInputBorder(),
+                        border: InputBorder.none,
+                        hintText: "Select job experience",
+                        prefixIcon: Icon(Icons.event_repeat_outlined)),
+                  ),
                   const SizedBox(height: 20),
-                  CustomControls.AutoCompleteCustom(
-                      context,
-                      "Current Salary",
-                      "Enter current salary",
-                      ((AutoCompleteModel item) => {
-                            setState(() {
-                              selectedcurrentSalary = item;
-                            }),
-                            // print(selectedEducation.label),
-                          }),
-                      selectedcurrentSalary,
-                      currentSalaryList,
-                      Icons.money),
+                  // CustomControls.AutoCompleteCustom(
+                  //     context,
+                  //     "Current Salary",
+                  //     "Enter current salary",
+                  //     ((AutoCompleteModel item) => {
+                  //           setState(() {
+                  //             selectedcurrentSalary = item;
+                  //           }),
+                  //           // print(selectedEducation.label),
+                  //         }),
+                  //     selectedcurrentSalary,
+                  //     currentSalaryList,
+                  //     Icons.money),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select any salary';
+                      }
+                    },
+                    controller: currentSalaryController,
+                    enabled: true,
+                    onTap: (() {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogList(
+                              tile: null,
+                              dialogTitle: "Current Salary",
+                              onSelected: (AutoCompleteModel model) => {
+                                currentSalaryController.text = model.label,
+                                selectedcurrentSalary = model,
+                                Navigator.pop(context)
+                              },
+                              itemsData: currentSalaryList,
+                            );
+                          });
+                    }),
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down),
+                        // Icons.workspace_premium
+                        label: Text("Current Salary"),
+                        //border: OutlineInputBorder(),
+                        border: InputBorder.none,
+                        hintText: "Select job salary",
+                        prefixIcon: Icon(Icons.money)),
+                  ),
                   const SizedBox(height: 200),
                 ],
               ),
