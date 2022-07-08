@@ -307,6 +307,8 @@ class _OTPScreenState extends State<OTPScreen> {
         CardModel model = CardModel();
         model.mobile = mobileno;
         model.cardName = (data['firstName'] + " " + data['lastName']);
+        model.firstName = data['firstName'];
+        model.lastName = data['lastName'];
         model.email = data['email'];
         await Utils.setPreference(pres, ESharedPreferences.user_data.name,
             jsonEncode(model.toJson()));

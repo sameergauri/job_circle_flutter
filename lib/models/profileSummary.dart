@@ -70,7 +70,7 @@ class ProfileSummaryModel {
     List languages = [];
     DateTime cv_updated_date = new DateTime.now();
     String FormatedDate = "";
-    if (map['languages'] != null) {
+    if (map['languages'] != null && map['languages'] != 'null') {
       languages = jsonDecode(map['languages']);
     }
 

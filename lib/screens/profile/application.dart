@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
@@ -46,6 +47,7 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   TextEditingController contactno = TextEditingController();
   TextEditingController applicationname = TextEditingController();
+  TextEditingController lastname = TextEditingController();
   TextEditingController shorListController = TextEditingController();
   TextEditingController levelController = TextEditingController();
   TextEditingController statusController = TextEditingController();
@@ -137,8 +139,9 @@ class ApplicationFormState extends State<ApplicationForm> {
       localStoregData = jsonDecode(userinfo);
       if (userType == EUserType.jobSeeker.value) {
         contactno.text = localStoregData["mobile"];
-        applicationname.text =
-            localStoregData["cardName"].toString().toTitleCase();
+        applicationname.text = localStoregData["firstName"].toString();
+        lastname.text = localStoregData["lastName"].toString();
+        // applicationname.text = localStoregData["cardName"].toString().toTitleCase();
       }
       setState(() {});
     });
@@ -152,7 +155,7 @@ class ApplicationFormState extends State<ApplicationForm> {
     if (widget.isnew != true) {
       // bindUserDetails();
     }
-    bindUserDetails();
+
     bindStatusList();
     bindInterViewList();
     //Navigator.pop(context);
@@ -179,9 +182,8 @@ class ApplicationFormState extends State<ApplicationForm> {
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromMap(dataResult);
-      applicationname.text = profilemodel.first_name.toString().toTitleCase() +
-          " " +
-          profilemodel.last_name.toString().toTitleCase();
+      applicationname.text = profilemodel.first_name.toString().toTitleCase();
+      lastname.text = profilemodel.last_name.toString().toTitleCase();
       contactno.text = profilemodel.mobile.toString();
 
       if (profilemodel.has_experience == 1) {
@@ -343,17 +345,33 @@ class ApplicationFormState extends State<ApplicationForm> {
                 TextFormField(
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter application name';
+                      return 'Please enter first name';
                     }
                   },
                   enabled: enableApplicantName,
                   controller: applicationname,
                   decoration: const InputDecoration(
                     // icon: Icon(Icons.person),
-                    label: Text("Application Name *"),
+                    label: Text("First Name"),
                     //border: OutlineInputBorder(),
                     border: InputBorder.none,
-                    hintText: 'Enter appilcation name',
+                    hintText: 'Enter first name',
+                  ),
+                ),
+                TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter last name';
+                    }
+                  },
+                  enabled: enableApplicantName,
+                  controller: lastname,
+                  decoration: const InputDecoration(
+                    // icon: Icon(Icons.person),
+                    label: Text("Last Name"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Enter last name',
                   ),
                 ),
                 TextFormField(
@@ -361,8 +379,13 @@ class ApplicationFormState extends State<ApplicationForm> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter contact no';
+                    } else if (value.length < 10) {
+                      return 'Please enter valid contact no';
                     }
                   },
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   maxLength: 10,
                   enabled: enableContactNo,
                   controller: contactno,
@@ -447,10 +470,13 @@ class ApplicationFormState extends State<ApplicationForm> {
                     children: const [
                       Text(
                         'Qualification is required',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: Colors.redAccent, fontSize: 12),
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 const Padding(
                   padding: EdgeInsets.only(top: 8.0),
@@ -524,9 +550,13 @@ class ApplicationFormState extends State<ApplicationForm> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: const [
                       Text('Work Experience is required',
-                          style: TextStyle(color: Colors.red)),
+                          style:
+                              TextStyle(color: Colors.redAccent, fontSize: 12)),
                     ],
                   ),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 TextFormField(
                   controller: shorListController,
@@ -656,166 +686,169 @@ class ApplicationFormState extends State<ApplicationForm> {
                 // const SizedBox(
                 //   height: 30,
                 // ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // TextFormField(
+                //   controller: statusController,
+                //   enabled: true,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please select any status';
+                //     }
+                //   },
+                //   onTap: (() {
+                //     showDialog(
+                //         context: context,
+                //         builder: (BuildContext context) {
+                //           return DialogList(
+                //               dialogTitle: "Status",
+                //               onSelected: (AutoCompleteModel model) => {
+                //                     statusController.text = model.label,
+                //                     selectedStatus = model,
+                //                     Navigator.pop(context)
+                //                   },
+                //               itemsData: statusList);
+                //         });
+                //     setState(() {
+                //       statusController.text = selectedStatus.label;
+                //     });
+                //   }),
+                //   decoration: const InputDecoration(
+                //       suffixIcon: Icon(Icons.arrow_drop_down),
+                //       label: Text("Status *"),
+                //       border: InputBorder.none,
+                //       hintText: "Select status",
+                //       prefixIcon: Icon(Icons.person)),
+                // ),
+                // TextFormField(
+                //   controller: interviewController,
+                //   enabled: true,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please select any interview by';
+                //     }
+                //   },
+                //   onTap: (() {
+                //     showDialog(
+                //         context: context,
+                //         builder: (BuildContext context) {
+                //           return DialogList(
+                //               dialogTitle: "Interview",
+                //               onSelected: (AutoCompleteModel model) => {
+                //                     interviewController.text = model.label,
+                //                     selectedInterview = model,
+                //                     Navigator.pop(context)
+                //                   },
+                //               itemsData: interviewList);
+                //         });
+                //   }),
+                //   decoration: const InputDecoration(
+                //       suffixIcon: Icon(Icons.arrow_drop_down),
+                //       // Icons.workspace_premium
+                //       label: Text("Interview bay *"),
+                //       //border: OutlineInputBorder(),
+                //       border: InputBorder.none,
+                //       hintText: "Select interview",
+                //       prefixIcon: Icon(Icons.person)),
+                // ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: TextFormField(
+                //         controller: dateOfSelection,
+                //         decoration: const InputDecoration(
+                //           icon: Icon(Icons.calendar_month),
+                //           label: Text("Date Of Selection"),
+                //           //border: OutlineInputBorder(),
+                //           border: InputBorder.none,
+                //           hintText: 'Select Dos.',
+                //         ),
+                //         readOnly: true,
+                //         onTap: () async {
+                //           DateTime? pickedDate = await showDatePicker(
+                //             context: context,
+                //             initialDate: DateTime.now(),
+                //             firstDate:
+                //                 // DateTime.now().add(const Duration(days: -(365 * 50))),
+                //                 DateTime.now(),
+                //             lastDate:
+                //                 DateTime.now().add(const Duration(days: 120)),
+                //           );
+
+                //           if (pickedDate != null) {
+                //             String formattedDate =
+                //                 DateFormat('yyyy-MM-dd').format(pickedDate);
+                //             setState(() {
+                //               dateOfSelection.text = formattedDate;
+                //               dtSelection = DateFormat('yyyy-MM-dd HH:mm:ss')
+                //                   .format(pickedDate);
+                //               //set output date to TextField value.
+                //             });
+                //           }
+                //         },
+                //       ),
+                //     ),
+                //     Expanded(
+                //       child: TextFormField(
+                //         controller: dateOfJoin,
+                //         decoration: const InputDecoration(
+                //           icon: Icon(Icons.calendar_month),
+                //           label: Text("Date Of Joining"),
+                //           //border: OutlineInputBorder(),
+                //           border: InputBorder.none,
+                //           hintText: 'Select Doj.',
+                //         ),
+                //         readOnly: true,
+                //         onTap: () async {
+                //           DateTime? pickedDate = await showDatePicker(
+                //             context: context,
+                //             initialDate: DateTime.now(),
+                //             firstDate:
+                //                 // DateTime.now().add(const Duration(days: -(365 * 50))),
+                //                 DateTime.now(),
+                //             lastDate:
+                //                 DateTime.now().add(const Duration(days: 120)),
+                //           );
+
+                //           if (pickedDate != null) {
+                //             String formattedDate =
+                //                 DateFormat('yyyy-MM-dd').format(pickedDate);
+                //             setState(() {
+                //               dateOfJoin.text = formattedDate;
+                //               dtDOJ = DateFormat('yyyy-MM-dd HH:mm:ss')
+                //                   .format(pickedDate);
+                //               //set output date to TextField value.
+                //             });
+                //           }
+                //         },
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // Visibility(
+                //   visible: statusController.text == 'Join' ? true : false,
+                //   child: TextFormField(
+                //     validator: (val) {
+                //       if (val == null && statusController.text != 'Join') {
+                //         return 'Remark is required';
+                //       }
+                //     },
+                //     decoration: const InputDecoration(
+                //       icon: Icon(Icons.person),
+                //       label: Text("Remark *"),
+                //       //border: OutlineInputBorder(),
+                //       border: InputBorder.none,
+                //       hintText: 'Please enter reson for not joining',
+                //     ),
+                //     controller: remarkController,
+                //   ),
+                // ),
                 const SizedBox(
-                  height: 15,
-                ),
-                TextFormField(
-                  controller: statusController,
-                  enabled: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select any status';
-                    }
-                  },
-                  onTap: (() {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return DialogList(
-                              dialogTitle: "Status",
-                              onSelected: (AutoCompleteModel model) => {
-                                    statusController.text = model.label,
-                                    selectedStatus = model,
-                                    Navigator.pop(context)
-                                  },
-                              itemsData: statusList);
-                        });
-                    setState(() {
-                      statusController.text = selectedStatus.label;
-                    });
-                  }),
-                  decoration: const InputDecoration(
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      label: Text("Status *"),
-                      border: InputBorder.none,
-                      hintText: "Select status",
-                      prefixIcon: Icon(Icons.person)),
-                ),
-                TextFormField(
-                  controller: interviewController,
-                  enabled: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select any interview by';
-                    }
-                  },
-                  onTap: (() {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return DialogList(
-                              dialogTitle: "Interview",
-                              onSelected: (AutoCompleteModel model) => {
-                                    interviewController.text = model.label,
-                                    selectedInterview = model,
-                                    Navigator.pop(context)
-                                  },
-                              itemsData: interviewList);
-                        });
-                  }),
-                  decoration: const InputDecoration(
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      // Icons.workspace_premium
-                      label: Text("Interview bay *"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: "Select interview",
-                      prefixIcon: Icon(Icons.person)),
+                  height: 30,
                 ),
                 Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: dateOfSelection,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_month),
-                          label: Text("Date Of Selection"),
-                          //border: OutlineInputBorder(),
-                          border: InputBorder.none,
-                          hintText: 'Select Dos.',
-                        ),
-                        readOnly: true,
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate:
-                                // DateTime.now().add(const Duration(days: -(365 * 50))),
-                                DateTime.now(),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 120)),
-                          );
-
-                          if (pickedDate != null) {
-                            String formattedDate =
-                                DateFormat('yyyy-MM-dd').format(pickedDate);
-                            setState(() {
-                              dateOfSelection.text = formattedDate;
-                              dtSelection = DateFormat('yyyy-MM-dd HH:mm:ss')
-                                  .format(pickedDate);
-                              //set output date to TextField value.
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                        controller: dateOfJoin,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_month),
-                          label: Text("Date Of Joining"),
-                          //border: OutlineInputBorder(),
-                          border: InputBorder.none,
-                          hintText: 'Select Doj.',
-                        ),
-                        readOnly: true,
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate:
-                                // DateTime.now().add(const Duration(days: -(365 * 50))),
-                                DateTime.now(),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 120)),
-                          );
-
-                          if (pickedDate != null) {
-                            String formattedDate =
-                                DateFormat('yyyy-MM-dd').format(pickedDate);
-                            setState(() {
-                              dateOfJoin.text = formattedDate;
-                              dtDOJ = DateFormat('yyyy-MM-dd HH:mm:ss')
-                                  .format(pickedDate);
-                              //set output date to TextField value.
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                Visibility(
-                  visible: statusController.text == 'Join' ? true : false,
-                  child: TextFormField(
-                    validator: (val) {
-                      if (val == null && statusController.text != 'Join') {
-                        return 'Remark is required';
-                      }
-                    },
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.person),
-                      label: Text("Remark *"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: 'Please enter reson for not joining',
-                    ),
-                    controller: remarkController,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CVWidget(
                         profileCv: profileCv,
@@ -844,7 +877,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                   themeButtonSize: ThemeButtonSize.small,
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 60,
                 ),
               ],
             ),
@@ -893,6 +926,7 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   save() async {
     bool validate = _formKey.currentState!.validate();
+
     if (graduateActive == 0 && underGradActive == 0) {
       setState(() {
         isGraduatValidate = true;
@@ -903,6 +937,36 @@ class ApplicationFormState extends State<ApplicationForm> {
         isExpValidate = true;
       });
     }
+    if (!validate) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please fill all the details"),
+        backgroundColor: Color.fromARGB(255, 153, 10, 0),
+      ));
+      return;
+    }
+    if (selectedLevel.value == "") {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please select level details"),
+        backgroundColor: Color.fromARGB(255, 153, 10, 0),
+      ));
+      return;
+    }
+    if (selectedProcess.value == "") {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please select process details"),
+        backgroundColor: Color.fromARGB(255, 153, 10, 0),
+      ));
+      return;
+    }
+
+    if (profileCv.cv_link == null || profileCv.cv_link == "") {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please upload Resume first"),
+        backgroundColor: Color.fromARGB(255, 153, 10, 0),
+      ));
+      return;
+    }
+
     if (_formKey.currentState!.validate() &&
         !isGraduatValidate &&
         !isExpValidate) {
@@ -911,22 +975,23 @@ class ApplicationFormState extends State<ApplicationForm> {
       var userId = await Utils.getPreferencesValue(
           prefs, ESharedPreferences.user_id.name);
       var param = {
-        "applicantName": applicationname.text.trim(),
-        "companyName": selectedshort.label,
-        "contactNo": int.parse(contactno.text.trim()),
+        "applicant_name": applicationname.text.trim(),
+        "last_name": lastname.text.trim(),
+        "company_name": selectedshort.label,
+        "contact_no": int.parse(contactno.text.trim()),
         "id": leadID,
         "jobid": jobId,
         "level": selectedLevel.value,
-        "levelId": 0,
+        "level_id": 0,
         "doj": dtDOJ,
         "dos": dtSelection,
         "process": selectedProcess.value,
-        "processId": 0,
+        "process_id": 0,
         "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
-        "isExperienced": exprinceActive,
+        "is_experienced": exprinceActive,
         "resume": profileCv.cv_link ?? "",
-        "shortListFor": int.parse(selectedshort.value),
-        "sourceId": (userType == EUserType.businessPartner.value ||
+        "short_list_for": int.parse(selectedshort.value),
+        "source_id": (userType == EUserType.businessPartner.value ||
                 userType == EUserType.employee.value
             ? userId
             : 0),
@@ -936,12 +1001,13 @@ class ApplicationFormState extends State<ApplicationForm> {
         "sp_payout": "",
         "sp_payment_status": "",
         "exp_min": 0,
-        "completeStatus": 0,
-        "interview": selectedInterview.value,
-        "status": selectedStatus.value,
+        "complete_status": 0,
+        "interview": "",
+        "status": 1,
         "remark": remarkController.text,
-        "paymentClause": paymentClause,
+        "payment_clause": paymentClause,
         "spoc": spoc,
+        "payout": 0,
         "uid": (userType == EUserType.businessPartner.value ||
                 userType == EUserType.employee.value
             ? userId

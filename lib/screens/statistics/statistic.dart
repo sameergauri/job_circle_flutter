@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:job_circle/service/LeadService.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 class Statestics extends StatefulWidget {
@@ -15,6 +18,24 @@ class Statestics extends StatefulWidget {
 class _StatesticsState extends State<Statestics> {
   dynamic leadCounts = [];
   var userId = 0;
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // if failed,use refreshFailed()
+    await Future.delayed(const Duration(milliseconds: 1000));
+    getCountData();
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await Future.delayed(const Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    // items.add((items.length + 1).toString());
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
+  }
 
   @override
   void initState() {
@@ -69,47 +90,83 @@ class _StatesticsState extends State<Statestics> {
           // ),
           ),
       body: SafeArea(
-          child: SingleChildScrollView(
-        child: RefreshIndicator(
-          onRefresh: () {
-            return Future.delayed(const Duration(seconds: 1), () {
-              // showing snackbar
-              getCountData();
-            });
-          },
+          child: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: false,
+        header: const WaterDropHeader(),
+        // footer: CustomFooter(
+        //   builder:
+        //       (BuildContext context, LoadStatus? mode) {
+        //     Widget body;
+        //     if (mode == LoadStatus.idle) {
+        //       body = Text("pull up load");
+        //     } else if (mode == LoadStatus.loading) {
+        //       body = CupertinoActivityIndicator();
+        //     } else if (mode == LoadStatus.failed) {
+        //       body = Text("Load Failed!Click retry!");
+        //     } else if (mode == LoadStatus.canLoading) {
+        //       body = Text("release to load more");
+        //     } else {
+        //       body = Text("No more Data");
+        //     }
+        //     return Container(
+        //       height: 55.0,
+        //       child: Center(child: body),
+        //     );
+        //   },
+        // ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: SingleChildScrollView(
           child: ResponsiveGridRow(children: [
             for (var s in leadCounts)
-              ResponsiveGridCol(
-                xs: 6,
-                md: 3,
-                child: SizedBox(
-                  height: 100,
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "${s['title']}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w200,
+              if (s['count'] > 0)
+                ResponsiveGridCol(
+                  xs: 12,
+                  md: 12,
+                  child: SizedBox(
+                    height: 70,
+                    child: Card(
+                      child: GestureDetector(
+                        onTap: (() {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WebviewData(
+                                        url: "https://www.youtube.com/",
+                                        // GlobalConstants.WEB_Host +
+                                        //     "/mobile/leadlist?sourceid=${userId.toString()}&status=${s['code']}",
+                                        title: "${s['title']}",
+                                      )));
+                        }),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "${s['title']}",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Text(
+                                "${s['count']}",
+                                style: const TextStyle(
+                                    fontSize: 25, fontWeight: FontWeight.w700),
+                              ),
+                              const Icon(Icons.arrow_right)
+                            ],
                           ),
-                          Text(
-                            "${s['count']}",
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.w700),
-                          ),
-                        ],
+                        ),
                       ),
+                      color: HexColor("${s['color']}"),
                     ),
-                    color: HexColor("${s['color']}"),
                   ),
                 ),
-              ),
           ]),
         ),
       )),
@@ -128,6 +185,7 @@ class _StatesticsState extends State<Statestics> {
         leadCounts = d.resultData;
       });
     }
+    _refreshController.refreshCompleted();
     // for (var element in d.resultData) {
     //   print(element['title']);
     // }

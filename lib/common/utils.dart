@@ -147,20 +147,24 @@ class Utils {
         //   // Navigator.pushReplacementNamed(context, nextRoute.value);
         // });
       } else if (usertype.toString() ==
-          EUserType.businessPartner.value.toString()) {
+              EUserType.businessPartner.value.toString() ||
+          usertype.toString() == EUserType.employee.value.toString()) {
         //Future.delayed(const Duration(seconds: 1), () {
         Navigator.pushNamedAndRemoveUntil(
             context, ERoute.partnerHome.name, (Route<dynamic> route) => false);
         // Navigator.pushReplacementNamed(
         //     context, ERoute.businesspartner_confirmation.name);
         // });
-      } else if (usertype.toString() == EUserType.employee.value.toString()) {
-        Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pushNamedAndRemoveUntil(
-              context, ERoute.jobs.name, (Route<dynamic> route) => false);
-          //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
-        });
-      } else {
+      }
+      //  else if (usertype.toString() == EUserType.employee.value.toString()) {
+      //   Future.delayed(const Duration(seconds: 1), () {
+      //     Navigator.pushNamedAndRemoveUntil(
+      //         context, ERoute.jobs.name, (Route<dynamic> route) => false);
+      //     //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
+      //   });
+      // }
+
+      else {
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pushNamedAndRemoveUntil(
               context, ERoute.logintype.name, (Route<dynamic> route) => false);

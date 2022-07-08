@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
@@ -5,6 +6,7 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../service/masterService.dart';
 
@@ -33,11 +35,31 @@ class _JobsState extends State<Jobs> {
   var _isFirstLoadRunning = false;
   var _isLoadMoreRunning = false;
   final _pageSize = 10;
+  var localtion = "";
+  var licationid = 0;
+
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // if failed,use refreshFailed()
+    await Future.delayed(Duration(milliseconds: 1000));
+    bindItems();
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    // items.add((items.length + 1).toString());
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
+  }
 
   @override
   void initState() {
     super.initState();
-
     bindItems();
     _controllerListView = ScrollController()..addListener(_loadMore);
     bindLocation();
@@ -52,7 +74,6 @@ class _JobsState extends State<Jobs> {
   @override
   Widget build(BuildContext context) {
     //var _selectedIndex = 1;
-    const localtion = "Mumbai";
 
     return Scaffold(
         // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -184,17 +205,34 @@ class _JobsState extends State<Jobs> {
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: (() {
-                          showSearch(
-                              context: context,
-                              delegate: LocationSearch(locations: locations));
-                        }),
-                        child: const Text(
-                          "Searching jobs in $localtion",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                          onTap: (() {
+                            showSearch(
+                                context: context,
+                                delegate: LocationSearch(locations: locations));
+                          }),
+                          child: Text.rich(
+                            TextSpan(
+                              text: 'Searching jobs in ',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 18),
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: localtion,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    )),
+                                // can add more TextSpans here...
+                              ],
+                            ),
+                          )
+
+                          // const Text(
+                          //   "Searching jobs in $localtion",
+                          //   style: TextStyle(color: Colors.white, fontSize: 18),
+                          //   overflow: TextOverflow.ellipsis,
+                          // ),
+                          ),
                     ),
                   ]),
                 ),
@@ -361,86 +399,115 @@ class _JobsState extends State<Jobs> {
                           ),
                           Expanded(
                             flex: 1,
-                            child: SingleChildScrollView(
-                              controller: _controllerListView,
-                              child: Column(
-                                children: [
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            color: Color.fromARGB(
-                                                255, 192, 192, 192),
-                                            blurRadius: 2.0,
-                                            spreadRadius: 1),
-                                      ],
-                                      color: Constants.bgPanelColor,
-                                      image: const DecorationImage(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(
-                                              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzhsRgBZ1tPJFXJI47f3YvYnbouanQ9YvxCA&usqp=CAU")),
-
-                                      //  color: Color(0xfff0f1fe),
-                                      borderRadius: BorderRadius.circular(8),
+                            child: SmartRefresher(
+                              enablePullDown: true,
+                              enablePullUp: false,
+                              header: const WaterDropHeader(),
+                              // footer: CustomFooter(
+                              //   builder:
+                              //       (BuildContext context, LoadStatus? mode) {
+                              //     Widget body;
+                              //     if (mode == LoadStatus.idle) {
+                              //       body = Text("pull up load");
+                              //     } else if (mode == LoadStatus.loading) {
+                              //       body = CupertinoActivityIndicator();
+                              //     } else if (mode == LoadStatus.failed) {
+                              //       body = Text("Load Failed!Click retry!");
+                              //     } else if (mode == LoadStatus.canLoading) {
+                              //       body = Text("release to load more");
+                              //     } else {
+                              //       body = Text("No more Data");
+                              //     }
+                              //     return Container(
+                              //       height: 55.0,
+                              //       child: Center(child: body),
+                              //     );
+                              //   },
+                              // ),
+                              controller: _refreshController,
+                              onRefresh: _onRefresh,
+                              onLoading: _onLoading,
+                              child: SingleChildScrollView(
+                                controller: _controllerListView,
+                                child: Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: 10,
                                     ),
-                                    height: 80,
-                                    margin: const EdgeInsets.only(
-                                        left: 20.0, right: 20.0),
-                                    width: double.infinity,
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (BuildContext, index) {
-                                      return GestureDetector(
-                                          onTap: () {
-                                            Navigator.pushNamed(
-                                              context,
-                                              ERoute.jobsdetail.name,
-                                              arguments: {
-                                                'id': jobItems[index]['id']
-                                              },
-                                            );
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              color: Color.fromARGB(
+                                                  255, 192, 192, 192),
+                                              blurRadius: 2.0,
+                                              spreadRadius: 1),
+                                        ],
+                                        color: Constants.bgPanelColor,
+                                        image: const DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(
+                                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzhsRgBZ1tPJFXJI47f3YvYnbouanQ9YvxCA&usqp=CAU")),
 
-                                            //   Navigator.push(
-                                            //       context,
-                                            //       MaterialPageRoute(
-                                            //           builder: (context) =>
-                                            //               JobDetails(
-                                            //                 id: jobItems[index]
-                                            //                     ['id'],
-                                            //               )));
-                                          },
-                                          child: Column(
-                                            children: [
-                                              listViewItem_new(context, index,
-                                                  jobItems[index]),
-                                              const SizedBox(
-                                                height: 12,
-                                              )
-                                            ],
-                                          ));
-                                    },
-                                    itemCount: jobItems.length,
-                                    padding: const EdgeInsets.all(5),
-                                    scrollDirection: Axis.vertical,
-                                  ),
-                                  if (_isLoadMoreRunning == true)
-                                    const Padding(
-                                      padding:
-                                          EdgeInsets.only(top: 10, bottom: 40),
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
+                                        //  color: Color(0xfff0f1fe),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
+                                      height: 80,
+                                      margin: const EdgeInsets.only(
+                                          left: 20.0, right: 20.0),
+                                      width: double.infinity,
                                     ),
-                                ],
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (BuildContext, index) {
+                                        return GestureDetector(
+                                            onTap: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                ERoute.jobsdetail.name,
+                                                arguments: {
+                                                  'id': jobItems[index]['id']
+                                                },
+                                              );
+
+                                              //   Navigator.push(
+                                              //       context,
+                                              //       MaterialPageRoute(
+                                              //           builder: (context) =>
+                                              //               JobDetails(
+                                              //                 id: jobItems[index]
+                                              //                     ['id'],
+                                              //               )));
+                                            },
+                                            child: Column(
+                                              children: [
+                                                listViewItem_new(context, index,
+                                                    jobItems[index]),
+                                                const SizedBox(
+                                                  height: 12,
+                                                )
+                                              ],
+                                            ));
+                                      },
+                                      itemCount: jobItems.length,
+                                      padding: const EdgeInsets.all(5),
+                                      scrollDirection: Axis.vertical,
+                                    ),
+                                    if (_isLoadMoreRunning == true)
+                                      const Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 10, bottom: 40),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -719,31 +786,33 @@ class _JobsState extends State<Jobs> {
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                if (item['process'] != null)
-                                  Text(
-                                    item['process'],
+                                // if (item['process'] != null)
+                                //   Text(
+                                //     item['process'],
+                                //     style: const TextStyle(
+                                //         color: Colors.black54,
+                                //         fontWeight: FontWeight.normal,
+                                //         fontSize: 13),
+                                //   ),
+                                // if (item['rolename'] != null)
+                                //   const Text(
+                                //     " | ",
+                                //     style: TextStyle(
+                                //         color: Colors.black54,
+                                //         fontWeight: FontWeight.normal,
+                                //         fontSize: 13),
+                                //   ),
+                                // if (item['rolename'] != null)
+                                Expanded(
+                                  child: Text(
+                                    item['process'] + " | " + item['rolename'],
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                         color: Colors.black54,
                                         fontWeight: FontWeight.normal,
                                         fontSize: 13),
                                   ),
-                                if (item['rolename'] != null &&
-                                    item['process'] != null)
-                                  const Text(
-                                    " | ",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
-                                if (item['rolename'] != null)
-                                  Text(
-                                    item['rolename'],
-                                    style: const TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
+                                ),
                               ],
                             ),
                           ),

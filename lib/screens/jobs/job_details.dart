@@ -337,7 +337,7 @@ class _JobDetailsState extends State<JobDetails> {
                                               jobDetailsModel.languageKnow !=
                                                   "")
                                             const SizedBox(
-                                              width: 10,
+                                              width: 0,
                                             ),
                                           Expanded(
                                               child: keyPair(
@@ -558,7 +558,7 @@ class _JobDetailsState extends State<JobDetails> {
                 if (usertype == EUserType.jobSeeker.value ||
                     usertype == EUserType.businessPartner.value)
                   ThemeButton(
-                    width: 200,
+                    width: 150,
                     radious: 0,
                     themeButtonSize: ThemeButtonSize.small,
                     onPressed: () {
@@ -578,7 +578,7 @@ class _JobDetailsState extends State<JobDetails> {
                   ),
                 if (usertype != EUserType.jobSeeker.value)
                   ThemeButton(
-                    width: 200,
+                    width: 150,
                     radious: 0,
                     themeButtonSize: ThemeButtonSize.small,
                     onPressed: () {

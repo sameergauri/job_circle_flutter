@@ -1,5 +1,7 @@
 class CardModel {
   String? cardName;
+  String? firstName;
+  String? lastName;
   String? jobTitle;
   String? education;
   String? exprince;
@@ -9,6 +11,8 @@ class CardModel {
   String? email;
   CardModel(
       {this.cardName,
+      this.firstName,
+      this.lastName,
       this.jobTitle,
       this.education,
       this.exprince,
@@ -19,9 +23,17 @@ class CardModel {
   factory CardModel.fromJson(dynamic json) {
     return CardModel(
       cardName: json['cardName'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
       mobile: json['mobile'],
       email: json['email'],
     );
   }
-  Map toJson() => {'cardName': cardName, 'mobile': mobile, 'email': email};
+  Map toJson() => {
+        'cardName': cardName,
+        'mobile': mobile,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName
+      };
 }

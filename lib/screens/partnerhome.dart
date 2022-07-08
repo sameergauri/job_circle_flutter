@@ -94,14 +94,14 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Jobs',
       backgroundColor: Colors.blue,
     ));
-
-    bottomTabItems.add(const BottomNavigationBarItem(
-      icon: Icon(Icons.handshake_outlined),
-      activeIcon: Icon(Icons.handshake_outlined),
-      label: 'Partner',
-      backgroundColor: Colors.blue,
-    ));
-
+    if (userType == EUserType.businessPartner.value) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.handshake_outlined),
+        activeIcon: Icon(Icons.handshake_outlined),
+        label: 'Partner',
+        backgroundColor: Colors.blue,
+      ));
+    }
     bottomTabItems.add(const BottomNavigationBarItem(
       icon: Icon(Icons.person),
       activeIcon: Icon(Icons.person_outline),
@@ -130,7 +130,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         Navigator.pushNamed(context, ERoute.stats.name);
         break;
       case "Profile":
-        if (userType == EUserType.jobSeeker.value) {
+        if (userType == EUserType.employee.value) {
           Navigator.pushNamed(context, ERoute.profile_summary.name);
         } else if (userType == EUserType.businessPartner.value) {
           Navigator.pushNamed(context, ERoute.profile_summary_partner.name);
