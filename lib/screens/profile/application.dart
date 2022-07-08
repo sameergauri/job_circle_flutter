@@ -576,7 +576,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                               shorListController.text = model.label,
                               selectedshort = model,
                               Navigator.pop(context),
-                              if (userType == EUserType.businessPartner.value)
+                              if (userType == EUserType.businessPartner.value || userType == EUserType.employee.value)
                                 {openCompanyJobsDetails()}
                               else
                                 {
