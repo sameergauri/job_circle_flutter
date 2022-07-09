@@ -342,7 +342,7 @@ class _JobDetailsState extends State<JobDetails> {
                                           Expanded(
                                               child: keyPair(
                                                   "education_d.png",
-                                                  "Educational Qualification",
+                                                  "Qualification",
                                                   jobDetailsModel.education
                                                       .toString(),
                                                   false)),
@@ -393,6 +393,9 @@ class _JobDetailsState extends State<JobDetails> {
                                                             false)),
                                                 ],
                                               ),
+                                              const Divider(
+                                                height: 1,
+                                              ),
                                             ],
                                           ),
                                           visible: ((jobDetailsModel
@@ -405,9 +408,6 @@ class _JobDetailsState extends State<JobDetails> {
                                                   jobDetailsModel.shiftdesc !=
                                                       "")),
 
-                                      const Divider(
-                                        height: 1,
-                                      ),
                                       const SizedBox(
                                         height: 15,
                                       ),

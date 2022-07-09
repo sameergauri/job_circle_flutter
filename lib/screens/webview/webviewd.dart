@@ -1,5 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -13,10 +15,22 @@ class WebviewData extends StatefulWidget {
 }
 
 class _WebviewDataState extends State<WebviewData> {
+  var usertype = -1;
+  String url = "";
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      usertype = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name);
+      if (widget.url!.contains("?")) {
+        url = widget.url! + "&usertype=" + usertype.toString();
+      } else {
+        url = widget.url! + "?usertype=" + usertype.toString();
+      }
+
+      setState(() {});
+    });
   }
 
   @override
@@ -37,7 +51,7 @@ class _WebviewDataState extends State<WebviewData> {
           WebView(
         key: UniqueKey(),
         javascriptMode: JavascriptMode.unrestricted,
-        initialUrl: widget.url,
+        initialUrl: url,
         onProgress: (int progress) {
           print('WebView is loading (progress : $progress%)');
         },
@@ -50,9 +64,11 @@ class _WebviewDataState extends State<WebviewData> {
           return NavigationDecision.navigate;
         },
         onPageStarted: (String url) {
+          Utils.showLoaderDialog(context, "Loading");
           print('Page started loading: $url');
         },
         onPageFinished: (String url) {
+          Utils.hideLoaderDialog(context);
           print('Page finished loading: $url');
         },
         gestureNavigationEnabled: true,

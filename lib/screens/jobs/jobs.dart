@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
+import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -37,29 +39,40 @@ class _JobsState extends State<Jobs> {
   final _pageSize = 10;
   var localtion = "";
   var licationid = 0;
+  late var usertype = -1;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     // if failed,use refreshFailed()
-    await Future.delayed(Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 200));
     bindItems();
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
     // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 200));
     // if failed,use loadFailed(),if no data return,use LoadNodata()
     // items.add((items.length + 1).toString());
-    if (mounted) setState(() {});
-    _refreshController.loadComplete();
+    if (!_hasNextPage) {
+      _refreshController.loadNoData();
+    } else {
+      _loadMore();
+      if (mounted) setState(() {});
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      usertype = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name);
+
+      setState(() {});
+    });
     bindItems();
     _controllerListView = ScrollController()..addListener(_loadMore);
     bindLocation();
@@ -76,18 +89,24 @@ class _JobsState extends State<Jobs> {
     //var _selectedIndex = 1;
 
     return Scaffold(
-        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        // floatingActionButton: FloatingActionButton(
-        //   // isExtended: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        floatingActionButton: Visibility(
+            visible: usertype == EUserType.employee.value,
+            child: FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WebviewData(
+                              // url: "https://www.youtube.com/",
+                              url: GlobalConstants.WEB_Host + "/mobile/jobform",
+                              title: "New Job",
+                            )));
 
-        //   child: const Icon(Icons.add),
-
-        //   onPressed: () {
-        //     Navigator.pushNamed(context, ERoute.application.name);
-
-        //     setState(() {});
-        //   },
-        // ),
+                setState(() {});
+              },
+            )),
         appBar: AppBar(
           title: SizedBox(
             height: 40,
@@ -401,29 +420,43 @@ class _JobsState extends State<Jobs> {
                             flex: 1,
                             child: SmartRefresher(
                               enablePullDown: true,
-                              enablePullUp: false,
+                              enablePullUp: true,
                               header: const WaterDropHeader(),
-                              // footer: CustomFooter(
-                              //   builder:
-                              //       (BuildContext context, LoadStatus? mode) {
-                              //     Widget body;
-                              //     if (mode == LoadStatus.idle) {
-                              //       body = Text("pull up load");
-                              //     } else if (mode == LoadStatus.loading) {
-                              //       body = CupertinoActivityIndicator();
-                              //     } else if (mode == LoadStatus.failed) {
-                              //       body = Text("Load Failed!Click retry!");
-                              //     } else if (mode == LoadStatus.canLoading) {
-                              //       body = Text("release to load more");
-                              //     } else {
-                              //       body = Text("No more Data");
-                              //     }
-                              //     return Container(
-                              //       height: 55.0,
-                              //       child: Center(child: body),
-                              //     );
-                              //   },
-                              // ),
+                              footer: CustomFooter(
+                                builder:
+                                    (BuildContext context, LoadStatus? mode) {
+                                  Widget body;
+                                  if (mode == LoadStatus.idle) {
+                                    body = const Text("");
+                                  } else if (mode == LoadStatus.loading) {
+                                    body = const CupertinoActivityIndicator();
+                                  } else if (mode == LoadStatus.failed) {
+                                    body =
+                                        const Text("Load Failed! Click retry!");
+                                  } else if (mode == LoadStatus.canLoading) {
+                                    body = const Text("Release to load more");
+                                  } else {
+                                    body = Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text("No more jobs available!"),
+                                      ],
+                                    );
+                                  }
+                                  return SizedBox(
+                                    height: 55.0,
+                                    child: Center(child: body),
+                                  );
+                                },
+                              ),
                               controller: _refreshController,
                               onRefresh: _onRefresh,
                               onLoading: _onLoading,
@@ -629,6 +662,8 @@ class _JobsState extends State<Jobs> {
                           ),
                           Text(
                             item['location'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                                 color: Colors.black54, fontSize: 14),
                           ),
@@ -700,7 +735,7 @@ class _JobsState extends State<Jobs> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-              color: Color.fromARGB(255, 213, 213, 213),
+              color: const Color.fromARGB(255, 213, 213, 213),
               width: 0.0,
               style: BorderStyle.solid), //Border.all
 
@@ -831,10 +866,14 @@ class _JobsState extends State<Jobs> {
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                Text(
-                                  item['location'] ?? '',
-                                  style: const TextStyle(
-                                      color: Colors.black54, fontSize: 14),
+                                Expanded(
+                                  child: Text(
+                                    item['location'] ?? '',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        color: Colors.black54, fontSize: 14),
+                                  ),
                                 ),
                               ],
                             ),
@@ -881,7 +920,9 @@ class _JobsState extends State<Jobs> {
       print('Something went wrong!');
     }
     setState(() {
-      _isLoadMoreRunning = false; // Display a progress indicator at the bottom
+      _isLoadMoreRunning = false;
+      _refreshController
+          .loadComplete(); // Display a progress indicator at the bottom
     });
   }
 }

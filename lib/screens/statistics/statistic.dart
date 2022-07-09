@@ -134,9 +134,9 @@ class _StatesticsState extends State<Statestics> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => WebviewData(
-                                        url: "https://www.youtube.com/",
-                                        // GlobalConstants.WEB_Host +
-                                        //     "/mobile/leadlist?sourceid=${userId.toString()}&status=${s['code']}",
+                                        // url: "https://www.youtube.com/",
+                                        url: GlobalConstants.WEB_Host +
+                                            "/mobile/leadlist?sourceid=${userId.toString()}&status=${s['code']}",
                                         title: "${s['title']}",
                                       )));
                         }),

@@ -80,10 +80,9 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Theme.of(context).primaryColor,
           elevation: 0,
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: const [
               Text(
@@ -97,7 +96,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
             ],
           ),
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        // backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -117,9 +116,20 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       : Column(children: [
                           Stack(
                             children: [
+                              Container(
+                                height: 80,
+                                width: double.infinity,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              // Image.network(
+                              //   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqD_HGDxOuodLJMHqZeLgNMLd_5kQvSthCeQ&usqp=CAU',
+                              //   height: 80,
+                              //   width: double.infinity,
+                              //   fit: BoxFit.cover,
+                              // ),
                               basicInfo(),
                               Positioned(
-                                top: 0,
+                                top: 10,
                                 left: (MediaQuery.of(context).size.width / 2) -
                                     60,
                                 child: Column(
@@ -128,9 +138,23 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                       height: 120,
                                       width: 120,
                                       child: CircleAvatar(
-                                        backgroundImage:
-                                            Image.network(profile_final_pic)
-                                                .image,
+                                        radius: 30,
+                                        backgroundColor: Colors.white,
+                                        child: CircleAvatar(
+                                          backgroundColor: Color.fromARGB(
+                                              255, 190, 190, 190),
+                                          radius: 58,
+                                          onBackgroundImageError: ((error,
+                                                  stackTrace) =>
+                                              Image.asset(
+                                                  "assets/images/company.png",
+                                                  height: 80,
+                                                  width: 80,
+                                                  fit: BoxFit.contain)),
+                                          backgroundImage: Image.network(
+                                            profile_final_pic,
+                                          ).image,
+                                        ),
                                       ),
                                     ),
                                     TextButton(
@@ -308,9 +332,12 @@ class _ProfileSummaryState extends State<ProfileSummary> {
 
   Widget basicInfo() {
     return Padding(
-      padding: const EdgeInsets.only(left: 3, top: 100, right: 3),
+      padding: const EdgeInsets.only(left: 3, top: 120, right: 3),
       child: Column(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           SizedBox(
             width: double.infinity,
             child: cardCustom(
@@ -438,7 +465,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                       )
                     ],
                   ),
-                   const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -447,14 +474,18 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
-                      Text(
-                        profilemodel.univercity.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
+                      Expanded(
+                        child: Text(
+                          profilemodel.univercity.toString(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                        ),
                       )
                     ],
                   ),
-                   const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -537,7 +568,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                   ),
                   const SizedBox(height: 10),
                   Visibility(
-                    visible: profilemodel.has_experience == 1 ,
+                    visible: profilemodel.has_experience == 1,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -556,7 +587,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                   ),
                   const SizedBox(height: 10),
                   Visibility(
-                    visible: profilemodel.has_experience == 1 ,
+                    visible: profilemodel.has_experience == 1,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

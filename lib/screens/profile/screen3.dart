@@ -457,6 +457,7 @@ class _Screen3State extends State<Screen3> {
       "experience": selectedtotalExperience.value == ""
           ? "0"
           : selectedtotalExperience.value,
+      "experience_flag": 1,
       "job_title": selectedJobTitle.value == "" ? "0" : selectedJobTitle.value,
       "work_experience": selectedtotalExperience.value == ""
           ? "0"

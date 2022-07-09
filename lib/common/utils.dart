@@ -86,6 +86,10 @@ class Utils {
     return fileNamea + extention;
   }
 
+  static hideLoaderDialog(BuildContext context) {
+    Navigator.pop(context);
+  }
+
   static showLoaderDialog(BuildContext context, String message) {
     // const spinkit = SpinKitRotatingCircle(
     //   color: Colors.white,
@@ -134,9 +138,9 @@ class Utils {
         ERoute nextRoute = ERoute.screen1;
         if (data['firstName'] == '') {
           nextRoute = ERoute.screen1;
-        } else if (data['education'] == null || data['firstName'] == 0) {
+        } else if (data['education'] == null || data['education'] == 0) {
           nextRoute = ERoute.screen2;
-        } else if (data['experience'] == null || data['experience'] == 0) {
+        } else if (data['experience'] == null || data['experience'] != 1) {
           nextRoute = ERoute.screen3;
         } else {
           nextRoute = ERoute.home;
