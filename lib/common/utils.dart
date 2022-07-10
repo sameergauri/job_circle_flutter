@@ -183,6 +183,17 @@ class Utils {
       });
     }
   }
+
+  static void setCacheData(String key, dynamic value) async {
+    var prefs = await Utils.getSharedPreferences();
+
+    var userRawData = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_rawData.name);
+    var rawdata = jsonDecode(userRawData);
+    rawdata[key] = value;
+    await Utils.setPreference(
+        prefs, ESharedPreferences.user_rawData.name, jsonEncode(rawdata));
+  }
 }
 
 String convertToTitleCase(String text) {

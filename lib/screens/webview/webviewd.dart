@@ -64,11 +64,11 @@ class _WebviewDataState extends State<WebviewData> {
           return NavigationDecision.navigate;
         },
         onPageStarted: (String url) {
-          Utils.showLoaderDialog(context, "Loading");
+          //Utils.showLoaderDialog(context, "Loading");
           print('Page started loading: $url');
         },
         onPageFinished: (String url) {
-          Utils.hideLoaderDialog(context);
+          //Utils.hideLoaderDialog(context);
           print('Page finished loading: $url');
         },
         gestureNavigationEnabled: true,

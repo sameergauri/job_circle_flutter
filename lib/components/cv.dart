@@ -33,7 +33,7 @@ class _CVWidgetState extends State<CVWidget> {
       padding: const EdgeInsets.only(left: 3, right: 3),
       child: Column(
         children: [
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

@@ -18,19 +18,20 @@ class Statestics extends StatefulWidget {
 class _StatesticsState extends State<Statestics> {
   dynamic leadCounts = [];
   var userId = 0;
+  var usertype = -1;
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     // if failed,use refreshFailed()
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 300));
     getCountData();
   }
 
   void _onLoading() async {
     // monitor network fetch
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 300));
     // if failed,use loadFailed(),if no data return,use LoadNodata()
     // items.add((items.length + 1).toString());
     if (mounted) setState(() {});
@@ -40,9 +41,14 @@ class _StatesticsState extends State<Statestics> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
 
-    getCountData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      usertype = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name);
+
+      getCountData();
+    });
+    super.initState();
   }
 
   @override
@@ -176,8 +182,13 @@ class _StatesticsState extends State<Statestics> {
   getCountData() async {
     userId =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+
     var result = await LeadService().getLoadCounts({
-      "data": {"flag": "partner_dashboard", "sourceid": userId}
+      "data": {
+        "flag": "partner_dashboard",
+        "sourceid": userId,
+        "usertype": usertype
+      }
     });
     var d = Utils.parseResponse(result);
     if (d.resultKey == 'SUCCESS') {

@@ -426,11 +426,13 @@ class _Screen2State extends State<Screen2> {
           widget.prevPageModel.degree_spc_id = int.parse(selectedDegree.value);
         }
         if (passingYearController.text != "") {
-          widget.prevPageModel.passing_year = int.parse(passingYearController.text);
+          widget.prevPageModel.passing_year =
+              int.parse(passingYearController.text);
         }
 
         Navigator.pop(context, widget.prevPageModel);
       }
+      Utils.setCacheData('education', int.parse(selectedEducation.value));
     }
     setState(() {});
   }

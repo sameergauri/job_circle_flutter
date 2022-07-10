@@ -284,21 +284,6 @@ class _JobDetailsState extends State<JobDetails> {
                                         CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      if (jobDetailsModel.key_responsible !=
-                                              null &&
-                                          jobDetailsModel.key_responsible != "")
-                                        keyPair(
-                                            "keyresponsibility.png",
-                                            "Job Description",
-                                            jobDetailsModel.key_responsible
-                                                .toString(),
-                                            true),
-                                      if (jobDetailsModel.key_responsible !=
-                                              null &&
-                                          jobDetailsModel.key_responsible != "")
-                                        const SizedBox(
-                                          height: 25,
-                                        ),
                                       if (jobDetailsModel.eligibility != null &&
                                           jobDetailsModel.eligibility != "")
                                         keyPair(
@@ -312,6 +297,22 @@ class _JobDetailsState extends State<JobDetails> {
                                         const SizedBox(
                                           height: 25,
                                         ),
+                                      if (jobDetailsModel.key_responsible !=
+                                              null &&
+                                          jobDetailsModel.key_responsible != "")
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                      if (jobDetailsModel.key_responsible !=
+                                              null &&
+                                          jobDetailsModel.key_responsible != "")
+                                        keyPair(
+                                            "keyresponsibility.png",
+                                            "Job Description",
+                                            jobDetailsModel.key_responsible
+                                                .toString(),
+                                            true),
+
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,

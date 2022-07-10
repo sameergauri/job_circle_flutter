@@ -478,6 +478,7 @@ class _Screen3State extends State<Screen3> {
 
         Navigator.pop(context, widget.prevPageModel);
       }
+      Utils.setCacheData('experience', 1);
     }
     setState(() {});
   }

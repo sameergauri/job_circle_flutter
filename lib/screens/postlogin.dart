@@ -43,12 +43,12 @@ class _PostLoginState extends State<PostLogin> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 150,
               ),
               TypographyStyle.textH3(
                   "Select one of the option before you proceed.", Colors.black),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Expanded(
@@ -62,7 +62,8 @@ class _PostLoginState extends State<PostLogin> {
                             null,
                             ESharedPreferences.user_type.name,
                             EUserType.jobSeeker.value);
-
+                        Utils.setCacheData(
+                            "usertype", EUserType.jobSeeker.value);
                         Navigator.pushNamed(context, ERoute.screen1.value);
                         // showDatePicker(
                         //     context: context,
@@ -107,6 +108,8 @@ class _PostLoginState extends State<PostLogin> {
                             null,
                             ESharedPreferences.user_type.name,
                             EUserType.businessPartner.value);
+                        Utils.setCacheData(
+                            "usertype", EUserType.businessPartner.value);
                         Navigator.pushNamed(
                             context, ERoute.businesspartner_confirmation.name);
                       },

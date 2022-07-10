@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/components/autocompletecustom.dart';
+import 'package:job_circle/components/autolistviewcheckboxmodal.dart';
 import 'package:job_circle/components/smart_card.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -33,10 +34,12 @@ class _Screen1State extends State<Screen1> {
   // DropdownModel ddlModel;
   List locationList = [];
   CardModel model = CardModel();
-  TextEditingController username = TextEditingController();
+  TextEditingController firstName = TextEditingController();
+  TextEditingController lastName = TextEditingController();
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
+  DateTime dataOfBirthValue = DateTime.now();
   TextEditingController jobLocationController = TextEditingController();
   var dt;
 
@@ -51,25 +54,32 @@ class _Screen1State extends State<Screen1> {
 
   late List<AutoCompleteModel> jobLocationList = [];
   late List languageList = [];
+  late List<AutoCompleteCheckBoxModel> languageAutoList = [];
   AutoCompleteModel selectedLocation = AutoCompleteModel("", "", {});
 
   @override
   void initState() {
     super.initState();
     bindLocation();
-    dateOfBirth.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
     dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
     if (widget.prevPageModel != null) {
-      username.text = widget.prevPageModel.first_name +
-          " " +
-          widget.prevPageModel.last_name;
+      firstName.text = widget.prevPageModel.first_name;
+      lastName.text = widget.prevPageModel.last_name;
       selectedLocation = widget.prevPageModel.job_location_city == null
           ? AutoCompleteModel("", "", {})
           : AutoCompleteModel(widget.prevPageModel.job_location_id.toString(),
               widget.prevPageModel.job_location_city, {});
-      jobLocationController.text= widget.prevPageModel.job_location_city == null ? '' : widget.prevPageModel.job_location_city.toString();          
+      jobLocationController.text =
+          widget.prevPageModel.job_location_city == null
+              ? ''
+              : widget.prevPageModel.job_location_city.toString();
+
       emailadr.text = widget.prevPageModel.email.toString();
       gender = widget.prevPageModel.gender.toString();
+      dataOfBirthValue = DateTime.parse(widget.prevPageModel.dateofbirth);
+      dateOfBirth.text = DateFormat("dd-MM-yyyy").format(dataOfBirthValue);
     }
   }
 
@@ -96,9 +106,13 @@ class _Screen1State extends State<Screen1> {
           }
 
           languageList.add(e);
+          languageAutoList.add(AutoCompleteCheckBoxModel(
+              e['value'], e['value'], e, e['checked']));
         }
       }
-      languageList.sort((a, b) => a['order'].compareTo(b['order']));
+      // try {
+      //   languageList.sort((a, b) => a['order'].compareTo(b['order']));
+      // } catch (e) {}
 
       setState(() {});
       // jobLocationList =
@@ -275,28 +289,55 @@ class _Screen1State extends State<Screen1> {
                   // inputFormatters: [
                   //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                   // ],
-                  controller: username,
+                  controller: firstName,
                   onChanged: ((value) => {
-                        model.cardName = value.toTitleCase(),
+                        model.cardName = value.toTitleCase() +
+                            " " +
+                            lastName.text.toLowerCase(),
+
                         // username.text = model.cardName!,
                         updateCard(model),
                       }),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter valid first and last name';
-                    } else if (!GlobalConstants.spaceMatch
-                        .hasMatch(username.text.trim().toTitleCase())) {
-                      return 'Please enter valid first and last name';
+                      return 'Please enter first name';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.person),
+                    label: Text("First Name"),
+                    //border: OutlineInputBorder(),
+                    border: InputBorder.none,
+                    hintText: 'Please enter first name',
+                  ),
+                ),
+                TextFormField(
+                  autofocus: true,
+                  // inputFormatters: [
+                  //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                  // ],
+                  controller: lastName,
+                  onChanged: ((value) => {
+                        model.cardName = firstName.text.toLowerCase() +
+                            " " +
+                            value.toTitleCase(),
+                        // username.text = model.cardName!,
+                        updateCard(model),
+                      }),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter last name';
                     }
 
                     return null;
                   },
                   decoration: const InputDecoration(
                     icon: Icon(Icons.person),
-                    label: Text("Enter your name"),
+                    label: Text("Last Name"),
                     //border: OutlineInputBorder(),
                     border: InputBorder.none,
-                    hintText: 'Please enter first and last name',
+                    hintText: 'Please enter last name',
                   ),
                 ),
                 // const SizedBox(height: 10),
@@ -362,13 +403,12 @@ class _Screen1State extends State<Screen1> {
                         });
                   }),
                   decoration: const InputDecoration(
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      // Icons.workspace_premium
-                      label: Text("Job Location *"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: "Select job location",
-                      prefixIcon: Icon(Icons.location_city)),
+                    icon: Icon(Icons.location_city),
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    label: Text("Job Location"),
+                    border: InputBorder.none,
+                    hintText: 'Select job location',
+                  ),
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -391,16 +431,17 @@ class _Screen1State extends State<Screen1> {
                   readOnly: true,
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate:
-                          DateTime.now().add(const Duration(days: -(365 * 50))),
-                      lastDate: DateTime.now(),
-                    );
+                        context: context,
+                        initialDate: dataOfBirthValue,
+                        firstDate: DateTime.now()
+                            .add(const Duration(days: -(365 * 50))),
+                        lastDate: DateTime.now(),
+                        currentDate: dataOfBirthValue);
 
                     if (pickedDate != null) {
                       String formattedDate =
-                          DateFormat('yyyy-MM-dd').format(pickedDate);
+                          DateFormat('dd-MM-yyyy').format(pickedDate);
+                      dataOfBirthValue = pickedDate;
                       setState(() {
                         dateOfBirth.text = formattedDate;
                         dt = DateFormat('yyyy-MM-dd HH:mm:ss')
@@ -533,24 +574,69 @@ class _Screen1State extends State<Screen1> {
                   "Language Known",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
+                const SizedBox(height: 15),
+                GestureDetector(
+                  child: Container(
+                    height: 30,
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                        color:
+                            Color.fromARGB(255, 255, 255, 255).withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(60)),
+                    child: Text(
+                      "ADD/CHANGE",
+                      style: TextStyle(
+                          fontSize: 16, color: Color.fromARGB(255, 163, 0, 0)),
+                    ),
+                  ),
+                  onTap: () => {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogCheckBoxList(
+                            tile: null,
+                            dialogTitle: "Languages",
+                            onSelected:
+                                (List<AutoCompleteCheckBoxModel> model) => {
+                              setState(() {
+                                languageAutoList = model;
+                              }),
+                              // jobLocationController.text = model.label,
+                              Navigator.pop(context)
+                            },
+                            itemsData: languageAutoList,
+                          );
+                        })
+                  },
+                ),
+                const SizedBox(height: 20),
                 Container(
                   child: ResponsiveGridRow(children: [
-                    for (var s in languageList)
-                      ResponsiveGridCol(
-                        xs: 6,
-                        sm: 4,
-                        md: 3,
-                        child: CheckboxListTile(
-                          title: Text(s['value'] ?? ''),
-                          value: s['checked'],
-                          onChanged: (newValue) {
-                            s['checked'] = !s['checked'];
-                            setState(() {});
-                          },
-                          controlAffinity: ListTileControlAffinity
-                              .leading, //  <-- leading Checkbox
-                        ),
-                      )
+                    for (var s in languageAutoList)
+                      if (s.checked == true)
+                        ResponsiveGridCol(
+                          xs: 4,
+                          sm: 4,
+                          md: 3,
+                          child: Container(
+                            height: 30,
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 5),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                                color: Color.fromARGB(255, 168, 0, 0)
+                                    .withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(60)),
+                            child: Text(
+                              s.label,
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ),
+                        )
                   ]),
                 ),
                 const SizedBox(height: 200),
@@ -578,24 +664,24 @@ class _Screen1State extends State<Screen1> {
     SharedPreferences prefs = await Utils.getSharedPreferences();
     // prefs.setString('username', username.text);
 
-    String userName = username.text;
-    if (userName.isNotEmpty) {
-      if (!GlobalConstants.spaceMatch
-          .hasMatch(username.text.trim().toTitleCase())) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please enter valid name"),
-        ));
-        return;
-      }
-    }
+    // String userName = firstName.text;
+    // if (userName.isNotEmpty) {
+    //   // if (!GlobalConstants.spaceMatch
+    //   //     .hasMatch(firstName.text.trim().toTitleCase())) {
+    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //     content: Text("Please enter valid name"),
+    //   ));
+    //   return;
+    //   // }
+    // }
 
-    var firstName = username.text.trim().split(' ')[0];
-    var lastName = username.text.trim().split(' ')[1];
+    // var firstName = username.text.trim().split(' ')[0];
+    // var lastName = username.text.trim().split(' ')[1];
     var mobilenumber = await Utils.getPreferencesValue(
         prefs, ESharedPreferences.user_mobile.name);
-    var selectedLanguages = languageList
-        .where((element) => element['checked'] == true)
-        .map((e) => e['value'])
+    var selectedLanguages = languageAutoList
+        .where((element) => element.checked == true)
+        .map((e) => e.value)
         .toList();
 
     var params = {
@@ -604,13 +690,13 @@ class _Screen1State extends State<Screen1> {
         "id": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_id.name),
         "mobile": mobilenumber,
-        "first_name": firstName,
-        "last_name": lastName,
+        "first_name": firstName.text.trim(),
+        "last_name": lastName.text.trim(),
         "languages": selectedLanguages,
         "job_location_id": selectedLocation.value,
         "email": emailadr.text,
         "gender": gender,
-        "dateofbirth": dateOfBirth.text,
+        "dateofbirth": DateFormat("yyyy-MM-dd").format(dataOfBirthValue),
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
       }
@@ -618,8 +704,9 @@ class _Screen1State extends State<Screen1> {
 
     CardModel model = CardModel();
     model.mobile = mobilenumber;
-    model.cardName = (firstName + " " + lastName).toTitleCase();
+    model.cardName = (firstName.text + " " + lastName.text).toTitleCase();
     model.email = emailadr.text;
+    print(params);
     var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       if (widget.prevPageModel == null) {
@@ -627,16 +714,19 @@ class _Screen1State extends State<Screen1> {
             prefs, ESharedPreferences.user_data.name, jsonEncode(model));
         Navigator.pushNamed(context, ERoute.screen2.name);
       } else {
-        widget.prevPageModel.first_name = firstName;
-        widget.prevPageModel.last_name = lastName;
+        widget.prevPageModel.first_name = firstName.text;
+        widget.prevPageModel.last_name = lastName.text;
         widget.prevPageModel.job_location_city = selectedLocation.label;
         widget.prevPageModel.job_location_id =
             int.parse(selectedLocation.value);
         widget.prevPageModel.gender = gender;
         widget.prevPageModel.languages = selectedLanguages;
+        widget.prevPageModel.dateofbirth =
+            DateFormat("yyyy-MM-dd").format(dataOfBirthValue);
 
         Navigator.pop(context, widget.prevPageModel);
       }
+      Utils.setCacheData('firstName', firstName.text);
     }
     setState(() {});
   }

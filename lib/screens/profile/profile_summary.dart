@@ -141,7 +141,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                         radius: 30,
                                         backgroundColor: Colors.white,
                                         child: CircleAvatar(
-                                          backgroundColor: Color.fromARGB(
+                                          backgroundColor: const Color.fromARGB(
                                               255, 190, 190, 190),
                                           radius: 58,
                                           onBackgroundImageError: ((error,
