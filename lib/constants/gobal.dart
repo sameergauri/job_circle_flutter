@@ -5,7 +5,8 @@ class GlobalConstants {
 
   static const API_Host =
       "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
-  // static const API_Host = "localhost:9090";
+  //static const API_Host = "localhost:9090";
+  //static const API_Host = "192.168.1.9:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const WEB_Host =
       "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092";
@@ -24,6 +25,7 @@ class GlobalConstants {
 
   static const API_master_group = "/master/v1/getByGroup";
   static const API_master_groups = "/master/v1/getByGroups";
+  static const API_master_getByGroupParentId = "/master/v1/getByGroupParentId";
 
   static const API_lead_counts = "/leads/v1/getLeads";
   static const API_leads_v1 = "/leads/v1";
@@ -41,6 +43,9 @@ class GlobalConstants {
   static const API_partner_v1_user = "partner/v1/user/";
 
   static const API_company_v1_all = "/company/v1/all";
+
+  static const API_leads_v1_getAllLeadsAdvanced =
+      "/leads/v1/getAllLeadsAdvanced";
 
   static const API_jobs_v1_getDistinctProcessAndLevels =
       "jobs/v1/getDistinctProcessAndLevels";

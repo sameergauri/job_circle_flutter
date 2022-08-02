@@ -194,6 +194,15 @@ class Utils {
     await Utils.setPreference(
         prefs, ESharedPreferences.user_rawData.name, jsonEncode(rawdata));
   }
+
+  static dynamic getCacheData(String key) async {
+    var prefs = await Utils.getSharedPreferences();
+
+    var userRawData = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_rawData.name);
+    var rawdata = jsonDecode(userRawData);
+    return rawdata[key];
+  }
 }
 
 String convertToTitleCase(String text) {

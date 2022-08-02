@@ -28,9 +28,11 @@ class _JobDetailsState extends State<JobDetails> {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   var titleText = "";
   var subtitleText = "";
+  var partner_request = 1;
   @override
   void initState() {
     super.initState();
+    fillCacheData();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
@@ -79,6 +81,11 @@ class _JobDetailsState extends State<JobDetails> {
     });
   }
 
+  fillCacheData() async {
+    partner_request = await Utils.getCacheData('partner_request');
+    setState(() {});
+  }
+
   getJobDetails(id) async {
     var result = await JobSearchService().getJobDetails({'id': id.toString()});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -116,25 +123,25 @@ class _JobDetailsState extends State<JobDetails> {
         ),
         //backgroundColor: Theme.of(context).primaryColor,
         actions: [
-          SizedBox(
-            width: 100,
-            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Icon(
-                Icons.share_outlined,
-                color: appBarIconColor,
-              ),
-              const SizedBox(
-                width: 15,
-              ),
-              Icon(
-                Icons.favorite_border_outlined,
-                color: appBarIconColor,
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-            ]),
-          ),
+          // SizedBox(
+          //   width: 100,
+          //   child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+          //     Icon(
+          //       Icons.share_outlined,
+          //       color: appBarIconColor,
+          //     ),
+          //     const SizedBox(
+          //       width: 15,
+          //     ),
+          //     Icon(
+          //       Icons.favorite_border_outlined,
+          //       color: appBarIconColor,
+          //     ),
+          //     const SizedBox(
+          //       width: 20,
+          //     ),
+          //   ]),
+          // ),
         ],
       ),
       backgroundColor: Constants.bgPanelColor,
@@ -284,25 +291,6 @@ class _JobDetailsState extends State<JobDetails> {
                                         CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      if (jobDetailsModel.eligibility != null &&
-                                          jobDetailsModel.eligibility != "")
-                                        keyPair(
-                                            "elligibility.png",
-                                            "Eligibility",
-                                            jobDetailsModel.eligibility
-                                                .toString(),
-                                            true),
-                                      if (jobDetailsModel.eligibility != null &&
-                                          jobDetailsModel.eligibility != "")
-                                        const SizedBox(
-                                          height: 25,
-                                        ),
-                                      if (jobDetailsModel.key_responsible !=
-                                              null &&
-                                          jobDetailsModel.key_responsible != "")
-                                        const SizedBox(
-                                          height: 25,
-                                        ),
                                       if (jobDetailsModel.key_responsible !=
                                               null &&
                                           jobDetailsModel.key_responsible != "")
@@ -312,7 +300,29 @@ class _JobDetailsState extends State<JobDetails> {
                                             jobDetailsModel.key_responsible
                                                 .toString(),
                                             true),
-
+                                      if (jobDetailsModel.eligibility != null &&
+                                          jobDetailsModel.eligibility != "")
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                      if (jobDetailsModel.eligibility != null &&
+                                          jobDetailsModel.eligibility != "")
+                                        keyPair(
+                                            "elligibility.png",
+                                            "Eligibility",
+                                            jobDetailsModel.eligibility
+                                                .toString(),
+                                            true),
+                                      if (jobDetailsModel.education != null &&
+                                              jobDetailsModel.education != "" ||
+                                          jobDetailsModel.languageKnow !=
+                                                  null &&
+                                              jobDetailsModel
+                                                      .languageKnow!.length >
+                                                  0)
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
@@ -335,18 +345,22 @@ class _JobDetailsState extends State<JobDetails> {
                                                     false)),
                                           if (jobDetailsModel.languageKnow !=
                                                   null &&
-                                              jobDetailsModel.languageKnow !=
-                                                  "")
+                                              jobDetailsModel
+                                                      .languageKnow!.length >
+                                                  0)
                                             const SizedBox(
-                                              width: 0,
+                                              width: 25,
                                             ),
-                                          Expanded(
-                                              child: keyPair(
-                                                  "education_d.png",
-                                                  "Qualification",
-                                                  jobDetailsModel.education
-                                                      .toString(),
-                                                  false)),
+                                          if (jobDetailsModel.education !=
+                                                  null &&
+                                              jobDetailsModel.education != "")
+                                            Expanded(
+                                                child: keyPair(
+                                                    "education_d.png",
+                                                    "Qualification",
+                                                    jobDetailsModel.education
+                                                        .toString(),
+                                                    false)),
                                         ],
                                       ),
                                       const Divider(
@@ -551,69 +565,53 @@ class _JobDetailsState extends State<JobDetails> {
             height: 60,
             width: double.maxFinite,
             decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(0.0))),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(0.0)),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (usertype == EUserType.jobSeeker.value ||
-                    usertype == EUserType.businessPartner.value)
-                  ThemeButton(
-                    width: 150,
-                    radious: 0,
-                    themeButtonSize: ThemeButtonSize.small,
-                    onPressed: () {
-                      Navigator.pushNamed(context, ERoute.application.name,
-                          arguments: {
-                            "isnew": false,
-                            "prevModel": jobDetailsModel,
-                          });
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => ApplicationForm(
-                      //               prevModel: jobDetailsModel,
-                      //             )));
-                    },
-                    text: "APPLY",
+                Visibility(
+                    visible: (usertype == EUserType.jobSeeker.value ||
+                        usertype == EUserType.businessPartner.value),
+                    child: ThemeButton(
+                      width: 150,
+                      radious: 0,
+                      themeButtonSize: ThemeButtonSize.small,
+                      onPressed: () {
+                        Navigator.pushNamed(context, ERoute.application.name,
+                            arguments: {
+                              "isnew": false,
+                              "prevModel": jobDetailsModel,
+                            });
+                      },
+                      text: "APPLY",
+                    )),
+                Visibility(
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      ThemeButton(
+                        width: 150,
+                        radious: 0,
+                        themeButtonSize: ThemeButtonSize.small,
+                        onPressed: () {
+                          Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": true,
+                                "prevModel": jobDetailsModel,
+                              });
+                        },
+                        text: "New Line-up",
+                      ),
+                    ],
                   ),
-                if (usertype != EUserType.jobSeeker.value)
-                  ThemeButton(
-                    width: 150,
-                    radious: 0,
-                    themeButtonSize: ThemeButtonSize.small,
-                    onPressed: () {
-                      Navigator.pushNamed(context, ERoute.application.name,
-                          arguments: {
-                            "isnew": true,
-                            "prevModel": jobDetailsModel,
-                          });
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => ApplicationForm(
-                      //               prevModel: jobDetailsModel,
-                      //               isnew: true,
-                      //             )));
-                    },
-                    text: "New Line-up",
-                  ),
-                // IconButton(
-                //   icon: Icon(Icons.arrow_forward),
-                //   onPressed: () {},
-                // ),
-                // IconButton(
-                //   icon: Icon(Icons.arrow_downward),
-                //   onPressed: () {},
-                // ),
-                // IconButton(
-                //   icon: Icon(Icons.arrow_left),
-                //   onPressed: () {},
-                // ),
-                // IconButton(
-                //   icon: Icon(Icons.arrow_upward),
-                //   onPressed: () {},
-                // ),
+                  visible: (usertype == EUserType.employee.value ||
+                      (usertype == EUserType.businessPartner.value &&
+                          partner_request == EPartnerApproval.approved.value)),
+                )
               ],
             ),
           )

@@ -55,9 +55,9 @@ class _Screen3State extends State<Screen3> {
           widget.prevPageModel.work_experience ?? '', {});
       totalOfExpController.text = widget.prevPageModel.work_experience ?? '';
       selectedcurrentSalary = AutoCompleteModel(
-          widget.prevPageModel.degree_spc_id.toString(),
-          widget.prevPageModel.degree_spc ?? '', {});
-      currentSalaryController.text = widget.prevPageModel.work_experience ?? '';
+          widget.prevPageModel.salaryid.toString(),
+          widget.prevPageModel.salary ?? '', {});
+      currentSalaryController.text = widget.prevPageModel.salary ?? '';
       expirieanceFlag = widget.prevPageModel.has_experience == 1 ? true : false;
     }
     super.initState();
@@ -65,7 +65,7 @@ class _Screen3State extends State<Screen3> {
 
   bindJobTitle() async {
     var result = await MasterService().masterGetByGroup(
-        {'groupName': 'job_title', 'pageNumber': '1', 'pageSize': '10'});
+        {'groupName': 'job_role', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
@@ -83,7 +83,7 @@ class _Screen3State extends State<Screen3> {
 
   bindTotalExperiance() async {
     var result = await MasterService().masterGetByGroup(
-        {'groupName': 'total_exp', 'pageNumber': '1', 'pageSize': '10'});
+        {'groupName': 'total_exp', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
@@ -101,7 +101,7 @@ class _Screen3State extends State<Screen3> {
 
   bindCurrentSalary() async {
     var result = await MasterService().masterGetByGroup(
-        {'groupName': 'current_salary', 'pageNumber': '1', 'pageSize': '10'});
+        {'groupName': 'current_salary', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
@@ -463,7 +463,8 @@ class _Screen3State extends State<Screen3> {
           ? "0"
           : selectedtotalExperience.value,
       "company_name": companyController.text,
-      "has_experience": expirieanceFlag ? 1 : 0
+      "has_experience": expirieanceFlag ? 1 : 0,
+      "ctc": selectedcurrentSalary.value
     };
     print(payload);
     var result = await UserDataService()

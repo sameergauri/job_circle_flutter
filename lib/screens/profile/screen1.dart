@@ -52,9 +52,11 @@ class _Screen1State extends State<Screen1> {
 
   final basicForm = GlobalKey<FormState>();
 
-  late List<AutoCompleteModel> jobLocationList = [];
+  late List<AutoCompleteModel> stateList = [];
+  late List<AutoCompleteModel> cityList = [];
   late List languageList = [];
   late List<AutoCompleteCheckBoxModel> languageAutoList = [];
+
   AutoCompleteModel selectedLocation = AutoCompleteModel("", "", {});
 
   @override
@@ -84,19 +86,15 @@ class _Screen1State extends State<Screen1> {
   }
 
   bindLocation() async {
-    var result = await MasterService().masterGetByGroups({
-      'groupName': 'location,language',
-      'pageNumber': '1',
-      'pageSize': '1000'
-    });
+    var result = await MasterService().masterGetByGroups(
+        {'groupName': 'state,language', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
 
       for (var e in (ddlValues["content"] as List)) {
-        if (e['group_name'] == 'location') {
-          jobLocationList
-              .add(AutoCompleteModel(e['id'].toString(), e['value'], e));
+        if (e['group_name'] == 'state') {
+          stateList.add(AutoCompleteModel(e['id'].toString(), e['value'], e));
         } else if (e['group_name'] == 'language') {
           e['checked'] = false;
           if (widget.prevPageModel?.languages != null) {
@@ -119,7 +117,7 @@ class _Screen1State extends State<Screen1> {
       //     .map<AutoCompleteModel>(
       //         (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
       //     .toList();
-      final productId = ModalRoute.of(context)!.settings.arguments;
+      // final productId = ModalRoute.of(context)!.settings.arguments;
 
       // 07/06/2022
       // print(productId);
@@ -392,22 +390,20 @@ class _Screen1State extends State<Screen1> {
                         builder: (BuildContext context) {
                           return DialogList(
                             tile: null,
-                            dialogTitle: "Job Location",
-                            onSelected: (AutoCompleteModel model) => {
-                              jobLocationController.text = model.label,
-                              selectedLocation = model,
-                              Navigator.pop(context)
+                            dialogTitle: "Select State",
+                            onSelected: (AutoCompleteModel model) async {
+                              await selectCity(model.value);
                             },
-                            itemsData: jobLocationList,
+                            itemsData: stateList,
                           );
                         });
                   }),
                   decoration: const InputDecoration(
                     icon: Icon(Icons.location_city),
                     suffixIcon: Icon(Icons.arrow_drop_down),
-                    label: Text("Job Location"),
+                    label: Text("Location"),
                     border: InputBorder.none,
-                    hintText: 'Select job location',
+                    hintText: 'Select location',
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -510,6 +506,8 @@ class _Screen1State extends State<Screen1> {
                                         onChanged: (value) {
                                           setState(() {
                                             gender = value.toString();
+                                            model.gender = gender;
+                                            updateCard(model);
                                           });
                                         },
                                       )),
@@ -554,6 +552,8 @@ class _Screen1State extends State<Screen1> {
                                         onChanged: (value) {
                                           setState(() {
                                             gender = value.toString();
+                                            model.gender = gender;
+                                            updateCard(model);
                                           });
                                         },
                                       )),
@@ -579,14 +579,14 @@ class _Screen1State extends State<Screen1> {
                   child: Container(
                     height: 30,
                     alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                        color:
-                            Color.fromARGB(255, 255, 255, 255).withOpacity(0.7),
+                        color: const Color.fromARGB(255, 255, 255, 255)
+                            .withOpacity(0.7),
                         borderRadius: BorderRadius.circular(60)),
-                    child: Text(
-                      "ADD/CHANGE",
+                    child: const Text(
+                      "Select Language",
                       style: TextStyle(
                           fontSize: 16, color: Color.fromARGB(255, 163, 0, 0)),
                     ),
@@ -612,33 +612,31 @@ class _Screen1State extends State<Screen1> {
                   },
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  child: ResponsiveGridRow(children: [
-                    for (var s in languageAutoList)
-                      if (s.checked == true)
-                        ResponsiveGridCol(
-                          xs: 4,
-                          sm: 4,
-                          md: 3,
-                          child: Container(
-                            height: 30,
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 5),
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 168, 0, 0)
-                                    .withOpacity(0.7),
-                                borderRadius: BorderRadius.circular(60)),
-                            child: Text(
-                              s.label,
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white),
-                            ),
+                ResponsiveGridRow(children: [
+                  for (var s in languageAutoList)
+                    if (s.checked == true)
+                      ResponsiveGridCol(
+                        xs: 4,
+                        sm: 4,
+                        md: 3,
+                        child: Container(
+                          height: 30,
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 168, 0, 0)
+                                  .withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(60)),
+                          child: Text(
+                            s.label,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.white),
                           ),
-                        )
-                  ]),
-                ),
+                        ),
+                      )
+                ]),
                 const SizedBox(height: 200),
               ],
             ),
@@ -651,9 +649,44 @@ class _Screen1State extends State<Screen1> {
   updateCard(CardModel items) {
     model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
     model.email = items.email;
+    model.gender = items.gender;
 
     // model.cardName = items.cardName == "" ? "Your Name" : items.cardName;
     setState(() {});
+  }
+
+  selectCity(stateId) async {
+    cityList.clear();
+    var result = await MasterService().getByGroupParentId({
+      'groupName': 'city',
+      'parentId': stateId,
+      'pageNumber': '1',
+      'pageSize': '2000'
+    });
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      ddlValues = Utils.parseResponse(result).resultData;
+      // list=ddlValues["content"];
+
+      for (var e in (ddlValues as List)) {
+        cityList.add(AutoCompleteModel(e['id'].toString(), e['value'], e));
+      }
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DialogList(
+              tile: null,
+              dialogTitle: "Select Location",
+              onSelected: (AutoCompleteModel model) async {
+                jobLocationController.text = model.label;
+                selectedLocation = model;
+                Navigator.pop(context);
+              },
+              itemsData: cityList,
+            );
+          });
+      setState(() {});
+    }
   }
 
   save() async {

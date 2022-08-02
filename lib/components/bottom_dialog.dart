@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BottomDialog {
   void showBottomDialog(BuildContext context, Widget widget, bool dismissable,
-      {bool? enableDrag = false}) {
+      {bool? enableDrag = false, BottomSheetController? controller}) {
     showModalBottomSheet(
       // barrierLabel: "showGeneralDialog",
       // barrierDismissible: dismissable,
@@ -16,10 +16,13 @@ class BottomDialog {
               topLeft: Radius.circular(15), topRight: Radius.circular(15))),
       context: context,
       builder: (BuildContext context) {
-        return Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: SingleChildScrollView(child: widget),
-        );
+        return StatefulBuilder(builder: (BuildContext context, setState) {
+          if (controller != null) controller.setState = setState;
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: SingleChildScrollView(child: widget),
+          );
+        });
       },
       // tra: (_, animation1, __, child) {
       //   return SlideTransition(
@@ -32,4 +35,8 @@ class BottomDialog {
       // },
     );
   }
+}
+
+class BottomSheetController {
+  late void Function(void Function()) setState;
 }

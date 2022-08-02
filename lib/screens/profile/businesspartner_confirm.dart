@@ -18,7 +18,8 @@ class BusinessPartnerConfirmation extends StatefulWidget {
 
 class _BusinessPartnerConfirmationState
     extends State<BusinessPartnerConfirmation> {
-  TextEditingController username = TextEditingController();
+  TextEditingController firstname = TextEditingController();
+  TextEditingController lastname = TextEditingController();
   TextEditingController emailadr = TextEditingController();
   final basicForm = GlobalKey<FormState>();
 
@@ -28,7 +29,7 @@ class _BusinessPartnerConfirmationState
         appBar: AppBar(
           // backgroundColor: Colors.transparent,
           // elevation: 0,
-          title: const Text('Business Partner'),
+          title: const Text('Sourcing Partner'),
         ),
         bottomNavigationBar: Container(
           color: Constants.bgPanelColor,
@@ -72,21 +73,43 @@ class _BusinessPartnerConfirmationState
                         // inputFormatters: [
                         //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
                         // ],
-                        controller: username,
+                        controller: firstname,
                         onChanged: ((value) => {}),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter valid first and last name';
+                            return 'Please enter valid first name';
                           }
 
                           return null;
                         },
                         decoration: const InputDecoration(
                           icon: Icon(Icons.person),
-                          label: Text("Enter your name"),
+                          label: Text("First Name"),
                           //border: OutlineInputBorder(),
                           border: InputBorder.none,
-                          hintText: 'Please enter first and last name',
+                          hintText: 'Please enter first name',
+                        ),
+                      ),
+                      TextFormField(
+                        autofocus: true,
+                        // inputFormatters: [
+                        //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                        // ],
+                        controller: lastname,
+                        onChanged: ((value) => {}),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter valid last name';
+                          }
+
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.person),
+                          label: Text("Last Name"),
+                          //border: OutlineInputBorder(),
+                          border: InputBorder.none,
+                          hintText: 'Please enter last name',
                         ),
                       ),
                       // const SizedBox(height: 10),
@@ -141,19 +164,19 @@ class _BusinessPartnerConfirmationState
     SharedPreferences prefs = await Utils.getSharedPreferences();
     // prefs.setString('username', username.text);
 
-    String userName = username.text;
-    if (userName.isNotEmpty) {
-      if (!GlobalConstants.spaceMatch
-          .hasMatch(username.text.trim().toTitleCase())) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please enter valid name"),
-        ));
-        return;
-      }
-    }
+    //String userName = firstname.text;
+    // if (userName.isNotEmpty) {
+    //   if (!GlobalConstants.spaceMatch
+    //       .hasMatch(username.text.trim().toTitleCase())) {
+    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //       content: Text("Please enter valid name"),
+    //     ));
+    //     return;
+    //   }
+    // }
 
-    var firstName = username.text.trim().split(' ')[0];
-    var lastName = username.text.trim().split(' ')[1];
+    var firstName = firstname.text.trim();
+    var lastName = lastname.text.trim();
     var mobilenumber = await Utils.getPreferencesValue(
         prefs, ESharedPreferences.user_mobile.name);
 
@@ -163,8 +186,8 @@ class _BusinessPartnerConfirmationState
         "id": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_id.name),
         "mobile": mobilenumber,
-        "first_name": firstName,
-        "last_name": lastName,
+        "first_name": firstName.toTitleCase(),
+        "last_name": lastName.toTitleCase(),
         "languages": [],
         "job_location_id": 0,
         "email": emailadr.text,

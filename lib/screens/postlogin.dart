@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/typography.dart';
@@ -143,6 +144,32 @@ class _PostLoginState extends State<PostLogin> {
                     ),
                   ],
                 ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                child: Divider(
+                  height: 2,
+                  color: Color.fromARGB(255, 149, 149, 149),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: TextButton(
+                    onPressed: () => {
+                          Future.delayed(const Duration(seconds: 0), () async {
+                            await AppUtils.clearSession();
+                            Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                ERoute.login.value,
+                                (Route<dynamic> route) => false);
+                            // Navigator.pushReplacementNamed(context, nextRoute.value);
+                          })
+                        },
+                    child: const Text(
+                      "Sign Out",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    )),
               ),
             ],
           ),

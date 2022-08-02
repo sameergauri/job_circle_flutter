@@ -5,4 +5,8 @@ class LeadService extends ServiceBase {
   getLoadCounts(dynamic params) {
     return callPost(GlobalConstants.API_lead_counts, params);
   }
+
+  getAllLeadsAdvanced(dynamic params) {
+    return callPost(GlobalConstants.API_leads_v1_getAllLeadsAdvanced, params);
+  }
 }

@@ -30,6 +30,11 @@ import 'package:job_circle/screens/profile/profile_summary_partner.dart'
 import 'package:job_circle/screens/statistics/statistic.dart'
     deferred as statistic;
 
+import 'package:job_circle/screens/leads/leads.dart' deferred as leads;
+
+import 'package:job_circle/screens/performance/performance.dart'
+    deferred as performance;
+
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
@@ -51,6 +56,8 @@ Future<void> get lazyProfileSummary => profileSummary.loadLibrary();
 Future<void> get lazyStatistic => statistic.loadLibrary();
 Future<void> get lazyProfileSummaryPartner =>
     profileSummaryPartner.loadLibrary();
+Future<void> get lazyLeads => leads.loadLibrary();
+Future<void> get lazyPerformance => performance.loadLibrary();
 
 class ApplicationRouter {
   static var appRouter = {
@@ -140,6 +147,16 @@ class ApplicationRouter {
         future: lazyStatistic,
         builder: (snapshot, context) {
           return statistic.Statestics();
+        }),
+    ERoute.leads.name: (context) => FutureBuilder(
+        future: lazyLeads,
+        builder: (snapshot, context) {
+          return leads.Leads();
+        }),
+    ERoute.performance.name: (context) => FutureBuilder(
+        future: lazyPerformance,
+        builder: (snapshot, context) {
+          return performance.Performance();
         }),
     ...ApplicationAdminRouter.appAdminRouter
   };

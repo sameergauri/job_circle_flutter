@@ -23,7 +23,9 @@ enum ERoute {
   businesspartner_confirmation('businesspartner_confirmation'),
   profile_summary('profile_summary'),
   profile_summary_partner('profile_summary_partner'),
-  stats('stats');
+  stats('stats'),
+  leads('leads'),
+  performance('performance');
 
   const ERoute(this.value);
   final String value;
@@ -36,7 +38,18 @@ enum ESharedPreferences {
   user_id,
   user_data,
   user_type,
+  role,
   user_rawData
+}
+
+enum EPartnerApproval {
+  approved(2),
+  pending(1),
+  reject(3),
+  verifying(4);
+
+  const EPartnerApproval(this.value);
+  final num value;
 }
 
 enum EUserType {

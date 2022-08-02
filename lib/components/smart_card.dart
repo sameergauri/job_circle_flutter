@@ -32,6 +32,7 @@ class _SmartCardState extends State<SmartCard> {
         widget.model?.cardName = crd.cardName;
         widget.model?.mobile = crd.mobile;
         widget.model?.email = crd.email;
+        widget.model?.gender = crd.gender ?? '';
       }
       setState(() {});
     });
@@ -68,7 +69,9 @@ class _SmartCardState extends State<SmartCard> {
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/images/male.png"),
+                  backgroundImage: widget.model!.gender!.toLowerCase() == "male"
+                      ? const AssetImage("./assets/images/male.png")
+                      : const AssetImage("./assets/images/female.png"),
                 ),
               )
               //  Padding(

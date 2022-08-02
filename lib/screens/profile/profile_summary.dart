@@ -236,85 +236,91 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                     const SizedBox(
                                       height: 20,
                                     ),
-                                    ThemeButton(
-                                      icon: profilemodel.partner_request == 1
-                                          ? const Icon(
-                                              Icons.check_box_rounded,
-                                              color: Colors.green,
-                                            )
-                                          : null,
-                                      isText: true,
-                                      radious: 8,
-                                      border: Border.all(width: 1),
-                                      text: profilemodel.partner_request == 0
-                                          ? "Become Sourcing Partner and start earing."
-                                          : "Request already send. Click to cancel",
-                                      onPressed: () {
-                                        // set up the button
-                                        Widget cancelButton = TextButton(
-                                            child: const Text("Cancel"),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            });
-                                        Widget okButton = TextButton(
-                                          child: Text(
-                                              profilemodel.partner_request == 0
-                                                  ? "Send Request"
-                                                  : "Cancel Request"),
-                                          onPressed: () async {
-                                            var payload = {
-                                              "stage": "partnerRequest",
-                                              "data": {
-                                                "id": await Utils
-                                                    .getPreferencesValue(
-                                                        null,
-                                                        ESharedPreferences
-                                                            .user_id.name),
-                                                "partner_request": (profilemodel
-                                                            .partner_request ==
+                                    Visibility(
+                                      visible:
+                                          usertype == EUserType.jobSeeker.value,
+                                      child: ThemeButton(
+                                        icon: profilemodel.partner_request == 1
+                                            ? const Icon(
+                                                Icons.check_box_rounded,
+                                                color: Colors.green,
+                                              )
+                                            : null,
+                                        isText: true,
+                                        radious: 8,
+                                        border: Border.all(width: 1),
+                                        text: profilemodel.partner_request == 0
+                                            ? "Become Sourcing Partner and start earing."
+                                            : "Request already send. Click to cancel",
+                                        onPressed: () {
+                                          // set up the button
+                                          Widget cancelButton = TextButton(
+                                              child: const Text("Cancel"),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              });
+                                          Widget okButton = TextButton(
+                                            child: Text(
+                                                profilemodel.partner_request ==
                                                         0
-                                                    ? 1
-                                                    : 0)
-                                              }
-                                            };
-                                            Utils.showLoaderDialog(context, "");
-                                            await save('', payload);
+                                                    ? "Send Request"
+                                                    : "Cancel Request"),
+                                            onPressed: () async {
+                                              var payload = {
+                                                "stage": "partnerRequest",
+                                                "data": {
+                                                  "id": await Utils
+                                                      .getPreferencesValue(
+                                                          null,
+                                                          ESharedPreferences
+                                                              .user_id.name),
+                                                  "partner_request": (profilemodel
+                                                              .partner_request ==
+                                                          0
+                                                      ? 1
+                                                      : 0)
+                                                }
+                                              };
+                                              Utils.showLoaderDialog(
+                                                  context, "");
+                                              await save('', payload);
 
-                                            Navigator.pop(context);
-                                            Navigator.pop(context);
-                                          },
-                                        );
-                                        // set up the AlertDialog
-                                        AlertDialog alert = AlertDialog(
-                                          title: const Text("Request"),
-                                          content: Text(profilemodel
-                                                      .partner_request ==
-                                                  0
-                                              ? "Do you want to send request to became business partner with us?"
-                                              : "Do you want to cancel request?"),
-                                          actions: [cancelButton, okButton],
-                                        );
-                                        // show the dialog
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return alert;
-                                          },
-                                        );
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            },
+                                          );
+                                          // set up the AlertDialog
+                                          AlertDialog alert = AlertDialog(
+                                            title: const Text("Request"),
+                                            content: Text(profilemodel
+                                                        .partner_request ==
+                                                    0
+                                                ? "Do you want to send request to became business partner with us?"
+                                                : "Do you want to cancel request?"),
+                                            actions: [cancelButton, okButton],
+                                          );
+                                          // show the dialog
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return alert;
+                                            },
+                                          );
 
-                                        // Future.delayed(
-                                        //     const Duration(seconds: 0),
-                                        //     () async {
-                                        //   await AppUtils.clearSession();
-                                        //   Navigator.pushNamedAndRemoveUntil(
-                                        //       context,
-                                        //       ERoute.login.value,
-                                        //       (Route<dynamic> route) => false);
-                                        //   // Navigator.pushReplacementNamed(context, nextRoute.value);
-                                        // });
-                                        //
-                                      },
-                                      themeButtonSize: ThemeButtonSize.small,
+                                          // Future.delayed(
+                                          //     const Duration(seconds: 0),
+                                          //     () async {
+                                          //   await AppUtils.clearSession();
+                                          //   Navigator.pushNamedAndRemoveUntil(
+                                          //       context,
+                                          //       ERoute.login.value,
+                                          //       (Route<dynamic> route) => false);
+                                          //   // Navigator.pushReplacementNamed(context, nextRoute.value);
+                                          // });
+                                          //
+                                        },
+                                        themeButtonSize: ThemeButtonSize.small,
+                                      ),
                                     ),
                                     const SizedBox(
                                       height: 20,

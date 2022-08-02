@@ -39,32 +39,50 @@ class _Screen2State extends State<Screen2> {
 
   @override
   void initState() {
+    super.initState();
     bindLevelOfEducation();
     bindUniversityEducation();
     bindDegree();
     if (widget.prevPageModel != null) {
-      selectedEducation = AutoCompleteModel(
-          widget.prevPageModel.education_id.toString(),
-          widget.prevPageModel.education, {});
-      educationController.text = widget.prevPageModel.education.toString();
+      String education_id = "";
+      dynamic education = "";
+      if (widget.prevPageModel.education_id != null) {
+        education_id = widget.prevPageModel.education_id.toString();
+      }
+      if (widget.prevPageModel.education != null) {
+        education = widget.prevPageModel.education;
+      }
+      selectedEducation = AutoCompleteModel(education_id, education, {});
+      educationController.text = education;
 
-      selectedUniversity = AutoCompleteModel(
-          widget.prevPageModel.univercity_id.toString(),
-          widget.prevPageModel.univercity, {});
-      universityController.text = widget.prevPageModel.univercity.toString();
+      String univercity_id = widget.prevPageModel.univercity_id != null
+          ? widget.prevPageModel.univercity_id.toString()
+          : "";
+      dynamic univercity = widget.prevPageModel.univercity != null
+          ? widget.prevPageModel.univercity.toString()
+          : "";
 
-      selectedDegree = AutoCompleteModel(
-          widget.prevPageModel.degree_spc_id.toString(),
-          widget.prevPageModel.degree_spc ?? '', {});
-      degreeController.text = widget.prevPageModel.degree_spc.toString();
+      selectedUniversity = AutoCompleteModel(univercity_id, univercity, {});
+      universityController.text = univercity;
+
+      String degree_spc_id = widget.prevPageModel.degree_spc_id != null
+          ? widget.prevPageModel.degree_spc_id.toString()
+          : "";
+      dynamic degree_spc = widget.prevPageModel.degree_spc != null
+          ? widget.prevPageModel.degree_spc.toString()
+          : "";
+      selectedDegree = AutoCompleteModel(degree_spc_id, degree_spc, {});
+      degreeController.text = degree_spc;
       passingYearController.text = widget.prevPageModel.passing_year.toString();
     }
-    super.initState();
   }
 
   bindLevelOfEducation() async {
-    var result = await MasterService().masterGetByGroup(
-        {'groupName': 'level_education', 'pageNumber': '1', 'pageSize': '10'});
+    var result = await MasterService().masterGetByGroup({
+      'groupName': 'level_education',
+      'pageNumber': '1',
+      'pageSize': '1000'
+    });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
@@ -82,7 +100,7 @@ class _Screen2State extends State<Screen2> {
 
   bindUniversityEducation() async {
     var result = await MasterService().masterGetByGroup(
-        {'groupName': 'university', 'pageNumber': '1', 'pageSize': '10'});
+        {'groupName': 'university', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];
@@ -100,7 +118,7 @@ class _Screen2State extends State<Screen2> {
 
   bindDegree() async {
     var result = await MasterService().masterGetByGroup(
-        {'groupName': 'degree', 'pageNumber': '1', 'pageSize': '10'});
+        {'groupName': 'degree', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ddlValues = Utils.parseResponse(result).resultData;
       // list=ddlValues["content"];

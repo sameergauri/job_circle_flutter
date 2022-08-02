@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
+import 'package:job_circle/models/autocompleteModel.dart';
+import 'package:job_circle/screens/jobs/job_filter.dart';
 import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -19,13 +24,14 @@ class Jobs extends StatefulWidget {
   State<Jobs> createState() => _JobsState();
 }
 
-class _JobsState extends State<Jobs> {
+class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
   final filterJobType = <String>[
     "All",
     "Work from home",
     "Part-time",
     "Night shift"
   ];
+
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
   List<String> citiesList = [];
@@ -40,9 +46,18 @@ class _JobsState extends State<Jobs> {
   var localtion = "";
   var licationid = 0;
   late var usertype = -1;
+  var role = "0";
+  String bannerUrl = "";
+  bool isbannerVisible = false;
 
-  RefreshController _refreshController =
+  final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
+
+  BottomSheetController bottomSheetDialogController = BottomSheetController();
+
+  var locationid = 0;
+
+  var locationname = "";
 
   void _onRefresh() async {
     // if failed,use refreshFailed()
@@ -67,15 +82,26 @@ class _JobsState extends State<Jobs> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      usertype = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
+    bindInit();
+  }
 
-      setState(() {});
-    });
+  void bindInit() async {
+    usertype = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+    role = await Utils.getPreferencesValue(null, ESharedPreferences.role.name);
+
+    var userRaw = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_rawData.name);
+    if (userRaw != null) {
+      var jUserRaw = jsonDecode(userRaw);
+      locationid = jUserRaw['locationid'];
+      locationname = jUserRaw['location'];
+    }
+
     bindItems();
     _controllerListView = ScrollController()..addListener(_loadMore);
     bindLocation();
+    setState(() {});
   }
 
   @override
@@ -91,7 +117,7 @@ class _JobsState extends State<Jobs> {
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
         floatingActionButton: Visibility(
-            visible: usertype == EUserType.employee.value,
+            visible: usertype == EUserType.employee.value && role != "4",
             child: FloatingActionButton(
               child: const Icon(Icons.add),
               onPressed: () {
@@ -227,7 +253,15 @@ class _JobsState extends State<Jobs> {
                           onTap: (() {
                             showSearch(
                                 context: context,
-                                delegate: LocationSearch(locations: locations));
+                                delegate: LocationSearch(
+                                    locations: locations,
+                                    onSelected: (locationitem) => {
+                                          locationname =
+                                              locationitem.name.toString(),
+                                          locationid = int.parse(
+                                              locationitem.id.toString()),
+                                          setState(() => {})
+                                        }));
                           }),
                           child: Text.rich(
                             TextSpan(
@@ -236,7 +270,7 @@ class _JobsState extends State<Jobs> {
                                   color: Colors.white, fontSize: 18),
                               children: <TextSpan>[
                                 TextSpan(
-                                    text: localtion,
+                                    text: locationname,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
@@ -300,7 +334,7 @@ class _JobsState extends State<Jobs> {
                                                 width: double.maxFinite,
                                                 clipBehavior: Clip.antiAlias,
                                                 padding:
-                                                    const EdgeInsets.all(16),
+                                                    const EdgeInsets.all(0),
                                                 decoration: const BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
@@ -311,47 +345,17 @@ class _JobsState extends State<Jobs> {
                                                         Radius.circular(16),
                                                   ),
                                                 ),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        color: Colors.black38,
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                          Radius.circular(16),
-                                                        ),
-                                                      ),
-                                                      height: 7,
-                                                      width: 60,
-                                                    ),
-                                                    Material(
-                                                        child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          SizedBox(
-                                                            height: 300,
-                                                            width:
-                                                                double.infinity,
-                                                          ),
-                                                          // ThemeButton(
-                                                          //   onPressed: () {},
-                                                          //   text: "APPLY",
-                                                          //   width: 130,
-                                                          //   radious: 5,
-                                                          //   themeButtonSize:
-                                                          //       ThemeButtonSize
-                                                          //           .small,
-                                                          // )
-                                                        ])),
-                                                  ],
-                                                )),
+                                                child: SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height -
+                                                            150,
+                                                    child: const JobFilter())),
                                           ),
-                                          true);
+                                          true,
+                                          controller:
+                                              bottomSheetDialogController);
                                     },
                                     child: Row(
                                       children: const [
@@ -464,32 +468,34 @@ class _JobsState extends State<Jobs> {
                                 controller: _controllerListView,
                                 child: Column(
                                   children: [
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        boxShadow: const [
-                                          BoxShadow(
-                                              color: Color.fromARGB(
-                                                  255, 192, 192, 192),
-                                              blurRadius: 2.0,
-                                              spreadRadius: 1),
-                                        ],
-                                        color: Constants.bgPanelColor,
-                                        image: const DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: NetworkImage(
-                                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzhsRgBZ1tPJFXJI47f3YvYnbouanQ9YvxCA&usqp=CAU")),
-
-                                        //  color: Color(0xfff0f1fe),
-                                        borderRadius: BorderRadius.circular(8),
+                                    if (isbannerVisible)
+                                      const SizedBox(
+                                        height: 10,
                                       ),
-                                      height: 80,
-                                      margin: const EdgeInsets.only(
-                                          left: 20.0, right: 20.0),
-                                      width: double.infinity,
-                                    ),
+                                    if (isbannerVisible)
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Color.fromARGB(
+                                                    255, 192, 192, 192),
+                                                blurRadius: 2.0,
+                                                spreadRadius: 1),
+                                          ],
+                                          color: Constants.bgPanelColor,
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              image: NetworkImage(bannerUrl)),
+
+                                          //  color: Color(0xfff0f1fe),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        height: 80,
+                                        margin: const EdgeInsets.only(
+                                            left: 20.0, right: 20.0),
+                                        width: double.infinity,
+                                      ),
                                     const SizedBox(
                                       height: 20,
                                     ),
@@ -557,13 +563,28 @@ class _JobsState extends State<Jobs> {
 
   void bindLocation() async {
     var result = await MasterService().masterGetByGroups(
-        {'groupName': 'city', 'pageNumber': '1', 'pageSize': '1000'});
+        {'groupName': 'city', 'pageNumber': '1', 'pageSize': '1500'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       dynamic resultValue = Utils.parseResponse(result).resultData['content'];
       for (var i = 0; i < resultValue.length; i++) {
         locations.add(LocationItem(
             id: resultValue[i]['id'], name: resultValue[i]['value']));
       }
+    }
+
+    var bannerResult = await MasterService().masterGetByGroups(
+        {'groupName': 'banner', 'pageNumber': '1', 'pageSize': '1'});
+    if (Utils.parseResponse(bannerResult).resultKey == 'SUCCESS') {
+      dynamic resultValues =
+          Utils.parseResponse(bannerResult).resultData['content'];
+      if (resultValues.length > 0) {
+        var bannerData = resultValues[0]['value'];
+        if (resultValues[0]['active'] == 1) {
+          bannerUrl = GlobalConstants.ASSET_URL + bannerData;
+          isbannerVisible = true;
+        }
+      }
+      setState(() {});
     }
   }
 
@@ -1016,11 +1037,12 @@ class DataSearch extends SearchDelegate<String> {
 
 class LocationSearch extends SearchDelegate<String> {
   List<LocationItem> locations = [];
+  final Function(LocationItem) onSelected;
 
-  LocationSearch({required this.locations});
+  LocationSearch({required this.locations, required this.onSelected});
 
-  final cities = ["Kalyan1", "Thane1"];
-  final recentCities = ["Kalyan1", "Thane1"];
+  final cities = [];
+  final recentCities = [];
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -1064,6 +1086,7 @@ class LocationSearch extends SearchDelegate<String> {
       itemBuilder: (context, index) => ListTile(
         onTap: () {
           //showResults(context);
+          onSelected(suggestionList[index]);
           close(context, query);
         },
         leading: const Icon(Icons.location_city),

@@ -28,6 +28,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
   var profile_final_pic = "";
   var profile_cv_link = "";
   var profile_cv_file = "";
+  var partner_request = 1;
 
   // Veriable Declaration
   CardModel model = CardModel();
@@ -46,18 +47,17 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
   bool get kDebugMode => false;
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      usertype = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
-
-      setState(() {});
-    });
-    bindProfileSummary();
     super.initState();
+    bindProfileSummary();
   }
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
+    usertype = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_type.name);
+
+    partner_request = await Utils.getCacheData('partner_request');
+    setState(() {});
     var result = await UserDataService().getUserProfileSummary(
         await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_id.name));
@@ -161,6 +161,29 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                           Visibility(
                               visible: (usertype == 1 ? true : false),
                               child: contactDetails()),
+                          Visibility(
+                              visible: (partner_request ==
+                                          EPartnerApproval.pending.value ||
+                                      partner_request ==
+                                          EPartnerApproval.reject.value
+                                  ? false
+                                  : true),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: cardCustom(
+                                    icon: Icons.handshake_outlined,
+                                    isedit: false,
+                                    title: "Partner",
+                                    child: ThemeButton(
+                                      onPressed: () => {
+                                        Navigator.pushNamed(context,
+                                            ERoute.businesspartner.value)
+                                      },
+                                      themeButtonSize: ThemeButtonSize.small,
+                                      isText: true,
+                                      text: "Click here to fill details",
+                                    ),
+                                  ))),
                           Visibility(
                               visible: (usertype == 1 ? true : false),
                               child: Padding(

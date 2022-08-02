@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
-import 'package:job_circle/screens/statistics/statistic.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
@@ -15,18 +18,26 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   final PageController pageController = PageController();
   int selectedIndex = 0;
   dynamic userType;
+  String userName = "";
+  String userEmail = "";
   List<BottomNavigationBarItem> bottomTabItems = [];
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences pref = await Utils.getSharedPreferences();
       userType = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
-    });
+          pref, ESharedPreferences.user_type.name);
 
+      String userRaw = await Utils.getPreferencesValue(
+          pref, ESharedPreferences.user_rawData.name);
+      dynamic userRawData = jsonDecode(userRaw);
+      userName = userRawData['firstName'] + " " + userRawData['lastName'];
+      userEmail = userRawData['email'];
+      setState(() {});
+    });
     bindBottomTabs();
-    setState(() {});
 
     /// WidgetsBinding.instance.addObserver(this);
   }
@@ -54,9 +65,37 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar(title: const Text("Dashboard")),
+      // drawer: Drawer(
+      //   child: ListView(
+      //     // Important: Remove any padding from the ListView.
+      //     padding: EdgeInsets.zero,
+      //     children: [
+      //       UserAccountsDrawerHeader(
+      //         accountName: Text(userName),
+      //         accountEmail: Text(userEmail),
+      //         currentAccountPicture: CircleAvatar(
+      //           backgroundColor: Colors.orange,
+      //           child: Text(
+      //             userName.length > 1 ? userName.substring(0, 1) : "-",
+      //             style: const TextStyle(fontSize: 40.0),
+      //           ),
+      //         ),
+      //       ),
+      //       ListTile(
+      //         leading: const Icon(Icons.settings),
+      //         title: const Text("Performance"),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //           Navigator.pushNamed(context, "performance");
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // ),
       body: PageView(
         controller: pageController,
-        children: const [Statestics()],
+        children: const [Jobs()],
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -67,26 +106,26 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-            items: bottomTabItems,
-            type: BottomNavigationBarType.fixed,
-            currentIndex: selectedIndex,
-            unselectedItemColor: Colors.black45,
-            selectedItemColor: Theme.of(context).primaryColor,
-            iconSize: 30,
-            onTap: onNavigationChange,
-            elevation: 100),
+        child: bottomTabItems.length > 1
+            ? BottomNavigationBar(
+                items: bottomTabItems,
+                type: BottomNavigationBarType.fixed,
+                currentIndex: selectedIndex,
+                unselectedItemColor: Colors.black45,
+                selectedItemColor: Theme.of(context).primaryColor,
+                iconSize: 30,
+                onTap: onNavigationChange,
+                elevation: 100)
+            : null,
       ),
     );
   }
 
-  void bindBottomTabs() {
-    bottomTabItems.add(const BottomNavigationBarItem(
-      icon: Icon(Icons.numbers),
-      activeIcon: Icon(Icons.numbers_outlined),
-      label: 'Home',
-      backgroundColor: Colors.blue,
-    ));
+  void bindBottomTabs() async {
+    userType = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+
+    var partner_request = await Utils.getCacheData('partner_request');
 
     bottomTabItems.add(const BottomNavigationBarItem(
       icon: Icon(Icons.dashboard_customize_outlined),
@@ -94,11 +133,25 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Jobs',
       backgroundColor: Colors.blue,
     ));
-    if (userType == EUserType.businessPartner.value) {
+
+    if (userType == EUserType.employee.value ||
+        (userType == EUserType.businessPartner.value &&
+            partner_request == EPartnerApproval.approved.value)) {
       bottomTabItems.add(const BottomNavigationBarItem(
-        icon: Icon(Icons.handshake_outlined),
-        activeIcon: Icon(Icons.handshake_outlined),
-        label: 'Partner',
+        icon: Icon(Icons.numbers),
+        activeIcon: Icon(Icons.numbers_outlined),
+        label: 'Dashboard',
+        backgroundColor: Colors.blue,
+      ));
+    }
+
+    if (userType == EUserType.employee.value ||
+        (userType == EUserType.businessPartner.value &&
+            partner_request == EPartnerApproval.approved.value)) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.bar_chart),
+        activeIcon: Icon(Icons.bar_chart_outlined),
+        label: 'Performance',
         backgroundColor: Colors.blue,
       ));
     }
@@ -117,6 +170,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         backgroundColor: Colors.blue,
       ));
     }
+    setState(() {});
   }
 
   void onNavigationChange(int value) {
@@ -136,8 +190,11 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           Navigator.pushNamed(context, ERoute.profile_summary_partner.name);
         }
         break;
-      case "Admin":
-        Navigator.pushNamed(context, AdminERoute.admin_leads.name);
+      case "Dashboard":
+        Navigator.pushNamed(context, ERoute.stats.value);
+        break;
+      case "Performance":
+        Navigator.pushNamed(context, ERoute.performance.value);
         break;
       case "Partner":
         Navigator.push(context,

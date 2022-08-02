@@ -194,7 +194,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Business Partner'),
+          title: const Text('Sourcing Partner'),
         ),
         body: SingleChildScrollView(
           child: Padding(

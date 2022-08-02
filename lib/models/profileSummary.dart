@@ -33,6 +33,8 @@ class ProfileSummaryModel {
   String? cv_link;
   String? cv_upladted_date;
   int? partner_request;
+  String? salary;
+  int? salaryid;
 
   ProfileSummaryModel(
       {this.id,
@@ -64,7 +66,9 @@ class ProfileSummaryModel {
       this.profile_pic,
       this.cv_link,
       this.cv_upladted_date,
-      this.partner_request});
+      this.partner_request,
+      this.salary,
+      this.salaryid});
 
   factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
     List languages = [];
@@ -111,6 +115,8 @@ class ProfileSummaryModel {
         profile_pic: map['profile_pic'],
         cv_link: map['cv_link'],
         cv_upladted_date: FormatedDate,
-        partner_request: map['partner_request']);
+        partner_request: map['partner_request'] ?? 0,
+        salary: map['salary'],
+        salaryid: map['salaryid'] ?? 0);
   }
 }

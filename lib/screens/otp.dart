@@ -310,6 +310,11 @@ class _OTPScreenState extends State<OTPScreen> {
         model.firstName = data['firstName'];
         model.lastName = data['lastName'];
         model.email = data['email'];
+        model.role = data['role'];
+        model.gender = data['gender'];
+        await Utils.setPreference(
+            pres, ESharedPreferences.role.name, data['role']);
+
         await Utils.setPreference(pres, ESharedPreferences.user_data.name,
             jsonEncode(model.toJson()));
 

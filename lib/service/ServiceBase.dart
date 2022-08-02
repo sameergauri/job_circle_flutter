@@ -34,7 +34,7 @@ class ServiceBase {
       print(url);
     }
     SharedPreferences preferences = await Utils.getSharedPreferences();
-    Object? token = Utils.getPreferencesValue(preferences, "token");
+    Object? token = await Utils.getPreferencesValue(preferences, "token");
 
     Map<String, String> _headers = {
       'Content-Type': 'application/json',

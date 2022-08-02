@@ -391,10 +391,10 @@ class ApplicationFormState extends State<ApplicationForm> {
                   controller: contactno,
                   decoration: const InputDecoration(
                     // icon: Icon(Icons.person),
-                    label: Text("Contact No *"),
+                    label: Text("Contact *"),
                     //border: OutlineInputBorder(),
                     border: InputBorder.none,
-                    hintText: 'Enter conctact no',
+                    hintText: 'Enter conctact',
                   ),
                 ),
                 const Padding(
@@ -500,7 +500,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                                   });
                                 },
                           child: Text(
-                            'Exprience',
+                            'Experience',
                             style: TextStyle(
                                 color: exprinceActive == 1
                                     ? Colors.white
@@ -576,7 +576,8 @@ class ApplicationFormState extends State<ApplicationForm> {
                               shorListController.text = model.label,
                               selectedshort = model,
                               Navigator.pop(context),
-                              if (userType == EUserType.businessPartner.value || userType == EUserType.employee.value)
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
                                 {openCompanyJobsDetails()}
                               else
                                 {
@@ -594,7 +595,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                   decoration: const InputDecoration(
                       suffixIcon: Icon(Icons.arrow_drop_down),
                       // Icons.workspace_premium
-                      label: Text("Applied For *"),
+                      label: Text("Company Name *"),
                       //border: OutlineInputBorder(),
                       border: InputBorder.none,
                       hintText: "Select Company",
@@ -627,7 +628,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                   decoration: const InputDecoration(
                       suffixIcon: Icon(Icons.arrow_drop_down),
                       // Icons.workspace_premium
-                      label: Text("Proccess *"),
+                      label: Text("Process *"),
                       //border: OutlineInputBorder(),
                       border: InputBorder.none,
                       hintText: "Select proccess",
