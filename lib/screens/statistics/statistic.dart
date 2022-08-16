@@ -79,9 +79,15 @@ class _StatesticsState extends State<Statestics> {
 
           child: const Icon(Icons.add),
 
-          onPressed: () {
-            Navigator.pushNamed(context, ERoute.application.name,
+          onPressed: () async {
+            var result = await Navigator.pushNamed(
+                context, ERoute.application.name,
                 arguments: {"isnew": true});
+            if (result != null) {
+              if (result == "refresh") {
+                getCountData();
+              }
+            }
           },
         ),
       ),

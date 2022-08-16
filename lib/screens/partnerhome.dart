@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
+import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
@@ -194,7 +196,15 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         Navigator.pushNamed(context, ERoute.stats.value);
         break;
       case "Performance":
-        Navigator.pushNamed(context, ERoute.performance.value);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const WebviewData(
+                      // url: "https://www.youtube.com/",
+                      url: GlobalConstants.WEB_Host + "/mobile/performance",
+                      title: "Performance",
+                    )));
+        //Navigator.pushNamed(context, ERoute.performance.value);
         break;
       case "Partner":
         Navigator.push(context,

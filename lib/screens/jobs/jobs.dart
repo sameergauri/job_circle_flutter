@@ -37,12 +37,13 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
   List<String> citiesList = [];
   List<LocationItem> locations = [];
   late ScrollController _controllerListView;
-
+  var searchText = "";
+  var sortByd = "Recomended";
   var _page = 0;
   var _hasNextPage = true;
   var _isFirstLoadRunning = false;
   var _isLoadMoreRunning = false;
-  final _pageSize = 10;
+  final _pageSize = 15;
   var localtion = "";
   var licationid = 0;
   late var usertype = -1;
@@ -58,11 +59,13 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
   var locationid = 0;
 
   var locationname = "";
+  var user_selected_lcoation;
 
   void _onRefresh() async {
     // if failed,use refreshFailed()
     await Future.delayed(const Duration(milliseconds: 200));
-    bindItems();
+
+    searchAgain();
     _refreshController.refreshCompleted();
   }
 
@@ -97,16 +100,28 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
       locationid = jUserRaw['locationid'];
       locationname = jUserRaw['location'];
     }
+    user_selected_lcoation = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_selected_lcoation.name);
+    if (localtion != "") {
+      user_selected_lcoation ?? localtion;
+      await Utils.setPreference(
+          null, ESharedPreferences.user_selected_lcoation.name, localtion);
+    }
 
+    await bindLocation();
+    if (user_selected_lcoation == null) {
+      searchLocation(context);
+    }
+    bindBanner();
     bindItems();
-    _controllerListView = ScrollController()..addListener(_loadMore);
-    bindLocation();
+    //_controllerListView = ScrollController()..addListener(_loadMore);
+
     setState(() {});
   }
 
   @override
   void dispose() {
-    _controllerListView.removeListener(_loadMore);
+    //_controllerListView.removeListener(_loadMore);
     super.dispose();
   }
 
@@ -140,7 +155,11 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
               enableInteractiveSelection: false, // will disable paste operation
               focusNode: AlwaysDisabledFocusNode(),
               onTap: () {
-                showSearch(context: context, delegate: DataSearch());
+                showSearch(
+                    context: context,
+                    delegate: DataSearch(
+                        onSelected: (String q) =>
+                            {searchText = q, searchAgain()}));
               },
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search_outlined),
@@ -148,7 +167,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                 contentPadding:
                     const EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
                 fillColor: Colors.white,
-                hintText: 'Search job...',
+                hintText: 'Search company, process, role...',
                 hintStyle: const TextStyle(
                   color: Colors.grey,
                   fontSize: 18,
@@ -251,17 +270,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                     Expanded(
                       child: GestureDetector(
                           onTap: (() {
-                            showSearch(
-                                context: context,
-                                delegate: LocationSearch(
-                                    locations: locations,
-                                    onSelected: (locationitem) => {
-                                          locationname =
-                                              locationitem.name.toString(),
-                                          locationid = int.parse(
-                                              locationitem.id.toString()),
-                                          setState(() => {})
-                                        }));
+                            searchLocation(context);
                           }),
                           child: Text.rich(
                             TextSpan(
@@ -270,7 +279,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                   color: Colors.white, fontSize: 18),
                               children: <TextSpan>[
                                 TextSpan(
-                                    text: locationname,
+                                    text: user_selected_lcoation ?? '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
@@ -357,24 +366,27 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                           controller:
                                               bottomSheetDialogController);
                                     },
-                                    child: Row(
-                                      children: const [
-                                        Icon(
-                                          Icons.filter_alt_outlined,
-                                          color: Colors.black,
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          "Filter",
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                    child: Visibility(
+                                      visible: false,
+                                      child: Row(
+                                        children: const [
+                                          Icon(
+                                            Icons.filter_alt_outlined,
+                                            color: Colors.black,
+                                          ),
+                                          SizedBox(
+                                            width: 4,
+                                          ),
+                                          Text(
+                                            "Filter",
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -394,7 +406,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                         style: const TextStyle(
                                             color: Colors.black87,
                                             fontWeight: FontWeight.bold),
-                                        value: "Recomended",
+                                        value: sortByd,
                                         alignment: Alignment.bottomRight,
                                         items: <String>[
                                           'Recomended',
@@ -412,7 +424,12 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                         FontWeight.bold)),
                                           );
                                         }).toList(),
-                                        onChanged: (_) {},
+                                        onChanged: (_) {
+                                          setState(() {
+                                            sortByd = _.toString();
+                                            searchAgain();
+                                          });
+                                        },
                                       ),
                                     ],
                                   ),
@@ -465,7 +482,6 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                               onRefresh: _onRefresh,
                               onLoading: _onLoading,
                               child: SingleChildScrollView(
-                                controller: _controllerListView,
                                 child: Column(
                                   children: [
                                     if (isbannerVisible)
@@ -498,6 +514,80 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                       ),
                                     const SizedBox(
                                       height: 20,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (searchText != "")
+                                          RichText(
+                                            text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                      text:
+                                                          " for " + searchText,
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          decorationStyle:
+                                                              TextDecorationStyle
+                                                                  .solid,
+                                                          color: Colors.black)),
+                                                  TextSpan(
+                                                      text:
+                                                          " in $user_selected_lcoation ",
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color: Colors.black)),
+                                                ],
+                                                text: "Jobs",
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: Colors.black)),
+                                          ),
+                                        if (searchText != "")
+                                          IconButton(
+                                              onPressed: () => {
+                                                    searchText = "",
+                                                    searchAgain(),
+                                                    setState(() => {})
+                                                  },
+                                              icon: const Icon(
+                                                Icons.highlight_off,
+                                                size: 19,
+                                              ))
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Visibility(
+                                      visible: jobItems.length == 0 &&
+                                          !_isLoadMoreRunning,
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Image.asset(
+                                              "./assets/images/unboxing.gif",
+                                              height: 125.0,
+                                              width: 125.0,
+                                            ),
+                                            const Text(
+                                              "No jobs available here. \r\nTry another location, company, role etc..",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                     ListView.builder(
                                       physics:
@@ -561,7 +651,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
         ));
   }
 
-  void bindLocation() async {
+  bindLocation() async {
     var result = await MasterService().masterGetByGroups(
         {'groupName': 'city', 'pageNumber': '1', 'pageSize': '1500'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -571,7 +661,10 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
             id: resultValue[i]['id'], name: resultValue[i]['value']));
       }
     }
+    return "done";
+  }
 
+  void bindBanner() async {
     var bannerResult = await MasterService().masterGetByGroups(
         {'groupName': 'banner', 'pageNumber': '1', 'pageSize': '1'});
     if (Utils.parseResponse(bannerResult).resultKey == 'SUCCESS') {
@@ -911,14 +1004,19 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
   }
 
   void _loadMore() async {
-    if (_hasNextPage == true &&
-        _isLoadMoreRunning == false &&
-        (_controllerListView.position.maxScrollExtent -
-                (_controllerListView.position.maxScrollExtent -
-                    _controllerListView.position.extentAfter) <
-            100)) {
+    if (_hasNextPage == true && _isLoadMoreRunning == false) {
       bindItems();
     }
+  }
+
+  void searchAgain() async {
+    _page = 0;
+    _hasNextPage = true;
+    _isFirstLoadRunning = false;
+    _isLoadMoreRunning = false;
+    jobItems = [];
+    setState(() => {});
+    bindItems();
   }
 
   void bindItems() async {
@@ -927,8 +1025,15 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     });
     _page += 1; // Increase _page by 1
     try {
-      var result = await JobSearchService().getJobSearch(
-          {"page": _page.toString(), "size": _pageSize.toString()});
+      var seardData = {"page": _page.toString(), "size": _pageSize.toString()};
+      if (locationid > 0) {
+        seardData['location'] = locationid.toString();
+      }
+
+      seardData['sort'] = sortByd;
+      seardData['sortType'] = 'asc';
+      seardData['company'] = searchText;
+      var result = await JobSearchService().getJobSearch(seardData);
       RequestResult res = Utils.parseResponse(result);
       var list = res.resultData as List;
       setState(() {
@@ -946,12 +1051,36 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
           .loadComplete(); // Display a progress indicator at the bottom
     });
   }
+
+  void searchLocation(context) async {
+    showSearch(
+        context: context,
+        delegate: LocationSearch(
+            locations: locations,
+            onSelected: (locationitem) async => {
+                  locationname = locationitem.name.toString(),
+                  user_selected_lcoation = locationitem.name.toString(),
+                  locationid = int.parse(locationitem.id.toString()),
+                  await Utils.setPreference(
+                      null,
+                      ESharedPreferences.user_selected_lcoation.name,
+                      user_selected_lcoation.toString()),
+                  searchAgain(),
+                }));
+  }
 }
 
 class DataSearch extends SearchDelegate<String> {
   List<String> cities = [];
   List dataList = [];
-  final recentCities = ["Kalyan", "Thane"];
+  final recentCities = [];
+  final Function(String) onSelected;
+  TextInputAction get textInputAction => TextInputAction.none;
+
+  @override
+  String get searchFieldLabel => 'Search company, process, role...';
+
+  DataSearch({required this.onSelected});
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -981,6 +1110,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // TODO: implement buildResults
+
     return const Card();
   }
 
@@ -992,27 +1122,28 @@ class DataSearch extends SearchDelegate<String> {
         .toList();
 
     return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          //showResults(context);
-          close(context, query);
-        },
-        leading: const Icon(Icons.location_city),
-        title: RichText(
-          text: TextSpan(
-              children: [
-                TextSpan(
-                    text: suggestionList[index].substring(query.length),
+        itemBuilder: (context, index) => ListTile(
+              onTap: () {
+                //showResults(context);
+                close(context, query);
+                onSelected(query);
+              },
+              leading: const Icon(Icons.search),
+              title: RichText(
+                text: TextSpan(
+                    children: [
+                      TextSpan(
+                          text: query,
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black))
+                    ],
+                    text: "Search for ",
                     style: const TextStyle(
-                        fontWeight: FontWeight.normal, color: Colors.black))
-              ],
-              text: suggestionList[index].substring(0, query.length),
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.black)),
-        ),
-      ),
-      itemCount: suggestionList.length,
-    );
+                        fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+        itemCount: 1);
   }
 
   // void locationList() async {
@@ -1043,6 +1174,8 @@ class LocationSearch extends SearchDelegate<String> {
 
   final cities = [];
   final recentCities = [];
+  @override
+  String get searchFieldLabel => 'Select City';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -1073,6 +1206,13 @@ class LocationSearch extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     // TODO: implement buildResults
     return const Card();
+  }
+
+  @override
+  void showResults(BuildContext context) {
+    super.showResults(context);
+    showSuggestions(context);
+    FocusScope.of(context).unfocus();
   }
 
   @override

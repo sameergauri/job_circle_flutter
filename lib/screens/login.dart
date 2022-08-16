@@ -115,14 +115,44 @@ class _LoginState extends State<Login> {
                   child: SizedBox(
                     height: 100,
                     child: Column(
-                      children: const [
-                        Text(
-                          'MADE IN INDIA',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              decoration: TextDecoration.none,
-                              color: Colors.black87),
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'MADE IN ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  decoration: TextDecoration.none,
+                                  color: Colors.black87),
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Image.asset(
+                              "./assets/images/india.png",
+                              height: 22,
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            const Text(
+                              ' WITH ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  decoration: TextDecoration.none,
+                                  color: Colors.black87),
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Image.asset(
+                              "./assets/images/heart.png",
+                              height: 22,
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 10,

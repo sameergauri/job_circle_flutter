@@ -13,12 +13,12 @@ class ServiceBase {
     Uri url = Uri.http(GlobalConstants.API_Host, endpoint);
     try {
       SharedPreferences preferences = await Utils.getSharedPreferences();
-      Object? token = Utils.getPreferencesValue(preferences, "token");
+      //Object? token = await Utils.getPreferencesValue(preferences, "token");
 
       Map<String, String> _headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'token': token != null ? token.toString() : ''
+        // 'token': token != null ? token.toString() : ''
       };
       return http.post(url,
           body: const JsonEncoder().convert(params), headers: _headers);

@@ -64,6 +64,7 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   var ddlValues;
   late int userType = -1;
+  late int role = 0;
   late List<AutoCompleteModel> shortList = [];
   late List<AutoCompleteModel> proccessList = [];
   late List<AutoCompleteModel> levelList = [];
@@ -134,6 +135,8 @@ class ApplicationFormState extends State<ApplicationForm> {
           null, ESharedPreferences.user_data.name);
       userType = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
+      role =
+          await Utils.getPreferencesValue(null, ESharedPreferences.role.name);
       // mobileno = await Utils.getPreferencesValue(
       //     null, ESharedPreferences.user_mobile.name);
       localStoregData = jsonDecode(userinfo);
@@ -871,8 +874,11 @@ class ApplicationFormState extends State<ApplicationForm> {
                 ThemeButton(
                   width: 200,
                   radious: 0,
-                  onPressed: () {
-                    save();
+                  onPressed: () async {
+                    bool issuccess = await save();
+                    if (issuccess) {
+                      Navigator.pop(context, "refresh");
+                    }
                   },
                   text: "SUBMIT",
                   themeButtonSize: ThemeButtonSize.small,
@@ -1013,20 +1019,27 @@ class ApplicationFormState extends State<ApplicationForm> {
                 userType == EUserType.employee.value
             ? userId
             : 0),
+        "user_type": userType,
+        "role": role
       };
 
       var result = await ApplicationService().saveApplication(param);
       var apiresult = Utils.parseResponse(result);
+      Navigator.pop(context);
       if (apiresult.resultKey == 'SUCCESS') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Request has been submitted successfully"),
         ));
+        return true;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(apiresult.errorMessage),
         ));
+        return false;
       }
-      Navigator.pop(context);
+
+      // Navigator.popAndPushNamed(context, "refresh");
+      // return Future(() => false);
     }
   }
 

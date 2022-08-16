@@ -464,7 +464,8 @@ class _Screen3State extends State<Screen3> {
           : selectedtotalExperience.value,
       "company_name": companyController.text,
       "has_experience": expirieanceFlag ? 1 : 0,
-      "ctc": selectedcurrentSalary.value
+      "ctc":
+          selectedcurrentSalary.value == "" ? "0" : selectedcurrentSalary.value
     };
     print(payload);
     var result = await UserDataService()

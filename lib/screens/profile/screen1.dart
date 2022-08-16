@@ -739,12 +739,13 @@ class _Screen1State extends State<Screen1> {
     model.mobile = mobilenumber;
     model.cardName = (firstName.text + " " + lastName.text).toTitleCase();
     model.email = emailadr.text;
+    model.gender = gender;
     print(params);
     var result = await UserDataService().saveUserStages(params);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      await Utils.setPreference(
+          prefs, ESharedPreferences.user_data.name, jsonEncode(model));
       if (widget.prevPageModel == null) {
-        await Utils.setPreference(
-            prefs, ESharedPreferences.user_data.name, jsonEncode(model));
         Navigator.pushNamed(context, ERoute.screen2.name);
       } else {
         widget.prevPageModel.first_name = firstName.text;

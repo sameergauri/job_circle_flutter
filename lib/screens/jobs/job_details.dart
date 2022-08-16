@@ -235,7 +235,7 @@ class _JobDetailsState extends State<JobDetails> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          jobDetailsModel.rolename.toString(),
+                                          jobDetailsModel.process.toString(),
                                           style: const TextStyle(
                                               color: Colors.black54,
                                               fontSize: 14),
@@ -253,7 +253,7 @@ class _JobDetailsState extends State<JobDetails> {
                                           width: 10,
                                         ),
                                         Text(
-                                          jobDetailsModel.process.toString(),
+                                          jobDetailsModel.rolename.toString(),
                                           style: const TextStyle(
                                               color: Colors.black54,
                                               fontSize: 14),
@@ -504,7 +504,9 @@ class _JobDetailsState extends State<JobDetails> {
                                       //   height: 1,
                                       // ),
                                       if (usertype ==
-                                          EUserType.businessPartner.value)
+                                              EUserType.businessPartner.value &&
+                                          partner_request ==
+                                              EPartnerApproval.approved.value)
                                         Row(children: const [
                                           SizedBox(
                                             height: 50,
@@ -525,7 +527,9 @@ class _JobDetailsState extends State<JobDetails> {
                                         ]),
 
                                       if (usertype ==
-                                          EUserType.businessPartner.value)
+                                              EUserType.businessPartner.value &&
+                                          partner_request ==
+                                              EPartnerApproval.approved.value)
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,

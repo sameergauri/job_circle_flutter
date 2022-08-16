@@ -39,7 +39,8 @@ enum ESharedPreferences {
   user_data,
   user_type,
   role,
-  user_rawData
+  user_rawData,
+  user_selected_lcoation;
 }
 
 enum EPartnerApproval {

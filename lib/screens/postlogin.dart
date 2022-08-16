@@ -135,7 +135,7 @@ class _PostLoginState extends State<PostLogin> {
                                   height: 10,
                                 ),
                                 Text(
-                                  "BUSINESS PARTNER",
+                                  "SOURCING PARTNER",
                                   style: TextStyle(color: Colors.white),
                                 )
                               ]),
