@@ -1209,15 +1209,15 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   TextButton.icon(
                     onPressed: () async {
                       var data = await uploadFile(['pdf']);
-                      var payload = {
-                        "stage": "upload_cv",
-                        "data": {
-                          "id": await Utils.getPreferencesValue(
-                              null, ESharedPreferences.user_id.name),
-                          "cv_link": data['fileName']
-                        }
-                      };
-                      await saveFile(data['fileName'], payload, typeOfUpload);
+                      // var payload = {
+                      //   "stage": "upload_cv",
+                      //   "data": {
+                      //     "id": await Utils.getPreferencesValue(
+                      //         null, ESharedPreferences.user_id.name),
+                      //     "cv_link": data['fileName']
+                      //   }
+                      // };
+                      // await saveFile(data['fileName'], payload, typeOfUpload);
                     },
                     icon: const Icon(Icons.upload),
                     label: const Text('Upload'),

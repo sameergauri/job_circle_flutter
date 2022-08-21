@@ -180,7 +180,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         bottomTabItems.getRange(value, value + 1).first;
     switch (item.label) {
       case "Jobs":
-        Navigator.pushNamed(context, ERoute.jobs.name);
+        // Navigator.pushNamed(context, ERoute.jobs.name);
         break;
       case "Stats":
         Navigator.pushNamed(context, ERoute.stats.name);
@@ -196,15 +196,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         Navigator.pushNamed(context, ERoute.stats.value);
         break;
       case "Performance":
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const WebviewData(
-                      // url: "https://www.youtube.com/",
-                      url: GlobalConstants.WEB_Host + "/mobile/performance",
-                      title: "Performance",
-                    )));
-        //Navigator.pushNamed(context, ERoute.performance.value);
+        Navigator.pushNamed(context, ERoute.performance.value);
         break;
       case "Partner":
         Navigator.push(context,

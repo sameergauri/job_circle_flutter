@@ -1,9 +1,12 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/screens/statistics/statistic.dart';
+import 'package:job_circle/screens/webview/webview_control.dart';
 import 'package:job_circle/service/LeadService.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
@@ -20,7 +23,6 @@ class _PerformanceState extends State<Performance> {
   bool _sortAscending = true;
   int? _sortColumnIndex;
   final cols_d = [
-    {"name": "label"},
     {
       "name": true,
       "empid": true,
@@ -37,6 +39,9 @@ class _PerformanceState extends State<Performance> {
   ];
 
   DateTime selectedDate = DateTime.now();
+  WebViewCtrlController webctrl = WebViewCtrlController();
+
+  String _Date = "";
   Future<void> _selectDate(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
         context: context,
@@ -48,142 +53,60 @@ class _PerformanceState extends State<Performance> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    bindData();
+    _Date = getDate(selectedDate);
+    // bindData();
+  }
+
+  String getDate(date) {
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(date);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: const Text("Performance"),
-        actions: [
-          IconButton(
-              onPressed: (() async {
-                showMonthPicker(
-                  context: context,
-                  firstDate: DateTime(DateTime.now().year - 1, 5),
-                  lastDate: DateTime(DateTime.now().year + 1, 9),
-                  initialDate: selectedDate,
-                ).then((date) {
-                  if (date != null) {
-                    setState(() {
+        appBar: AppBar(
+          elevation: 0,
+          title: const Text("Performance"),
+          actions: [
+            IconButton(
+                onPressed: () => {
+                      if (webctrl != null) {webctrl.refresh()}
+                    },
+                icon: const Icon(Icons.refresh)),
+            IconButton(
+                onPressed: (() async {
+                  showMonthPicker(
+                    context: context,
+                    firstDate: DateTime(DateTime.now().year - 1, 5),
+                    lastDate: DateTime(DateTime.now().year + 1, 9),
+                    initialDate: selectedDate,
+                  ).then((date) {
+                    if (date != null) {
                       selectedDate = date;
-                    });
-                    bindData();
-                  }
-                });
-              }),
-              icon: const Icon(Icons.calendar_month))
-        ],
-      ),
-      body: DataTable2(
-          sortColumnIndex: _sortColumnIndex,
-          sortAscending: _sortAscending,
-          columnSpacing: 12,
-          horizontalMargin: 12,
-          minWidth: (150 * 12),
-          sortArrowIcon: Icons.arrow_upward,
-          columns: [
-            DataColumn2(
-                fixedWidth: 150,
-                label: const Text('Candidate name'),
-                onSort: (columnIndex, ascending) =>
-                    {_sort('applicantName', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Emp Code'),
-                onSort: (columnIndex, ascending) =>
-                    {_sort('empid', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Company Name'),
-                onSort: (columnIndex, ascending) =>
-                    {_sort('companyName', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Process'),
-                onSort: (columnIndex, ascending) =>
-                    {_sort('process', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Role'),
-                onSort: (columnIndex, ascending) =>
-                    {_sort('level', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('D.O.J'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('doj', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Status'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('status', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Payout'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('payout', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Remark'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('remark', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Payment Clause'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('payment_clause', columnIndex, ascending)}),
-            DataColumn2(
-                fixedWidth: 150,
-                label: Text('Billing status'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) =>
-                    {_sort('bill_status', columnIndex, ascending)}),
-            // DataColumn2(
-            //     fixedWidth: 150,
-            //     label: Text('Billing status'),
-            //     size: ColumnSize.L,
-            //     onSort: (columnIndex, ascending) =>
-            //         {_sort('bill_status', columnIndex, ascending)}),
-            // DataColumn2(
-            //     fixedWidth: 150,
-            //     label: Text('Billing status'),
-            //     size: ColumnSize.L,
-            //     onSort: (columnIndex, ascending) =>
-            //         {_sort('bill_status', columnIndex, ascending)})
+                      _Date = getDate(selectedDate);
+                      if (webctrl != null) {
+                        webctrl.url = GlobalConstants.WEB_Host +
+                            "/mobile/performance?date=${_Date}";
+                        webctrl.setUrl();
+                        webctrl.refresh();
+                      }
+
+                      setState(() {});
+
+                      // bindData();
+                    }
+                  });
+                }),
+                icon: const Icon(Icons.calendar_month))
           ],
-          rows: List<DataRow>.generate(
-              items.length,
-              (index) => DataRow(cells: [
-                    DataCell(Text(
-                        "${items[index]['applicantName']} ${items[index]['last_name']}")),
-                    DataCell(Text(items[index]['empid'])),
-                    DataCell(Text(items[index]['companyName'])),
-                    DataCell(Text(items[index]['process'])),
-                    DataCell(Text(items[index]['level'])),
-                    DataCell(Text(items[index]['doj'] ?? '')),
-                    DataCell(Text(
-                      items[index]['status'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: HexColor("${items[index]['statuscolor']}"),
-                          fontWeight: FontWeight.bold),
-                    )),
-                    DataCell(Text(items[index]['payout'].toString())),
-                    DataCell(Text(items[index]['remark'].toString())),
-                    DataCell(Text(items[index]['payment_clause'].toString())),
-                    DataCell(Text(items[index]['bill_status'].toString()))
-                  ]))),
-    );
+        ),
+        body: WebViewDataCtrl(
+            actionbar: false,
+            controller: webctrl,
+            url: GlobalConstants.WEB_Host +
+                "/mobile/performance?date=${_Date}"));
   }
 
   void bindData() async {

@@ -64,7 +64,7 @@ class ApplicationFormState extends State<ApplicationForm> {
 
   var ddlValues;
   late int userType = -1;
-  late int role = 0;
+  late String role = "0";
   late List<AutoCompleteModel> shortList = [];
   late List<AutoCompleteModel> proccessList = [];
   late List<AutoCompleteModel> levelList = [];
