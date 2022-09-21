@@ -556,6 +556,61 @@ class _JobDetailsState extends State<JobDetails> {
                                                     false)),
                                           ],
                                         ),
+
+                                      Visibility(
+                                        visible: ((usertype ==
+                                                    EUserType.businessPartner
+                                                        .value &&
+                                                partner_request ==
+                                                    EPartnerApproval
+                                                        .approved.value) ||
+                                            usertype ==
+                                                EUserType.employee.value),
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            Container(
+                                              color: Color.fromARGB(
+                                                  255, 240, 240, 240),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: const [
+                                                    Icon(
+                                                      Icons
+                                                          .warning_amber_outlined,
+                                                      color: Colors.red,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        "Asking job seekers for any kind of payment is strictly prohibited",
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ]),
                               ),
                             ),
@@ -566,56 +621,100 @@ class _JobDetailsState extends State<JobDetails> {
             ),
           ),
           Container(
-            height: 60,
+            height: usertype == EUserType.jobSeeker.value ? 90 : 60,
             width: double.maxFinite,
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.vertical(top: Radius.circular(0.0)),
             ),
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Visibility(
-                    visible: (usertype == EUserType.jobSeeker.value ||
-                        usertype == EUserType.businessPartner.value),
-                    child: ThemeButton(
-                      width: 150,
-                      radious: 0,
-                      themeButtonSize: ThemeButtonSize.small,
-                      onPressed: () {
-                        Navigator.pushNamed(context, ERoute.application.name,
-                            arguments: {
-                              "isnew": false,
-                              "prevModel": jobDetailsModel,
-                            });
-                      },
-                      text: "APPLY",
-                    )),
-                Visibility(
+                Expanded(
                   child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(
-                        width: 10,
+                      Visibility(
+                          visible: (usertype == EUserType.jobSeeker.value ||
+                              usertype == EUserType.businessPartner.value),
+                          child: ThemeButton(
+                            width: 150,
+                            radious: 0,
+                            themeButtonSize: ThemeButtonSize.small,
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                  context, ERoute.application.name,
+                                  arguments: {
+                                    "isnew": false,
+                                    "prevModel": jobDetailsModel,
+                                  });
+                            },
+                            text: "APPLY",
+                          )),
+                      Visibility(
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            ThemeButton(
+                              width: 150,
+                              radious: 0,
+                              themeButtonSize: ThemeButtonSize.small,
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, ERoute.application.name,
+                                    arguments: {
+                                      "isnew": true,
+                                      "prevModel": jobDetailsModel,
+                                    });
+                              },
+                              text: "New Line-up",
+                            ),
+                          ],
+                        ),
+                        visible: (usertype == EUserType.employee.value ||
+                            (usertype == EUserType.businessPartner.value &&
+                                partner_request ==
+                                    EPartnerApproval.approved.value)),
+                      )
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: usertype == EUserType.jobSeeker.value,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.green,
+                        size: 17,
                       ),
-                      ThemeButton(
-                        width: 150,
-                        radious: 0,
-                        themeButtonSize: ThemeButtonSize.small,
-                        onPressed: () {
-                          Navigator.pushNamed(context, ERoute.application.name,
-                              arguments: {
-                                "isnew": true,
-                                "prevModel": jobDetailsModel,
-                              });
-                        },
-                        text: "New Line-up",
+                      Text(
+                        "100% Free & Verified job.",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  visible: (usertype == EUserType.employee.value ||
-                      (usertype == EUserType.businessPartner.value &&
-                          partner_request == EPartnerApproval.approved.value)),
-                )
+                ),
+                Visibility(
+                  visible: usertype == EUserType.jobSeeker.value,
+                  child: const Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      "Report jobs that ask for money",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w400,
+                          color: Color.fromARGB(255, 101, 7, 0)),
+                    ),
+                  ),
+                ),
               ],
             ),
           )

@@ -1087,19 +1087,19 @@ class _BusinessPartnerState extends State<BusinessPartner> {
         withReadStream: true);
 
     if (result != null) {
-      var res =
-          await FileUploadService().uploadSingleFile("cv", result.files.single);
+      var res = await FileUploadService()
+          .uploadSingleFile("partners", result.files.single);
       var resultD = Utils.parseResponse(res);
       Navigator.pop(context);
       if (resultD.resultKey == 'SUCCESS') {
-        return resultD.resultData[0];
+        return resultD.resultData["fileName"];
       }
       // File file = File(result.files.single.readStream.first!);
     } else {
+      Navigator.pop(context);
       return null;
       // User canceled the picker
     }
-    Navigator.pop(context);
   }
 
   showLoaderDialog(BuildContext context) {
@@ -1209,6 +1209,8 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   TextButton.icon(
                     onPressed: () async {
                       var data = await uploadFile(['pdf']);
+                      fileLink = data;
+                      fileName = data;
                       // var payload = {
                       //   "stage": "upload_cv",
                       //   "data": {

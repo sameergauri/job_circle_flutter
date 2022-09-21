@@ -401,9 +401,9 @@ class _Screen1State extends State<Screen1> {
                   decoration: const InputDecoration(
                     icon: Icon(Icons.location_city),
                     suffixIcon: Icon(Icons.arrow_drop_down),
-                    label: Text("Job Location"),
+                    label: Text("Job City"),
                     border: InputBorder.none,
-                    hintText: 'Select Job Location',
+                    hintText: 'Select Job City',
                   ),
                 ),
                 const SizedBox(height: 10),

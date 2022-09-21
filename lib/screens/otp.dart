@@ -39,7 +39,7 @@ class _OTPScreenState extends State<OTPScreen> {
   // variables
   String strOTP = '';
   final interval = const Duration(seconds: 1);
-  final int timerMaxSeconds = 10;
+  final int timerMaxSeconds = 120;
   int currentSeconds = 0;
   late Timer timerCountdown;
 
@@ -331,10 +331,17 @@ class _OTPScreenState extends State<OTPScreen> {
 
   saveOTP() async {
     clearOTPText();
+    resendOtpHide = true;
+    resendOtpTimerHide = false;
+    Future.delayed(Duration.zero, () {
+      otpChar1FocusNode.requestFocus();
+      timerCountdown = startTimer();
+    });
+    setState(() {});
 
     var result = await UserDataService().authenticate({
       "mobile": await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name)
+          null, ESharedPreferences.user_mobile.name)
     });
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

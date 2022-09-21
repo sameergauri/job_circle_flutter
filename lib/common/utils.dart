@@ -8,7 +8,7 @@ import '../models/api_response.dart';
 
 class Utils {
   static final dynamic mimTypes = jsonDecode(
-      '{".pdf":"application/pdf", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".png": "image/png"}');
+      '{".pdf":"application/pdf", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".png": "image/png", ".doc":"application/msword", ".docx":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}');
 
   static RequestResult parseResponse(response) {
     Map resultData = jsonDecode(response.body);

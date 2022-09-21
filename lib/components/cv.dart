@@ -69,7 +69,7 @@ class _CVWidgetState extends State<CVWidget> {
                 ),
               TextButton.icon(
                 onPressed: () async {
-                  var data = await uploadFile(['pdf']);
+                  var data = await uploadFile(['pdf', 'doc', 'docx', 'jpg']);
                   var payload = {
                     "stage": "upload_cv",
                     "data": {
@@ -104,6 +104,7 @@ class _CVWidgetState extends State<CVWidget> {
     if (result != null) {
       var res =
           await FileUploadService().uploadSingleFile("cv", result.files.single);
+
       var resultD = Utils.parseResponse(res);
       Navigator.pop(context);
       if (resultD.resultKey == 'SUCCESS') {
