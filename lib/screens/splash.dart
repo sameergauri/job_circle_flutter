@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/screens/login.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +28,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   checkSession() async {
     try {
+      await verifySession();
+
       var userId = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_id.name);
       if (userId != null) {
@@ -188,5 +193,23 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
     );
+  }
+
+  verifySession() async {
+    var uid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    if (uid == null) {
+      return "";
+    }
+
+    var result = await UserDataService().verifySession({"uid": uid});
+    RequestResult res = Utils.parseResponse(result);
+
+    if (res.resultKey == 'SUCCESS') {
+      if (res.resultData['val'] == 1) {
+        await AppUtils.clearSession();
+      }
+    }
+    return "";
   }
 }

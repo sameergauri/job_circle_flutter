@@ -11,6 +11,10 @@ class UserDataService extends ServiceBase {
     return callPost(GlobalConstants.API_Users_v1_authenticate, params);
   }
 
+  verifySession(dynamic params) {
+    return callPost(GlobalConstants.API_Users_v1_verifySession, params);
+  }
+
   validateOTP(dynamic params) {
     return callPost(GlobalConstants.API_Users_v1_validateOTP, params);
   }

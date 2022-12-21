@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -7,10 +8,12 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/webJsonModel.dart';
+import 'package:job_circle/screens/viewers/imageviewr.dart';
 import 'package:job_circle/screens/viewers/pdfviewer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
 class WebviewData extends StatefulWidget {
   final String? url;
@@ -33,6 +36,7 @@ class _WebviewDataState extends State<WebviewData> {
   @override
   void initState() {
     super.initState();
+    initData();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
@@ -61,6 +65,15 @@ class _WebviewDataState extends State<WebviewData> {
 
       setState(() {});
     });
+  }
+
+  void initData() async {
+    await FlutterDownloader.initialize(
+        debug:
+            true, // optional: set to false to disable printing logs to console (default: true)
+        ignoreSsl:
+            true // option: set to false to disable working with http links (default: false)
+        );
   }
 
   @override
@@ -139,13 +152,37 @@ class _WebviewDataState extends State<WebviewData> {
                 } else if (wj.func == "file_view") {
                   var url = wj.data["url"].toString();
                   var title = wj.data["title"].toString();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PdfViwer(
-                                url: GlobalConstants.ASSET_URL + url,
-                                title: title,
-                              )));
+                  if (url.toLowerCase().contains(".pdf")) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PdfViwer(
+                                  url: GlobalConstants.ASSET_URL + url,
+                                  title: title,
+                                )));
+                  } else if (url.toLowerCase().contains(".jpg") ||
+                      url.toLowerCase().contains(".jpeg") ||
+                      url.toLowerCase().contains(".png") ||
+                      url.toLowerCase().contains(".gif") ||
+                      url.toLowerCase().contains(".bmp")) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ImageViewer(
+                                  url: GlobalConstants.ASSET_URL + url,
+                                  title: title,
+                                )));
+                  } else {
+                    final taskId = await FlutterDownloader.enqueue(
+                      url: GlobalConstants.ASSET_URL + url,
+
+                      savedDir: '/storage/emulated/0/Download/',
+                      showNotification:
+                          true, // show download progress in status bar (for Android)
+                      openFileFromNotification:
+                          true, // click on notification to open downloaded file (for Android)
+                    );
+                  }
                 }
               }),
         },

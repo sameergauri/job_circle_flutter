@@ -154,10 +154,10 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           '@ All rights reserved - 2022-23',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -415,13 +415,37 @@ class _LoginState extends State<Login> {
     }
     var result =
         await UserDataService().authenticate({"mobile": otpcontroller.text});
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      // prefs.remove('userid');
-      // prefs.remove('user_mob');
-      // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
-      Utils.setPreference(
-          null, ESharedPreferences.user_mobile.name, otpcontroller.text);
-      Navigator.pushNamed(context, ERoute.otpscreen.name);
+    var res = Utils.parseResponse(result);
+    if (res.resultKey == 'SUCCESS') {
+      if (res.resultData['val'] == 0) {
+        Widget continueButton = TextButton(
+          child: const Text("Ok"),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        );
+
+        AlertDialog alert = AlertDialog(
+          title: const Text("!!Alert!!"),
+          content: Text(res.resultData['otpmsg']),
+          actions: [continueButton],
+        );
+
+        // show the dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+      } else {
+        // prefs.remove('userid');
+        // prefs.remove('user_mob');
+        // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
+        Utils.setPreference(
+            null, ESharedPreferences.user_mobile.name, otpcontroller.text);
+        Navigator.pushNamed(context, ERoute.otpscreen.name);
+      }
       // Navigator.pushNamedAndRemoveUntil(
       //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
     }

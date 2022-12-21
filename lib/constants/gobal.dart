@@ -20,6 +20,7 @@ class GlobalConstants {
   static const API_files_v1_multiUpload = "/files/v1/multiUpload";
 
   static const API_Users_v1_authenticate = "/users/v1/authenticate";
+  static const API_Users_v1_verifySession = "/users/v1/verifySession";
 
   static const API_Users_v1_validateOTP = "/users/v1/validateOtp";
 
