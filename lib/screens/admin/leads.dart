@@ -26,7 +26,7 @@ class _LeadsState extends State<Leads> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: const Text("JOB CIRCLE"),
+         title: const Text("JOB CIRCLE"),
         actions: [
           IconButton(
               onPressed: (() {

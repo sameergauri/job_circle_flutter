@@ -159,20 +159,23 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                                     ),
                                     TextButton(
                                         onPressed: () async {
-                                          var data =
-                                              await uploadFile(['jpeg', 'jpg']);
-                                          var payload = {
-                                            "stage": "profile_pic",
-                                            "data": {
-                                              "id": await Utils
-                                                  .getPreferencesValue(
-                                                      null,
-                                                      ESharedPreferences
-                                                          .user_id.name),
-                                              "profile_pic": data['fileName']
-                                            }
-                                          };
-                                          await save(data['fileName'], payload);
+                                          setState(()async {
+                                            var data = await uploadFile(
+                                                ['jpeg', 'jpg']);
+                                            var payload = {
+                                              "stage": "profile_pic",
+                                              "data": {
+                                                "id": await Utils
+                                                    .getPreferencesValue(
+                                                        null,
+                                                        ESharedPreferences
+                                                            .user_id.name),
+                                                "profile_pic": data['fileName']
+                                              }
+                                            };
+                                            await save(
+                                                data['fileName'], payload);
+                                          });
                                         },
                                         child: const Text("Change Photo"))
                                   ],

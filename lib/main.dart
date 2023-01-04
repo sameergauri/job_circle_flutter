@@ -5,6 +5,8 @@ import 'package:job_circle/routes/router.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/themes/colors.dart';
 
+
+
 void main() {
   runApp(const MyApp());
 }
