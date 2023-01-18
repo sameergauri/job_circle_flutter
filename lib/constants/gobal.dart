@@ -4,12 +4,14 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
 
   static const API_Host =
-      "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
+      "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090";
+  //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   //static const API_Host = "192.168.1.9:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const WEB_Host =
-      "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092";
+      "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9092";
+  // "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092";
   static const ASSET_DEFAULT_IMAGE = "assets/images/male.png";
   // static const API_Host =
   //     "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
