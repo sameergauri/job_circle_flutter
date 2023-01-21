@@ -131,7 +131,8 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                                     ),
                                     TextButton(
                                         onPressed: () async {
-                                          var data =
+                                         setState(()async {
+                                            var data =
                                               await uploadFile(['jpeg', 'jpg']);
                                           var payload = {
                                             "stage": "profile_pic",
@@ -145,6 +146,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                                             }
                                           };
                                           await save(data['fileName'], payload);
+                                         });
                                         },
                                         child: const Text("Change Photo"))
                                   ],

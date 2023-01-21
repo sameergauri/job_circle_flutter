@@ -1029,7 +1029,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
       if (locationid > 0) {
         seardData['location'] = locationid.toString();
       }
-
+      
       seardData['sort'] = sortByd;
       seardData['sortType'] = 'asc';
       seardData['company'] = searchText;
@@ -1052,7 +1052,8 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     });
   }
 
-  void searchLocation(context) async {
+  void 
+  searchLocation(context) async {
     showSearch(
         context: context,
         delegate: LocationSearch(
@@ -1065,6 +1066,8 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                       null,
                       ESharedPreferences.user_selected_lcoation.name,
                       user_selected_lcoation.toString()),
+                      // close(context, query);
+              //  onSelected(query);
                   searchAgain(),
                 }));
   }

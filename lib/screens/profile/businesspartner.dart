@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:csc_picker/csc_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,6 @@ import 'package:job_circle/service/partnerService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
-import '../../components/autocompletecustom.dart';
 import '../../components/card_number_formatter.dart';
 import '../../components/common.dart';
 import '../../models/autocomplete.dart';
@@ -65,6 +65,11 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   late List<AutoCompleteModel> countryList = [];
   AutoCompleteModel selectedCountry = AutoCompleteModel("", "", {});
 
+  late String countryValue;
+  late String stateValue;
+  late String cityValue;
+
+
   late List<AutoCompleteModel> stateList = [];
   AutoCompleteModel selectedState = AutoCompleteModel("", "", {});
 
@@ -84,6 +89,8 @@ class _BusinessPartnerState extends State<BusinessPartner> {
     getCityList();
     getPartnerDetails();
     super.initState();
+    countries.add({"id": 1, "label": "India"});
+    countries.add({"id": 2, "label": "UAE"});
   }
 
   getPartnerDetails() async {
@@ -188,6 +195,10 @@ class _BusinessPartnerState extends State<BusinessPartner> {
     }
     setState(() {});
   }
+
+  List<dynamic> countries = [];
+
+  String? countryId;
 
   @override
   Widget build(BuildContext context) {
@@ -617,6 +628,62 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   Row(
                     children: [
                       Expanded(
+                        child: CSCPicker(
+                          showStates: true,
+                          showCities: true,
+                          //  flagState: CountryFlag.DISABLE,
+                          /* dropdownDecoration: BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: Colors.grey.shade300, width: 1)), */
+
+                          ///Disabled Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER]  (USE with disabled dropdownDecoration)
+                          /*  disabledDropdownDecoration: BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                color: Colors.grey.shade300,
+                                border: Border.all(
+                                    color: Colors.grey.shade300, width: 1)), */
+                          countrySearchPlaceholder: "Search your country",
+                          countryDropdownLabel: "Select your country",
+                          stateSearchPlaceholder: "Search your state ",
+                          stateDropdownLabel: "Select your state",
+                          citySearchPlaceholder: "Search your city",
+                          cityDropdownLabel: "Select your city",
+                          // defaultCountry: DefaultCountry.India,
+                          /* dropdownHeadingStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold),
+                            dropdownItemStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                            ), */
+                          onCountryChanged: (value) {
+                            setState(() {
+                              ///store value in country variable
+                              countryValue = value;
+                            });
+                            print(countryValue);
+                          },
+
+                          onStateChanged: (value) {
+                            setState(() {
+                              stateValue = value!;
+                            });
+                          },
+                          onCityChanged: (value) {
+                            setState(() {
+                              cityValue = value!;
+                            });
+                          },
+                          //   disableCountry: true,
+                        ),
+                      ),
+
+                      /* Expanded(
                         child: CustomControls.AutoCompleteCustom(
                           context,
                           "Country",
@@ -638,77 +705,81 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                             return null;
                           },
                         ),
-                      ),
-                      // Expanded(
-                      //     child: Autocomplete(fieldViewBuilder: (BuildContext
-                      //             context,
-                      //         TextEditingController fieldTextEditingController,
-                      //         FocusNode fieldFocusNode,
-                      //         VoidCallback onFieldSubmitted) {
-                      //   return TextField(
-                      //     controller: fieldTextEditingController,
-                      //     focusNode: fieldFocusNode,
-                      //     onEditingComplete: onFieldSubmitted,
-                      //     decoration: const InputDecoration(
-                      //       suffixIcon: Icon(Icons.arrow_drop_down),
-                      //       icon: Icon(Icons.workspace_premium),
-                      //       label: Text("Country"),
-                      //       //border: OutlineInputBorder(),
-                      //       border: InputBorder.none,
-                      //       hintText: 'Select Country',
-                      //     ),
-                      //   );
-                      // }, optionsViewBuilder: (BuildContext context,
-                      //         AutocompleteOnSelected<PopupMenuItem> onSelected,
-                      //         Iterable<PopupMenuItem> options) {
-                      //   return Align(
-                      //     alignment: Alignment.topLeft,
-                      //     child: Material(
-                      //       child: SizedBox(
-                      //         width: 300,
-                      //         child: ListView.builder(
-                      //           padding: EdgeInsets.all(10.0),
-                      //           itemCount: options.length,
-                      //           itemBuilder: (BuildContext context, int index) {
-                      //             final PopupMenuItem option =
-                      //                 options.elementAt(index);
+                      ), */
 
-                      //             return GestureDetector(
-                      //               onTap: () {
-                      //                 onSelected(option);
-                      //               },
-                      //               child: ListTile(
-                      //                 title: Text(option.value['display'],
-                      //                     style: const TextStyle(
-                      //                         color: Colors.black)),
-                      //               ),
-                      //             );
-                      //           },
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   );
-                      // }, optionsBuilder: (TextEditingValue textEditingValue) {
-                      //   return [
-                      //     {
-                      //       "display": "India",
-                      //       "value": "India",
-                      //     }
-                      //   ]
-                      //       .map<PopupMenuItem<Map<String, String>>>((value) {
-                      //         return PopupMenuItem(
-                      //             child: Text(value['display'].toString()),
-                      //             value: value);
-                      //       })
-                      //       .where((PopupMenuItem county) => county
-                      //           .value['display']
-                      //           .toLowerCase()
-                      //           .startsWith(
-                      //               textEditingValue.text.toLowerCase()))
-                      //       .toList();
-                      // })),
+                      /*   */
+                      /* Expanded(
+                          child: Autocomplete(fieldViewBuilder: (BuildContext
+                                  context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted) {
+                        return TextField(
+                          controller: fieldTextEditingController,
+                          focusNode: fieldFocusNode,
+                          onEditingComplete: onFieldSubmitted,
+                          decoration: const InputDecoration(
+                            suffixIcon: Icon(Icons.arrow_drop_down),
+                            icon: Icon(Icons.workspace_premium), 
+                            label: Text("Country"),
+                            //border: OutlineInputBorder(),
+                            border: InputBorder.none,
+                            hintText: 'Select Country',
+                          ),
+                        );
+                      }, optionsViewBuilder: (BuildContext context,
+                              AutocompleteOnSelected<PopupMenuItem> onSelected,
+                              Iterable<PopupMenuItem> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            child: SizedBox(
+                              width: 300,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(10.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final PopupMenuItem option =
+                                      options.elementAt(index);
 
-                      Expanded(
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.value['display'],
+                                          style: const TextStyle(
+                                              color: Colors.black)),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }, optionsBuilder: (TextEditingValue textEditingValue) {
+                        return [
+                          {
+                            "display": "India",
+                            "value": "India",
+                          }
+                        ]
+                            .map<PopupMenuItem<Map<String, String>>>((value) {
+                              return PopupMenuItem(
+                                  child: Text(value['display'].toString()),
+                                  value: value);
+                            })
+                            .where((PopupMenuItem county) => county
+                                .value['display']
+                                .toLowerCase()
+                                .startsWith(
+                                    textEditingValue.text.toLowerCase()))
+                            .toList();
+                      })), */
+
+                      //old code for state
+
+                      /*  Expanded(
                         child: CustomControls.AutoCompleteCustom(
                           context,
                           "State",
@@ -798,10 +869,13 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                         //               textEditingValue.text.toLowerCase()))
                         //       .toList();
                         // }),
-                      ),
+                      ), */
                     ],
                   ),
-                  Row(
+
+                  //old code for city
+
+                  /* Row(
                     children: [
                       Expanded(
                         child: CustomControls.AutoCompleteCustom(
@@ -895,7 +969,8 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       ),
                       const Expanded(child: SizedBox()),
                     ],
-                  ),
+                  ), */
+
                   const SizedBox(
                     height: 20,
                   ),

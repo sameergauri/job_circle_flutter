@@ -226,7 +226,7 @@ class _PostLoginState extends State<PostLogin> {
         ),
         child: Material(
           child: Column(
-            children: [
+            children: const [
               // const SizedBox(height: 16),
               // _buildImage(),
             ],

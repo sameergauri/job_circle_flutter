@@ -5,13 +5,15 @@ import 'package:job_circle/routes/router.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/themes/colors.dart';
 
+
+
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
+  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
