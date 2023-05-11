@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_circle/screens/jobs/filter_provider.dart';
+import 'package:job_circle/service/JobSearchService.dart';
+
+final jobDataProvider = FutureProvider(
+    (ref) => JobSearchService().getJobSearch({"page": "1", "size": "100"}));
+
+class CustomSheetNew extends ConsumerStatefulWidget {
+  const CustomSheetNew({super.key, required this.onDone});
+
+  final Function(Map<String, String>) onDone;
+
+  @override
+  ConsumerState<CustomSheetNew> createState() => _CustomSheetNewState();
+}
+
+class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
+  String getApiKeys(String filter) {
+    switch (filter) {
+      case "Company":
+        return "company";
+      case "Process":
+        return "process";
+      case "Nature Of Work":
+        return "naturofwork";
+      case "Designation":
+        return "rolename";
+         case "Locality":
+        return "location";
+      default:
+        return "";
+    }
+  }
+
+  final int _tabIndex = 0;
+  final _controller = PageController(
+    // viewportFraction: 0.8,
+
+    initialPage: 0,
+  );
+  @override
+  Widget build(BuildContext context) {
+    final jobPro = ref.watch(jobDataProvider);
+    final filterPro = ref.watch(filterProvider);
+
+    return jobPro.when(
+      data: (response) {
+        return PageView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _controller,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                        onPressed: () {
+                          Map<String, String> apiData = filterPro.selectedData
+                              .map((key, value) =>
+                                  MapEntry(getApiKeys(key), value.join(',')))
+                            ..removeWhere((key, value) => value.isEmpty);
+                          //?this=map
+
+                          widget.onDone(apiData);
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Done")),
+                  ),
+                  ListView(
+                    shrinkWrap: true,
+                    children: filterPro.filterData.keys
+                        .map((e) => ListTile(
+                            onTap: () {
+                              filterPro.selectedKey = e;
+                              _controller.jumpToPage(1);
+                            },
+                            title: Text(e.toString())))
+                        .toList(),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        _controller.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.bounceIn);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        children:
+                            (filterPro.filterData[filterPro.selectedKey] ?? [])
+                                .map((e) => CheckboxListTile(
+                                    value: filterPro
+                                            .selectedData[filterPro.selectedKey]
+                                            ?.contains(e) ==
+                                        true,
+                                    onChanged: (v) {
+                                      filterPro.toggleSelection(e);
+                                      /*  _controller.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.bounceIn); */
+                                    },
+                                    title: Text(e)))
+                                .toSet()
+                                .toList()),
+                  ),
+                ],
+              ),
+            ]);
+      },
+      error: (error, stackTrace) =>
+          const Center(child: Text("Something went wrong")),
+      loading: () => const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class CustomSheet {
+  static void customSheet(
+      {required BuildContext context,
+      required Function(Map<String, String>) onDone}) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return CustomSheetNew(
+          onDone: onDone,
+        );
+      },
+    );
+  }
+}

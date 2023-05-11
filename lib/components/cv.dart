@@ -1,8 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/service/FileUploadService.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class ProfileCv {
   String? cv_link;
@@ -65,28 +67,93 @@ class _CVWidgetState extends State<CVWidget> {
                                   fontWeight: FontWeight.w500, fontSize: 14))
                       ],
                     ),
+                    const Spacer(),
+                    InkWell(
+                      onTap: () async {
+                        var data = await uploadFile(['pdf', 'doc']);
+                        var payload = {
+                          "stage": "upload_cv",
+                          "data": {
+                            "id": await Utils.getPreferencesValue(
+                                null, ESharedPreferences.user_id.name),
+                            "cv_link": data['fileName']
+                          }
+                        };
+                        widget.onUpload(data['fileName'], payload);
+                        setState(() {
+                          widget.profileCv.cv_link = data['fileName'];
+                          widget.profileCv.profile_cv_file = data['fileName'];
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Constants.themeBgColor)),
+                        child: const Text(
+                          "Replace",
+                          style: TextStyle(
+                              color: Constants.themeBgColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              TextButton.icon(
-                onPressed: () async {
-                  var data = await uploadFile(['pdf', 'doc', 'docx', 'jpg']);
-                  var payload = {
-                    "stage": "upload_cv",
-                    "data": {
-                      "id": await Utils.getPreferencesValue(
-                          null, ESharedPreferences.user_id.name),
-                      "cv_link": data['fileName']
-                    }
-                  };
-                  widget.onUpload(data['fileName'], payload);
-                  setState(() {
-                    widget.profileCv.cv_link = data['fileName'];
-                    widget.profileCv.profile_cv_file = data['fileName'];
-                  });
-                },
-                icon: const Icon(Icons.upload),
-                label: const Text('Upload CV'),
-              ),
+              widget.profileCv.cv_link != null
+                  ? const SizedBox()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Row(
+                            children: [
+                              Image.asset('./assets/images/cv_doc.png',
+                                  height: 50),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          "let recruiter learn more about you.",
+                          style: TextStyle(
+                              fontSize: 13.sp, color: Colors.grey.shade500),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            var data = await uploadFile(['pdf', 'doc']);
+                            var payload = {
+                              "stage": "upload_cv",
+                              "data": {
+                                "id": await Utils.getPreferencesValue(
+                                    null, ESharedPreferences.user_id.name),
+                                "cv_link": data['fileName']
+                              }
+                            };
+                            widget.onUpload(data['fileName'], payload);
+                            setState(() {
+                              widget.profileCv.cv_link = data['fileName'];
+                              widget.profileCv.profile_cv_file =
+                                  data['fileName'];
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            child: const Text(
+                              "Upload",
+                              style: TextStyle(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
             ],
           ),
         ],

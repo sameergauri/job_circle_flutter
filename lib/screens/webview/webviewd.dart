@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
@@ -10,10 +9,9 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/webJsonModel.dart';
 import 'package:job_circle/screens/viewers/imageviewr.dart';
 import 'package:job_circle/screens/viewers/pdfviewer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 
 class WebviewData extends StatefulWidget {
   final String? url;
@@ -72,7 +70,7 @@ class _WebviewDataState extends State<WebviewData> {
         debug:
             true, // optional: set to false to disable printing logs to console (default: true)
         ignoreSsl:
-            true // option: set to false to disable working with http links (default: false)
+            false // option: set to false to disable working with http links (default: false)
         );
   }
 
@@ -124,7 +122,7 @@ class _WebviewDataState extends State<WebviewData> {
           //     ? Iframe(4
           //         key: UniqueKey(),
           //         url:
-          //             "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9092/leads",
+          //             "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092/leads",
           //       )
           //     :
           WebView(

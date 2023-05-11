@@ -5,14 +5,19 @@ class GlobalConstants {
 
   static const API_Host =
       "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090";
+
+  static const API_Host_one = '192.168.2.111:9090';
+  //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   //static const API_Host = "192.168.1.9:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const WEB_Host =
+      //  "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090";  //new url
+      //  "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092";    //old
       "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9092";
   static const ASSET_DEFAULT_IMAGE = "assets/images/male.png";
   // static const API_Host =
-  //     "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090";
+  //     "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   static const API_Users_v1_saveStages = "/users/v1/saveStages";
 
@@ -50,4 +55,13 @@ class GlobalConstants {
 
   static const API_jobs_v1_getDistinctProcessAndLevels =
       "jobs/v1/getDistinctProcessAndLevels";
+
+  static const API_jobs_v1_getAppliedJobDetailsByID =
+      "/jobs/v1/getAppliedJobByUserId";
+
+  static const API_jobs_v1_addfav = "/favjob/v1";
+  static const API_jobs_v1_getfav = "/favjob/v1";
+  static const API_jobs_v1_deletefav = "/favjob/v1/{id}";
+  static const API_jobs_v2 = "/jobs/v2";
+  static const API_jobs_v2_jobs_13_apply = "jobs/v2/jobs/{jobID}/apply";
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/jobs/applied_job.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
+import 'package:job_circle/screens/refer_now.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -49,7 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
             currentIndex: selectedIndex,
             showUnselectedLabels: true,
             unselectedItemColor: Colors.black45,
-            selectedItemColor: Theme.of(context).primaryColor,
+            selectedItemColor: Constants.themeBgColor,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+            //  selectedItemColor: Theme.of(context).primaryColor,
             iconSize: 30,
             onTap: onNavigationChange,
             elevation: 100),
@@ -58,20 +64,52 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void bindBottomTabs() {
+    bottomTabItems.add(BottomNavigationBarItem(
+      //Icons.dashboard_customize_outlined
+      icon: Image.asset(
+        "assets/images/jobs.png",
+        height: 15.h,
+      ),
+      activeIcon: Image.asset(
+        "assets/images/jobs.png",
+        height: 25.h,
+      ),
+      label: "Hiring",
+
+      backgroundColor: Colors.blue,
+    ));
     bottomTabItems.add(const BottomNavigationBarItem(
-      icon: Icon(Icons.dashboard_customize_outlined),
-      activeIcon: Icon(Icons.dashboard_customize_rounded),
-      label: 'Jobs',
+      //Icons.dashboard_customize_outlined
+      icon: Icon(Icons.send_outlined),
+      activeIcon: Icon(Icons.send_outlined),
+      /* activeIcon: Image.asset(
+        "assets/images/jobs.png",
+        height: 25.h,
+      ), */
+      label: "Applied",
+
+      backgroundColor: Colors.blue,
+    ));
+    bottomTabItems.add(const BottomNavigationBarItem(
+      //Icons.dashboard_customize_outlined
+      icon: Icon(Icons.refresh_outlined),
+      activeIcon: Icon(Icons.refresh_outlined),
+      /* activeIcon: Image.asset(
+        "assets/images/jobs.png",
+        height: 25.h,
+      ), */
+      label: "Referal",
+
       backgroundColor: Colors.blue,
     ));
 
-    bottomTabItems.add(const BottomNavigationBarItem(
+    /* bottomTabItems.add(const BottomNavigationBarItem(
       icon: Icon(Icons.handshake_outlined),
       activeIcon: Icon(Icons.handshake_outlined),
       label: 'Profile',
       backgroundColor: Colors.blue,
-    ));
-  }
+    ));*/
+  } 
 
   void onNavigationChange(int value) {
     BottomNavigationBarItem item =
@@ -80,9 +118,19 @@ class _HomeScreenState extends State<HomeScreen> {
       case "Stats":
         Navigator.pushNamed(context, ERoute.stats.name);
         break;
-      case "Profile":
-        Navigator.pushNamed(context, ERoute.profile_summary.name);
+
+      case "Applied":
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const AppliedJob()));
         break;
+
+      case "Referal":
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const ReferNow()));
+        break;
+      /* case "Profile":
+        Navigator.pushNamed(context, ERoute.profile_summary.name);
+        break; */
 
       default:
     }

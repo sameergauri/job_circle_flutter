@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/components/autolistviewcheckboxmodal.dart';
-import 'package:job_circle/components/smart_card.dart';
-import 'package:job_circle/components/theme_button.dart';
-import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
@@ -13,9 +12,7 @@ import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:responsive_grid/responsive_grid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 import '../../components/autolistviewmodal.dart';
 
@@ -58,6 +55,8 @@ class _Screen1State extends State<Screen1> {
   late List<AutoCompleteCheckBoxModel> languageAutoList = [];
 
   AutoCompleteModel selectedLocation = AutoCompleteModel("", "", {});
+
+  double? age;
 
   @override
   void initState() {
@@ -127,217 +126,270 @@ class _Screen1State extends State<Screen1> {
     }
   }
 
+  bool ismale = false,
+      isfemale = false,
+      istranse = false,
+      single = false,
+      married = false,
+      divorced = false,
+      separated = false,
+      widowed = false;
+  bool language = false;
+  String year = "";
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                "assets/images/id-card.png",
-                height: 30,
-                color: Colors.white,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              const Text(
-                "Basic Info",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Edit Entro",
+                  style: GoogleFonts.varela(
+                    fontSize: 18.sp,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: Container(
-          color: Constants.bgPanelColor,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: ThemeButton(
-              icon: const Icon(
-                Icons.arrow_forward,
-                color: Color(0xffffffff),
-                size: 25,
-              ),
-              radious: 0,
-              onPressed: () {
-                if (basicForm.currentState!.validate()) {
-                  save();
-                }
-              },
-              text: widget.prevPageModel == null ? "NEXT" : "SAVE",
-              themeButtonSize: ThemeButtonSize.medium,
+                Text(
+                  "Introduce yourself to the recruiters",
+                  style: GoogleFonts.varela(
+                      color: Colors.grey.shade600,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.normal),
+                )
+              ],
             ),
           ),
-        ),
-        backgroundColor: Theme.of(context).primaryColor,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SmartCard(model: model),
+          bottomNavigationBar: InkWell(
+            onTap: () {
+              if (basicForm.currentState!.validate()) {
+                save();
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.only(
+                  top: 10, left: 20, right: 20, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Constants.themeBgColor,
+                  borderRadius: BorderRadius.circular(15)),
+              width: double.maxFinite,
+              padding: const EdgeInsets.only(bottom: 7, top: 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Save",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(255, 39, 39, 39),
-                              blurRadius: 17.0,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                          color: Constants.bgPanelColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          )),
-                      //child:
-                      // Card(
-                      //     shape: BeveledRectangleBorder(
-                      //       borderRadius: BorderRadius.circular(10.0),
-                      //     ),
-                      //     elevation: 4,
-                      //     child: const Padding(
-                      //       padding: EdgeInsets.all(20.0),
-                      //       child: SizedBox(
-                      //         child: Text("teddd"),
-                      //         height: 200,
-                      //       ),
-                      //     )),,
-                      child: Column(
-                        children: [
-                          // const SizedBox(
-                          //   height: 20,
-                          // ),
-                          // const Text(
-                          //   "Basic Info",
-                          //   style: TextStyle(
-                          //     fontSize: 30,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: SingleChildScrollView(
-                                child: Column(children: [
-                                  basicInfo(),
-                                ]),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // AnimatedSwitcher(
-                    //   duration: const Duration(milliseconds: 500),
-                    //   switchInCurve: Curves.easeIn,
-                    //   switchOutCurve: Curves.easeOut,
-                    //   // child: _renderWidget(),
-
-                    //   transitionBuilder: (child, animation) {
-                    //     return SlideTransition(
-                    //       position: Tween<Offset>(
-                    //               begin: Offset(1.2, 0), end: Offset(0, 0))
-                    //           .animate(animation),
-                    //       child: child,
-                    //     );
-                    //   },
-                    //   // layoutBuilder: (currentChild, _) {
-                    //   //   return currentChild!;
-                    //   // },
-                    //   child: _renderWidget(),
-                    // ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ));
+
+          /* Container(
+            color: Constants.bgPanelColor,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: ThemeButton(
+                color: Constants.borderColor,
+                /* icon: const Icon(
+                  Icons.arrow_forward,
+                  color: Color(0xffffffff),
+                  size: 25,
+                ), */
+                radious: 15,
+                isText: true,
+                onPressed: () {
+                  if (basicForm.currentState!.validate()) {
+                    save();
+                  }
+                },
+                text: widget.prevPageModel == null ? "Next" : "Save",
+                themeButtonSize: ThemeButtonSize.medium,
+              ),
+            ),
+          ), */
+          // backgroundColor: ,
+          body: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              child: Column(children: [
+                basicInfo(),
+              ]),
+            ),
+          )),
+    );
   }
 
   Widget basicInfo() {
+    age = ((DateTime.now().difference(dataOfBirthValue)).inDays / 365.floor());
     return Container(
+      margin: const EdgeInsets.only(top: 10),
       key: const Key('second'),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
           child: Form(
             key: basicForm,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  autofocus: true,
-                  // inputFormatters: [
-                  //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
-                  // ],
-                  controller: firstName,
-                  onChanged: ((value) => {
-                        model.cardName = value.toTitleCase() +
-                            " " +
-                            lastName.text.toLowerCase(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.2.w,
+                      height: 45.h,
+                      child: TextFormField(
+                        autofocus: true,
+                        // inputFormatters: [
+                        //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                        // ],
+                        controller: firstName,
+                        onChanged: ((value) => {
+                              model.cardName = value.toTitleCase() +
+                                  " " +
+                                  lastName.text.toLowerCase(),
 
-                        // username.text = model.cardName!,
-                        updateCard(model),
-                      }),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter first name';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.person),
-                    label: Text("First Name"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: 'Please enter first name',
+                              // username.text = model.cardName!,
+                              updateCard(model),
+                            }),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter first name';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(15)),
+                          border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(15)),
+                          //icon: Icon(Icons.person),
+                          errorStyle: const TextStyle(
+                            height: 0,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 5),
+                          label: Text(
+                            "First Name",
+                            style: GoogleFonts.varela(),
+                          ),
+                          //border: OutlineInputBorder(),
+                          //  border: InputBorder.none,
+                          hintText: 'Please enter first name',
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.2.w,
+                      height: 45.h,
+                      child: TextFormField(
+                        autofocus: true,
+                        // inputFormatters: [
+                        //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                        // ],
+                        // controller: firstName,
+                        onChanged: ((value) => {
+                              /*  model.cardName = value.toTitleCase() +
+                                  " " +
+                                  lastName.text.toLowerCase(), */
+
+                              // username.text = model.cardName!,
+                              // updateCard(model),
+                            }),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter middle name';
+                          }
+                          return null;
+                        },
+
+                        decoration: InputDecoration(
+                          errorStyle: const TextStyle(
+                            height: 0,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 5),
+                          // icon: Icon(Icons.person),
+                          label: Text(
+                            "Middle Name",
+                            style: GoogleFonts.varela(),
+                          ),
+                          //border: OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(15)),
+                          border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(15)),
+                          hintText: 'Please enter middle name',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 2.2.w,
+                  // height: 45.h,
+                  child: TextFormField(
+                    autofocus: true,
+                    // inputFormatters: [
+                    //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+                    // ],
+                    controller: lastName,
+                    onChanged: ((value) => {
+                          model.cardName = firstName.text.toLowerCase() +
+                              " " +
+                              value.toTitleCase(),
+                          // username.text = model.cardName!,
+                          updateCard(model),
+                        }),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter surname';
+                      }
+
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      errorStyle: const TextStyle(
+                        height: 0,
+                      ),
+                      contentPadding: const EdgeInsets.all(0),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(15)),
+                      border: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(15)),
+
+                      // icon: Icon(Icons.person),
+                      label: Text(
+                        "Surname",
+                        style: GoogleFonts.varela(),
+                      ),
+                      //border: OutlineInputBorder(),
+                      //   border: InputBorder.none,
+                      hintText: 'Please enter surname',
+                    ),
                   ),
                 ),
-                TextFormField(
-                  autofocus: true,
-                  // inputFormatters: [
-                  //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
-                  // ],
-                  controller: lastName,
-                  onChanged: ((value) => {
-                        model.cardName = firstName.text.toLowerCase() +
-                            " " +
-                            value.toTitleCase(),
-                        // username.text = model.cardName!,
-                        updateCard(model),
-                      }),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter last name';
-                    }
 
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.person),
-                    label: Text("Last Name"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: 'Please enter last name',
-                  ),
-                ),
                 // const SizedBox(height: 10),
                 // TextFormField(
                 //   validator: (value) {
@@ -354,7 +406,7 @@ class _Screen1State extends State<Screen1> {
                 //     hintText: 'Enter Job city',
                 //   ),
                 // ),
-                const SizedBox(height: 10),
+                //const SizedBox(height: 10),
                 // CustomControls.AutoCompleteCustom(
                 //   context,
                 //   "Job Location",
@@ -376,206 +428,705 @@ class _Screen1State extends State<Screen1> {
                 //     return null;
                 //   },
                 // ),
-                TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select any job location';
-                    }
-                  },
-                  controller: jobLocationController,
-                  enabled: true,
-                  onTap: (() {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return DialogList(
-                            tile: null,
-                            dialogTitle: "Select State",
-                            onSelected: (AutoCompleteModel model) async {
-                              await selectCity(model.value);
-                            },
-                            itemsData: stateList,
-                          );
-                        });
-                  }),
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.location_city),
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    label: Text("Job City"),
-                    border: InputBorder.none,
-                    hintText: 'Select Job City',
-                  ),
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: dateOfBirth,
-                  // validator: (value) {
-                  //   if (value == null ||
-                  //       value.isEmpty && !value.contains(' ')) {
-                  //     return 'Please enter valid first and last name';
-                  //   }
-                  //   return null;
-                  // },
+                SizedBox(
+                  height: 5.h,
+                ),
+                Text(
+                  "Gender",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
 
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.calendar_month),
-                    label: Text("Date Of Birth"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: 'Please enter date of birth',
-                  ),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: dataOfBirthValue,
-                        firstDate: DateTime.now()
-                            .add(const Duration(days: -(365 * 50))),
-                        lastDate: DateTime.now(),
-                        currentDate: dataOfBirthValue);
+                Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    decoration: const BoxDecoration(
+                        // color: Colors.green,
+                        // border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              // gender = value.toString();
+                              isfemale = false;
+                              istranse = false;
+                              ismale = true;
+                              model.gender = "male";
+                              updateCard(model);
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color:
+                                  ismale ? Constants.borderColor : Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 4),
+                            margin: const EdgeInsets.only(right: 10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ismale
+                                    ? Text(
+                                        "Male",
+                                        style: GoogleFonts.varela(
+                                            fontSize: 13.sp,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    : Text(
+                                        "Male",
+                                        style:
+                                            GoogleFonts.varela(fontSize: 13.sp),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+                                ismale
+                                    ? Image.asset(
+                                        "assets/images/check.png",
+                                        height: 13.h,
+                                      )
+                                    : Icon(
+                                        Icons.add,
+                                        size: 15.h,
+                                      )
+                              ],
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              // gender = value.toString();
+                              isfemale = true;
+                              ismale = false;
+                              istranse = false;
+                              model.gender = "female";
+                              updateCard(model);
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isfemale
+                                  ? Constants.borderColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 4),
+                            margin: const EdgeInsets.only(right: 10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                isfemale
+                                    ? Text(
+                                        "Female",
+                                        style: GoogleFonts.varela(
+                                            fontSize: 13.sp,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    : Text(
+                                        "Female",
+                                        style:
+                                            GoogleFonts.varela(fontSize: 13.sp),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+                                isfemale
+                                    ? Image.asset(
+                                        "assets/images/check.png",
+                                        height: 13.h,
+                                      )
+                                    : Icon(
+                                        Icons.add,
+                                        size: 15.h,
+                                      )
+                              ],
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              // gender = value.toString();
+                              istranse = true;
+                              ismale = false;
+                              isfemale = false;
+                              model.gender = "trans";
+                              updateCard(model);
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: istranse
+                                  ? Constants.borderColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            margin: const EdgeInsets.only(right: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                istranse
+                                    ? Text(
+                                        "Transgender",
+                                        style: GoogleFonts.varela(
+                                            fontSize: 13.sp,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    : Text(
+                                        "Transgender",
+                                        style:
+                                            GoogleFonts.varela(fontSize: 13.sp),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+                                istranse
+                                    ? Image.asset(
+                                        "assets/images/check.png",
+                                        height: 13.h,
+                                      )
+                                    : Icon(
+                                        Icons.add,
+                                        size: 15.h,
+                                      )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
 
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          DateFormat('dd-MM-yyyy').format(pickedDate);
-                      dataOfBirthValue = pickedDate;
-                      setState(() {
-                        dateOfBirth.text = formattedDate;
-                        dt = DateFormat('yyyy-MM-dd HH:mm:ss')
-                            .format(pickedDate);
-                        //set output date to TextField value.
-                      });
-                    } else {
-                      // ignore: avoid_print
-                      print("Date is not selected");
-                    }
-                  },
+                SizedBox(
+                  height: 6.h,
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  // initialValue: "+9004390874",
-                  // enabled: false,
-                  controller: emailadr,
-                  onChanged: ((value) => {
-                        model.email = value,
-                        updateCard(model),
-                      }),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    icon: Icon(Icons.email),
-                    label: Text("Email Address"),
-                    //border: OutlineInputBorder(),
-                    hintText: 'test@email.com',
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
+                ),
+                SizedBox(
+                  height: 3.h,
+                ),
+                Text(
+                  "Email ID",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                SizedBox(
+                  height: 35,
+                  width: 260.w,
+                  child: TextFormField(
+                    // initialValue: "+9004390874",
+                    // enabled: false,
+                    controller: emailadr,
+                    onChanged: ((value) => {
+                          model.email = value,
+                          updateCard(model),
+                        }),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
+                          borderSide: BorderSide(color: Colors.grey.shade300)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
+                          borderSide: BorderSide(color: Colors.grey.shade300)),
+                      // icon: Icon(Icons.email),
+                      //label: Text("Add Email ID"),
+                      //border: OutlineInputBorder(),
+                      hintText: 'test@gmail.com',
+                    ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty && !value.contains(' ')) {
+                        return 'Please enter valid email address';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null ||
-                        value.isEmpty && !value.contains(' ')) {
-                      return 'Please enter valid email address';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                SizedBox(
+                  height: 6.h,
+                ),
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
+                ),
+                SizedBox(
+                  height: 3.h,
+                ),
+                Text(
+                  "Marital Status",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                Wrap(
                   children: [
-                    Container(
-                      height: 60,
-                      width: 150.0,
-                      color: Colors.transparent,
+                    // mareital_status(),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          // gender = value.toString();
+                          single = true;
+                          married = false;
+                          divorced = false;
+                          widowed = false;
+                          separated = false;
+                        });
+                      },
                       child: Container(
-                          decoration: BoxDecoration(
-                              // color: Colors.green,
-                              border: Border.all(color: Colors.black),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10.0))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/images/male.png',
-                                scale: 11,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Transform.scale(
-                                      scale: 0.8,
-                                      child: Radio(
-                                        value: "MALE",
-                                        groupValue: gender,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            gender = value.toString();
-                                            model.gender = gender;
-                                            updateCard(model);
-                                          });
-                                        },
-                                      )),
-                                  const Text(
-                                    "MALE",
-                                    style: TextStyle(fontSize: 12),
+                        decoration: BoxDecoration(
+                          color: single ? Constants.borderColor : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        margin: const EdgeInsets.only(right: 10, bottom: 5),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            single
+                                ? Text(
+                                    "Single",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : Text(
+                                    "Single",
+                                    style: GoogleFonts.varela(fontSize: 13.sp),
                                     textAlign: TextAlign.center,
                                   ),
-                                ],
-                              ),
-                            ],
-                          )),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            single
+                                ? Image.asset(
+                                    "assets/images/check.png",
+                                    height: 13.h,
+                                  )
+                                : Icon(
+                                    Icons.add,
+                                    size: 15.h,
+                                  )
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Container(
-                      height: 60,
-                      width: 150.0,
-                      color: Colors.transparent,
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          // gender = value.toString();
+                          single = false;
+                          married = true;
+                          divorced = false;
+                          widowed = false;
+                          separated = false;
+                        });
+                      },
                       child: Container(
-                          decoration: BoxDecoration(
-                              // color: Colors.green,
-                              border: Border.all(color: Colors.black),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10.0))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/images/female.png',
-                                scale: 11,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Transform.scale(
-                                      scale: 0.8,
-                                      child: Radio(
-                                        value: "FEMALE",
-                                        groupValue: gender,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            gender = value.toString();
-                                            model.gender = gender;
-                                            updateCard(model);
-                                          });
-                                        },
-                                      )),
-                                  const Text(
-                                    "FEMALE",
-                                    style: TextStyle(fontSize: 12),
+                        decoration: BoxDecoration(
+                          color: married ? Constants.borderColor : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        margin: const EdgeInsets.only(right: 10, bottom: 5),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            married
+                                ? Text(
+                                    "Married",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : Text(
+                                    "Married",
+                                    style: GoogleFonts.varela(fontSize: 13.sp),
                                     textAlign: TextAlign.center,
                                   ),
-                                ],
-                              ),
-                            ],
-                          )),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            married
+                                ? Image.asset(
+                                    "assets/images/check.png",
+                                    height: 13.h,
+                                  )
+                                : Icon(
+                                    Icons.add,
+                                    size: 15.h,
+                                  )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          // gender = value.toString();
+                          single = false;
+                          married = false;
+                          divorced = true;
+                          widowed = false;
+                          separated = false;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:
+                              divorced ? Constants.borderColor : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        margin: const EdgeInsets.only(right: 10, bottom: 5),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            divorced
+                                ? Text(
+                                    "Divorced",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : Text(
+                                    "Divorced",
+                                    style: GoogleFonts.varela(fontSize: 13.sp),
+                                    textAlign: TextAlign.center,
+                                  ),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            divorced
+                                ? Image.asset(
+                                    "assets/images/check.png",
+                                    height: 13.h,
+                                  )
+                                : Icon(
+                                    Icons.add,
+                                    size: 15.h,
+                                  )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          // gender = value.toString();
+                          single = false;
+                          married = false;
+                          divorced = false;
+                          widowed = true;
+                          separated = false;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: widowed ? Constants.borderColor : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            widowed
+                                ? Text(
+                                    "Widowed",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : Text(
+                                    "Widowed",
+                                    style: GoogleFonts.varela(fontSize: 13.sp),
+                                    textAlign: TextAlign.center,
+                                  ),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            widowed
+                                ? Image.asset(
+                                    "assets/images/check.png",
+                                    height: 13.h,
+                                  )
+                                : Icon(
+                                    Icons.add,
+                                    size: 15.h,
+                                  )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          // gender = value.toString();
+                          single = false;
+                          married = false;
+                          divorced = false;
+                          widowed = false;
+                          separated = true;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:
+                              separated ? Constants.borderColor : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            separated
+                                ? Text(
+                                    "Separated",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : Text(
+                                    "Separated",
+                                    style: GoogleFonts.varela(fontSize: 13.sp),
+                                    textAlign: TextAlign.center,
+                                  ),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            separated
+                                ? Image.asset(
+                                    "assets/images/check.png",
+                                    height: 13.h,
+                                  )
+                                : Icon(
+                                    Icons.add,
+                                    size: 15.h,
+                                  )
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
-                const Text(
-                  "Language Known",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+
+                SizedBox(
+                  height: 6.h,
                 ),
-                const SizedBox(height: 15),
-                GestureDetector(
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
+                ),
+                SizedBox(
+                  height: 3.h,
+                ),
+                Text(
+                  "Date of Birth",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      height: 35,
+                      width: 110.w,
+                      child: TextFormField(
+                        controller: dateOfBirth,
+                        // validator: (value) {
+                        //   if (value == null ||
+                        //       value.isEmpty && !value.contains(' ')) {
+                        //     return 'Please enter valid first and last name';
+                        //   }
+                        //   return null;
+                        // },
+
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(15)),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade300)),
+                          //  icon: Icon(Icons.calendar_month),
+                          // label: Text("Date Of Birth"),
+                          //border: OutlineInputBorder(),
+                          contentPadding:
+                              const EdgeInsets.only(top: 10, left: 10),
+                          border: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                              borderSide:
+                                  BorderSide(color: Constants.borderColor)),
+                          hintText: 'Please enter date of birth',
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: dataOfBirthValue,
+                              firstDate: DateTime.now()
+                                  .add(const Duration(days: -(365 * 50))),
+                              lastDate: DateTime.now(),
+                              currentDate: dataOfBirthValue);
+
+                          if (pickedDate != null) {
+                            String formattedDate =
+                                DateFormat('dd-MM-yyyy').format(pickedDate);
+                            dataOfBirthValue = pickedDate;
+                            setState(() {
+                              dateOfBirth.text = formattedDate;
+                              dt = DateFormat('yyyy-MM-dd HH:mm:ss')
+                                  .format(pickedDate);
+                              // year = ("$formattedDate-${DateTime.now()}");
+                              dt = DateFormat('yyyy-MM-dd HH:mm:ss')
+                                  .format(pickedDate);
+                              year = (dt - DateTime.now());
+                              dateOfBirth = dt;
+                              //set output date to TextField value.
+                            });
+                          } else {
+                            // ignore: avoid_print
+                            print("Date is not selected");
+                          }
+                        },
+                      ),
+                    ),
+                    Text("Age : ${calculateAge(dataOfBirthValue).toString()}"),
+                  ],
+                ),
+                SizedBox(
+                  height: 6.h,
+                ),
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
+                ),
+                SizedBox(
+                  height: 3.h,
+                ),
+                Text(
+                  "Reside at",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+
+                SizedBox(
+                  height: 35,
+                  width: 110.w,
+                  child: TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select any job location';
+                      }
+                      return null;
+                    },
+                    controller: jobLocationController,
+                    enabled: true,
+                    onTap: (() {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogList(
+                              tile: null,
+                              dialogTitle: "Select State",
+                              onSelected: (AutoCompleteModel model) async {
+                                await selectCity(model.value);
+                              },
+                              itemsData: stateList,
+                            );
+                          });
+                    }),
+                    decoration: InputDecoration(
+                      //icon: Icon(Icons.location_city),
+                      contentPadding: const EdgeInsets.only(top: 10, left: 10),
+                      suffixIcon: const Icon(Icons.arrow_drop_down),
+                      //label: Text("Job City"),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20))),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20))),
+                      hintText: 'Select Job City',
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 6.h,
+                ),
+                const Divider(
+                  thickness: 1.5,
+                  // height: 15,
+                ),
+                SizedBox(
+                  height: 3.h,
+                ),
+                Text(
+                  "Language Known",
+                  style: GoogleFonts.varela(
+                      fontSize: 13.sp, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Wrap(children: [customLanguage("English")]),
+
+                /* GestureDetector(
                   child: Container(
                     height: 30,
                     alignment: Alignment.center,
@@ -587,7 +1138,7 @@ class _Screen1State extends State<Screen1> {
                         borderRadius: BorderRadius.circular(60)),
                     child: const Text(
                       "Select Language",
-                      style: TextStyle(
+                      style: GoogleFonts.varela(
                           fontSize: 16, color: Color.fromARGB(255, 163, 0, 0)),
                     ),
                   ),
@@ -610,37 +1161,166 @@ class _Screen1State extends State<Screen1> {
                           );
                         })
                   },
-                ),
-                const SizedBox(height: 20),
-                ResponsiveGridRow(children: [
+                ), */
+                /* ResponsiveGridRow(children: [            // old language selected container code
                   for (var s in languageAutoList)
                     if (s.checked == true)
                       ResponsiveGridCol(
                         xs: 4,
-                        sm: 4,
-                        md: 3,
+                        sm: 2,
+                        md: 4,
                         child: Container(
-                          height: 30,
-                          alignment: Alignment.center,
+                          height: 32.h,
+                          //width: 120.w,
+                          // alignment: Alignment.center,
                           margin: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 5),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                            horizontal: 10,
+                          ),
+                          padding: const EdgeInsets.only(
+                              left: 12, right: 10, bottom: 5, top: 5),
                           decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 168, 0, 0)
-                                  .withOpacity(0.7),
+                              border: Border.all(color: Colors.grey.shade300),
                               borderRadius: BorderRadius.circular(60)),
-                          child: Text(
-                            s.label,
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.white),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                s.label,
+                                style: GoogleFonts.varela(
+                                    fontSize: 13.sp, color: Colors.black),
+                              ),
+                              Icon(
+                                Icons.add,
+                                size: 15.h,
+                                color: Colors.grey.shade300,
+                              )
+                            ],
                           ),
                         ),
                       )
-                ]),
-                const SizedBox(height: 200),
+                ]), */
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /* Widget mareital_status(String title,bool _single,bool _married,bool _divorced,bool _widowed,bool _separated) {
+    return InkWell(
+                    onTap: () {
+                      setState(() {
+                        // gender = value.toString();
+                        single = _single;
+                        married = _married;
+                        divorced = _divorced;
+                        widowed = _widowed;
+                        separated = _separated;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: single ? Constants.borderColor : Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 4),
+                      margin: const EdgeInsets.only(right: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          single
+                              ? Text(
+                                  title,
+                                  style: GoogleFonts.varela(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                )
+                              : Text(
+                                  title,
+                                  style: GoogleFonts.varela(fontSize: 13.sp),
+                                  textAlign: TextAlign.center,
+                                ),
+                          SizedBox(
+                            width: 4.w,
+                          ),
+                          single
+                              ? Image.asset(
+                                  "assets/images/check.png",
+                                  height: 13.h,
+                                )
+                              : Icon(
+                                  Icons.add,
+                                  size: 15.h,
+                                )
+                        ],
+                      ),
+                    ),
+                  );
+  } */
+
+  calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    int month1 = currentDate.month;
+    int month2 = birthDate.month;
+    if (month2 > month1) {
+      age--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = birthDate.day;
+      if (day2 > day1) {
+        age--;
+      }
+    }
+    return age;
+  }
+
+  InkWell customLanguage(String title) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          language = !language;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+        decoration: BoxDecoration(
+            color: language ? Constants.borderColor : Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.grey.shade300)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            language
+                ? Text(
+                    title,
+                    style: GoogleFonts.varela(
+                        fontSize: 13.sp, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  )
+                : Text(
+                    title,
+                    style: GoogleFonts.varela(fontSize: 13.sp),
+                    textAlign: TextAlign.center,
+                  ),
+            SizedBox(
+              width: 4.w,
+            ),
+            language
+                ? Image.asset(
+                    "assets/images/check.png",
+                    height: 13.h,
+                  )
+                : Icon(
+                    Icons.add,
+                    size: 15.h,
+                  )
+          ],
         ),
       ),
     );

@@ -3,6 +3,6 @@ import 'package:job_circle/service/ServiceBase.dart';
 
 class ApplicationService extends ServiceBase {
   saveApplication(dynamic params) {
-    return callPost(GlobalConstants.API_leads_v1, params);
+    return callPostLocal(GlobalConstants.API_jobs_v2_jobs_13_apply, params);
   }
 }

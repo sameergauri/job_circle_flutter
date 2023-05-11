@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/enums/enums.dart';
 
 class ThemeButton extends StatelessWidget {
@@ -7,6 +8,7 @@ class ThemeButton extends StatelessWidget {
   final bool? isText;
   final ThemeButtonSize? themeButtonSize;
   final double width;
+  final double height;
   final bool disabled;
   final bool hide;
   final double radious;
@@ -23,6 +25,7 @@ class ThemeButton extends StatelessWidget {
       this.border,
       this.themeButtonSize = ThemeButtonSize.medium,
       this.width = 0,
+      this.height = 0,
       this.disabled = false,
       this.hide = false,
       this.radious = 100,
@@ -38,9 +41,9 @@ class ThemeButton extends StatelessWidget {
         : Container(
             width: width > 0.0 ? width : double.infinity,
             height: themeButtonSize == ThemeButtonSize.large
-                ? 60
+                ? 55
                 : themeButtonSize == ThemeButtonSize.small
-                    ? 40
+                    ? 35
                     : themeButtonSize == ThemeButtonSize.xsmall
                         ? 30
                         : 50,
@@ -66,19 +69,19 @@ class ThemeButton extends StatelessWidget {
                     child: Center(
                       child: Text(
                         text!,
-                        style: TextStyle(
+                        style: GoogleFonts.varela(
                           color: isText == true ? Colors.black87 : Colors.white,
                           fontSize: fontsize! > 0
                               ? fontsize
                               : (themeButtonSize == ThemeButtonSize.large
-                                  ? 22
+                                  ? 20
                                   : themeButtonSize == ThemeButtonSize.small
                                       ? 15
                                       : themeButtonSize ==
                                               ThemeButtonSize.xsmall
                                           ? 11
                                           : 19),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

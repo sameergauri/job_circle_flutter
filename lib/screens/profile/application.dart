@@ -20,9 +20,20 @@ import '../../service/UserDataService.dart';
 import '../../service/masterService.dart';
 
 class ApplicationForm extends StatefulWidget {
-  const ApplicationForm({Key? key, this.isnew = false}) : super(key: key);
+  const ApplicationForm(
+      {Key? key,
+      this.isnew = false,
+      this.refer,
+      this.cmpnyname,
+      this.process,
+      this.level})
+      : super(key: key);
 
   final bool? isnew;
+  final bool? refer;
+  final String? cmpnyname;
+  final String? process;
+  final String? level;
 
   @override
   State<ApplicationForm> createState() => ApplicationFormState();
@@ -98,9 +109,12 @@ class ApplicationFormState extends State<ApplicationForm> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (args != null && args["isnew"] != true) {
-        enableApplicantName = false;
-        enableContactNo = false;
-        bindUserDetails();
+        if (args["refer"] == true) {
+          enableApplicantName = false;
+          enableContactNo = false;
+
+          bindUserDetails();
+        }
       }
 
       if (args != null && args["prevModel"] != null) {
@@ -122,32 +136,34 @@ class ApplicationFormState extends State<ApplicationForm> {
         bindProccessLevelList(prevModel.compnayid.toString());
         setState(() {});
       }
+      if (args["refer"] == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          // baad me kaam krna hai
+          userinfo = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_data.name);
+          userType = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_type.name);
+          role = await Utils.getPreferencesValue(
+              null, ESharedPreferences.role.name);
+          // mobileno = await Utils.getPreferencesValue(
+          //     null, ESharedPreferences.user_mobile.name);
+          localStoregData = jsonDecode(userinfo);
+          if (userType == EUserType.jobSeeker.value) {
+            contactno.text = localStoregData["mobile"];
+            applicationname.text = localStoregData["firstName"].toString();
+            lastname.text = localStoregData["lastName"].toString();
+            // applicationname.text = localStoregData["cardName"].toString().toTitleCase();
+          }
+          setState(() {});
+        });
+      }
     });
     // Bind All Dropdown
-    print("Load complete11111");
+
     // profileCv.profile_cv_file = "abc.pdf";
     // profileCv.cv_link = "abc.pdf";
     // profileCv.cv_upladted_date = "2033";
     // profileCv.profile_cv_link = "lin";
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      userinfo = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_data.name);
-      userType = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
-      role =
-          await Utils.getPreferencesValue(null, ESharedPreferences.role.name);
-      // mobileno = await Utils.getPreferencesValue(
-      //     null, ESharedPreferences.user_mobile.name);
-      localStoregData = jsonDecode(userinfo);
-      if (userType == EUserType.jobSeeker.value) {
-        contactno.text = localStoregData["mobile"];
-        applicationname.text = localStoregData["firstName"].toString();
-        lastname.text = localStoregData["lastName"].toString();
-        // applicationname.text = localStoregData["cardName"].toString().toTitleCase();
-      }
-      setState(() {});
-    });
 
     enableProcess = false;
     enableLevel = false;
@@ -279,7 +295,6 @@ class ApplicationFormState extends State<ApplicationForm> {
       //     .map<AutoCompleteModel>((e) => AutoCompleteModel(
       //         e['process_name'].toString(), e['process_name'], e))
       //     .toList();
-
     }
   }
 
@@ -350,6 +365,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter first name';
                     }
+                    return null;
                   },
                   enabled: enableApplicantName,
                   controller: applicationname,
@@ -366,6 +382,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter last name';
                     }
+                    return null;
                   },
                   enabled: enableApplicantName,
                   controller: lastname,
@@ -385,6 +402,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     } else if (value.length < 10) {
                       return 'Please enter valid contact no';
                     }
+                    return null;
                   },
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly
@@ -568,6 +586,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     if (value == null || value.isEmpty) {
                       return 'Please select any company';
                     }
+                    return null;
                   },
                   onTap: (() {
                     showDialog(
@@ -609,6 +628,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     if (value == null || value.isEmpty) {
                       return 'Please select any process';
                     }
+                    return null;
                   },
                   controller: processController,
                   enabled: enableProcess,
@@ -645,6 +665,7 @@ class ApplicationFormState extends State<ApplicationForm> {
                     if (value == null || value.isEmpty) {
                       return 'Please select any Level';
                     }
+                    return null;
                   },
                   onTap: (() {
                     showDialog(
@@ -981,47 +1002,7 @@ class ApplicationFormState extends State<ApplicationForm> {
       SharedPreferences prefs = await Utils.getSharedPreferences();
       var userId = await Utils.getPreferencesValue(
           prefs, ESharedPreferences.user_id.name);
-      var param = {
-        "applicant_name": applicationname.text.trim(),
-        "last_name": lastname.text.trim(),
-        "company_name": selectedshort.label,
-        "contact_no": int.parse(contactno.text.trim()),
-        "id": leadID,
-        "jobid": jobId,
-        "level": selectedLevel.value,
-        "level_id": 0,
-        "doj": dtDOJ,
-        "dos": dtSelection,
-        "process": selectedProcess.value,
-        "process_id": 0,
-        "qualification": underGradActive == 1 ? 'Under Graduate' : 'Graduate',
-        "is_experienced": exprinceActive,
-        "resume": profileCv.cv_link ?? "",
-        "short_list_for": int.parse(selectedshort.value),
-        "source_id": (userType == EUserType.businessPartner.value ||
-                userType == EUserType.employee.value
-            ? userId
-            : 0),
-        "attr_status": "",
-        "exp_max": 0,
-        "sp_inv_no": "",
-        "sp_payout": "",
-        "sp_payment_status": "",
-        "exp_min": 0,
-        "complete_status": 0,
-        "interview": "",
-        "status": 1,
-        "remark": remarkController.text,
-        "payment_clause": paymentClause,
-        "spoc": spoc,
-        "payout": 0,
-        "uid": (userType == EUserType.businessPartner.value ||
-                userType == EUserType.employee.value
-            ? userId
-            : 0),
-        "user_type": userType,
-        "role": role
-      };
+      var param = {"jobid": jobId, "userid": userId};
 
       var result = await ApplicationService().saveApplication(param);
       var apiresult = Utils.parseResponse(result);

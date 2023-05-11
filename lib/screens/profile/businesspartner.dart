@@ -69,7 +69,6 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   late String stateValue;
   late String cityValue;
 
-
   late List<AutoCompleteModel> stateList = [];
   AutoCompleteModel selectedState = AutoCompleteModel("", "", {});
 
@@ -198,6 +197,13 @@ class _BusinessPartnerState extends State<BusinessPartner> {
 
   List<dynamic> countries = [];
 
+  var panFile;
+  var panLink;
+  var adharFile;
+  var adharLink;
+  var bankFile;
+  var bankLink;
+
   String? countryId;
 
   @override
@@ -309,8 +315,14 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   Row(
                     children: [
                       Expanded(
-                          child: uploadCV('pandcard', filemodel.panCardLink,
-                              filemodel.panFileName, filemodel.panDateTime))
+                        child: uploadCV(
+                            'pandcard',
+                            /*  filemodel.panCardLink,
+                            filemodel.panFileName, */
+                            panFile,
+                            panLink,
+                            filemodel.panDateTime),
+                      )
                     ],
                   ),
                   Row(
@@ -353,8 +365,10 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                           child: uploadCV(
                               'adharcard',
-                              filemodel.adharCardLink,
-                              filemodel.adharCardFileName,
+                              /* filemodel.adharCardLink,
+                              filemodel.adharCardFileName, */
+                              adharLink,
+                              adharFile,
                               filemodel.adharCardDateTime))
                     ],
                   ),
@@ -389,7 +403,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                             return null;
                           },
                           controller: acholdername,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.name,
                           decoration: const InputDecoration(
                             icon: Icon(Icons.person_outline),
                             label: Text("Account holder name *"),
@@ -514,8 +528,10 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                       Expanded(
                           child: uploadCV(
                               'cancelChq',
-                              filemodel.cancelChequeLink,
-                              filemodel.cancelChequeFileName,
+                              /*  filemodel.cancelChequeLink,
+                              filemodel.cancelChequeFileName, */
+                              bankLink,
+                              bankFile,
                               filemodel.cancelChequeDateTime))
                     ],
                   ),
@@ -1164,10 +1180,11 @@ class _BusinessPartnerState extends State<BusinessPartner> {
     if (result != null) {
       var res = await FileUploadService()
           .uploadSingleFile("partners", result.files.single);
+      setState(() {});
       var resultD = Utils.parseResponse(res);
       Navigator.pop(context);
       if (resultD.resultKey == 'SUCCESS') {
-        return resultD.resultData["fileName"];
+        return resultD.resultData[0]["fileName"];
       }
       // File file = File(result.files.single.readStream.first!);
     } else {
@@ -1284,8 +1301,26 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   TextButton.icon(
                     onPressed: () async {
                       var data = await uploadFile(['pdf']);
-                      fileLink = data;
-                      fileName = data;
+
+                      if (typeOfUpload == "pandcard") {
+                        panLink = data;
+                        panFile = data;
+                        filemodel.panCardLink = data;
+                        filemodel.panFileName = data;
+                        setState(() {});
+                      } else if (typeOfUpload == "adharcard") {
+                        adharLink = data;
+                        adharFile = data;
+                        filemodel.adharCardLink = data;
+                        filemodel.adharCardFileName = data;
+                        setState(() {});
+                      } else {
+                        bankLink = data;
+                        bankFile = data;
+                        filemodel.cancelChequeLink = data;
+                        filemodel.cancelChequeFileName = data;
+                        setState(() {});
+                      }
                       // var payload = {
                       //   "stage": "upload_cv",
                       //   "data": {

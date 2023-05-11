@@ -4,6 +4,9 @@ class Constants {
   static const bgPanelColor = Colors.white; //Color(0xfffef1e9);
   static const bgColorWhite = Color(0xffffffff);
   static const themeBgColor = Color(0xffce3538);
+  static const themeBgColorLight = Color(0xffffdf7f6);
+  static const borderColor = Color(0xffffbefed);
+  static const subtitleclr = Color(0xfff898d8c);
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

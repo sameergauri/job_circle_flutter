@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:job_circle/service/LeadService.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -263,7 +266,9 @@ class _StatesticsState extends State<Statestics> {
         "isemptype": asempview
       }
     });
-    var d = Utils.parseResponse(result);
+    Map resultData = jsonDecode(result.body);
+    var d = RequestResult(resultData["code"], resultData["resultKey"],
+        resultData["errorMessage"], resultData["resultData"]);
     if (d.resultKey == 'SUCCESS') {
       setState(() {
         leadCounts = d.resultData;

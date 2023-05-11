@@ -1,14 +1,10 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:job_circle/common/app_utils.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/cv.dart';
-import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
@@ -17,8 +13,8 @@ import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 class ProfileSummary extends StatefulWidget {
   const ProfileSummary({Key? key}) : super(key: key);
@@ -75,268 +71,386 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     setState(() {});
   }
 
+  bool visible = true;
+  bool notvisible = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          elevation: 0,
-          title: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Text(
-                "Profile",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: Colors.black),
+            backgroundColor: Constants.themeBgColorLight,
+            elevation: 0,
+            actions: [
+              Row(
+                children: [
+                  Container(
+                      width: MediaQuery.of(context).size.width / 1.1,
+                      height: 40,
+                      // color: Colors.red,
+                      padding: const EdgeInsets.only(left: 20, right: 30),
+                      child: TextField(
+                          decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(),
+                            borderRadius: BorderRadius.circular(15)),
+                        filled: true,
+                        contentPadding:
+                            const EdgeInsets.only(bottom: 10, left: 5, top: 10),
+                        border: OutlineInputBorder(
+                            /* borderSide:
+                                const BorderSide(color: Constants.borderColor), */
+                            borderRadius: BorderRadius.circular(15)),
+                        hintText: "${profilemodel.first_name}",
+                      )))
+                ],
+              )
             ],
           ),
-        ),
-        // backgroundColor: Theme.of(context).primaryColor,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              // Center(
-              //     child: Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: SmartCard(model: model),
-              // )),
+          backgroundColor: Constants.themeBgColorLight,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // Center(
+                //     child: Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: SmartCard(model: model),
+                // )),
 
-              Expanded(
-                child: SingleChildScrollView(
-                  child: profilemodel.first_name == null
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : Column(children: [
-                          Stack(
-                            children: [
-                              Container(
-                                height: 80,
-                                width: double.infinity,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                              // Image.network(
-                              //   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqD_HGDxOuodLJMHqZeLgNMLd_5kQvSthCeQ&usqp=CAU',
-                              //   height: 80,
-                              //   width: double.infinity,
-                              //   fit: BoxFit.cover,
-                              // ),
-                              basicInfo(),
-                              Positioned(
-                                top: 10,
-                                left: (MediaQuery.of(context).size.width / 2) -
-                                    60,
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 120,
-                                      width: 120,
-                                      child: CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.white,
-                                        child: CircleAvatar(
-                                          backgroundColor: const Color.fromARGB(
-                                              255, 190, 190, 190),
-                                          radius: 58,
-                                          onBackgroundImageError: ((error,
-                                                  stackTrace) =>
-                                              Image.asset(
-                                                  "assets/images/company.png",
-                                                  height: 80,
-                                                  width: 80,
-                                                  fit: BoxFit.contain)),
-                                          backgroundImage: Image.network(
-                                            profile_final_pic,
-                                          ).image,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: profilemodel.first_name == null
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Column(children: [
+                            Stack(
+                              children: [
+                                Container(
+                                  // height: 80,
+                                  width: double.infinity,
+                                  color: Colors.white,
+                                ),
+                                // Image.network(
+                                //   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqD_HGDxOuodLJMHqZeLgNMLd_5kQvSthCeQ&usqp=CAU',
+                                //   height: 80,
+                                //   width: double.infinity,
+                                //   fit: BoxFit.cover,
+                                // ),
+                                //basicInfo(),
+                                Positioned(
+                                  //top: 10,
+
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          SizedBox(
+                                            height: 90,
+                                            width: 90,
+                                            child: CircleAvatar(
+                                              radius: 30,
+                                              backgroundColor: Colors.white,
+                                              child: CircleAvatar(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 190, 190, 190),
+                                                radius: 43,
+                                                onBackgroundImageError: ((error,
+                                                        stackTrace) =>
+                                                    Image.asset(
+                                                        "assets/images/company.png",
+                                                        height: 80,
+                                                        width: 80,
+                                                        fit: BoxFit.contain)),
+                                                backgroundImage: Image.network(
+                                                  profile_final_pic,
+                                                ).image,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: InkWell(
+                                              onTap: () async {
+                                                setState(() async {
+                                                  var data = await uploadFile(
+                                                      ['jpeg', 'jpg']);
+                                                  var payload = {
+                                                    "stage": "profile_pic",
+                                                    "data": {
+                                                      "id": await Utils
+                                                          .getPreferencesValue(
+                                                              null,
+                                                              ESharedPreferences
+                                                                  .user_id
+                                                                  .name),
+                                                      "profile_pic":
+                                                          data['fileName']
+                                                    }
+                                                  };
+                                                  await save(data['fileName'],
+                                                      payload);
+                                                });
+                                              },
+                                              child: CircleAvatar(
+                                                radius: 17,
+                                                backgroundColor: Colors.white,
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      Constants.borderColor,
+                                                  radius: 12.r,
+                                                  child: const Icon(Icons.add),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 20.w),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {
+                                                  /* Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Screen1(
+                                                        prevPageModel:
+                                                            profilemodel,
+                                                      ),
+                                                    ),
+                                                  ); */
+                                                },
+                                                icon: const Icon(
+                                                  Icons.edit_outlined,
+                                                  color: Colors.transparent,
+                                                )),
+                                            Column(
+                                              children: [
+                                                Text(
+                                                  profilemodel.first_name
+                                                          .toString()
+                                                          .toTitleCase() +
+                                                      ' ' +
+                                                      profilemodel.last_name
+                                                          .toString()
+                                                          .toTitleCase(),
+                                                  style: TextStyle(
+                                                      fontSize: 18.sp,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                                const Text("Flutter Developer"
+                                                    " | "
+                                                    "Job circle")
+                                              ],
+                                            ),
+                                            IconButton(
+                                                onPressed: () {
+                                                  sendToBasicInfo();
+                                                },
+                                                icon: Icon(
+                                                  Icons.edit_outlined,
+                                                  size: 14.h,
+                                                ))
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                    TextButton(
-                                        onPressed: () async {
-                                          setState(()async {
-                                            var data = await uploadFile(
-                                                ['jpeg', 'jpg']);
-                                            var payload = {
-                                              "stage": "profile_pic",
-                                              "data": {
-                                                "id": await Utils
-                                                    .getPreferencesValue(
-                                                        null,
-                                                        ESharedPreferences
-                                                            .user_id.name),
-                                                "profile_pic": data['fileName']
-                                              }
-                                            };
-                                            await save(
-                                                data['fileName'], payload);
-                                          });
-                                        },
-                                        child: const Text("Change Photo"))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Visibility(
-                              visible: (usertype == 1 ? true : false),
-                              child: education()),
-                          Visibility(
-                              visible: (usertype == 1 ? true : false),
-                              child: experience()),
-                          Visibility(
-                              visible: (usertype == 1 ? true : false),
-                              child: contactDetails()),
-                          Visibility(
-                              visible: (usertype == 1 ? true : false),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 3, right: 3),
-                                child: cardCustom(
-                                    icon: Icons.file_copy,
-                                    isedit: false,
-                                    title: "Resume",
-                                    child: CVWidget(
-                                        profileCv: ProfileCv(
-                                            cv_link: profilemodel.cv_link,
-                                            profile_cv_link: profile_cv_link,
-                                            cv_upladted_date:
-                                                profilemodel.cv_upladted_date,
-                                            profile_cv_file: profile_cv_file),
-                                        onUpload: (fileName, payload) async =>
-                                            {await save(fileName, payload)})),
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3, right: 3),
-                            child: cardCustom(
-                                isedit: false,
-                                title: "",
-                                child: Column(
-                                  children: [
-                                    ThemeButton(
-                                      icon: const Icon(Icons.logout),
-                                      text: "Sign Out",
-                                      onPressed: () {
-                                        Future.delayed(
-                                            const Duration(seconds: 0),
-                                            () async {
-                                          await AppUtils.clearSession();
-                                          Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              ERoute.login.value,
-                                              (Route<dynamic> route) => false);
-                                          // Navigator.pushReplacementNamed(context, nextRoute.value);
-                                        });
-                                        //
-                                      },
-                                      themeButtonSize: ThemeButtonSize.small,
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Visibility(
-                                      visible:
-                                          usertype == EUserType.jobSeeker.value,
-                                      child: ThemeButton(
-                                        icon: profilemodel.partner_request == 1
-                                            ? const Icon(
-                                                Icons.check_box_rounded,
-                                                color: Colors.green,
-                                              )
-                                            : null,
-                                        isText: true,
-                                        radious: 8,
-                                        border: Border.all(width: 1),
-                                        text: profilemodel.partner_request == 0
-                                            ? "Become Sourcing Partner and start earing."
-                                            : "Request already send. Click to cancel",
-                                        onPressed: () {
-                                          // set up the button
-                                          Widget cancelButton = TextButton(
-                                              child: const Text("Cancel"),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              });
-                                          Widget okButton = TextButton(
-                                            child: Text(
-                                                profilemodel.partner_request ==
-                                                        0
-                                                    ? "Send Request"
-                                                    : "Cancel Request"),
-                                            onPressed: () async {
+
+                                      /*  TextButton(
+                                          onPressed: () async {
+                                            setState(() async {
+                                              var data = await uploadFile(
+                                                  ['jpeg', 'jpg']);
                                               var payload = {
-                                                "stage": "partnerRequest",
+                                                "stage": "profile_pic",
                                                 "data": {
                                                   "id": await Utils
                                                       .getPreferencesValue(
                                                           null,
                                                           ESharedPreferences
                                                               .user_id.name),
-                                                  "partner_request": (profilemodel
-                                                              .partner_request ==
-                                                          0
-                                                      ? 1
-                                                      : 0)
+                                                  "profile_pic": data['fileName']
                                                 }
                                               };
-                                              Utils.showLoaderDialog(
-                                                  context, "");
-                                              await save('', payload);
-
-                                              Navigator.pop(context);
-                                              Navigator.pop(context);
-                                            },
-                                          );
-                                          // set up the AlertDialog
-                                          AlertDialog alert = AlertDialog(
-                                            title: const Text("Request"),
-                                            content: Text(profilemodel
-                                                        .partner_request ==
-                                                    0
-                                                ? "Do you want to send request to became business partner with us?"
-                                                : "Do you want to cancel request?"),
-                                            actions: [cancelButton, okButton],
-                                          );
-                                          // show the dialog
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return alert;
-                                            },
-                                          );
-
-                                          // Future.delayed(
-                                          //     const Duration(seconds: 0),
-                                          //     () async {
-                                          //   await AppUtils.clearSession();
-                                          //   Navigator.pushNamedAndRemoveUntil(
-                                          //       context,
-                                          //       ERoute.login.value,
-                                          //       (Route<dynamic> route) => false);
-                                          //   // Navigator.pushReplacementNamed(context, nextRoute.value);
-                                          // });
+                                              await save(
+                                                  data['fileName'], payload);
+                                            });
+                                          },
+                                          child: const Text("Change Photo")) */
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Visibility(
+                                visible: (usertype == 1 ? true : false),
+                                child: experience()),
+                            Visibility(
+                                visible: (usertype == 1 ? true : false),
+                                child: education()),
+                            Visibility(
+                                visible: (usertype == 1 ? true : false),
+                                child: contactDetails()),
+                            Visibility(
+                                visible: (usertype == 1 ? true : false),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 3, right: 3),
+                                  child: cardCustom(
+                                      icon: Icons.file_copy,
+                                      isedit: false,
+                                      isresume: true,
+                                      title: "",
+                                      child: CVWidget(
+                                          profileCv: ProfileCv(
+                                              cv_link: profilemodel.cv_link,
+                                              profile_cv_link: profile_cv_link,
+                                              cv_upladted_date:
+                                                  profilemodel.cv_upladted_date,
+                                              profile_cv_file: profile_cv_file),
+                                          onUpload: (fileName, payload) async =>
+                                              {await save(fileName, payload)})),
+                                )),
+                            /* Padding(
+                              padding: const EdgeInsets.only(left: 3, right: 3),
+                              child: cardCustom(
+                                  isresume: true,
+                                  isedit: false,
+                                  title: "",
+                                  child: Column(
+                                    children: [
+                                      ThemeButton(
+                                        icon: const Icon(Icons.logout),
+                                        text: "Sign Out",
+                                        onPressed: () {
+                                          Future.delayed(
+                                              const Duration(seconds: 0),
+                                              () async {
+                                            await AppUtils.clearSession();
+                                            Navigator.pushNamedAndRemoveUntil(
+                                                context,
+                                                ERoute.login.value,
+                                                (Route<dynamic> route) => false);
+                                            // Navigator.pushReplacementNamed(context, nextRoute.value);
+                                          });
                                           //
                                         },
                                         themeButtonSize: ThemeButtonSize.small,
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                  ],
-                                )),
-                          )
-                        ]),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Visibility(
+                                        visible:
+                                            usertype == EUserType.jobSeeker.value,
+                                        child: ThemeButton(
+                                          icon: profilemodel.partner_request == 1
+                                              ? const Icon(
+                                                  Icons.check_box_rounded,
+                                                  color: Colors.green,
+                                                )
+                                              : null,
+                                          isText: true,
+                                          radious: 8,
+                                          border: Border.all(width: 1),
+                                          text: profilemodel.partner_request == 0
+                                              ? "Become Sourcing Partner and start earing."
+                                              : "Request already send. Click to cancel",
+                                          onPressed: () {
+                                            // set up the button
+                                            Widget cancelButton = TextButton(
+                                                child: const Text("Cancel"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                });
+                                            Widget okButton = TextButton(
+                                              child: Text(
+                                                  profilemodel.partner_request ==
+                                                          0
+                                                      ? "Send Request"
+                                                      : "Cancel Request"),
+                                              onPressed: () async {
+                                                var payload = {
+                                                  "stage": "partnerRequest",
+                                                  "data": {
+                                                    "id": await Utils
+                                                        .getPreferencesValue(
+                                                            null,
+                                                            ESharedPreferences
+                                                                .user_id.name),
+                                                    "partner_request": (profilemodel
+                                                                .partner_request ==
+                                                            0
+                                                        ? 1
+                                                        : 0)
+                                                  }
+                                                };
+                                                Utils.showLoaderDialog(
+                                                    context, "");
+                                                await save('', payload);
+    
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                            // set up the AlertDialog
+                                            AlertDialog alert = AlertDialog(
+                                              title: const Text("Request"),
+                                              content: Text(profilemodel
+                                                          .partner_request ==
+                                                      0
+                                                  ? "Do you want to send request to became business partner with us?"
+                                                  : "Do you want to cancel request?"),
+                                              actions: [cancelButton, okButton],
+                                            );
+                                            // show the dialog
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return alert;
+                                              },
+                                            );
+    
+                                            // Future.delayed(
+                                            //     const Duration(seconds: 0),
+                                            //     () async {
+                                            //   await AppUtils.clearSession();
+                                            //   Navigator.pushNamedAndRemoveUntil(
+                                            //       context,
+                                            //       ERoute.login.value,
+                                            //       (Route<dynamic> route) => false);
+                                            //   // Navigator.pushReplacementNamed(context, nextRoute.value);
+                                            // });
+                                            //
+                                          },
+                                          themeButtonSize: ThemeButtonSize.small,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  )),
+                            ) */
+                          ]),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ));
+              ],
+            ),
+          )),
+    );
   }
 
   Widget basicInfo() {
@@ -344,7 +458,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
       padding: const EdgeInsets.only(left: 3, top: 120, right: 3),
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           SizedBox(
@@ -366,7 +480,7 @@ class _ProfileSummaryState extends State<ProfileSummary> {
                         ' ' +
                         profilemodel.last_name.toString().toTitleCase(),
                     style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.w300),
+                        fontSize: 16, fontWeight: FontWeight.w300),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -455,75 +569,66 @@ class _ProfileSummaryState extends State<ProfileSummary> {
               }),
               icon: Icons.school_outlined,
               title: "Education",
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
                     children: [
-                      const Text(
-                        "Highest Education",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        profilemodel.education.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "University / Institite",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Expanded(
-                        child: Text(
-                          profilemodel.univercity.toString(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
+                      Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            border:
+                                Border.all(color: Constants.themeBgColorLight)),
+                        padding: const EdgeInsets.all(10),
+                        height: 70.h,
+                        width: 70.w,
+                        child: Image.asset(
+                          "assets/images/edulogo.png",
+                          fit: BoxFit.cover,
                         ),
-                      )
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Degree / Specialization",
+                      Text(
+                        profilemodel.univercity.toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 15.sp, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         profilemodel.degree_spc.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Passing Year",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+                            fontSize: 12.sp, fontWeight: FontWeight.w400),
                       ),
                       Text(
                         profilemodel.passing_year.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
+                        style: TextStyle(
+                            fontSize: 12.sp, fontWeight: FontWeight.w400),
+                      ),
+
+                      /* Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (profilemodel.has_experience == 1)
+                          Text(
+                            profilemodel.experience.toString(),
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w400),
+                          ),
+                        if (profilemodel.has_experience == 0)
+                          const Text(
+                            "No Experience",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w300),
+                          ),
+                      ],
+                    ), */
                     ],
                   ),
                 ],
@@ -536,85 +641,83 @@ class _ProfileSummaryState extends State<ProfileSummary> {
   }
 
   Widget experience() {
-    return Padding(
+    return Container(
+      // color: Constants.themeBgColorLight,
+      // margin: const EdgeInsets.symmetric(horizontal: 10),
       padding: const EdgeInsets.only(left: 3, right: 3),
       child: Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: cardCustom(
-              onPress: (() {
-                sendToExperience();
-              }),
-              icon: Icons.business_center_outlined,
-              title: "Experience",
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (profilemodel.has_experience == 1)
-                        const Text(
-                          "Years of Experience",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                      if (profilemodel.has_experience == 1)
-                        Text(
-                          profilemodel.experience.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        ),
-                      if (profilemodel.has_experience == 0)
-                        const Text(
-                          "No Experience",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: profilemodel.has_experience == 1,
-                    child: Row(
+          cardCustom(
+            onPress: (() {
+              sendToExperience(visible);
+            }),
+            // icon: Icons.business_center_outlined,
+            title: "Work Experience",
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border:
+                              Border.all(color: Constants.themeBgColorLight)),
+                      padding: const EdgeInsets.all(10),
+                      height: 70.h,
+                      width: 70.w,
+                      child: Image.asset(
+                        "assets/images/company.png",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profilemodel.job_title.toString(),
+                      style: TextStyle(
+                          fontSize: 15.sp, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      profilemodel.companyName.toString(),
+                      style: TextStyle(
+                          fontSize: 12.sp, fontWeight: FontWeight.w400),
+                    ),
+                    Text(
+                      "Feb 2022 - Present  (1 year)",
+                      style: TextStyle(
+                          fontSize: 12.sp, fontWeight: FontWeight.w400),
+                    ),
+                    Text(
+                      profilemodel.job_location.toString(),
+                      style: TextStyle(
+                          fontSize: 12.sp, fontWeight: FontWeight.w400),
+                    )
+                    /* Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Company Name",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          profilemodel.companyName.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        )
+                        if (profilemodel.has_experience == 1)
+                          Text(
+                            profilemodel.experience.toString(),
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w400),
+                          ),
+                        if (profilemodel.has_experience == 0)
+                          const Text(
+                            "No Experience",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w300),
+                          ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: profilemodel.has_experience == 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Job Title",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          profilemodel.job_title.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                    ), */
+                  ],
+                ),
+              ],
             ),
           )
         ],
@@ -630,45 +733,35 @@ class _ProfileSummaryState extends State<ProfileSummary> {
           SizedBox(
             width: double.infinity,
             child: cardCustom(
+              isskiil: true,
               isedit: false,
               icon: Icons.alternate_email_outlined,
-              title: "Contact Details",
+              title: "Skills",
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Mobile",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        profilemodel.mobile.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Email",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        profilemodel.email.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              "Recruiters look for candidates with specify skills. ",
+                              style: TextStyle(
+                                  fontSize: 12.sp, color: Colors.grey.shade500),
+                            ),
+                            Text(
+                              "Add your skills here to appear in searches.",
+                              style: TextStyle(
+                                  fontSize: 12.sp, color: Colors.grey.shade500),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -679,51 +772,90 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     );
   }
 
-  Card cardCustom(
-      {required String title,
+  Widget cardCustom(
+      {required String? title,
       IconData? icon,
       Widget? child,
+      bool? isskiil = false,
+      bool? isresume = false,
       bool? isedit = true,
       Function()? onPress}) {
-    return Card(
-        child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w400),
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (isedit == true)
-                              IconButton(
-                                icon: const Icon(Icons.edit, size: 18),
-                                onPressed: onPress,
-                              )
-                          ],
-                        ))
-                  ],
+    return Container(
+      padding:
+          const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 10),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Constants.borderColor),
+          borderRadius: BorderRadius.circular(15)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (isskiil == true)
+                Icon(
+                  Icons.star_border_outlined,
+                  size: 16.h,
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  child: child,
-                )
-              ],
-            )));
+              SizedBox(
+                width: 2.h,
+              ),
+              if (isresume == false)
+                Text(
+                  title.toString(),
+                  style:
+                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                ),
+              Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (isresume == false)
+                        InkWell(
+                          onTap: () {
+                            title == "Work Experience"
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            Screen3(expirieanceFlag: visible)))
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const Screen2()));
+                          },
+                          child: Icon(
+                            Icons.add,
+                            size: 18.h,
+                          ),
+                        ),
+                      if (isedit == true)
+                        InkWell(
+                            onTap: onPress,
+                            child: Container(
+                                margin: const EdgeInsets.only(left: 25),
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Icon(Icons.edit_outlined, size: 16.h)))
+                    ],
+                  ))
+            ],
+          ),
+          if (isresume == false)
+            Divider(
+              color: Constants.borderColor,
+              thickness: 2.5.w,
+            ),
+          Container(
+            padding: const EdgeInsets.only(top: 5),
+            child: child,
+          )
+        ],
+      ),
+    );
   }
 
   updateCard(CardModel items) {
@@ -785,12 +917,13 @@ class _ProfileSummaryState extends State<ProfileSummary> {
     }
   }
 
-  sendToExperience() async {
+  sendToExperience(bool isnew) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen3(
           prevPageModel: profilemodel,
+          expirieanceFlag: isnew,
         ),
       ),
     );

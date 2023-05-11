@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -26,55 +25,61 @@ class _JobFilterState extends State<JobFilter> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 15,
-        ),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                  width: 120,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext, index) {
-                      return ListTile(
-                        title: Text(filterItems[index]['value'].toString()),
-                        selectedColor: Colors.blue,
-                        selected: (selectedFilter ==
-                            filterItems[index]['key'].toString()),
-                        onTap: () {
-                          selectedFilter = filterItems[index]['key'].toString();
-                          setState(() {});
-                          //bottomSheetDialogController.setState(() => {});
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.only(top: kToolbarHeight / 2.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 15,
+            ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                      width: 120,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext, index) {
+                          return ListTile(
+                            title: Text(filterItems[index]['value'].toString()),
+                            selectedColor: Colors.blue,
+                            selected: (selectedFilter ==
+                                filterItems[index]['key'].toString()),
+                            onTap: () {
+                              selectedFilter =
+                                  filterItems[index]['key'].toString();
+                              setState(() {});
+                              //bottomSheetDialogController.setState(() => {});
+                            },
+                          );
                         },
-                      );
-                    },
-                    itemCount: filterItems.length,
-                    padding: const EdgeInsets.all(5),
-                    scrollDirection: Axis.vertical,
-                  )),
-              Container(
-                width: 2,
-                height: MediaQuery.of(context).size.height,
-                color: Color.fromARGB(255, 228, 228, 228),
+                        itemCount: filterItems.length,
+                        padding: const EdgeInsets.all(5),
+                        scrollDirection: Axis.vertical,
+                      )),
+                  Container(
+                    width: 2,
+                    height: MediaQuery.of(context).size.height,
+                    color: const Color.fromARGB(255, 228, 228, 228),
+                  ),
+                  Expanded(child: Container())
+                ],
               ),
-              Expanded(child: Container())
-            ],
-          ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            ThemeButton(
+              onPressed: () => {},
+              width: MediaQuery.of(context).size.width - 100,
+              text: "Apply Filters",
+            )
+          ],
         ),
-        const SizedBox(
-          height: 15,
-        ),
-        ThemeButton(
-          onPressed: () => {},
-          width: MediaQuery.of(context).size.width - 100,
-          text: "Apply Filters",
-        )
-      ],
+      ),
     );
   }
 

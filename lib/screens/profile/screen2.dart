@@ -1,13 +1,15 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:job_circle/components/smart_card.dart';
-import 'package:job_circle/components/theme_button.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
-import '../../components/autocompletecustom.dart';
 import '../../components/autolistviewmodal.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/card_model.dart';
@@ -21,7 +23,7 @@ class Screen2 extends StatefulWidget {
 }
 
 class _Screen2State extends State<Screen2> {
-  int _widgetId = 2;
+  final int _widgetId = 2;
   late Widget previousWidget;
   late TextEditingController educationController = TextEditingController();
   late TextEditingController passingYearController = TextEditingController();
@@ -38,41 +40,42 @@ class _Screen2State extends State<Screen2> {
   AutoCompleteModel selectedDegree = AutoCompleteModel("", "", {});
 
   @override
-  void initState() {
+  initState() {
     super.initState();
+
     bindLevelOfEducation();
     bindUniversityEducation();
     bindDegree();
     if (widget.prevPageModel != null) {
-      String education_id = "";
+      String educationId = "";
       dynamic education = "";
       if (widget.prevPageModel.education_id != null) {
-        education_id = widget.prevPageModel.education_id.toString();
+        educationId = widget.prevPageModel.education_id.toString();
       }
       if (widget.prevPageModel.education != null) {
         education = widget.prevPageModel.education;
       }
-      selectedEducation = AutoCompleteModel(education_id, education, {});
+      selectedEducation = AutoCompleteModel(educationId, education, {});
       educationController.text = education;
 
-      String univercity_id = widget.prevPageModel.univercity_id != null
+      String univercityId = widget.prevPageModel.univercity_id != null
           ? widget.prevPageModel.univercity_id.toString()
           : "";
       dynamic univercity = widget.prevPageModel.univercity != null
           ? widget.prevPageModel.univercity.toString()
           : "";
 
-      selectedUniversity = AutoCompleteModel(univercity_id, univercity, {});
+      selectedUniversity = AutoCompleteModel(univercityId, univercity, {});
       universityController.text = univercity;
 
-      String degree_spc_id = widget.prevPageModel.degree_spc_id != null
+      String degreeSpcId = widget.prevPageModel.degree_spc_id != null
           ? widget.prevPageModel.degree_spc_id.toString()
           : "";
-      dynamic degree_spc = widget.prevPageModel.degree_spc != null
+      dynamic degreeSpc = widget.prevPageModel.degree_spc != null
           ? widget.prevPageModel.degree_spc.toString()
           : "";
-      selectedDegree = AutoCompleteModel(degree_spc_id, degree_spc, {});
-      degreeController.text = degree_spc;
+      selectedDegree = AutoCompleteModel(degreeSpcId, degreeSpc, {});
+      degreeController.text = degreeSpc;
       passingYearController.text = widget.prevPageModel.passing_year.toString();
     }
   }
@@ -134,278 +137,1653 @@ class _Screen2State extends State<Screen2> {
     }
   }
 
+  bool graduate = false,
+      other = false,
+      undergraduate = false,
+      hsc = false,
+      mba = false,
+      sem1 = false,
+      sem2 = false,
+      sem3 = false,
+      sem4 = false,
+      sem5 = false,
+      sem6 = false;
+
+  FilePickerResult? result;
+  void _showFilesinDir({required Directory dir}) {
+    dir
+        .list(recursive: false, followLinks: false)
+        .listen((FileSystemEntity entity) {
+      print(entity.path);
+    });
+  }
+
+  customFilePicker() async {
+    result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc'],
+    );
+    if (result != null) {
+      setState(() {
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: result?.files.length ?? 0,
+            itemBuilder: (context, index) {
+              return Text(result?.files[index].name ?? '',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold));
+            });
+      });
+    } else {
+      print("No file selected");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                "assets/images/education.png",
-                height: 30,
-                color: Colors.white,
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+          bottomNavigationBar: InkWell(
+            onTap: () {
+              save();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Constants.themeBgColor,
+                  borderRadius: BorderRadius.circular(15)),
+              width: double.maxFinite,
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Save",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              const Text(
-                "Education",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: Container(
-          color: Constants.bgPanelColor,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: ThemeButton(
-              icon: const Icon(
-                Icons.arrow_forward,
-                color: Color(0xffffffff),
-                size: 25,
-              ),
-              radious: 0,
-              onPressed: () {
-                save();
-              },
-              text: widget.prevPageModel == null ? "NEXT" : "Save",
-              themeButtonSize: ThemeButtonSize.medium,
             ),
           ),
-        ),
-        backgroundColor: Theme.of(context).primaryColor,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SmartCard(model: model),
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(255, 39, 39, 39),
-                              blurRadius: 17.0,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                          color: Constants.bgPanelColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          )),
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: SingleChildScrollView(
-                                child: Column(children: [
-                                  _education(),
-                                ]),
-                              ),
-                            ),
-                          ),
-                        ],
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.prevPageModel == null
+                    ? Text(
+                        "Add Education",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    : Text(
+                        "Edit Education ",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                Text(
+                  "Let recruiter know your value as a potential candidate",
+                  style: GoogleFonts.varela(
+                      color: Colors.grey.shade600,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.normal),
+                )
+              ],
+            ),
           ),
-        ));
+          extendBodyBehindAppBar: true,
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              child: _education(),
+            ),
+          )),
+    );
   }
 
   Widget _education() {
     return Container(
+      padding: EdgeInsets.only(left: 20.w, right: 20.w),
       key: const Key('second'),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // CustomControls.AutoCompleteCustom(
+          //     context,
+          //     "Level Of Education",
+          //     "Enter Level Of Education",
+          //     ((AutoCompleteModel item) => {
+          //           setState(() {
+          //             selectedEducation = item;
+          //           }),
+          //           // print(selectedEducation.label),
+          //         }),
+          //     selectedEducation,
+          //     levelOfEducationList,
+          //     Icons.school_outlined),
+          /* TextFormField(
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) {
+            //     return 'Please select any job location';
+            //   }
+            // },
+            controller: educationController,
+            enabled: true,
+            onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Level Of Education",
+                      onSelected: (AutoCompleteModel model) => {
+                        educationController.text = model.label,
+                        selectedEducation = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: levelOfEducationList,
+                    );
+                  });
+            }),
+            decoration: const InputDecoration(
+                suffixIcon: Icon(Icons.arrow_drop_down),
+                // Icons.workspace_premium
+                label: Text("Level Of Education"),
+                //border: OutlineInputBorder(),
+                border: InputBorder.none,
+                hintText: "Select level of education",
+                prefixIcon: Icon(Icons.school_outlined)),
+          ), */
+          Text(
+            "Level of Education",
+            style: GoogleFonts.varela(
+                fontSize: 14.sp, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
             children: [
-              // CustomControls.AutoCompleteCustom(
-              //     context,
-              //     "Level Of Education",
-              //     "Enter Level Of Education",
-              //     ((AutoCompleteModel item) => {
-              //           setState(() {
-              //             selectedEducation = item;
-              //           }),
-              //           // print(selectedEducation.label),
-              //         }),
-              //     selectedEducation,
-              //     levelOfEducationList,
-              //     Icons.school_outlined),
-              TextFormField(
-                // validator: (value) {
-                //   if (value == null || value.isEmpty) {
-                //     return 'Please select any job location';
-                //   }
-                // },
-                controller: educationController,
-                enabled: true,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          tile: null,
-                          dialogTitle: "Level Of Education",
-                          onSelected: (AutoCompleteModel model) => {
-                            educationController.text = model.label,
-                            selectedEducation = model,
-                            Navigator.pop(context)
-                          },
-                          itemsData: levelOfEducationList,
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("Level Of Education"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select level of education",
-                    prefixIcon: Icon(Icons.school_outlined)),
-              ),
-              const SizedBox(height: 10),
-              // CustomControls.AutoCompleteCustom(
-              //     context,
-              //     "University / Institute",
-              //     "Enter college name",
-              //     ((AutoCompleteModel item) => {
-              //           setState(() {
-              //             selectedUniversity = item;
-              //           }),
-              //           // print(selectedEducation.label),
-              //         }),
-              //     selectedUniversity,
-              //     universityInstitueList,
-              //     Icons.school_sharp),
-              TextFormField(
-                // validator: (value) {
-                //   if (value == null || value.isEmpty) {
-                //     return 'Please select any job location';
-                //   }
-                // },
-                controller: universityController,
-                enabled: true,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          tile: null,
-                          dialogTitle: "University / Institute",
-                          onSelected: (AutoCompleteModel model) => {
-                            universityController.text = model.label,
-                            selectedUniversity = model,
-                            Navigator.pop(context)
-                          },
-                          itemsData: universityInstitueList,
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("University / Institute"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select university / institute",
-                    prefixIcon: Icon(Icons.school_sharp)),
-              ),
-              const SizedBox(height: 10),
-              // CustomControls.AutoCompleteCustom(
-              //     context,
-              //     "Degree / Specialization",
-              //     "Enter degree",
-              //     ((AutoCompleteModel item) => {
-              //           setState(() {
-              //             selectedDegree = item;
-              //           }),
-              //           // print(selectedEducation.label),
-              //         }),
-              //     selectedDegree,
-              //     degreeList,
-              //     Icons.cast_for_education),
-              TextFormField(
-                controller: degreeController,
-                enabled: true,
-                onTap: (() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          tile: null,
-                          dialogTitle: "Degree / Specialization",
-                          onSelected: (AutoCompleteModel model) => {
-                            degreeController.text = model.label,
-                            selectedDegree = model,
-                            Navigator.pop(context)
-                          },
-                          itemsData: degreeList,
-                        );
-                      });
-                }),
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    // Icons.workspace_premium
-                    label: Text("Degree / Specialization"),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none,
-                    hintText: "Select degree / specialization",
-                    prefixIcon: Icon(Icons.cast_for_education)),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                // inputFormatters: [
-                //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
-                // ],
-                controller: passingYearController,
-                keyboardType: TextInputType.number,
-                maxLength: 4,
-                onChanged: ((value) => {}),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter valid first and last name';
-                  }
-                  return null;
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // gender = value.toString();
+                    graduate = false;
+                    undergraduate = false;
+                    mba = false;
+                    hsc = true;
+                    other = false;
+                    degreeController.clear;
+                  });
                 },
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.calendar_month),
-                  label: Text("Passing Year"),
-                  //border: OutlineInputBorder(),
-                  border: InputBorder.none,
-                  hintText: 'Please enter year of passing',
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: hsc ? Constants.borderColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  margin: EdgeInsets.only(right: 5.w, bottom: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      hsc
+                          ? Text(
+                              "H.S.C / 10+2",
+                              style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "H.S.C / 10+2",
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade400, fontSize: 13.sp),
+                              textAlign: TextAlign.center,
+                            ),
+                      SizedBox(
+                        width: 4.w,
+                      ),
+                      hsc
+                          ? Image.asset(
+                              "assets/images/check.png",
+                              height: 13.h,
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // gender = value.toString();
+                    graduate = true;
+                    undergraduate = false;
+                    hsc = false;
+                    other = false;
+                    mba = false;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: graduate ? Constants.borderColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  margin: EdgeInsets.only(right: 5.w, bottom: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      graduate
+                          ? Text(
+                              "Graduate",
+                              style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "Graduate",
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade400, fontSize: 13.sp),
+                              textAlign: TextAlign.center,
+                            ),
+                      SizedBox(
+                        width: 4.w,
+                      ),
+                      graduate
+                          ? Image.asset(
+                              "assets/images/check.png",
+                              height: 13.h,
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // gender = value.toString();
+                    graduate = false;
+                    undergraduate = true;
+                    mba = false;
+                    hsc = false;
+                    other = false;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: undergraduate ? Constants.borderColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  margin: EdgeInsets.only(right: 5.w, bottom: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      undergraduate
+                          ? Text(
+                              "Post Graduate",
+                              style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "Post Graduate",
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade400, fontSize: 13.sp),
+                              textAlign: TextAlign.center,
+                            ),
+                      SizedBox(
+                        width: 4.w,
+                      ),
+                      undergraduate
+                          ? Image.asset(
+                              "assets/images/check.png",
+                              height: 13.h,
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // gender = value.toString();
+                    graduate = false;
+                    undergraduate = false;
+                    hsc = false;
+                    mba = true;
+                    other = false;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: mba ? Constants.borderColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  margin: EdgeInsets.only(right: 5.w, bottom: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      mba
+                          ? Text(
+                              "MBA",
+                              style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "MBA",
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade400, fontSize: 13.sp),
+                              textAlign: TextAlign.center,
+                            ),
+                      SizedBox(
+                        width: 4.w,
+                      ),
+                      mba
+                          ? Image.asset(
+                              "assets/images/check.png",
+                              height: 13.h,
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // gender = value.toString();
+                    graduate = false;
+                    undergraduate = false;
+                    mba = false;
+                    hsc = false;
+                    degreeController.clear;
+                    other = true;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: other ? Constants.borderColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  margin: EdgeInsets.only(right: 5.w, bottom: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      other
+                          ? Text(
+                              "Other's",
+                              style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "Other's",
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade400, fontSize: 13.sp),
+                              textAlign: TextAlign.center,
+                            ),
+                      SizedBox(
+                        width: 4.w,
+                      ),
+                      other
+                          ? Image.asset(
+                              "assets/images/check.png",
+                              height: 13.h,
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
+          SizedBox(
+            height: 10.h,
+          ),
+          const Divider(
+            thickness: 1.5,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // CustomControls.AutoCompleteCustom(
+          //     context,
+          //     "University / Institute",
+          //     "Enter college name",
+          //     ((AutoCompleteModel item) => {
+          //           setState(() {
+          //             selectedUniversity = item;
+          //           }),
+          //           // print(selectedEducation.label),
+          //         }),
+          //     selectedUniversity,
+          //     universityInstitueList,
+          //     Icons.school_sharp),
+
+          // CustomControls.AutoCompleteCustom(
+          //     context,
+          //     "Degree / Specialization",
+          //     "Enter degree",
+          //     ((AutoCompleteModel item) => {
+          //           setState(() {
+          //             selectedDegree = item;
+          //           }),
+          //           // print(selectedEducation.label),
+          //         }),
+          //     selectedDegree,
+          //     degreeList,
+          //     Icons.cast_for_education),
+          if (hsc == true) customWidgetHSC(),
+          if (graduate == true) customWidgetGraduation(),
+          if (undergraduate == true) customWidgetPost(),
+          if (mba == true) customWidgetMBA(),
+          if (other == true) customWidgetOther(),
+        ],
+      ),
+    );
+  }
+
+  SizedBox customWidgetOther() {
+    return SizedBox(
+      child: Column(
+        children: [
+          TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select any job location';
+              }
+              return null;
+            },
+            // controller: universityController,
+            // enabled: true,
+            /* onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "University / Institute",
+                      onSelected: (AutoCompleteModel model) => {
+                        universityController.text = model.label,
+                        selectedUniversity = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: universityInstitueList,
+                    );
+                  });
+            }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+
+              // suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("University / Institute"),
+              //border: OutlineInputBorder(),
+              //  border: InputBorder.none,
+              hintText: "Mumbai University",
+              // prefixIcon: Icon(Icons.school_sharp)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            // controller: degreeController,
+            enabled: true,
+            /*  onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Degree / Specialization",
+                      onSelected: (AutoCompleteModel model) => {
+                        degreeController.text = model.label,
+                        selectedDegree = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: degreeList,
+                    );
+                  });
+            }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Degree / Specialization"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Bachelor Of Commerce",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Field of Study"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Accounts and Finance",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("First Year"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Jun-2023",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Final Year"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "April-2023",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /*  customButton("Digi Locker",
+                                    "assets/images/digilocker.png", 70, false), */
+                                customButton("Manual",
+                                    "assets/images/file_exp.png", 70, false),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: customButton("Upload Marksheet", "", 0, true),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  SizedBox customWidgetMBA() {
+    return SizedBox(
+      child: Column(children: [
+        TextFormField(
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select any job location';
+            }
+            return null;
+          },
+          // controller: universityController,
+          // enabled: true,
+          /* onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "University / Institute",
+                      onSelected: (AutoCompleteModel model) => {
+                        universityController.text = model.label,
+                        selectedUniversity = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: universityInstitueList,
+                    );
+                  });
+            }), */
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+            border: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+
+            // suffixIcon: const Icon(Icons.arrow_drop_down),
+            // Icons.workspace_premium
+            label: const Text("University / Institute"),
+            //border: OutlineInputBorder(),
+            //  border: InputBorder.none,
+            hintText: "Mumbai University",
+            // prefixIcon: Icon(Icons.school_sharp)
+          ),
         ),
+        const SizedBox(height: 20),
+        TextFormField(
+          // controller: degreeController,
+          enabled: true,
+          /*  onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Degree / Specialization",
+                      onSelected: (AutoCompleteModel model) => {
+                        degreeController.text = model.label,
+                        selectedDegree = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: degreeList,
+                    );
+                  });
+            }), */
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+            border: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            //  suffixIcon: const Icon(Icons.arrow_drop_down),
+            // Icons.workspace_premium
+            label: const Text("Degree / Specialization"),
+            //border: OutlineInputBorder(),
+            // border: InputBorder.none,
+            hintText: "Bachelor of Commerce ",
+            //  prefixIcon: Icon(Icons.cast_for_education)
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextFormField(
+          //  controller: degreeController,
+          //  enabled: true,
+          /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+            border: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            //  suffixIcon: const Icon(Icons.arrow_drop_down),
+            // Icons.workspace_premium
+            label: const Text("Field of Study"),
+            //border: OutlineInputBorder(),
+            // border: InputBorder.none,
+            hintText: "Field of study",
+            //  prefixIcon: Icon(Icons.cast_for_education)
+          ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        TextFormField(
+          //  controller: degreeController,
+          //  enabled: true,
+          /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+            border: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            //  suffixIcon: const Icon(Icons.arrow_drop_down),
+            // Icons.workspace_premium
+            label: const Text("First Year"),
+            //border: OutlineInputBorder(),
+            // border: InputBorder.none,
+            hintText: "Jun-2023",
+            //  prefixIcon: Icon(Icons.cast_for_education)
+          ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        TextFormField(
+          //  controller: degreeController,
+          //  enabled: true,
+          /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+            border: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            //  suffixIcon: const Icon(Icons.arrow_drop_down),
+            // Icons.workspace_premium
+            label: const Text("Final Year"),
+            //border: OutlineInputBorder(),
+            // border: InputBorder.none,
+            hintText: "April-2023",
+            //  prefixIcon: Icon(Icons.cast_for_education)
+          ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      elevation: 0,
+                      backgroundColor: Colors.transparent,
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              /*     customButton("Digi Locker",
+                                  "assets/images/digilocker.png", 70, false), */
+                              customButton("Manual",
+                                  "assets/images/file_exp.png", 70, false),
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              child: customButton("Upload Marksheet", "", 0, true),
+            ),
+          ],
+        )
+      ]),
+    );
+  }
+
+  SizedBox customWidgetHSC() {
+    return SizedBox(
+      child: Column(
+        children: [
+          TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select any job location';
+              }
+              return null;
+            },
+            // controller: universityController,
+            // enabled: true,
+            /* onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "University / Institute",
+                      onSelected: (AutoCompleteModel model) => {
+                        universityController.text = model.label,
+                        selectedUniversity = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: universityInstitueList,
+                    );
+                  });
+            }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+
+              // suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Board"),
+              //border: OutlineInputBorder(),
+              //  border: InputBorder.none,
+              hintText: "Maharashtra state board",
+              // prefixIcon: Icon(Icons.school_sharp)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            // controller: degreeController,
+            enabled: true,
+            /*  onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Degree / Specialization",
+                      onSelected: (AutoCompleteModel model) => {
+                        degreeController.text = model.label,
+                        selectedDegree = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: degreeList,
+                    );
+                  });
+            }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("College Name"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Job Circle College of Science, Commerce & Arts.",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Passing year"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Mar-23",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                customButton("Digi Locker",
+                                    "assets/images/digilocker.png", 70, false),
+                                customButton("Manual",
+                                    "assets/images/file_exp.png", 70, false),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: customButton("Upload Marksheet", "", 0, true),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget customButton(String title, String? img, int? conSize, bool dlg) {
+    return InkWell(
+      onTap: () async {
+        customFilePicker();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border:
+                Border.all(color: dlg ? Constants.themeBgColor : Colors.white)),
+        child: img!.isNotEmpty
+            ? Image.asset(
+                img,
+                height: conSize!.h,
+              )
+            : Row(
+                children: [
+                  const Icon(
+                    Icons.add,
+                    size: 16,
+                    color: Constants.themeBgColor,
+                  ),
+                  Text(
+                    title,
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold,
+                        color: Constants.themeBgColor),
+                  )
+                ],
+              ),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+      ),
+    );
+  }
+
+  Row customDocumnet(
+    String title,
+  ) {
+    // bool offerletter = false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          child: Text(
+            title,
+            style: GoogleFonts.varela(
+                color: Colors.black, fontWeight: FontWeight.w400),
+          ),
+        ),
+        Image.asset(
+          "assets/images/file_upload.png",
+          height: 16.h,
+        )
+      ],
+    );
+  }
+
+  SizedBox customWidgetGraduation() {
+    return SizedBox(
+      child: Column(
+        children: [
+          TextFormField(
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) {
+            //     return 'Please select any job location';
+            //   }
+            // },
+            controller: universityController,
+            enabled: true,
+            onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "University / Institute",
+                      onSelected: (AutoCompleteModel model) => {
+                        universityController.text = model.label,
+                        selectedUniversity = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: universityInstitueList,
+                    );
+                  });
+            }),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("University / Institute"),
+              //border: OutlineInputBorder(),
+              //  border: InputBorder.none,
+              hintText: "Mumbai University",
+              // prefixIcon: Icon(Icons.school_sharp)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            controller: degreeController,
+            enabled: true,
+            onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Degree / Specialization",
+                      onSelected: (AutoCompleteModel model) => {
+                        degreeController.text = model.label,
+                        selectedDegree = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: degreeList,
+                    );
+                  });
+            }),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Degree / Specialization"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Bachelor of Commerce",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Field of study"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Accounts and Finance",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            // inputFormatters: [
+            //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+            // ],
+            controller: passingYearController,
+            keyboardType: TextInputType.number,
+            // maxLength: 4,
+            onChanged: ((value) => {}),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter valid first and last name';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              // icon: Icon(Icons.calendar_month),
+              label: const Text("First Year"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: 'Jun-23',
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            // inputFormatters: [
+            //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+            // ],
+            controller: passingYearController,
+            keyboardType: TextInputType.number,
+            // maxLength: 4,
+            onChanged: ((value) => {}),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter valid first and last name';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              // icon: Icon(Icons.calendar_month),
+              label: const Text("Final date"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: 'April-23',
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /*  customButton("Digi Locker",
+                                    "assets/images/digilocker.png", 70, false), */
+                                customButton("Manual",
+                                    "assets/images/file_exp.png", 70, false),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: customButton("Upload Marksheet", "", 0, true),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  SizedBox customWidgetPost() {
+    return SizedBox(
+      child: Column(
+        children: [
+          TextFormField(
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) {
+            //     return 'Please select any job location';
+            //   }
+            // },
+            controller: universityController,
+            enabled: true,
+            onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "University / Institute",
+                      onSelected: (AutoCompleteModel model) => {
+                        universityController.text = model.label,
+                        selectedUniversity = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: universityInstitueList,
+                    );
+                  });
+            }),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("University / Institute"),
+              //border: OutlineInputBorder(),
+              //  border: InputBorder.none,
+              hintText: "Mumbai University",
+              // prefixIcon: Icon(Icons.school_sharp)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            controller: degreeController,
+            enabled: true,
+            onTap: (() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return DialogList(
+                      tile: null,
+                      dialogTitle: "Degree / Specialization",
+                      onSelected: (AutoCompleteModel model) => {
+                        degreeController.text = model.label,
+                        selectedDegree = model,
+                        Navigator.pop(context)
+                      },
+                      itemsData: degreeList,
+                    );
+                  });
+            }),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Degree / Specialization"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Bachelor of Commerce",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            //  controller: degreeController,
+            //  enabled: true,
+            /* onTap: (() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DialogList(
+                    tile: null,
+                    dialogTitle: "Degree / Specialization",
+                    onSelected: (AutoCompleteModel model) => {
+                      degreeController.text = model.label,
+                      selectedDegree = model,
+                      Navigator.pop(context)
+                    },
+                    itemsData: degreeList,
+                  );
+                });
+          }), */
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              //  suffixIcon: const Icon(Icons.arrow_drop_down),
+              // Icons.workspace_premium
+              label: const Text("Field of study"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: "Accounts and Finance",
+              //  prefixIcon: Icon(Icons.cast_for_education)
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            // inputFormatters: [
+            //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+            // ],
+            controller: passingYearController,
+            keyboardType: TextInputType.number,
+            // maxLength: 4,
+            onChanged: ((value) => {}),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter valid first and last name';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              // icon: Icon(Icons.calendar_month),
+              label: const Text("First Year"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: 'Jun-23',
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            // inputFormatters: [
+            //   FilteringTextInputFormatter.allow(RegExp("^[a-zA-Z0-9_ ]*$"))
+            // ],
+            controller: passingYearController,
+            keyboardType: TextInputType.number,
+            // maxLength: 4,
+            onChanged: ((value) => {}),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter valid first and last name';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(15)),
+              // icon: Icon(Icons.calendar_month),
+              label: const Text("Final date"),
+              //border: OutlineInputBorder(),
+              // border: InputBorder.none,
+              hintText: 'April-23',
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /*    customButton("Digi Locker",
+                                    "assets/images/digilocker.png", 70, false), */
+                                customButton("Manual",
+                                    "assets/images/file_exp.png", 70, false),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: customButton("Upload Marksheet", "", 0, true),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

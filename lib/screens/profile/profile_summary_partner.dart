@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/cv.dart';
@@ -14,7 +15,6 @@ import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 class ProfileSummaryPartner extends StatefulWidget {
   const ProfileSummaryPartner({Key? key}) : super(key: key);
@@ -131,22 +131,23 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                                     ),
                                     TextButton(
                                         onPressed: () async {
-                                         setState(()async {
-                                            var data =
-                                              await uploadFile(['jpeg', 'jpg']);
-                                          var payload = {
-                                            "stage": "profile_pic",
-                                            "data": {
-                                              "id": await Utils
-                                                  .getPreferencesValue(
-                                                      null,
-                                                      ESharedPreferences
-                                                          .user_id.name),
-                                              "profile_pic": data['fileName']
-                                            }
-                                          };
-                                          await save(data['fileName'], payload);
-                                         });
+                                          setState(() async {
+                                            var data = await uploadFile(
+                                                ['jpeg', 'jpg']);
+                                            var payload = {
+                                              "stage": "profile_pic",
+                                              "data": {
+                                                "id": await Utils
+                                                    .getPreferencesValue(
+                                                        null,
+                                                        ESharedPreferences
+                                                            .user_id.name),
+                                                "profile_pic": data['fileName']
+                                              }
+                                            };
+                                            await save(
+                                                data['fileName'], payload);
+                                          });
                                         },
                                         child: const Text("Change Photo"))
                                   ],
@@ -697,6 +698,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
       MaterialPageRoute(
         builder: (context) => Screen3(
           prevPageModel: profilemodel,
+          expirieanceFlag: false,
         ),
       ),
     );

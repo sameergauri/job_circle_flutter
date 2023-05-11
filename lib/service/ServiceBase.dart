@@ -2,15 +2,34 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceBase {
   callPost(String endpoint, Object params,
       [Map<String, String>? headers]) async {
     Uri url = Uri.http(GlobalConstants.API_Host, endpoint);
+    try {
+      SharedPreferences preferences = await Utils.getSharedPreferences();
+      //Object? token = await Utils.getPreferencesValue(preferences, "token");
+
+      Map<String, String> _headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        // 'token': token != null ? token.toString() : ''
+      };
+      return http.post(url,
+          body: const JsonEncoder().convert(params), headers: _headers);
+    } catch (ex) {
+      print(ex);
+    }
+  }
+
+  callPostLocal(String endpoint, Object params,
+      [Map<String, String>? headers]) async {
+    Uri url = Uri.http(GlobalConstants.API_Host_one, endpoint);
     try {
       SharedPreferences preferences = await Utils.getSharedPreferences();
       //Object? token = await Utils.getPreferencesValue(preferences, "token");
@@ -42,6 +61,29 @@ class ServiceBase {
       'token': token != null ? token.toString() : ''
     };
     return http.get(url, headers: _headers);
+  }
+
+  Future<http.Response> callGetLocal(String endpoint,
+      {Map<String, String>? param, Map<String, String>? headers}) async {
+    Uri url = Uri.http(GlobalConstants.API_Host_one, endpoint, param ?? {});
+    if (kDebugMode) {
+    //  print(url);
+    }
+    SharedPreferences preferences = await Utils.getSharedPreferences();
+    Object? token = await Utils.getPreferencesValue(preferences, "token");
+
+    Map<String, String> _headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'token': token != null ? token.toString() : ''
+    };
+    final response = await http.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      print(response.statusCode);
+    }
+    return response;
   }
 
   Future httpSingleFile(String endpoint, objFile) async {

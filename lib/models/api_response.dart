@@ -4,5 +4,5 @@ class RequestResult {
   String errorMessage;
   dynamic resultData;
   RequestResult(
-      this.resultcode,this.resultKey,this.errorMessage, this.resultData);
+      this.resultcode, this.resultKey, this.errorMessage, this.resultData);
 }

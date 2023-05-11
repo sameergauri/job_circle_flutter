@@ -1,39 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/routes/admin_router.dart';
-import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/home.dart' deferred as home;
+import 'package:job_circle/screens/jobs/job_details.dart'
+    deferred as jobsdetails;
+import 'package:job_circle/screens/jobs/jobs.dart' deferred as jobs;
+import 'package:job_circle/screens/leads/leads.dart' deferred as leads;
+import 'package:job_circle/screens/login.dart' deferred as login;
+import 'package:job_circle/screens/otp.dart' deferred as otp;
 import 'package:job_circle/screens/partnerhome.dart' deferred as partnerhome;
+import 'package:job_circle/screens/performance/performance.dart'
+    deferred as performance;
+import 'package:job_circle/screens/postlogin.dart' deferred as postlogin;
+import 'package:job_circle/screens/profile/application.dart'
+    deferred as application;
+import 'package:job_circle/screens/profile/businesspartner.dart'
+    deferred as businesspartner;
+import 'package:job_circle/screens/profile/businesspartner_confirm.dart'
+    deferred as businesspartnerconfirmation;
 import 'package:job_circle/screens/profile/profile.dart' deferred as profile;
+import 'package:job_circle/screens/profile/profile_summary.dart'
+    deferred as profileSummary;
+import 'package:job_circle/screens/profile/profile_summary_partner.dart'
+    deferred as profileSummaryPartner;
 import 'package:job_circle/screens/profile/screen1.dart' deferred as screen1;
 import 'package:job_circle/screens/profile/screen2.dart' deferred as screen2;
 import 'package:job_circle/screens/profile/screen3.dart' deferred as screen3;
-import 'package:job_circle/screens/login.dart' deferred as login;
-import 'package:job_circle/screens/otp.dart' deferred as otp;
-import 'package:job_circle/screens/jobs/jobs.dart' deferred as jobs;
-import 'package:job_circle/screens/jobs/job_details.dart'
-    deferred as jobsdetails;
-import 'package:job_circle/screens/profile/businesspartner.dart'
-    deferred as businesspartner;
-import 'package:job_circle/screens/profile/application.dart'
-    deferred as application;
-import 'package:job_circle/screens/postlogin.dart' deferred as postlogin;
-
-import 'package:job_circle/screens/profile/businesspartner_confirm.dart'
-    deferred as businesspartnerconfirmation;
-
-import 'package:job_circle/screens/profile/profile_summary.dart'
-    deferred as profileSummary;
-
-import 'package:job_circle/screens/profile/profile_summary_partner.dart'
-    deferred as profileSummaryPartner;
+import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/statistics/statistic.dart'
     deferred as statistic;
-
-import 'package:job_circle/screens/leads/leads.dart' deferred as leads;
-
-import 'package:job_circle/screens/performance/performance.dart'
-    deferred as performance;
 
 // future
 
@@ -101,7 +96,9 @@ class ApplicationRouter {
     ERoute.screen3.value: (context) => FutureBuilder(
         future: lazyScreen3,
         builder: (snapshot, context) {
-          return screen3.Screen3();
+          return screen3.Screen3(
+            expirieanceFlag: false,
+          );
         }),
     ERoute.jobs.name: (context) => FutureBuilder(
         future: lazyJobs,

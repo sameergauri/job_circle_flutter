@@ -6,10 +6,8 @@ import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
-import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -28,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   checkSession() async {
     try {
-      await verifySession();
+      // await verifySession();
 
       var userId = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_id.name);
@@ -143,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           height: 20,
                         ),
                         const Text(
-                          '@ All rights reserved - 2022-23',
+                          '@ All rights reserved - 2023-24',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
@@ -203,7 +201,12 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     var result = await UserDataService().verifySession({"uid": uid});
-    RequestResult res = Utils.parseResponse(result);
+    Map resultData = jsonDecode(result.body);
+    RequestResult res = RequestResult(
+        resultData["code"],
+        resultData["resultKey"],
+        resultData["errorMessage"],
+        resultData["resultData"]);
 
     if (res.resultKey == 'SUCCESS') {
       if (res.resultData['val'] == 1) {

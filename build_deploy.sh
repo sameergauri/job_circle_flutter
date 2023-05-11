@@ -13,7 +13,7 @@ set -e
 DOCKER_USERNAME="pratikdock"
 DOCKER_PASSWORD="pratik@1111"
 SSH_KEY="~/Desktop/jobcircle.cer"
-SERVER_IP="ubuntu@ec2-13-232-140-47.ap-south-1.compute.amazonaws.com"
+SERVER_IP="ubuntu@ec2-43-204-102-150.ap-south-1.compute.amazonaws.com"
 IMAGE_NAME="pratikdock/jbcweb"
 LOCAL_IMAGE_NAME="jbcweb"
 IMAGE_TAG="latest" # first 7 characters of the current commit hash
@@ -21,7 +21,7 @@ SSH_COMMAND=""
 
 
 
-echo ssh -i "/Users/admin/Desktop/jobcircle.cer" ubuntu@ec2-13-232-140-47.ap-south-1.compute.amazonaws.com "sudo docker pull ${IMAGE_NAME}:latest && sudo docker stop ${LOCAL_IMAGE_NAME} && sudo docker rm ${LOCAL_IMAGE_NAME} && sudo docker run -dit --name ${LOCAL_IMAGE_NAME} -p 9091:80 ${IMAGE_NAME}:latest && sudo docker system prune -af"
+echo ssh -i "/Users/admin/Desktop/jobcircle.cer" ubuntu@ec2-43-204-102-150.ap-south-1.compute.amazonaws.com "sudo docker pull ${IMAGE_NAME}:latest && sudo docker stop ${LOCAL_IMAGE_NAME} && sudo docker rm ${LOCAL_IMAGE_NAME} && sudo docker run -dit --name ${LOCAL_IMAGE_NAME} -p 9091:80 ${IMAGE_NAME}:latest && sudo docker system prune -af"
 
 echo "Building Docker image ${IMAGE_NAME}:${IMAGE_TAG}, and tagging as latest"
 # docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" .
@@ -50,7 +50,7 @@ echo "Deploying via remote SSH"
 
 
 
-ssh -i "/Users/admin/Desktop/jobcircle.cer" ubuntu@ec2-13-232-140-47.ap-south-1.compute.amazonaws.com "sudo docker pull ${IMAGE_NAME}:latest && sudo docker stop ${LOCAL_IMAGE_NAME} && sudo docker rm ${LOCAL_IMAGE_NAME} && sudo docker run -dit --name ${LOCAL_IMAGE_NAME} -p 9091:80 ${IMAGE_NAME}:latest && sudo docker system prune -af"
+ssh -i "/Users/admin/Desktop/jobcircle.cer" ubuntu@ec2-43-204-102-150.ap-south-1.compute.amazonaws.com "sudo docker pull ${IMAGE_NAME}:latest && sudo docker stop ${LOCAL_IMAGE_NAME} && sudo docker rm ${LOCAL_IMAGE_NAME} && sudo docker run -dit --name ${LOCAL_IMAGE_NAME} -p 9091:80 ${IMAGE_NAME}:latest && sudo docker system prune -af"
 
 
 echo "Successfully deployed, hooray!"

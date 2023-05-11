@@ -1,14 +1,13 @@
-import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
-import 'package:job_circle/screens/statistics/statistic.dart';
 import 'package:job_circle/screens/webview/webview_control.dart';
 import 'package:job_circle/service/LeadService.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+//import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:month_picker_dialog_2/month_picker_dialog_2.dart';
 
 class Performance extends StatefulWidget {
   const Performance({Key? key}) : super(key: key);
@@ -86,12 +85,10 @@ class _PerformanceState extends State<Performance> {
                     if (date != null) {
                       selectedDate = date;
                       _Date = getDate(selectedDate);
-                      if (webctrl != null) {
-                        webctrl.url = GlobalConstants.WEB_Host +
-                            "/mobile/performance?date=${_Date}";
-                        webctrl.setUrl();
-                        webctrl.refresh();
-                      }
+                      webctrl.url = GlobalConstants.WEB_Host +
+                          "/mobile/performance?date=${_Date}";
+                      webctrl.setUrl();
+                      webctrl.refresh();
 
                       setState(() {});
 
@@ -105,8 +102,7 @@ class _PerformanceState extends State<Performance> {
         body: WebViewDataCtrl(
             actionbar: false,
             controller: webctrl,
-            url: GlobalConstants.WEB_Host +
-                "/mobile/performance?date=${_Date}"));
+            url: GlobalConstants.WEB_Host + "/mobile/performance?date=$_Date"));
   }
 
   void bindData() async {

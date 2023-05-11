@@ -1,30 +1,46 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
-import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
-import 'package:job_circle/models/autocompleteModel.dart';
-import 'package:job_circle/screens/jobs/job_filter.dart';
-import 'package:job_circle/screens/webview/webviewd.dart';
+import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/jobs/career_assets.dart';
+import 'package:job_circle/screens/jobs/filter.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/screens/jobs/job_form.dart';
+import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/JobSearchService.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../components/theme_button.dart';
+import '../../models/job_details_model.dart';
 import '../../service/masterService.dart';
 
-class Jobs extends StatefulWidget {
+class Jobs extends ConsumerStatefulWidget {
   const Jobs({Key? key}) : super(key: key);
 
   @override
-  State<Jobs> createState() => _JobsState();
+  ConsumerState<Jobs> createState() => _JobsState();
 }
 
-class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
+class _JobsState extends ConsumerState<Jobs>
+    with SingleTickerProviderStateMixin {
   final filterJobType = <String>[
     "All",
     "Work from home",
@@ -32,11 +48,15 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     "Night shift"
   ];
 
+  late final TabController _tabController =
+      TabController(length: 9, vsync: this);
+
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
   List<String> citiesList = [];
   List<LocationItem> locations = [];
   late ScrollController _controllerListView;
+
   var searchText = "";
   var sortByd = "Recomended";
   var _page = 0;
@@ -51,7 +71,14 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
   String bannerUrl = "";
   bool isbannerVisible = false;
 
-  final RefreshController _refreshController =
+  final List<String> _favorites = [];
+  void _handleItemTap(String item) {
+    setState(() {
+      _favorites.add(item);
+    });
+  }
+
+  RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   BottomSheetController bottomSheetDialogController = BottomSheetController();
@@ -60,6 +87,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
 
   var locationname = "";
   var user_selected_lcoation;
+  var partner_request = 1;
 
   void _onRefresh() async {
     // if failed,use refreshFailed()
@@ -82,13 +110,31 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     }
   }
 
+  NumberFormat format = NumberFormat.compact();
+
   @override
   void initState() {
+    _refreshController = RefreshController(initialRefresh: false);
     super.initState();
-    bindInit();
+    setState(() {
+      Utils.setPreference(
+          null,
+          ESharedPreferences
+              .user_selected_lcoation.name, // set job location at jobs page.
+          user_selected_lcoation);
+      searchAgain();
+      bindItems();
+
+      bindProfileSummary();
+      bindInit();
+      fetchJobs();
+    });
   }
 
+  TextEditingController searchController = TextEditingController();
+
   void bindInit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     usertype = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_type.name);
     role = await Utils.getPreferencesValue(null, ESharedPreferences.role.name);
@@ -102,16 +148,18 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     }
     user_selected_lcoation = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_selected_lcoation.name);
-    if (localtion != "") {
-      user_selected_lcoation ?? localtion;
+    /* if (localtion != "") {                         set job location on jobs page 23/03/23
+      // user_selected_lcoation ?? localtion;
       await Utils.setPreference(
-          null, ESharedPreferences.user_selected_lcoation.name, localtion);
-    }
+          null,
+          ESharedPreferences.user_selected_lcoation.name,
+          user_selected_lcoation);
+    } */
 
     await bindLocation();
-    if (user_selected_lcoation == null) {
+    /*  if (user_selected_lcoation == null) {
       searchLocation(context);
-    }
+    } */
     bindBanner();
     bindItems();
     //_controllerListView = ScrollController()..addListener(_loadMore);
@@ -119,77 +167,767 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     setState(() {});
   }
 
+  JobDetailsModel jobDetailsModel = JobDetailsModel();
+
   @override
   void dispose() {
     //_controllerListView.removeListener(_loadMore);
     super.dispose();
   }
 
+  ProfileSummaryModel profileSummaryModel = ProfileSummaryModel();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  int? cutTab;
+  bool isSelect = false;
+  bool isSelected = false;
+  bool saved = false;
+
+  Future<void> share() async {
+    await FlutterShare.share(
+        title: 'Job circle App',
+        text: 'Install jobcircle app',
+        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle',
+        chooserTitle: 'Example Chooser Title');
+  }
+
+  final _controller = PageController(
+    // viewportFraction: 0.8,
+
+    initialPage: 0,
+  );
+
+  uploadFile(allowExt) async {
+    Utils.showLoaderDialog(context, "Uploading...");
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: allowExt,
+        withReadStream: true);
+
+    if (result != null) {
+      var res =
+          await FileUploadService().uploadSingleFile("cv", result.files.single);
+      var resultD = Utils.parseResponse(res);
+      Navigator.pop(context);
+      if (resultD.resultKey == 'SUCCESS') {
+        return resultD.resultData[0];
+      }
+      // File file = File(result.files.single.readStream.first!);
+    } else {
+      Navigator.pop(context);
+      return null;
+      // User canceled the picker
+    }
+  }
+
+  var profile_cv_link = "";
+  var profile_cv_file = "";
+  var profile_final_pic = "";
+  late ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  save(filePath, data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      if (data['stage'] == 'profile_pic') {
+        profilemodel.profile_pic = filePath;
+        profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      } else if (data['stage'] == 'upload_cv') {
+        profilemodel.cv_link = filePath;
+        profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
+        profile_cv_file = Utils.getFileName(profile_cv_link);
+
+        profilemodel.cv_upladted_date =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+      } else if (data['stage'] == 'partnerRequest') {
+        profilemodel.partner_request = data['data']['partner_request'];
+      }
+    }
+    setState(() {});
+  }
+
+  bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().getUserProfileSummary(
+        await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_id.name));
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      var dataResult = Utils.parseResponse(result).resultData;
+      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
+      profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
+      profile_cv_file = Utils.getFileName(profile_cv_link);
+      // user_selected_lcoation = user_selected_lcoation;
+    }
+    setState(() {});
+  }
+
+  Future<void> addToFav(int jobId) async {
+    try {
+      var id = profilemodel.id; //this id is null, get the user id
+      final response = await http.post(
+        Uri.parse(
+            "http://${GlobalConstants.API_Host_one}/favjob/v1/$id/$jobId"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+//ek min wait kr //api ka issue ho skta hai may be
+      if (response.statusCode == 200) {
+        print('Post request successful');
+      } else {
+        print('Error during post request: ${response.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> removeFromFav(int favJobId) async {
+    var id = profileSummaryModel.id;
+    final response = await http.post(
+      Uri.parse("http://192.168.2.108:9090/favjob/v1/$favJobId"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Post request successful');
+    } else {
+      print('Error during post request: ${response.statusCode}');
+    }
+  }
+
+  List jobs = [];
+  Future<void> fetchJobs() async {
+    Uri url = Uri.parse('http://192.168.2.108:9090/favjob/v1');
+    final response = await http.get(url, headers: {
+      "Content-Type": "application/json"
+    }); // replace with your API endpoint
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      var list = data as List;
+      setState(() {
+        jobs.addAll(list);
+        // print(jobs);
+      });
+    } else {
+      print("Somthing Wrong");
+      // handle error
+    }
+  }
+
+  /*  Map<String, List<String>> data = {
+    'Company': ['Company1', 'Company2'],
+    'Skills': ['Skill1', 'skill2'],
+    'process': ['p1', 'p2'],
+  }; */
+
+/*   late String selectedKey = data.keys.first;
+  final int _tabIndex = 0; */
+
   @override
   Widget build(BuildContext context) {
     //var _selectedIndex = 1;
 
     return Scaffold(
+        key: scaffoldKey,
+        drawer: ClipRRect(
+          borderRadius: const BorderRadius.only(topRight: Radius.circular(15)),
+          child: Drawer(
+            child: ListView(
+              padding: const EdgeInsets.all(0),
+              children: [
+                SizedBox(
+                  height: 200,
+                  child: UserAccountsDrawerHeader(
+                    margin: EdgeInsets.only(left: 10.w),
+                    decoration:
+                        const BoxDecoration(color: Constants.themeBgColorLight),
+                    accountName: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "User Name",
+                          style: GoogleFonts.varela(
+                              fontSize: 12.sp, color: Constants.themeBgColor),
+                        ),
+                        Text(
+                          "Tag line",
+                          style: GoogleFonts.varela(
+                              fontSize: 12.sp, color: Colors.black),
+                        ),
+                        Text(
+                          "Location",
+                          style: GoogleFonts.varela(
+                              fontSize: 12.sp, color: Colors.black),
+                        )
+                      ],
+                    ),
+                    accountEmail: const Text(""),
+                    currentAccountPictureSize: const Size.square(40),
+                    currentAccountPicture: InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, ERoute.profile_summary.name);
+                        },
+                        child: CircleAvatar(
+                          backgroundColor:
+                              const Color.fromARGB(255, 190, 190, 190),
+                          radius: 43,
+                          onBackgroundImageError: ((error, stackTrace) =>
+                              Image.asset("assets/images/company.png",
+                                  height: 80, width: 80, fit: BoxFit.contain)),
+                          backgroundImage: Image.network(
+                            profile_final_pic,
+                          ).image,
+                        )), //circleAvatar
+                  ),
+                ), //DrawerHeader
+                ListTile(
+                  minLeadingWidth: 0.0,
+                  minVerticalPadding: 5.1,
+                  leading: Image.asset(
+                    "assets/images/career.png",
+                    height: 18.h,
+                    color: Constants.themeBgColor,
+                  ),
+                  title: const Text('Career Assets'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    nav();
+                  },
+                ),
+                ListTile(
+                  minLeadingWidth: 0.0,
+                  minVerticalPadding: 5.1,
+                  leading: Image.asset(
+                    "assets/images/share.png",
+                    height: 20.h,
+                    color: Constants.themeBgColor,
+                  ),
+                  title: const Text('Share App'),
+                  onTap: () {
+                    share();
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  minLeadingWidth: 0.0,
+                  minVerticalPadding: 5.1,
+                  leading: Image.asset(
+                    "assets/images/logout.png",
+                    height: 22.h,
+                    color: Constants.themeBgColor,
+                  ),
+                  title: const Text('LogOut'),
+                  onTap: () {
+                    Future.delayed(const Duration(seconds: 0), () async {
+                      await AppUtils.clearSession();
+                      Navigator.pushNamedAndRemoveUntil(context,
+                          ERoute.login.value, (Route<dynamic> route) => false);
+                      // Navigator.pushReplacementNamed(context, nextRoute.value);
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
         floatingActionButton: Visibility(
-            visible: usertype == EUserType.employee.value && role != "4",
+            //visible: usertype == EUserType.employee.value, // && role != "4", old
             child: FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const WebviewData(
-                              // url: "https://www.youtube.com/",
-                              url: GlobalConstants.WEB_Host + "/mobile/jobform",
-                              title: "New Job",
-                            )));
+          child: const Icon(Icons.add),
+          onPressed: () {
+            /*       Navigator.push(
+                context, // second
+                MaterialPageRoute(builder: (context) => const JobListPage())); */
+            /* Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const WebviewData(
+                          // url: "https://www.youtube.com/",
+                          url: GlobalConstants.WEB_Host + "/mobile/jobform",
+                          // url: "192.168.31.107:9090/mobile/jobform",
+                          title: "New Job",
+                        )));
 
-                setState(() {});
-              },
-            )),
+            setState(() {}); */
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const JobForm(),
+                ));
+          },
+        )),
         appBar: AppBar(
-          title: SizedBox(
-            height: 40,
-            child: TextField(
-              enableInteractiveSelection: false, // will disable paste operation
-              focusNode: AlwaysDisabledFocusNode(),
-              onTap: () {
-                showSearch(
-                    context: context,
-                    delegate: DataSearch(
-                        onSelected: (String q) =>
-                            {searchText = q, searchAgain()}));
-              },
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search_outlined),
-                filled: true,
-                contentPadding:
-                    const EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
-                fillColor: Colors.white,
-                hintText: 'Search company, process, role...',
-                hintStyle: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 18,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
+          leading: Builder(
+            builder: (context) => Padding(
+              padding: EdgeInsets.only(
+                left: 22.w,
               ),
-              style: const TextStyle(
-                color: Colors.black,
+              child: InkWell(
+                onTap: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                child: CircleAvatar(
+                  radius: 2.r,
+                  child: profile_final_pic != null
+                      ? CircleAvatar(
+                          backgroundColor:
+                              const Color.fromARGB(255, 190, 190, 190),
+                          radius: 43,
+                          onBackgroundImageError: ((error, stackTrace) =>
+                              Image.asset("assets/images/company.png",
+                                  height: 80, width: 80, fit: BoxFit.contain)),
+                          backgroundImage: Image.network(
+                            profile_final_pic,
+                          ).image,
+                        )
+                      : Icon(
+                          Icons.person,
+                          size: 14.h,
+                        ),
+                  /* IconButton(
+                    icon: profileSummaryModel.profile_pic != null
+                        ? Image.network(
+                            profileSummaryModel.profile_pic.toString())
+                        : Icon(
+                            Icons.person,
+                            size: 16.h,
+                          ),
+                    onPressed: () =>
+                        /*  Navigator.pushNamed(
+                        context,
+                        ERoute.profile_summary
+                            .name), */
+                        Scaffold.of(context).openDrawer(),
+                  ), */
+                ),
               ),
             ),
           ),
+          iconTheme: const IconThemeData(color: Constants.themeBgColor),
+          bottom: PreferredSize(
+            preferredSize: const Size(0, 25),
+            child: TabBar(
+              labelPadding: const EdgeInsets.only(left: 5, right: 5),
+              controller: _tabController,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.black,
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: BorderRadius.circular(50),
+              //indicatorSize: TabBarIndicatorSize.label,
+              indicatorWeight: 5,
+              indicatorPadding: EdgeInsets.only(
+                  top: 4.5.h, bottom: 8.h, left: 3.w, right: 3.w),
+              indicator: isSelect
+                  ? BoxDecoration(
+                      color: Constants.borderColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: Constants.borderColor) // Creates border
+                      )
+                  : null,
+              onTap: (value) {
+                setState(() {
+                  cutTab = value;
+                  isSelect = !isSelect;
+                  if (value == 1) {
+                    // sortByd = "New Jobs";
+
+                    searchAgain();
+                  }
+                  if (value == 2) {
+                    sortByd = "Newer Jobs";
+                    isSelect == true ? null : sortByd = "";
+                    // Map<String, String> newData = {"work_type": "hybrid"};
+                    searchAgain();
+                  }
+                  if (value == 3) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {
+                      "work_type": "workfromhome"
+                    };
+                    searchAgain(data: newData1);
+                  }
+                  if (value == 4) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {"work_type": "fresher"};
+                    searchAgain(data: newData1);
+                  }
+                  if (value == 5) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {
+                      "work_type": "workfromhome"
+                    };
+                    searchAgain(data: newData1);
+                  }
+                  if (value == 6) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {
+                      "work_type": "workfromhome"
+                    };
+                    searchAgain(data: newData1);
+                  }
+                  if (value == 7) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {
+                      "work_type": "workfromhome"
+                    };
+                    searchAgain(data: newData1);
+                  }
+                  if (value == 8) {
+                    // sortByd = "New Jobs";
+                    Map<String, String> newData1 = {
+                      "work_type": "workfromhome"
+                    };
+                    searchAgain(data: newData1);
+                  }
+                });
+              },
+
+              isScrollable: true,
+              tabs: [
+                Tab(
+                  child: InkWell(
+                    onTap: () async {
+                      /*  showCustomModelBottomSheet(
+                        context,
+                      ); */
+                      CustomSheet.customSheet(
+                          context: context,
+                          onDone: (data) {
+                            searchAgain(data: data);
+                          });
+                      /* Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const JobFilter())); */
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50.r),
+                          border: Border.all(color: Constants.borderColor)),
+                      height: 33.h,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Filter"),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          const Icon(
+                            Icons.filter_list,
+                            color: Colors.black,
+                          ),
+                          // const Text("Sort by"),
+                          /* DropdownButton<String>(
+                            icon: const Icon(
+                              Icons.filter_list,
+                              color: Colors.black,
+                            ),
+                            underline: const SizedBox(),
+                            style: const GoogleFonts.varela(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold),
+                            value: sortByd,
+                            alignment: Alignment.bottomRight,
+                            items: <String>[
+                              'Recomended',
+                              // 'Salary - high to low',
+                              // 'Distance - newr to far',
+                              'Newer Jobs'
+                            ].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value,
+                                    style: const GoogleFonts.varela(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold)),
+                              );
+                            }).toList(),
+                            onChanged: (_) {
+                              setState(() {
+                                sortByd = _.toString();
+                                searchAgain();
+                              });
+                            },
+                          ), */
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50.r),
+                          border: Border.all(color: Constants.borderColor)),
+                      height: 33.h,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Salary"),
+                          Image.asset(
+                            "assets/images/updown.png",
+                            height: 15.h,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
+                Tab(
+                    child: customTab(
+                        "Work from home", "assets/images/check.png", 3)),
+                Tab(child: customTab("Fresher", "assets/images/check.png", 4)),
+                Tab(
+                    child: customTab(
+                        "Work from office", "assets/images/check.png", 5)),
+                Tab(child: customTab("Hybrid", "assets/images/check.png", 6)),
+                Tab(
+                    child:
+                        customTab("Recomended", "assets/images/check.png", 7)),
+                Tab(
+                    child:
+                        customTab("Saved Jobs", "assets/images/check.png", 7)),
+
+                /*    Tab(
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 20),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(
+                                color: Colors.red, width: 1)),
+                        child: const Center(
+                            child: Text('Work From Home +')))), */
+              ],
+            ),
+          ),
+          toolbarHeight: MediaQuery.of(context).size.width * 0.17,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  //margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 30.h,
+                  width: MediaQuery.of(context).size.width / 1.65.w,
+                  child: TextField(
+                    onChanged: (String q) {
+                      searchText = q;
+                      searchAgain();
+                    },
+                    controller: searchController,
+                    enableInteractiveSelection:
+                        false, // will disable paste operation
+                    //focusNode: AlwaysDisabledFocusNode(),
+                    /* onTap: () {
+                      showSearch(
+                          context: context,
+                          delegate: DataSearch(
+                              onSelected: (String q) =>
+                                  {searchText = q, searchAgain()}));
+                    }, */
+                    decoration: InputDecoration(
+                      // prefixIcon: const Icon(Icons.search_outlined),
+                      filled: true,
+                      contentPadding:
+                          const EdgeInsets.only(left: 14.0, bottom: 5, top: 5),
+                      fillColor: Constants.themeBgColorLight,
+                      hintText: 'Search company, process, role...',
+                      hintStyle: GoogleFonts.varela(
+                        color: Colors.grey,
+                        fontSize: 16.sp,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Constants.borderColor),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Constants.borderColor),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    style: GoogleFonts.varela(
+                      color: const Color.fromARGB(255, 177, 14, 3),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              SizedBox(
+                // margin: const EdgeInsets.only(top: 10),
+                // width: MediaQuery.of(context).size.height * 0.10.w,
+                child:
+                    Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Icon(
+                    Icons.pin_drop,
+                    color: Constants.themeBgColor,
+                    size: 15.h,
+                  ),
+                  GestureDetector(
+                      onTap: (() async {
+                        bool istrue = false;
+                        TextEditingController loc = TextEditingController();
+                        // searchLocation(context); // old
+                        await showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.only()),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 20),
+                                height:
+                                    MediaQuery.of(context).size.height * 0.18.h,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Change Location",
+                                        style: GoogleFonts.varela(
+                                            color: Constants.themeBgColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.sp),
+                                      ),
+                                      SizedBox(
+                                        height: 15.h,
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          searchLocation(context);
+                                        },
+                                        child: Container(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  "Which city do you want to work in?",
+                                                  style: GoogleFonts.varela(
+                                                      color: Colors.grey)),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text.rich(
+                                                  TextSpan(
+                                                      text:
+                                                          user_selected_lcoation ??
+                                                              '',
+                                                      style:
+                                                          GoogleFonts.varela()),
+                                                ),
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 20.h,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          ThemeButton(
+                                            width: 100.w,
+                                            radious: 30,
+                                            themeButtonSize:
+                                                ThemeButtonSize.small,
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            text: "Cancel",
+                                          ),
+                                          SizedBox(
+                                            width: 5.w,
+                                          ),
+                                          ThemeButton(
+                                            width: 100.w,
+                                            radious: 30,
+                                            themeButtonSize:
+                                                ThemeButtonSize.small,
+                                            onPressed: () {
+                                              searchAgain();
+                                              Navigator.pop(context);
+                                            },
+                                            text: "Submit",
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            });
+                      }),
+                      child: Text(user_selected_lcoation ?? 'Select Location',
+                          style: GoogleFonts.varela(
+                            color: Constants.themeBgColor,
+                            fontSize: 14.sp,
+                            //fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ))
+                      /* Text.rich(
+                        TextSpan(
+                          text: '',
+                          style: const GoogleFonts.varela(
+                              color: Colors.red, fontSize: 18),
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: user_selected_lcoation ?? '',
+                                style: const GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                )),
+                            // can add more TextSpans here...
+                          ],
+                        ),
+                      ) */
+
+                      // const Text(
+                      //   "Searching jobs in $localtion",
+                      //   style: GoogleFonts.varela(color: Colors.white, fontSize: 18),
+                      //   overflow: TextOverflow.ellipsis,
+                      // ),
+                      ),
+                ]),
+              ),
+            ],
+          ),
+
           // bottom: const PreferredSize(
           //     child: Text(
           //       "Search New Jobs",
           //       style:
-          //           TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          //           GoogleFonts.varela(color: Colors.white, fontWeight: FontWeight.bold),
           //     ),
           //     preferredSize: Size.zero),
           elevation: 0,
-          backgroundColor: Theme.of(context).primaryColor,
+          // backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Colors.white,
           // actions: [
           //   // IconButton(
           //   //     onPressed: () {
@@ -218,6 +956,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
         body: SafeArea(
           child: Column(
             children: [
+              // Text(profileSummaryModel.mobile.toString()),
               // const SizedBox(
               //   height: 10,
               // ),
@@ -240,7 +979,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
               //               borderRadius: BorderRadius.circular(60)),
               //           child: Text(
               //             filterJobType[index].toString(),
-              //             style: TextStyle(
+              //             style: GoogleFonts.varela(
               //                 fontSize: 16,
               //                 color: selectedJobTypeIndex == index
               //                     ? Colors.black
@@ -254,54 +993,10 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
               //     scrollDirection: Axis.horizontal,
               //   ),
               // ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: Container(
-                  decoration: const BoxDecoration(color: Colors.transparent),
-                  height: 30,
-                  child: Row(children: [
-                    const Icon(
-                      Icons.pin_drop,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                          onTap: (() {
-                            searchLocation(context);
-                          }),
-                          child: Text.rich(
-                            TextSpan(
-                              text: 'Searching jobs in ',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 18),
-                              children: <TextSpan>[
-                                TextSpan(
-                                    text: user_selected_lcoation ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.underline,
-                                    )),
-                                // can add more TextSpans here...
-                              ],
-                            ),
-                          )
 
-                          // const Text(
-                          //   "Searching jobs in $localtion",
-                          //   style: TextStyle(color: Colors.white, fontSize: 18),
-                          //   overflow: TextOverflow.ellipsis,
-                          // ),
-                          ),
-                    ),
-                  ]),
-                ),
-              ),
-              const SizedBox(
+              /*   const SizedBox(
                 height: 5,
-              ),
+              ), */
               Expanded(
                 flex: 1,
                 child: Stack(
@@ -311,26 +1006,30 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                       margin: const EdgeInsets.only(top: 0),
                       padding: const EdgeInsets.only(top: 0),
                       decoration: const BoxDecoration(
-                          // boxShadow: [
-                          //   BoxShadow(
-                          //     color: Color.fromARGB(255, 245, 245, 245),
-                          //     blurRadius: 10.0,
-                          //     offset: Offset(2, 2),
-                          //   ),
-                          // ],
-                          color: Constants.bgPanelColor,
-                          //  color: Color(0xfff0f1fe),
-                          borderRadius: BorderRadius.only(
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Color.fromARGB(255, 245, 245, 245),
+                        //     blurRadius: 10.0,
+                        //     offset: Offset(2, 2),
+                        //   ),
+                        // ],
+                        color: Constants.bgPanelColor,
+                        //  color: Color(0xfff0f1fe),
+                        /*  borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
-                          )),
+                          ) */
+                      ),
                       child: Column(
                         children: [
-                          Padding(
+                          /* Padding(
                             padding: const EdgeInsets.only(
-                                right: 10, left: 15, top: 10),
+                              right: 10,
+                              left: 15,
+                            ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                               children: [
                                 SizedBox(
                                   height: 40,
@@ -344,7 +1043,8 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                 clipBehavior: Clip.antiAlias,
                                                 padding:
                                                     const EdgeInsets.all(0),
-                                                decoration: const BoxDecoration(
+                                                decoration:
+                                                    const BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
                                                       BorderRadius.only(
@@ -360,7 +1060,8 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                                 .size
                                                                 .height -
                                                             150,
-                                                    child: const JobFilter())),
+                                                    child:
+                                                        const JobFilter())),
                                           ),
                                           true,
                                           controller:
@@ -380,7 +1081,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                           Text(
                                             "Filter",
                                             textAlign: TextAlign.start,
-                                            style: TextStyle(
+                                            style: GoogleFonts.varela(
                                                 color: Colors.black,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold),
@@ -390,20 +1091,20 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                /* SizedBox(
                                   height: 40,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       // const Text("Sort by"),
-
+    
                                       DropdownButton<String>(
                                         icon: const Icon(
                                           Icons.filter_list,
                                           color: Colors.black,
                                         ),
                                         underline: const SizedBox(),
-                                        style: const TextStyle(
+                                        style: const GoogleFonts.varela(
                                             color: Colors.black87,
                                             fontWeight: FontWeight.bold),
                                         value: sortByd,
@@ -417,7 +1118,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value,
-                                                style: const TextStyle(
+                                                style: const GoogleFonts.varela(
                                                     color: Colors.black,
                                                     fontSize: 16,
                                                     fontWeight:
@@ -428,15 +1129,16 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                           setState(() {
                                             sortByd = _.toString();
                                             searchAgain();
+                                            setState(() {});
                                           });
                                         },
                                       ),
                                     ],
                                   ),
-                                ),
+                                ), */
                               ],
                             ),
-                          ),
+                          ), */
                           Expanded(
                             flex: 1,
                             child: SmartRefresher(
@@ -460,20 +1162,20 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                     body = Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: const [
-                                        Icon(
+                                      children: [
+                                        const Icon(
                                           Icons.check,
                                           color: Colors.green,
                                         ),
                                         SizedBox(
-                                          width: 10,
+                                          width: 10.w,
                                         ),
-                                        Text("No more jobs available!"),
+                                        const Text("No more jobs available!"),
                                       ],
                                     );
                                   }
                                   return SizedBox(
-                                    height: 55.0,
+                                    height: 55.0.h,
                                     child: Center(child: body),
                                   );
                                 },
@@ -485,8 +1187,8 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                 child: Column(
                                   children: [
                                     if (isbannerVisible)
-                                      const SizedBox(
-                                        height: 10,
+                                      SizedBox(
+                                        height: 10.h,
                                       ),
                                     if (isbannerVisible)
                                       Container(
@@ -505,16 +1207,16 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
 
                                           //  color: Color(0xfff0f1fe),
                                           borderRadius:
-                                              BorderRadius.circular(8),
+                                              BorderRadius.circular(8.r),
                                         ),
-                                        height: 80,
+                                        height: 80.h,
                                         margin: const EdgeInsets.only(
                                             left: 20.0, right: 20.0),
                                         width: double.infinity,
                                       ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
+                                    /*   /*   SizedBox(               //suggestion
+                                      height: 5.h,
+                                    ), */
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -528,7 +1230,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                   TextSpan(
                                                       text:
                                                           " for " + searchText,
-                                                      style: const TextStyle(
+                                                      style: GoogleFonts.varela(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -540,13 +1242,13 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                   TextSpan(
                                                       text:
                                                           " in $user_selected_lcoation ",
-                                                      style: const TextStyle(
+                                                      style: GoogleFonts.varela(
                                                           fontWeight:
                                                               FontWeight.normal,
                                                           color: Colors.black)),
                                                 ],
                                                 text: "Jobs",
-                                                style: const TextStyle(
+                                                style: GoogleFonts.varela(
                                                     fontWeight:
                                                         FontWeight.normal,
                                                     color: Colors.black)),
@@ -563,26 +1265,23 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                                 size: 19,
                                               ))
                                       ],
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
+                                    ), */
                                     Visibility(
-                                      visible: jobItems.length == 0 &&
+                                      visible: jobItems.isEmpty &&
                                           !_isLoadMoreRunning,
                                       child: Center(
                                         child: Column(
                                           children: [
                                             Image.asset(
                                               "./assets/images/unboxing.gif",
-                                              height: 125.0,
-                                              width: 125.0,
+                                              height: 125.0.h,
+                                              width: 125.0.w,
                                             ),
-                                            const Text(
+                                            Text(
                                               "No jobs available here. \r\nTry another location, company, role etc..",
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  fontSize: 15,
+                                              style: GoogleFonts.varela(
+                                                  fontSize: 15.sp,
                                                   fontWeight: FontWeight.bold),
                                             )
                                           ],
@@ -615,22 +1314,31 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                                             },
                                             child: Column(
                                               children: [
-                                                listViewItem_new(context, index,
-                                                    jobItems[index]),
-                                                const SizedBox(
-                                                  height: 12,
+                                                listViewItem_new(
+                                                    context,
+                                                    index,
+                                                    jobItems[index],
+                                                    jobs.contains(
+                                                            jobItems[index]
+                                                                ["id"])
+                                                        ? true
+                                                        : false),
+                                                SizedBox(
+                                                  height: 7.h,
                                                 )
                                               ],
                                             ));
                                       },
                                       itemCount: jobItems.length,
-                                      padding: const EdgeInsets.all(5),
+                                      padding: const EdgeInsets.only(
+                                          bottom: 5, left: 5, right: 5),
                                       scrollDirection: Axis.vertical,
                                     ),
                                     if (_isLoadMoreRunning == true)
                                       const Padding(
                                         padding: EdgeInsets.only(
-                                            top: 10, bottom: 40),
+                                            //  top: 10,
+                                            bottom: 40),
                                         child: Center(
                                           child: CircularProgressIndicator(),
                                         ),
@@ -649,6 +1357,317 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
             ],
           ),
         ));
+  }
+
+  nav() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const CareerAssets()));
+  }
+
+  showCustomModelBottomSheet(
+    BuildContext context,
+  ) {
+    bool isNext = false;
+
+    return showModalBottomSheet<void>(
+        // context and builder are
+        // required properties in this widget
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (BuildContext context, setState1) {
+            return PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _controller,
+                children: [
+                  pages(isNext, true, context),
+                  pages(isNext, false, context),
+                ]);
+          });
+        });
+  }
+
+  Widget pages(bool isNext, bool isFirst, BuildContext context) {
+    bool isSelected1 = false;
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              isFirst
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "All Filter",
+                            style: GoogleFonts.varela(
+                                fontSize: 18.sp, fontWeight: FontWeight.bold),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Clear All",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    _controller.previousPage(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      curve: Curves.easeOut,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 5, right: 10),
+                                    child: Icon(
+                                      Icons.arrow_back_ios,
+                                      size: 16.h,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10.w,
+                                ),
+                                Text(
+                                  "Apply Filter",
+                                  style: GoogleFonts.varela(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Clear",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+              isFirst
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        customTiles("Company", isNext),
+                        customTiles("Nature of work", isNext),
+                        customTiles("Skills", isNext),
+                        customTiles("Role / Designation", isNext),
+                        customTiles("Education", isNext),
+                        customTiles("Experience", isNext),
+                        customTiles("Shift", isNext),
+                        customTiles("Week off", isNext),
+                        customTiles("Salary", isNext),
+                        customTiles("Languages", isNext),
+                        customTiles("Job Type", isNext),
+                        customTiles("Locality", isNext),
+                      ],
+                    )
+                  : SizedBox(
+                      // height: MediaQuery.of(context).size.height / 2.1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            height: 35,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Constants.themeBgColorLight,
+                                  contentPadding: const EdgeInsets.all(8),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      borderSide: const BorderSide(
+                                          color: Constants.borderColor)),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      borderSide: const BorderSide(
+                                          color: Constants.borderColor)),
+                                  hintText: "Search Company"),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          Wrap(
+                            direction: Axis.horizontal,
+                            runAlignment: WrapAlignment.start,
+                            crossAxisAlignment: WrapCrossAlignment.start,
+                            alignment: WrapAlignment.start,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    isSelected1 = !isSelected1;
+                                  });
+                                },
+                                child: Container(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Company 1",
+                                        style: TextStyle(fontSize: 14.sp),
+                                      ),
+                                      SizedBox(
+                                        width: 3.w,
+                                      ),
+                                      Icon(
+                                        Icons.add,
+                                        size: 14.h,
+                                      )
+                                    ],
+                                  ),
+                                  margin: const EdgeInsets.only(right: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 16),
+                                  decoration: BoxDecoration(
+                                      color: isSelected1
+                                          ? Constants.themeBgColor
+                                          : Colors.white,
+                                      border: Border.all(
+                                        color: Constants.borderColor,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 2.6.h,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: Text(
+                                  "Next",
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.bold,
+                                      color: Constants.themeBgColor),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 6),
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Constants.themeBgColor),
+                                    borderRadius: BorderRadius.circular(15)),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+            ],
+          ),
+        ),
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+        //  height: MediaQuery.of(context).size.height / 2.h,
+        width: double.maxFinite,
+      ),
+    );
+  }
+
+  Widget customTiles(String title, bool isNext) {
+    return Column(
+      children: [
+        const Divider(),
+        InkWell(
+          onTap: () {
+            title == "Company"
+                ? _controller.nextPage(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                  )
+                : () {};
+          },
+          child: Container(
+            width: double.maxFinite,
+            child: Text(
+              title,
+              style: GoogleFonts.varela(
+                  fontSize: 16.sp, fontWeight: FontWeight.w500),
+            ),
+            // margin: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            // decoration: BoxDecoration(border: Border.all(color: Constants.borderColor)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget customTab(String title, String img, int select) {
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 9.5.h, horizontal: 10.w),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50.r),
+            border: Border.all(color: Constants.borderColor, width: 1)),
+        child: cutTab == select
+            ? isSelect
+                ? Row(
+                    children: [
+                      Text(title),
+                      SizedBox(
+                        width: 5.w,
+                      ),
+                      Image.asset(
+                        img,
+                        height: 12.h,
+                        //width: 15.w,
+                      )
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Text(title),
+                      Icon(
+                        Icons.add,
+                        size: 15.h,
+                      )
+                    ],
+                  )
+            : Row(
+                children: [
+                  Text(title),
+                  Icon(
+                    Icons.add,
+                    size: 15.h,
+                  )
+                ],
+              ));
   }
 
   bindLocation() async {
@@ -686,7 +1705,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
       margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
       color: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       child: Padding(
         padding: const EdgeInsets.only(left: 15, right: 15),
         child: Row(
@@ -730,7 +1749,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
             //           children: const [
             //             Text(
             //               "  ",
-            //               style: TextStyle(
+            //               style: GoogleFonts.varela(
             //                   color: Colors.white,
             //                   fontSize: 11,
             //                   fontWeight: FontWeight.bold),
@@ -756,35 +1775,34 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                       item['companyname'] ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 16),
+                      style: GoogleFonts.varela(
+                          fontWeight: FontWeight.w700, fontSize: 15.sp),
                     ),
-                    const SizedBox(
-                      height: 5,
+                    SizedBox(
+                      height: 5.h,
                     ),
-
                     if (item['location'] != null)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Icon(
                             Icons.location_pin,
-                            size: 17,
+                            size: 16,
                           ),
-                          const SizedBox(
-                            width: 5,
+                          SizedBox(
+                            width: 5.w,
                           ),
                           Text(
                             item['location'] ?? '',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                color: Colors.black54, fontSize: 14),
+                            style: GoogleFonts.varela(
+                                color: Colors.black54, fontSize: 13.sp),
                           ),
                         ],
                       ),
-                    const SizedBox(
-                      height: 5,
+                    SizedBox(
+                      height: 5.h,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0, right: 30),
@@ -794,24 +1812,24 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                           if (item['rolename'] != null)
                             Text(
                               item['rolename'],
-                              style: const TextStyle(
+                              style: GoogleFonts.varela(
                                   color: Colors.black54,
                                   fontWeight: FontWeight.normal,
-                                  fontSize: 13),
+                                  fontSize: 12.sp),
                             ),
                           if (item['process'] != null)
                             Text(
                               item['process'],
-                              style: const TextStyle(
+                              style: GoogleFonts.varela(
                                   color: Colors.black54,
                                   fontWeight: FontWeight.normal,
-                                  fontSize: 13),
+                                  fontSize: 13.sp),
                             ),
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
+                    SizedBox(
+                      height: 5.h,
                     ),
                     // ThemeButton(
                     //   onPressed: () {},
@@ -843,162 +1861,466 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget listViewItem_new(BuildContext context, int index, item) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: const Color.fromARGB(255, 213, 213, 213),
-              width: 0.0,
-              style: BorderStyle.solid), //Border.all
+  Widget listViewItem_new(BuildContext context, int index, item, bool isTrue) {
+    var favProvider = ref.watch(favJobProvider(item['id'] ?? 0));
 
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10.0),
-            topRight: Radius.circular(10.0),
-            bottomLeft: Radius.circular(10.0),
-            bottomRight: Radius.circular(10.0),
-          ),
-          //BorderRadius.only
-          /************************************/
-          /* The BoxShadow widget  is here */
-          /************************************/
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromARGB(255, 219, 219, 219),
-              offset: Offset(
-                1.0,
-                1.0,
-              ),
-              blurRadius: 10.0,
-              spreadRadius: 2.0,
-            ), //BoxShadow
-            BoxShadow(
-              color: Colors.white,
-              offset: Offset(0.0, 0.0),
-              blurRadius: 0.0,
-              spreadRadius: 0.0,
-            ), //BoxShadow
-          ],
-        ),
-        child: Card(
-          margin: const EdgeInsets.only(bottom: 10),
-          elevation: 0.1,
-          color: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 10, left: 15, right: 15),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
+    List<String>? myStrings;
+    bool stopIteration = false;
+    if (item['skills'] != null) {
+      myStrings = item['skills'].split(",");
+      // do something with the parts array
+    } else {
+      // handle the case where str is null
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        //set border radius more than 50% of height and width to make circle
+      ),
+      shadowColor: Constants.themeBgColor,
+      elevation: 4,
+      // padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      /* decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(
+            color: const Color.fromARGB(255, 213, 213, 213),
+            width: 0.0.w,
+            style: BorderStyle.solid), //Border.all
+
+        borderRadius: BorderRadius.circular(10.r),
+        //BorderRadius.only
+        /************************************/
+        /* The BoxShadow widget  is here */
+        /************************************/
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.shade100,
+            offset: const Offset(
+              0.0,
+              0.0,
+            ),
+            blurRadius: 5.0,
+            spreadRadius: 1.0,
+          ), //BoxShadow
+        ],
+      ), */
+      // margin: const EdgeInsets.only(bottom: 10),
+      // elevation: 0.1,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /* const Icon(
+                  Icons.account_balance,
+                  size: 20,
+                  color: Color.fromARGB(255, 118, 118, 118),
+                ), */
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['rolename'] ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.varela(
+                          fontWeight: FontWeight.bold, fontSize: 16.sp),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          "assets/images/proces.png",
+                          height: 12.h,
+                          color: Colors.black,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        if (item['process'] != null)
+                          Text(
+                            item['process'],
+                            style: GoogleFonts.varela(
+                                fontWeight: FontWeight.w500, fontSize: 14.sp),
+                          ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          "|",
+                          style: GoogleFonts.varela(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        if (item["0"] != null)
+                          Text(
+                            item['naturofwork'].toString(),
+                            style: GoogleFonts.varela(
+                                fontWeight: FontWeight.w500, fontSize: 14.sp),
+                          )
+                        // item['process']
+                        /*  Image.asset(
+                    "assets/images/compny.png",
+                    height: 17.h,
+                    // color: Colors.black,
+                    ), */
+
+                        // if (item['process'] != null)
+                        //   Text(
+                        //     item['process'],
+                        //     style: const GoogleFonts.varela(
+                        //         color: Colors.black54,
+                        //         fontWeight: FontWeight.normal,
+                        //         fontSize: 13),
+                        //   ),
+                        // if (item['rolename'] != null)
+                        //   const Text(
+                        //     " | ",
+                        //     style: GoogleFonts.varela(
+                        //         color: Colors.black54,
+                        //         fontWeight: FontWeight.normal,
+                        //         fontSize: 13),
+                        //   ),
+                        // if (item['rolename'] != null)
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    favProvider
+                            .whenData(
+                              (value) => IconButton(
+                                  onPressed: () async {
+                                    if (value?.isFav ?? false) {
+                                      await removeFromFav(value!.id);
+                                    } else {
+                                      await addToFav(value?.jobDetails.id ??
+                                          item['id'] ??
+                                          0);
+                                    }
+
+                                    ref.refresh(favJobProvider(
+                                        item['id'] ?? 0)); //yeha null hai value
+                                  },
+                                  icon: Icon(
+                                      /*   jobs[index]["id"].toString() ==
+                                    item[index]["id"].toString() */
+                                      value?.isFav ?? false
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border_outlined,
+                                      size: 18.h,
+                                      color: Constants.themeBgColor)),
+                            )
+                            .valueOrNull ??
+                        const SizedBox.shrink(),
+                    IconButton(
+                        onPressed: () async {
+                          const url =
+                              "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                        icon: Icon(Icons.share,
+                            size: 15.h, color: Constants.themeBgColor)),
+                  ],
+                )),
+              ],
+            ),
+            /*  const SizedBox(
+              height: 15,
+            ),
+            Text(
+              item['salary'] ?? '',
+              style: const GoogleFonts.varela(
+                  fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(
+              height: 15,
+            ), */
+            SizedBox(
+              height: 5.h,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //  if (item['companyname'] != null) //&&
+                // item['process'] != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      child: Icon(
+                        Icons.business_outlined,
+                        size: 12.h,
+                        color: Constants.subtitleclr,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 4.w,
+                    ),
+                    Text(
+                      item['companyname'],
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.varela(
+                          // color: Colors.black54,
+                          color: Constants.subtitleclr,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 12.sp),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 2.h,
+                ),
+
+                if (item["total_experience"] != null)
+                  Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/bag.png",
+                        height: 10.h,
+                        color: Constants.subtitleclr,
+                      ),
+                      SizedBox(
+                        width: 4.2.w,
+                      ),
+                      Text(
+                        item["total_experience"],
+                        style: GoogleFonts.varela(
+                            // color: Colors.black54,
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12.sp),
+                      )
+                    ],
+                  ),
+                SizedBox(
+                  height: 2.h,
+                ),
+
+                if (item['maxctc'] != null &&
+                    item['minctc'] != null &&
+                    item['minctc'] != 0.0 &&
+                    item['maxctc'] != 0.0)
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.currency_rupee,
+                        size: 13.h,
+                        color: Constants.subtitleclr,
+                      ),
+                      SizedBox(
+                        width: 1.8.w,
+                      ),
+                      Text(
+                        format.format(double.parse(
+                          item['minctc'].toString().replaceAll(".0", ""),
+                        )),
+                        style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      ),
+                      const Text(" - "),
+                      Text(
+                        format.format(double.parse(
+                          item['maxctc'].toString().replaceAll(".0", ""),
+                        )),
+                        style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      ),
+                      const Text(" "),
+                      item['ismonthly'] == true
+                          ? Text(
+                              "Per Year",
+                              style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            )
+                          : Text(
+                              "Per Month",
+                              style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            )
+                    ],
+                  ),
+                SizedBox(
+                  height: 2.h,
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_pin,
+                      size: 15,
+                      color: Constants.subtitleclr,
+                    ),
+                    SizedBox(
+                      width: 3.4.w,
+                    ),
+                    Text(
+                      item['location'] ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.varela(
+                        fontSize: 12.sp,
+                        color: Constants.subtitleclr,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 3.h,
+            ),
+            if (myStrings != null)
+              Row(
                 children: [
-                  Expanded(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.account_balance,
-                                size: 20,
-                                color: Color.fromARGB(255, 118, 118, 118),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                item['companyname'] ?? '',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 0, right: 30),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                if (item['rolename'] != null &&
-                                    item['process'] != null)
-                                  const Icon(
-                                    Icons.person,
-                                    size: 17,
-                                    color: Color.fromARGB(255, 118, 118, 118),
-                                  ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                // if (item['process'] != null)
-                                //   Text(
-                                //     item['process'],
-                                //     style: const TextStyle(
-                                //         color: Colors.black54,
-                                //         fontWeight: FontWeight.normal,
-                                //         fontSize: 13),
-                                //   ),
-                                // if (item['rolename'] != null)
-                                //   const Text(
-                                //     " | ",
-                                //     style: TextStyle(
-                                //         color: Colors.black54,
-                                //         fontWeight: FontWeight.normal,
-                                //         fontSize: 13),
-                                //   ),
-                                // if (item['rolename'] != null)
-                                Expanded(
-                                  child: Text(
-                                    item['process'] + " | " + item['rolename'],
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          if (item['location'] != null)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.location_pin,
-                                  size: 17,
-                                  color: Color.fromARGB(255, 118, 118, 118),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    item['location'] ?? '',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.black54, fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      )),
-                  const Icon(Icons.navigate_next),
+                  SizedBox(
+                    height: 20,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: stopIteration == true ? 3 : myStrings.length,
+                      itemBuilder: (context, index) {
+                        if (index == 3) {
+                          stopIteration = true;
+                        }
+                        return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 2),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border:
+                                    Border.all(color: Colors.grey.shade400)),
+                            child: Text(myStrings![index]
+                                .replaceAll('"', '')
+                                .replaceAll('[', '')
+                                .replaceAll(']', '')));
+                      },
+                    ),
+                  ),
+                  Text("+${myStrings.length.toString()}")
                 ],
               ),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 5.h),
+              color: Colors.grey.shade400,
+              width: double.maxFinite,
+              height: 0.5.h,
             ),
-          ),
+            Row(
+              children: [
+                Column(
+                  children: [
+                    SizedBox(
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/verified.png",
+                            height: 16.h,
+                            color: Constants.themeBgColor,
+                          ),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(
+                            //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
+                            "100% free and verified Job",
+                            style: GoogleFonts.varela(
+                                fontWeight: FontWeight.w500,
+                                color: Constants.subtitleclr),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, ERoute.application.name,
+                        arguments: {
+                          "isnew": false,
+                          "prevModel": jobDetailsModel,
+                          "refer": true,
+                          "cmpnyname": item['companyname'].toString()
+                        });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 10, right: 10),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Constants.themeBgColor),
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Text(
+                      "Apply Now",
+                      style: GoogleFonts.varela(
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                )
+                /* ThemeButton(
+                  color: Constants.themeBgColor,
+                  width: 90.w,
+                  radious: 30.r,
+                  themeButtonSize: ThemeButtonSize.small,
+                  onPressed: () {
+                    Navigator.pushNamed(context, ERoute.application.name,
+                        arguments: {
+                          "isnew": false,
+                          "prevModel": jobDetailsModel,
+                        });
+                  },
+                  fontsize: 11.sp,
+                  text: "Apply Now ",
+                ), */
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget customSkill(String title) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+          //  color: Constants.themeBgColorLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Constants.subtitleclr, width: 0.5)),
+      child: Text(
+        title,
+        style: GoogleFonts.varela(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Constants.subtitleclr),
       ),
     );
   }
@@ -1009,31 +2331,40 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     }
   }
 
-  void searchAgain() async {
+  void searchAgain({Map<String, String>? data}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     _page = 0;
     _hasNextPage = true;
     _isFirstLoadRunning = false;
     _isLoadMoreRunning = false;
     jobItems = [];
-    setState(() => {});
-    bindItems();
+    setState(() => {locationid = prefs.getInt("loc")!});
+    bindItems(data: data);
   }
 
-  void bindItems() async {
+  void bindItems({Map<String, String>? data}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
+      locationid = prefs.getInt('loc')!;
       _isLoadMoreRunning = true; // Display a progress indicator at the bottom
     });
     _page += 1; // Increase _page by 1
     try {
       var seardData = {"page": _page.toString(), "size": _pageSize.toString()};
-      if (locationid > 0) {
+      if (locationid > 0 && data == null) {
         seardData['location'] = locationid.toString();
       }
-      
+
       seardData['sort'] = sortByd;
       seardData['sortType'] = 'asc';
+
+      seardData['rolename'] = searchText;
       seardData['company'] = searchText;
-      var result = await JobSearchService().getJobSearch(seardData);
+      seardData['process'] = searchText;
+
+      Map<String, String> finalData = {...seardData, if (data != null) ...data};
+      var result = await JobSearchService().getJobSearch(finalData);
       RequestResult res = Utils.parseResponse(result);
       var list = res.resultData as List;
       setState(() {
@@ -1043,7 +2374,7 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
         }
       });
     } catch (err) {
-      print('Something went wrong!');
+      print(err);
     }
     setState(() {
       _isLoadMoreRunning = false;
@@ -1052,8 +2383,9 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
     });
   }
 
-  void 
-  searchLocation(context) async {
+  void searchLocation(context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     showSearch(
         context: context,
         delegate: LocationSearch(
@@ -1062,13 +2394,15 @@ class _JobsState extends State<Jobs> with SingleTickerProviderStateMixin {
                   locationname = locationitem.name.toString(),
                   user_selected_lcoation = locationitem.name.toString(),
                   locationid = int.parse(locationitem.id.toString()),
+                  await prefs.setInt('loc', locationid),
                   await Utils.setPreference(
                       null,
                       ESharedPreferences.user_selected_lcoation.name,
                       user_selected_lcoation.toString()),
-                      // close(context, query);
-              //  onSelected(query);
-                  searchAgain(),
+                  // close(context, query);
+                  //  onSelected(query);
+                  // searchAgain(),
+                  //setState(() {})     //old
                 }));
   }
 }
@@ -1078,6 +2412,7 @@ class DataSearch extends SearchDelegate<String> {
   List dataList = [];
   final recentCities = [];
   final Function(String) onSelected;
+  @override
   TextInputAction get textInputAction => TextInputAction.none;
 
   @override
@@ -1137,12 +2472,12 @@ class DataSearch extends SearchDelegate<String> {
                     children: [
                       TextSpan(
                           text: query,
-                          style: TextStyle(
+                          style: GoogleFonts.varela(
                               fontWeight: FontWeight.normal,
                               color: Colors.black))
                     ],
                     text: "Search for ",
-                    style: const TextStyle(
+                    style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold, color: Colors.black)),
               ),
             ),
@@ -1178,7 +2513,7 @@ class LocationSearch extends SearchDelegate<String> {
   final cities = [];
   final recentCities = [];
   @override
-  String get searchFieldLabel => 'Select City';
+  String get searchFieldLabel => 'Type your city';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -1238,11 +2573,11 @@ class LocationSearch extends SearchDelegate<String> {
               children: [
                 TextSpan(
                     text: suggestionList[index].name!.substring(query.length),
-                    style: const TextStyle(
+                    style: GoogleFonts.varela(
                         fontWeight: FontWeight.normal, color: Colors.black))
               ],
               text: suggestionList[index].name!.substring(0, query.length),
-              style: const TextStyle(
+              style: GoogleFonts.varela(
                   fontWeight: FontWeight.bold, color: Colors.black)),
         ),
       ),
