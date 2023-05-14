@@ -9,6 +9,10 @@ class JobSearchService extends ServiceBase {
     return callGetLocal(GlobalConstants.API_jobs_v1_search, param: params);
   }
 
+   Future getcompany(Map<String, String> params) {
+    return callGetLocal(GlobalConstants.API_company_name_v1, param: params);
+  }
+
   Future<FavJobModel?> getFavoriteJob(int jobId) async {
     try {
       //on click pe job add to ho rahi hai

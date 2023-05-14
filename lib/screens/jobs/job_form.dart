@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -42,7 +41,7 @@ class _JobFormState extends State<JobForm> {
   TextEditingController shiftTiming = TextEditingController();
   TextEditingController weeklyOff = TextEditingController();
   TextEditingController workLocation = TextEditingController();
-  TextEditingController boundryLimits = TextEditingController();
+  //TextEditingController boundryLimits = TextEditingController();
   TextEditingController interviewRounds = TextEditingController();
   TextEditingController salary = TextEditingController();
   TextEditingController empType = TextEditingController();
@@ -68,6 +67,9 @@ class _JobFormState extends State<JobForm> {
   TextEditingController minAge = TextEditingController();
   TextEditingController maxAge = TextEditingController();
   TextEditingController moreDetail = TextEditingController();
+  TextEditingController Eligibility = TextEditingController();
+  TextEditingController boundryLimits = TextEditingController();
+  TextEditingController responsibility = TextEditingController();
   //TextEditingController shorListController = TextEditingController();
   final TextEditingController _typeAheadController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -257,10 +259,33 @@ class _JobFormState extends State<JobForm> {
   dynamic userinfo;
   dynamic localStoregData;
 
+  List<dynamic> dropdownItems = []; // List to store the dropdown items
+  String selectedValue = "";
+
+  void fetchData() async {
+    final response = await http.get(Uri.parse(
+        "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/company/v1/all?pageNumber=1&pageSize=100"));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      var list = data as List;
+      setState(() {
+        dropdownItems.addAll(list);
+        // Assuming data is a list of strings
+      });
+      print(dropdownItems);
+    } else {
+      print("somthing webt wrong");
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     moreDetail.addListener(_handleTextChange);
+    Eligibility.addListener(_handleTextChangeEligi);
+    boundryLimits.addListener(_handleTextChangebond);
+    responsibility.addListener(_handleTextChangerespo);
+    fetchData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (args != null && args["isnew"] != true) {
@@ -332,6 +357,85 @@ class _JobFormState extends State<JobForm> {
   bool isFresher = false;
   bool expContainer = false;
   bool agegroupContainer = false;
+
+  final List<String> _bulletPointsrespo = [];
+  String _textrespo = '';
+
+  void _handleTextChangerespo() {
+    setState(() {
+      _textrespo = responsibility.text;
+    });
+  }
+
+  List<Widget> _getBulletPointWidgetsrespo() {
+    List<String> lines = _textrespo.split('\n');
+    List<Widget> bulletPointsrespo = [];
+
+    for (String line in lines) {
+      bulletPointsrespo.add(
+        const Text(
+          '\u2022  ',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      );
+    }
+    return bulletPointsrespo;
+  }
+
+  ///////////////////////////////////////////
+
+  final List<String> _bulletPointsbond = [];
+  String _textbond = '';
+
+  void _handleTextChangebond() {
+    setState(() {
+      _textbond = boundryLimits.text;
+    });
+  }
+
+  List<Widget> _getBulletPointWidgetsbond() {
+    List<String> lines = _textbond.split('\n');
+    List<Widget> bulletPointsbond = [];
+
+    for (String line in lines) {
+      bulletPointsbond.add(
+        const Text(
+          '\u2022  ',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      );
+    }
+    return bulletPointsbond;
+  }
+
+/////////////////////////////////////////////
+
+  final List<String> _bulletPointsEligi = [];
+  String _textEligi = '';
+
+  void _handleTextChangeEligi() {
+    setState(() {
+      _textEligi = Eligibility.text;
+    });
+  }
+
+  List<Widget> _getBulletPointWidgetsEligi() {
+    List<String> lines = _textEligi.split('\n');
+    List<Widget> bulletPointsEligi = [];
+
+    for (String line in lines) {
+      bulletPointsEligi.add(
+        const Text(
+          '\u2022  ',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      );
+    }
+    return bulletPointsEligi;
+  }
+
+////////////////////////////////////////////
+
   final List<String> _bulletPoints = [];
   String _text = '';
 
@@ -357,6 +461,7 @@ class _JobFormState extends State<JobForm> {
     return bulletPoints;
   }
 
+<<<<<<< Updated upstream
   bool isEdit = false;
   late List<dynamic> suggestions;
 
@@ -377,6 +482,9 @@ class _JobFormState extends State<JobForm> {
       throw Exception('Failed to retrieve suggestions');
     }
   }
+=======
+  ////////////////////////////////////////////
+>>>>>>> Stashed changes
 
   @override
   @override
@@ -446,6 +554,7 @@ class _JobFormState extends State<JobForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+<<<<<<< Updated upstream
                 isEdit
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,6 +656,25 @@ class _JobFormState extends State<JobForm> {
                           ),
                         ],
                       ),
+=======
+                const Text('Select an option:'),
+                DropdownButton<String>(
+                  value: selectedValue,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedValue = newValue.toString();
+                    });
+                  },
+                  items: dropdownItems.map((value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                newFormFiled(shorListController, context, "Company Name",
+                    "Aditay Birla Health Insurance", false, false, false),
+>>>>>>> Stashed changes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
@@ -554,11 +682,17 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                         width: MediaQuery.of(context).size.width / 2.2.w,
                         child: newFormFiled(shorListController, context,
-                            "Job Title", "Sr.Executive", false, false)),
+                            "Job Title", "Sr.Executive", false, false, false)),
                     SizedBox(
                         width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Process", "Health Insurance", false, false)),
+                        child: newFormFiled(
+                            shorListController,
+                            context,
+                            "Process",
+                            "Health Insurance",
+                            false,
+                            false,
+                            false)),
                   ],
                 ),
                 Row(
@@ -568,12 +702,22 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 2.2.w,
                       child: newFormFiled(shorListController, context,
-                          "Nature of Work", "Sales", false, false),
+                          "Nature of Work", "Sales", false, false, false),
                     ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Number of Openings", "e.g 1", false, false),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 2.2.w,
+                          child: newFormFiled(
+                              shorListController,
+                              context,
+                              "Number of Openings",
+                              "e.g 1",
+                              false,
+                              false,
+                              true),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -584,12 +728,12 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 2.2.w,
                       child: newFormFiled(shorListController, context,
-                          "Industry", "NBFC", false, false),
+                          "Industry", "NBFC", false, false, false),
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 2.2.w,
                       child: newFormFiled(shorListController, context,
-                          "Functional Area", "Sales", false, false),
+                          "Functional Area", "Sales", false, false, false),
                     ),
                   ],
                 ),
@@ -674,7 +818,7 @@ class _JobFormState extends State<JobForm> {
                   ],
                 ),
                 newFormFiled(shorListController, context, "Skills Required",
-                    "Advance Excel", false, false),
+                    "Advance Excel", false, false, false),
                 Text(
                   "Job Responsibility",
                   style: GoogleFonts.sourceSansPro(
@@ -687,13 +831,50 @@ class _JobFormState extends State<JobForm> {
                   value: true,
                   onChanged: (value) {},
                 ),
-                newFormFiled(shorListController, context, "",
-                    "Any other respo that you want to add", false, false),
+
+                TextField(
+                  // textInputAction: TextInputAction.newline,
+
+                  // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                  controller: responsibility,
+                  //  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      prefix: Column(
+                        children: _getBulletPointWidgetsrespo(),
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      // Icons.workspace_premium
+                      // label: const Text("Company Name *"),
+                      //border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 122, 113, 111)),
+                      ),
+                      hintText: "Any other responsibility that you want to add",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr, fontSize: 14.sp)
+                      //  prefixIcon: Icon(Icons.list)
+                      ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
                 newFormFiled(shorListController, context, "Language Required",
-                    "English", false, false),
+                    "Tamil, Kannada, Punjabi", false, false, true),
 
                 newFormFiled(shorListController, context, "Job Benefits", "PF",
-                    false, false),
+                    false, false, false),
                 Text(
                   "Salary",
                   style: GoogleFonts.sourceSansPro(
@@ -708,7 +889,7 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 5.w,
                       child: newFormFiled(shorListController, context, "",
-                          "Min-salary", true, false),
+                          "Min-salary", true, false, false),
                     ),
                     const SizedBox(
                       width: 5,
@@ -720,7 +901,7 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 5.w,
                       child: newFormFiled(shorListController, context, "",
-                          "Max-salary", true, false),
+                          "Max-salary", true, false, false),
                     ),
                     const SizedBox(
                       width: 10,
@@ -766,21 +947,131 @@ class _JobFormState extends State<JobForm> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 2.2.w,
                       child: newFormFiled(shorListController, context,
-                          "Shift Timing", "Day Shift", false, false),
+                          "Shift Timing", "Day Shift", false, false, false),
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 2.2.w,
                       child: newFormFiled(shorListController, context,
-                          "Week Off", "Sunday", false, false),
+                          "Week Off", "Sunday", false, false, false),
                     ),
                   ],
                 ),
                 newFormFiled(shorListController, context, "Locality", "Thane",
-                    false, false),
-                newFormFiled(shorListController, context, "Boundry Limits",
-                    "Graduate", false, false),
-                newFormFiled(shorListController, context, "Eligibility",
-                    "Banking sales compulsory", false, false),
+                    false, false, false),
+                Row(
+                  children: [
+                    Text(
+                      "Boundry Limits",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "  (Optional)",
+                      style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+
+                TextField(
+                  // textInputAction: TextInputAction.newline,
+
+                  // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                  controller: boundryLimits,
+                  //  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      prefix: Column(
+                        children: _getBulletPointWidgetsbond(),
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      // Icons.workspace_premium
+                      // label: const Text("Company Name *"),
+                      //border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 122, 113, 111)),
+                      ),
+                      hintText: "Dadar to Ambarnath",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr, fontSize: 14.sp)
+                      //  prefixIcon: Icon(Icons.list)
+                      ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Eligibility",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "  (Optional)",
+                      style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+
+                TextField(
+                  controller: Eligibility,
+                  //  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      prefix: Column(
+                        children: _getBulletPointWidgetsEligi(),
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 122, 113, 111)),
+                      ),
+                      hintText: "Banking sales experience ",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr, fontSize: 14.sp)
+                      //  prefixIcon: Icon(Icons.list)
+                      ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
                 Text(
                   "Experience",
                   style: GoogleFonts.sourceSansPro(
@@ -1121,12 +1412,23 @@ class _JobFormState extends State<JobForm> {
                           ),
                   ),
 
-                Text(
-                  "Gender",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
+                Row(
+                  children: [
+                    Text(
+                      "Gender",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "  (Optional)",
+                      style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                      ),
+                    )
+                  ],
                 ),
                 Wrap(
                   children: [
@@ -1156,12 +1458,23 @@ class _JobFormState extends State<JobForm> {
                       }, femalePrefered, "Female Prefered")
                   ],
                 ),
-                Text(
-                  "Age Group",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
+                Row(
+                  children: [
+                    Text(
+                      "Age Group",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "  (Optional)",
+                      style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                      ),
+                    )
+                  ],
                 ),
                 agegroupContainer
                     ? Row(
@@ -1476,12 +1789,23 @@ class _JobFormState extends State<JobForm> {
                       }, decent, "Average | Decent"),
                   ],
                 ),
-                Text(
-                  "More Details",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
+                Row(
+                  children: [
+                    Text(
+                      "More Details",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "  (Optional)",
+                      style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(
                   height: 5,
@@ -1539,7 +1863,7 @@ class _JobFormState extends State<JobForm> {
                 /*  newFormFiled(shorListController, context, "More Details",
                     "Optional", false, false), */
                 newFormFiled(shorListController, context, "Interview Rounds",
-                    "Graduate", false, false),
+                    "Graduate", false, false, false)
 
                 /* TextFormField(                                           //show dialogue for process//
                   validator: (value) {
@@ -1641,21 +1965,46 @@ class _JobFormState extends State<JobForm> {
                         color: Constants.subtitleclr, fontSize: 14.sp))));
   }
 
-  Container newFormFiled(TextEditingController controller, BuildContext context,
-      String? title, String subTitle, bool isNum, bool isVisible) {
+  Container newFormFiled(
+      TextEditingController controller,
+      BuildContext context,
+      String? title,
+      String subTitle,
+      bool isNum,
+      bool isVisible,
+      bool sioptonal) {
     return Container(
         margin: const EdgeInsets.only(bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (title!.isNotEmpty)
-              Text(
-                title,
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 14.sp,
-                    // color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w600),
-              ),
+              sioptonal
+                  ? Row(
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 14.sp,
+                              // color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          "  (Optional)",
+                          style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
             const SizedBox(
               height: 5,
             ),
@@ -1910,28 +2259,5 @@ class _JobFormState extends State<JobForm> {
         ],
       ),
     );
-  }
-}
-
-class BulletPointInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.text.isNotEmpty) {
-      final lines = newValue.text.split('\n');
-      final formattedLines = lines.map((line) {
-        if (line.isNotEmpty && !line.startsWith('\u2022 ')) {
-          return '\u2022 $line';
-        }
-        return line;
-      });
-      final formattedText = formattedLines.join('\n');
-
-      return TextEditingValue(
-        text: formattedText,
-        selection: newValue.selection,
-      );
-    }
-    return newValue;
   }
 }

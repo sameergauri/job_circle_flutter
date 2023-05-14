@@ -64,4 +64,6 @@ class GlobalConstants {
   static const API_jobs_v1_deletefav = "/favjob/v1/{id}";
   static const API_jobs_v2 = "/jobs/v2";
   static const API_jobs_v2_jobs_13_apply = "jobs/v2/jobs/{jobID}/apply";
+
+  static const API_company_name_v1 = "/company/v1/all";
 }
