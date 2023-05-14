@@ -461,7 +461,6 @@ class _JobFormState extends State<JobForm> {
     return bulletPoints;
   }
 
-<<<<<<< Updated upstream
   bool isEdit = false;
   late List<dynamic> suggestions;
 
@@ -482,9 +481,6 @@ class _JobFormState extends State<JobForm> {
       throw Exception('Failed to retrieve suggestions');
     }
   }
-=======
-  ////////////////////////////////////////////
->>>>>>> Stashed changes
 
   @override
   @override
@@ -554,7 +550,6 @@ class _JobFormState extends State<JobForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-<<<<<<< Updated upstream
                 isEdit
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -656,25 +651,6 @@ class _JobFormState extends State<JobForm> {
                           ),
                         ],
                       ),
-=======
-                const Text('Select an option:'),
-                DropdownButton<String>(
-                  value: selectedValue,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedValue = newValue.toString();
-                    });
-                  },
-                  items: dropdownItems.map((value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                newFormFiled(shorListController, context, "Company Name",
-                    "Aditay Birla Health Insurance", false, false, false),
->>>>>>> Stashed changes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
