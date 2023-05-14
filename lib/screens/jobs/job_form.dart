@@ -1,5 +1,7 @@
 ////
 
+// ignore_for_file: duplicate_import
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -7,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -353,6 +357,27 @@ class _JobFormState extends State<JobForm> {
     return bulletPoints;
   }
 
+  bool isEdit = false;
+  late List<dynamic> suggestions;
+
+  Future<List> getSuggestions(String pattern) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/company/v1/all?pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      suggestions = data['resultData']['content']
+          .map((e) => e['name'].toString())
+          .where((name) =>
+              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+          .toList();
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
   @override
   @override
   Widget build(BuildContext context) {
@@ -421,8 +446,107 @@ class _JobFormState extends State<JobForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                newFormFiled(shorListController, context, "Company Name",
-                    "Aditay Birla Health Insurance", false, false),
+                isEdit
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Company Name",
+                            style: GoogleFonts.sourceSansPro(
+                                fontSize: 14.sp,
+                                // color: Colors.grey.shade500,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          customContainerSelect(() {
+                            setState(() {
+                              isEdit = false;
+                              shorListController.clear();
+                            });
+                          }, true, shorListController.text),
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Company Name",
+                            style: GoogleFonts.sourceSansPro(
+                                fontSize: 14.sp,
+                                // color: Colors.grey.shade500,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            width: double.infinity,
+                            height: MediaQuery.of(context).size.height / 26.h,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            child: TypeAheadFormField<dynamic>(
+                              suggestionsBoxDecoration:
+                                  SuggestionsBoxDecoration(
+
+                                      //shape: ShapeBorder.lerp(),
+                                      borderRadius: BorderRadius.circular(15),
+                                      elevation: 4.0),
+                              textFieldConfiguration: TextFieldConfiguration(
+                                controller: shorListController,
+                                decoration: InputDecoration(
+                                    hintText: "Aditya Birla Health Insurance",
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.subtitleclr,
+                                        fontSize: 14.sp),
+                                    // labelText: 'Enter a suggestion',
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 122, 113, 111)),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    border: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: Color(0xffff0eceb)),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    contentPadding:
+                                        const EdgeInsets.only(left: 15)),
+                              ),
+                              suggestionsCallback: (pattern) async {
+                                if (pattern.isNotEmpty) {
+                                  return await getSuggestions(pattern);
+                                } else {
+                                  return <
+                                      dynamic>[]; // Return an empty list when the pattern is empty
+                                }
+                              },
+                              itemBuilder: (context, suggestion) {
+                                final index = suggestions.indexOf(suggestion);
+                                final isOdd = index % 2 == 0;
+                                final backgroundColor =
+                                    isOdd ? Colors.grey.shade200 : Colors.white;
+                                return Container(
+                                  color: backgroundColor,
+                                  child: ListTile(
+                                    title: Text(
+                                      suggestion.toString(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                setState(() {
+                                  shorListController.text =
+                                      suggestion.toString();
+                                  isEdit = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
@@ -1460,6 +1584,21 @@ class _JobFormState extends State<JobForm> {
     );
   }
 
+  /*  List<String> suggestions = [
+    'Apple',
+    'Banana',
+    'Cherry',
+    'Durian',
+    'Elderberry',
+    'Fig'
+  ]; */
+  /* Future<List<String>> getSuggestions(String pattern) async {
+    // Perform filtering based on the pattern
+    return suggestions
+        .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
+        .toList();
+  }
+ */
   InkWell customContainerSelect(
       final VoidCallback onPressed, bool isSelect, String title) {
     return InkWell(
@@ -1485,7 +1624,7 @@ class _JobFormState extends State<JobForm> {
                     children: [
                       Text(title,
                           style: GoogleFonts.sourceSansPro(
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontSize: 14.sp)),
                       const SizedBox(
@@ -1524,6 +1663,7 @@ class _JobFormState extends State<JobForm> {
               height: MediaQuery.of(context).size.height / 26.h,
               color: Colors.white,
               child: TextFormField(
+                enableSuggestions: true,
                 onChanged: (value) {
                   isVisible
                       ? setState(() {
@@ -1541,6 +1681,28 @@ class _JobFormState extends State<JobForm> {
                   return null;
                 },
                 onTap: (() {
+                  /* TypeAheadFormField<String>(
+                    textFieldConfiguration: const TextFieldConfiguration(
+                      decoration: InputDecoration(
+                        hintText: 'Enter a suggestion...',
+                      ),
+                    ),
+                    suggestionsCallback: (pattern) async {
+                      // Perform your suggestion logic here
+                      // Return a list of suggestions based on the provided pattern
+                      return await getSuggestions(pattern);
+                    },
+                    itemBuilder: (context, suggestion) {
+                      return ListTile(
+                        title: Text(suggestion),
+                      );
+                    },
+                    onSuggestionSelected: (suggestion) {
+                      // Do something with the selected suggestion
+                      Navigator.of(context).pop(suggestion);
+                    },
+                  ); */
+
                   /* showDialog(
                       context: context,
                       builder: (BuildContext context) {

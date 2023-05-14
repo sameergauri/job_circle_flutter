@@ -32,7 +32,7 @@ class _CareerAssetsState extends State<CareerAssets>
         bottom: TabBar(
             labelPadding: const EdgeInsets.only(left: 5, right: 5),
             controller: _tabController,
-            labelColor: Colors.black,
+            labelColor: Colors.black, 
             unselectedLabelColor: Colors.black,
             indicatorSize: TabBarIndicatorSize.tab,
             splashBorderRadius: BorderRadius.circular(50),
