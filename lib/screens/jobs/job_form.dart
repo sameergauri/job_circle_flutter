@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -13,6 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
+import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
@@ -274,12 +276,16 @@ class _JobFormState extends State<JobForm> {
       });
       print(dropdownItems);
     } else {
-      print("somthing webt wrong");
+      print("somthing went wrong");
     }
   }
 
   @override
   void initState() {
+    // getJobTitle("Admin");
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
     // TODO: implement initState
     moreDetail.addListener(_handleTextChange);
     Eligibility.addListener(_handleTextChangeEligi);
@@ -462,7 +468,10 @@ class _JobFormState extends State<JobForm> {
   }
 
   bool isEdit = false;
-  late List<dynamic> suggestions;
+  bool isJobTitle = false;
+  List<dynamic> suggestions = [];
+  List<dynamic> jobTitleSuggestion = [];
+  bool isNotFound = false;
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
@@ -482,7 +491,50 @@ class _JobFormState extends State<JobForm> {
     }
   }
 
-  @override
+  Future<List> getJobTitle(String pattern) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=job_role&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .where((name) =>
+              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+          .toList();
+      print(jobTitleSuggestion);
+      return jobTitleSuggestion;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  final _focusNode = FocusNode();
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    }
+  }
+
+  FocusNode focusNode = FocusNode();
+  String firstText = '';
+
+  bool myBoolValue = false;
+
+  void handleCustomWidgetChange(bool newValue) {
+    setState(() {
+      myBoolValue = newValue;
+    });
+  }
+
+  /* void handleFocusNodeRequest() {
+    setState(() {
+      FocusScope.of(context).requestFocus(focusNode); // Request focus on the focusNode
+    });
+  } */
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -544,1343 +596,1534 @@ class _JobFormState extends State<JobForm> {
       ),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                isEdit
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Company Name",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 14.sp,
-                                // color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          customContainerSelect(() {
-                            setState(() {
-                              isEdit = false;
-                              shorListController.clear();
-                            });
-                          }, true, shorListController.text),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Company Name",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 14.sp,
-                                // color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height / 26.h,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            child: TypeAheadFormField<dynamic>(
-                              suggestionsBoxDecoration:
-                                  SuggestionsBoxDecoration(
-
-                                      //shape: ShapeBorder.lerp(),
-                                      borderRadius: BorderRadius.circular(15),
-                                      elevation: 4.0),
-                              textFieldConfiguration: TextFieldConfiguration(
-                                controller: shorListController,
-                                decoration: InputDecoration(
-                                    hintText: "Aditya Birla Health Insurance",
-                                    hintStyle: GoogleFonts.sourceSansPro(
-                                        color: Constants.subtitleclr,
-                                        fontSize: 14.sp),
-                                    // labelText: 'Enter a suggestion',
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Color.fromARGB(
-                                                255, 122, 113, 111)),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    border: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Color(0xffff0eceb)),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    contentPadding:
-                                        const EdgeInsets.only(left: 15)),
-                              ),
-                              suggestionsCallback: (pattern) async {
-                                if (pattern.isNotEmpty) {
-                                  return await getSuggestions(pattern);
-                                } else {
-                                  return <
-                                      dynamic>[]; // Return an empty list when the pattern is empty
-                                }
-                              },
-                              itemBuilder: (context, suggestion) {
-                                final index = suggestions.indexOf(suggestion);
-                                final isOdd = index % 2 == 0;
-                                final backgroundColor =
-                                    isOdd ? Colors.grey.shade200 : Colors.white;
-                                return Container(
-                                  color: backgroundColor,
-                                  child: ListTile(
-                                    title: Text(
-                                      suggestion.toString(),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                );
-                              },
-                              onSuggestionSelected: (suggestion) {
-                                setState(() {
-                                  shorListController.text =
-                                      suggestion.toString();
-                                  isEdit = true;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Job Title", "Sr.Executive", false, false, false)),
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(
-                            shorListController,
-                            context,
-                            "Process",
-                            "Health Insurance",
-                            false,
-                            false,
-                            false)),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Nature of Work", "Sales", false, false, false),
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
+        child: GestureDetector(
+          onTap: () {
+            if (shorListController.text.isNotEmpty) {
+              FocusScope.of(context).nextFocus();
+            }
+            setState(() {
+              {
+                if (!isEdit) {
+                  shorListController.clear();
+                }
+              }
+            });
+          },
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomJobFormTextField(
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Company Name",
+                    controller: shorListController,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Aditya birla Health Insurance",
+                    getSuggestions: getSuggestions,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width / 2.2.w,
+                          child: customSuggestionFieldJobTitle(context)),
+                      /*  newFormFiled(shorListController, context,
+                              "Job Title", "Sr.Executive", false, false, false)), */
+                      SizedBox(
                           width: MediaQuery.of(context).size.width / 2.2.w,
                           child: newFormFiled(
                               shorListController,
                               context,
-                              "Number of Openings",
-                              "e.g 1",
+                              "Process",
+                              "Health Insurance",
                               false,
                               false,
-                              true),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Industry", "NBFC", false, false, false),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Functional Area", "Sales", false, false, false),
-                    ),
-                  ],
-                ),
-                Text(
-                  "Emp Type",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                Wrap(
-                  children: [
-                    if (isContract == false &&
-                        isFullTime == false &&
-                        isIntern == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          isPartTime = !isPartTime;
-                          isFullTime = false;
-                          isContract = false;
-                          isIntern = false;
-                        });
-                      }, isPartTime, "Part Time"),
-                    if (isPartTime == false &&
-                        isContract == false &&
-                        isIntern == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          isPartTime = false;
-                          isFullTime = !isFullTime;
-                          isContract = false;
-                          isIntern = false;
-                        });
-                      }, isFullTime, "full Time"),
-                    if (isPartTime == false &&
-                        isFullTime == false &&
-                        isIntern == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          isPartTime = false;
-                          isFullTime = false;
-                          isContract = !isContract;
-                          isIntern = false;
-                        });
-                      }, isContract, "Contractual"),
-                    if (isPartTime == false &&
-                        isFullTime == false &&
-                        isContract == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          isPartTime = false;
-                          isFullTime = false;
-                          isContract = false;
-                          isIntern = !isIntern;
-                        });
-                      }, isIntern, "Internship"),
-                  ],
-                ),
-                Text(
-                  "Education",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                Wrap(
-                  children: [
-                    if (graduate == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          undeGraduate = !undeGraduate;
-                          graduate = false;
-                        });
-                      }, undeGraduate, "Under-Graduate"),
-                    if (undeGraduate == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          graduate = !graduate;
-                          undeGraduate = false;
-                        });
-                      }, graduate, "Graduate"),
-                  ],
-                ),
-                newFormFiled(shorListController, context, "Skills Required",
-                    "Advance Excel", false, false, false),
-                Text(
-                  "Job Responsibility",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                CheckboxListTile(
-                  title: const Text("Data"),
-                  value: true,
-                  onChanged: (value) {},
-                ),
-
-                TextField(
-                  // textInputAction: TextInputAction.newline,
-
-                  // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                  controller: responsibility,
-                  //  textInputAction: TextInputAction.newline,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      prefix: Column(
-                        children: _getBulletPointWidgetsrespo(),
-                        mainAxisAlignment: MainAxisAlignment.start,
-                      ),
-                      // Icons.workspace_premium
-                      // label: const Text("Company Name *"),
-                      //border: OutlineInputBorder(),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 122, 113, 111)),
-                      ),
-                      hintText: "Any other responsibility that you want to add",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.subtitleclr, fontSize: 14.sp)
-                      //  prefixIcon: Icon(Icons.list)
-                      ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                newFormFiled(shorListController, context, "Language Required",
-                    "Tamil, Kannada, Punjabi", false, false, true),
-
-                newFormFiled(shorListController, context, "Job Benefits", "PF",
-                    false, false, false),
-                Text(
-                  "Salary",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 5.w,
-                      child: newFormFiled(shorListController, context, "",
-                          "Min-salary", true, false, false),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const Text("-"),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 5.w,
-                      child: newFormFiled(shorListController, context, "",
-                          "Max-salary", true, false, false),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    /* Text(
-                      "Years",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w400),
-                    ), */
-                    SizedBox(
-                        child: Radio(
-                      // contentPadding: EdgeInsets.zero,
-                      // title: const Text('Monthly'),
-                      value: 'Monthly',
-                      groupValue: _selectedOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedOption = value.toString();
-                        });
-                      },
-                    )),
-                    const Text("Monthly"),
-                    SizedBox(
-                        child: Radio(
-                      value: 'Yearly',
-                      groupValue: _selectedOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedOption = value.toString();
-                        });
-                      },
-                    )),
-                    const Text("Yearly")
-                  ],
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Shift Timing", "Day Shift", false, false, false),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.2.w,
-                      child: newFormFiled(shorListController, context,
-                          "Week Off", "Sunday", false, false, false),
-                    ),
-                  ],
-                ),
-                newFormFiled(shorListController, context, "Locality", "Thane",
-                    false, false, false),
-                Row(
-                  children: [
-                    Text(
-                      "Boundry Limits",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "  (Optional)",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
-                        // color: Colors.grey.shade500,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-
-                TextField(
-                  // textInputAction: TextInputAction.newline,
-
-                  // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                  controller: boundryLimits,
-                  //  textInputAction: TextInputAction.newline,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      prefix: Column(
-                        children: _getBulletPointWidgetsbond(),
-                        mainAxisAlignment: MainAxisAlignment.start,
-                      ),
-                      // Icons.workspace_premium
-                      // label: const Text("Company Name *"),
-                      //border: OutlineInputBorder(),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 122, 113, 111)),
-                      ),
-                      hintText: "Dadar to Ambarnath",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.subtitleclr, fontSize: 14.sp)
-                      //  prefixIcon: Icon(Icons.list)
-                      ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Eligibility",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "  (Optional)",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
-                        // color: Colors.grey.shade500,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-
-                TextField(
-                  controller: Eligibility,
-                  //  textInputAction: TextInputAction.newline,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      prefix: Column(
-                        children: _getBulletPointWidgetsEligi(),
-                        mainAxisAlignment: MainAxisAlignment.start,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 122, 113, 111)),
-                      ),
-                      hintText: "Banking sales experience ",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.subtitleclr, fontSize: 14.sp)
-                      //  prefixIcon: Icon(Icons.list)
-                      ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  "Experience",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                Visibility(
-                    visible: _showContainer1 && _showContainer2,
-                    child: customContainerSelect(() {
-                      setState(() {
-                        isFresher = !isFresher;
-                      });
-                    }, isFresher, "Fresher can also apply.")
-
-                    /* Row(
+                              false)),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-                      Checkbox(
-                        value: isFresher,
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.2.w,
+                        child: newFormFiled(shorListController, context,
+                            "Nature of Work", "Sales", false, false, false),
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.2.w,
+                            child: newFormFiled(
+                                shorListController,
+                                context,
+                                "Number of Openings",
+                                "e.g 1",
+                                false,
+                                false,
+                                true),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.2.w,
+                        child: newFormFiled(shorListController, context,
+                            "Industry", "NBFC", false, false, false),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.2.w,
+                        child: newFormFiled(shorListController, context,
+                            "Functional Area", "Sales", false, false, false),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "Emp Type",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Wrap(
+                    children: [
+                      if (isContract == false &&
+                          isFullTime == false &&
+                          isIntern == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            isPartTime = !isPartTime;
+                            isFullTime = false;
+                            isContract = false;
+                            isIntern = false;
+                          });
+                        }, isPartTime, "Part Time"),
+                      if (isPartTime == false &&
+                          isContract == false &&
+                          isIntern == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            isPartTime = false;
+                            isFullTime = !isFullTime;
+                            isContract = false;
+                            isIntern = false;
+                          });
+                        }, isFullTime, "full Time"),
+                      if (isPartTime == false &&
+                          isFullTime == false &&
+                          isIntern == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            isPartTime = false;
+                            isFullTime = false;
+                            isContract = !isContract;
+                            isIntern = false;
+                          });
+                        }, isContract, "Contractual"),
+                      if (isPartTime == false &&
+                          isFullTime == false &&
+                          isContract == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            isPartTime = false;
+                            isFullTime = false;
+                            isContract = false;
+                            isIntern = !isIntern;
+                          });
+                        }, isIntern, "Internship"),
+                    ],
+                  ),
+                  Text(
+                    "Education",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Wrap(
+                    children: [
+                      if (graduate == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            undeGraduate = !undeGraduate;
+                            graduate = false;
+                          });
+                        }, undeGraduate, "Under-Graduate"),
+                      if (undeGraduate == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            graduate = !graduate;
+                            undeGraduate = false;
+                          });
+                        }, graduate, "Graduate"),
+                    ],
+                  ),
+                  newFormFiled(shorListController, context, "Skills Required",
+                      "Advance Excel", false, false, false),
+                  Text(
+                    "Job Responsibility",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  CheckboxListTile(
+                    title: const Text("Data"),
+                    value: true,
+                    onChanged: (value) {},
+                  ),
+
+                  TextField(
+                    // textInputAction: TextInputAction.newline,
+
+                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                    controller: responsibility,
+                    //  textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(
+                            top: 8, bottom: 8, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        // Icons.workspace_premium
+                        // label: const Text("Company Name *"),
+                        //border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Color(0xffff0eceb)),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 122, 113, 111)),
+                        ),
+                        hintText:
+                            "Any other responsibility that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                            color: Constants.subtitleclr, fontSize: 14.sp)
+                        //  prefixIcon: Icon(Icons.list)
+                        ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  newFormFiled(shorListController, context, "Language Required",
+                      "Tamil, Kannada, Punjabi", false, false, true),
+
+                  newFormFiled(shorListController, context, "Job Benefits",
+                      "PF", false, false, false),
+                  Text(
+                    "Salary",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 5.w,
+                        child: newFormFiled(shorListController, context, "",
+                            "Min-salary", true, false, false),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Text("-"),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 5.w,
+                        child: newFormFiled(shorListController, context, "",
+                            "Max-salary", true, false, false),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      /* Text(
+                        "Years",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w400),
+                      ), */
+                      SizedBox(
+                          child: Radio(
+                        // contentPadding: EdgeInsets.zero,
+                        // title: const Text('Monthly'),
+                        value: 'Monthly',
+                        groupValue: _selectedOption,
                         onChanged: (value) {
                           setState(() {
-                            isFresher = !isFresher;
+                            _selectedOption = value.toString();
                           });
                         },
-                      ),
-                      const Text("Fresher can also apply."),
+                      )),
+                      const Text("Monthly"),
+                      SizedBox(
+                          child: Radio(
+                        value: 'Yearly',
+                        groupValue: _selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedOption = value.toString();
+                          });
+                        },
+                      )),
+                      const Text("Yearly")
                     ],
-                  ), */
-                    ),
+                  ),
 
-                if (isFresher == false)
-                  Container(
-                    //  margin: const EdgeInsets.only(left: 15),
-                    child: expContainer
-                        ? Row(
-                            children: [
-                              customContainerSelect(() {
-                                setState(() {
-                                  expContainer = false;
-                                });
-                              }, expContainer,
-                                  "${minExp.text} - ${maxExp.text} Year"),
-                            ],
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width / 6.w,
-                                  child: /* newFormFiled(
-                              minExp, context, "", "Min-exp", true, true), */
-                                      Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 10),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(
-                                                height: 5,
-                                              ),
-                                              Container(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    26.h,
-                                                color: Colors.white,
-                                                child: TextFormField(
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      _showContainer1 =
-                                                          value.isEmpty;
-                                                    });
-                                                  },
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  controller: minExp,
-                                                  enabled: enableShortListFor,
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Please select any company';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  onTap: (() {
-                                                    /* showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Company Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            shorListController.text = model.label,
-                            selectedshort = model,
-                            Navigator.pop(context),
-                            if (userType == EUserType.businessPartner.value ||
-                                userType == EUserType.employee.value)
-                              {openCompanyJobsDetails()}
-                            else
-                              {
-                                if (selectedshort.value != model.value)
-                                  {bindProccessLevelList(model.value)},
-                                proccessList = [],
-                                levelList = [],
-                              },
-                            resetProcessLevel(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.2.w,
+                        child: newFormFiled(shorListController, context,
+                            "Shift Timing", "Day Shift", false, false, false),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.2.w,
+                        child: newFormFiled(shorListController, context,
+                            "Week Off", "Sunday", false, false, false),
+                      ),
+                    ],
+                  ),
+                  newFormFiled(shorListController, context, "Locality", "Thane",
+                      false, false, false),
+                  Row(
+                    children: [
+                      Text(
+                        "Boundry Limits",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+
+                  TextField(
+                    // textInputAction: TextInputAction.newline,
+
+                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                    controller: boundryLimits,
+                    //  textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(
+                            top: 8, bottom: 8, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsbond(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        // Icons.workspace_premium
+                        // label: const Text("Company Name *"),
+                        //border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Color(0xffff0eceb)),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 122, 113, 111)),
+                        ),
+                        hintText: "Dadar to Ambarnath",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                            color: Constants.subtitleclr, fontSize: 14.sp)
+                        //  prefixIcon: Icon(Icons.list)
+                        ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Eligibility",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+
+                  TextField(
+                    controller: Eligibility,
+                    //  textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(
+                            top: 8, bottom: 8, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsEligi(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Color(0xffff0eceb)),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 122, 113, 111)),
+                        ),
+                        hintText: "Banking sales experience ",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                            color: Constants.subtitleclr, fontSize: 14.sp)
+                        //  prefixIcon: Icon(Icons.list)
+                        ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    "Experience",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Visibility(
+                      visible: _showContainer1 && _showContainer2,
+                      child: customContainerSelect(() {
+                        setState(() {
+                          isFresher = !isFresher;
+                        });
+                      }, isFresher, "Fresher can also apply.")
+
+                      /* Row(
+                      children: [
+                        Checkbox(
+                          value: isFresher,
+                          onChanged: (value) {
+                            setState(() {
+                              isFresher = !isFresher;
+                            });
                           },
-                          itemsData: shortList,
-                        );
-                      }); */
-                                                  }),
-                                                  decoration: InputDecoration(
-                                                      contentPadding:
-                                                          const EdgeInsets.only(
-                                                              top: 8,
-                                                              bottom: 8,
-                                                              left: 10,
-                                                              right: 10),
-                                                      // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                      // Icons.workspace_premium
-                                                      // label: const Text("Company Name *"),
-                                                      //border: OutlineInputBorder(),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Color(
-                                                                    0xffff0eceb)),
-                                                      ),
-                                                      focusColor: const Color(
-                                                          0xffff0eceb),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        122,
-                                                                        113,
-                                                                        111)),
-                                                      ),
-                                                      hintText: "Min-exp",
-                                                      hintStyle: GoogleFonts
-                                                          .sourceSansPro(
-                                                              color: Constants
-                                                                  .subtitleclr,
-                                                              fontSize: 14.sp)
-                                                      //  prefixIcon: Icon(Icons.list)
-                                                      ),
+                        ),
+                        const Text("Fresher can also apply."),
+                      ],
+                    ), */
+                      ),
+
+                  if (isFresher == false)
+                    Container(
+                      //  margin: const EdgeInsets.only(left: 15),
+                      child: expContainer
+                          ? Row(
+                              children: [
+                                customContainerSelect(() {
+                                  setState(() {
+                                    expContainer = false;
+                                  });
+                                }, expContainer,
+                                    "${minExp.text} - ${maxExp.text} Year"),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 6.w,
+                                    child: /* newFormFiled(
+                                minExp, context, "", "Min-exp", true, true), */
+                                        Container(
+                                            margin: const EdgeInsets.only(
+                                                bottom: 10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 5,
                                                 ),
-                                              ),
-                                            ],
-                                          ))),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              const Text("-"),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width / 6.w,
-                                child: /* newFormFiled(
-                              maxExp, context, "", "Max-exp", true, true), */
-                                    SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                6.w,
-                                        child: /* newFormFiled(
-                              minExp, context, "", "Min-exp", true, true), */
-                                            Container(
-                                                margin: const EdgeInsets.only(
-                                                    bottom: 10),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    const SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    Container(
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height /
-                                                              26.h,
-                                                      color: Colors.white,
-                                                      child: TextField(
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            _showContainer2 =
-                                                                value.isEmpty;
-                                                          });
-                                                        },
-                                                        onSubmitted:
-                                                            (newValue) {
-                                                          maxExp.text.isNotEmpty
-                                                              ? setState(() {
-                                                                  expContainer =
-                                                                      newValue
-                                                                          .isNotEmpty;
-                                                                })
-                                                              : null;
-                                                        },
-                                                        onTapOutside: (event) {
-                                                          maxExp.text.isNotEmpty
-                                                              ? setState(() {
-                                                                  expContainer =
-                                                                      !expContainer;
-                                                                })
-                                                              : null;
-                                                        },
-                                                        onEditingComplete: () {
-                                                          maxExp.text.isNotEmpty
-                                                              ? setState(() {
-                                                                  expContainer =
-                                                                      !expContainer;
-                                                                })
-                                                              : null;
-                                                        },
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        controller: maxExp,
-                                                        enabled:
-                                                            enableShortListFor,
-                                                        /* validator: (value) {
-                                                          if (value == null ||
-                                                              value.isEmpty) {
-                                                            return 'Please select any company';
-                                                          }
-                                                          return null;
-                                                        }, */
-                                                        onTap: (() {
-                                                          /* showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Company Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            shorListController.text = model.label,
-                            selectedshort = model,
-                            Navigator.pop(context),
-                            if (userType == EUserType.businessPartner.value ||
-                                userType == EUserType.employee.value)
-                              {openCompanyJobsDetails()}
-                            else
-                              {
-                                if (selectedshort.value != model.value)
-                                  {bindProccessLevelList(model.value)},
-                                proccessList = [],
-                                levelList = [],
-                              },
-                            resetProcessLevel(),
-                          },
-                          itemsData: shortList,
-                        );
-                      }); */
-                                                        }),
-                                                        decoration:
-                                                            InputDecoration(
-                                                                contentPadding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 8,
-                                                                        bottom:
-                                                                            8,
-                                                                        left:
-                                                                            10,
-                                                                        right:
-                                                                            10),
-                                                                // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                                // Icons.workspace_premium
-                                                                // label: const Text("Company Name *"),
-                                                                //border: OutlineInputBorder(),
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10),
-                                                                  borderSide:
-                                                                      const BorderSide(
-                                                                          color:
-                                                                              Color(0xffff0eceb)),
-                                                                ),
-                                                                focusColor:
-                                                                    const Color(
-                                                                        0xffff0eceb),
-                                                                focusedBorder:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10),
-                                                                  borderSide: const BorderSide(
-                                                                      color: Color.fromARGB(
+                                                Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      26.h,
+                                                  color: Colors.white,
+                                                  child: TextFormField(
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        _showContainer1 =
+                                                            value.isEmpty;
+                                                      });
+                                                    },
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    controller: minExp,
+                                                    enabled: enableShortListFor,
+                                                    validator: (value) {
+                                                      if (value == null ||
+                                                          value.isEmpty) {
+                                                        return 'Please select any company';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onTap: (() {
+                                                      /* showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        }); */
+                                                    }),
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 8,
+                                                                bottom: 8,
+                                                                left: 10,
+                                                                right: 10),
+                                                        // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                        // Icons.workspace_premium
+                                                        // label: const Text("Company Name *"),
+                                                        //border: OutlineInputBorder(),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  color: Color(
+                                                                      0xffff0eceb)),
+                                                        ),
+                                                        focusColor: const Color(
+                                                            0xffff0eceb),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  color: Color
+                                                                      .fromARGB(
                                                                           255,
                                                                           122,
                                                                           113,
                                                                           111)),
-                                                                ),
-                                                                hintText:
-                                                                    "Max-exp",
-                                                                hintStyle: GoogleFonts
-                                                                    .sourceSansPro(
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                        fontSize:
-                                                                            14.sp)
-                                                                //  prefixIcon: Icon(Icons.list)
-                                                                ),
+                                                        ),
+                                                        hintText: "Min-exp",
+                                                        hintStyle: GoogleFonts
+                                                            .sourceSansPro(
+                                                                color: Constants
+                                                                    .subtitleclr,
+                                                                fontSize: 14.sp)
+                                                        //  prefixIcon: Icon(Icons.list)
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ))),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Text("-"),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 6.w,
+                                  child: /* newFormFiled(
+                                maxExp, context, "", "Max-exp", true, true), */
+                                      SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              6.w,
+                                          child: /* newFormFiled(
+                                minExp, context, "", "Min-exp", true, true), */
+                                              Container(
+                                                  margin: const EdgeInsets.only(
+                                                      bottom: 10),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const SizedBox(
+                                                        height: 5,
                                                       ),
+                                                      Container(
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height /
+                                                            26.h,
+                                                        color: Colors.white,
+                                                        child: TextField(
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              _showContainer2 =
+                                                                  value.isEmpty;
+                                                            });
+                                                          },
+                                                          onSubmitted:
+                                                              (newValue) {
+                                                            maxExp.text
+                                                                    .isNotEmpty
+                                                                ? setState(() {
+                                                                    expContainer =
+                                                                        newValue
+                                                                            .isNotEmpty;
+                                                                  })
+                                                                : null;
+                                                          },
+                                                          onTapOutside:
+                                                              (event) {
+                                                            maxExp.text
+                                                                    .isNotEmpty
+                                                                ? setState(() {
+                                                                    expContainer =
+                                                                        !expContainer;
+                                                                  })
+                                                                : null;
+                                                          },
+                                                          onEditingComplete:
+                                                              () {
+                                                            maxExp.text
+                                                                    .isNotEmpty
+                                                                ? setState(() {
+                                                                    expContainer =
+                                                                        !expContainer;
+                                                                  })
+                                                                : null;
+                                                          },
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          controller: maxExp,
+                                                          enabled:
+                                                              enableShortListFor,
+                                                          /* validator: (value) {
+                                                            if (value == null ||
+                                                                value.isEmpty) {
+                                                              return 'Please select any company';
+                                                            }
+                                                            return null;
+                                                          }, */
+                                                          onTap: (() {
+                                                            /* showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        }); */
+                                                          }),
+                                                          decoration:
+                                                              InputDecoration(
+                                                                  contentPadding:
+                                                                      const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              8,
+                                                                          bottom:
+                                                                              8,
+                                                                          left:
+                                                                              10,
+                                                                          right:
+                                                                              10),
+                                                                  // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                                  // Icons.workspace_premium
+                                                                  // label: const Text("Company Name *"),
+                                                                  //border: OutlineInputBorder(),
+                                                                  border:
+                                                                      OutlineInputBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10),
+                                                                    borderSide:
+                                                                        const BorderSide(
+                                                                            color:
+                                                                                Color(0xffff0eceb)),
+                                                                  ),
+                                                                  focusColor:
+                                                                      const Color(
+                                                                          0xffff0eceb),
+                                                                  focusedBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10),
+                                                                    borderSide: const BorderSide(
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            122,
+                                                                            113,
+                                                                            111)),
+                                                                  ),
+                                                                  hintText:
+                                                                      "Max-exp",
+                                                                  hintStyle: GoogleFonts.sourceSansPro(
+                                                                      color: Constants
+                                                                          .subtitleclr,
+                                                                      fontSize:
+                                                                          14.sp)
+                                                                  //  prefixIcon: Icon(Icons.list)
+                                                                  ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ))),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Years",
+                                  style: GoogleFonts.sourceSansPro(
+                                      fontSize: 14.sp,
+                                      // color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ],
+                            ),
+                    ),
+
+                  Row(
+                    children: [
+                      Text(
+                        "Gender",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                        ),
+                      )
+                    ],
+                  ),
+                  Wrap(
+                    children: [
+                      if (onlyFemale == false && femalePrefered == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            onlyMale = !onlyMale;
+                            onlyFemale = false;
+                            femalePrefered = false;
+                          });
+                        }, onlyMale, "Only Male"),
+                      if (onlyMale == false && femalePrefered == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            femalePrefered = false;
+                            onlyMale = false;
+                            onlyFemale = !onlyFemale;
+                          });
+                        }, onlyFemale, "Only Female"),
+                      if (onlyFemale == false && onlyMale == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            femalePrefered = !femalePrefered;
+                            onlyMale = false;
+                            onlyFemale = false;
+                          });
+                        }, femalePrefered, "Female Prefered")
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Age Group",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                        ),
+                      )
+                    ],
+                  ),
+                  agegroupContainer
+                      ? Row(
+                          children: [
+                            customContainerSelect(() {
+                              setState(() {
+                                agegroupContainer = false;
+                              });
+                            }, agegroupContainer,
+                                "${minAge.text} - ${maxAge.text} Year"),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            /*  SizedBox(
+                        width: MediaQuery.of(context).size.width / 6.w,
+                        child: newFormFiled(shorListController, context, "",
+                            "Min-age", true, false),
+                      ), */
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width / 6.w,
+                                child: /* newFormFiled(
+                                minExp, context, "", "Min-exp", true, true), */
+                                    Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  26.h,
+                                              color: Colors.white,
+                                              child: TextFormField(
+                                                onChanged: (value) {},
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                controller: minAge,
+                                                enabled: enableShortListFor,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Please select any company';
+                                                  }
+                                                  return null;
+                                                },
+                                                onTap: (() {
+                                                  /* showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        }); */
+                                                }),
+                                                decoration: InputDecoration(
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 8,
+                                                            left: 10,
+                                                            right: 10),
+                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                    // Icons.workspace_premium
+                                                    // label: const Text("Company Name *"),
+                                                    //border: OutlineInputBorder(),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color(
+                                                                  0xffff0eceb)),
                                                     ),
-                                                  ],
-                                                ))),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                "Years",
-                                style: GoogleFonts.sourceSansPro(
-                                    fontSize: 14.sp,
-                                    // color: Colors.grey.shade500,
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            ],
-                          ),
+                                                    focusColor: const Color(
+                                                        0xffff0eceb),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      122,
+                                                                      113,
+                                                                      111)),
+                                                    ),
+                                                    hintText: "Min-age",
+                                                    hintStyle: GoogleFonts
+                                                        .sourceSansPro(
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                            fontSize: 14.sp)
+                                                    //  prefixIcon: Icon(Icons.list)
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ))),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            const Text("-"),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            /* SizedBox(
+                        width: MediaQuery.of(context).size.width / 6.w,
+                        child: newFormFiled(shorListController, context, "",
+                            "Max-age", true, false),
+                      ), */
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width / 6.w,
+                                child: /* newFormFiled(
+                                minExp, context, "", "Min-exp", true, true), */
+                                    Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  26.h,
+                                              color: Colors.white,
+                                              child: TextField(
+                                                onSubmitted: (newValue) {
+                                                  maxAge.text.isNotEmpty
+                                                      ? setState(() {
+                                                          agegroupContainer =
+                                                              newValue
+                                                                  .isNotEmpty;
+                                                        })
+                                                      : null;
+                                                },
+                                                onTapOutside: (event) {
+                                                  maxAge.text.isNotEmpty
+                                                      ? setState(() {
+                                                          agegroupContainer =
+                                                              !agegroupContainer;
+                                                        })
+                                                      : null;
+                                                },
+                                                onEditingComplete: () {
+                                                  maxAge.text.isNotEmpty
+                                                      ? setState(() {
+                                                          agegroupContainer =
+                                                              !agegroupContainer;
+                                                        })
+                                                      : null;
+                                                },
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                controller: maxAge,
+                                                enabled: enableShortListFor,
+                                                /*  validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please select any company';
+                                            }
+                                            return null;
+                                          }, */
+                                                onTap: (() {
+                                                  /* showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        }); */
+                                                }),
+                                                decoration: InputDecoration(
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 8,
+                                                            left: 10,
+                                                            right: 10),
+                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                    // Icons.workspace_premium
+                                                    // label: const Text("Company Name *"),
+                                                    //border: OutlineInputBorder(),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color(
+                                                                  0xffff0eceb)),
+                                                    ),
+                                                    focusColor: const Color(
+                                                        0xffff0eceb),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      122,
+                                                                      113,
+                                                                      111)),
+                                                    ),
+                                                    hintText: "Max-age",
+                                                    hintStyle: GoogleFonts
+                                                        .sourceSansPro(
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                            fontSize: 14.sp)
+                                                    //  prefixIcon: Icon(Icons.list)
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ))),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Years",
+                              style: GoogleFonts.sourceSansPro(
+                                  fontSize: 14.sp,
+                                  // color: Colors.grey.shade500,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ],
+                        ),
+                  Text(
+                    "Communication Rating",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 14.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Wrap(
+                    children: [
+                      if (veryGood == false && decent == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            excelent = !excelent;
+                            veryGood = false;
+                            decent = false;
+                          });
+                        }, excelent, "Excelent | Versent"),
+                      if (excelent == false && decent == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            excelent = false;
+                            veryGood = !veryGood;
+                            decent = false;
+                          });
+                        }, veryGood, "Very Good | Non Versent"),
+                      if (excelent == false && veryGood == false)
+                        customContainerSelect(() {
+                          setState(() {
+                            excelent = false;
+                            veryGood = false;
+                            decent = !decent;
+                          });
+                        }, decent, "Average | Decent"),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "More Details",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 14.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                          fontSize: 14.sp,
+                          // color: Colors.grey.shade500,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  /*  TextField(
+                    controller: moreDetail,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter text (Press Enter for bullet point)',
+                    ),
+                    textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    onSubmitted: _handleTextSubmitted,
+                  ), */
+
+                  TextField(
+                    // textInputAction: TextInputAction.newline,
+
+                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                    controller: moreDetail,
+                    //  textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(
+                            top: 8, bottom: 8, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgets(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        // Icons.workspace_premium
+                        // label: const Text("Company Name *"),
+                        //border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: Color(0xffff0eceb)),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 122, 113, 111)),
+                        ),
+                        hintText: "Optional...",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                            color: Constants.subtitleclr, fontSize: 14.sp)
+                        //  prefixIcon: Icon(Icons.list)
+                        ),
+                  ),
+                  const SizedBox(
+                    height: 5,
                   ),
 
-                Row(
-                  children: [
-                    Text(
-                      "Gender",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "  (Optional)",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
-                        // color: Colors.grey.shade500,
-                      ),
-                    )
-                  ],
-                ),
-                Wrap(
-                  children: [
-                    if (onlyFemale == false && femalePrefered == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          onlyMale = !onlyMale;
-                          onlyFemale = false;
-                          femalePrefered = false;
-                        });
-                      }, onlyMale, "Only Male"),
-                    if (onlyMale == false && femalePrefered == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          femalePrefered = false;
-                          onlyMale = false;
-                          onlyFemale = !onlyFemale;
-                        });
-                      }, onlyFemale, "Only Female"),
-                    if (onlyFemale == false && onlyMale == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          femalePrefered = !femalePrefered;
-                          onlyMale = false;
-                          onlyFemale = false;
-                        });
-                      }, femalePrefered, "Female Prefered")
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Age Group",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "  (Optional)",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
-                        // color: Colors.grey.shade500,
-                      ),
-                    )
-                  ],
-                ),
-                agegroupContainer
-                    ? Row(
-                        children: [
-                          customContainerSelect(() {
-                            setState(() {
-                              agegroupContainer = false;
-                            });
-                          }, agegroupContainer,
-                              "${minAge.text} - ${maxAge.text} Year"),
-                        ],
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          /*  SizedBox(
-                      width: MediaQuery.of(context).size.width / 6.w,
-                      child: newFormFiled(shorListController, context, "",
-                          "Min-age", true, false),
-                    ), */
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 6.w,
-                              child: /* newFormFiled(
-                              minExp, context, "", "Min-exp", true, true), */
-                                  Container(
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          Container(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                26.h,
-                                            color: Colors.white,
-                                            child: TextFormField(
-                                              onChanged: (value) {},
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: minAge,
-                                              enabled: enableShortListFor,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please select any company';
-                                                }
-                                                return null;
-                                              },
-                                              onTap: (() {
-                                                /* showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Company Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            shorListController.text = model.label,
-                            selectedshort = model,
-                            Navigator.pop(context),
-                            if (userType == EUserType.businessPartner.value ||
-                                userType == EUserType.employee.value)
-                              {openCompanyJobsDetails()}
-                            else
-                              {
-                                if (selectedshort.value != model.value)
-                                  {bindProccessLevelList(model.value)},
-                                proccessList = [],
-                                levelList = [],
+                  /*  newFormFiled(shorListController, context, "More Details",
+                      "Optional", false, false), */
+                  newFormFiled(shorListController, context, "Interview Rounds",
+                      "Graduate", false, false, false)
+
+                  /* TextFormField(                                           //show dialogue for process//
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select any process';
+                      }
+                      return null;
+                    },
+                    controller: processController,
+                    enabled: enableProcess,
+                    onTap: (() {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogList(
+                              tile: null,
+                              dialogTitle: "Process",
+                              onSelected: (AutoCompleteModel model) => {
+                                processController.text = model.label,
+                                selectedProcess = model,
+                                Navigator.pop(context)
                               },
-                            resetProcessLevel(),
-                          },
-                          itemsData: shortList,
-                        );
-                      }); */
-                                              }),
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 8,
-                                                          left: 10,
-                                                          right: 10),
-                                                  // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                  // Icons.workspace_premium
-                                                  // label: const Text("Company Name *"),
-                                                  //border: OutlineInputBorder(),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: Color(
-                                                                0xffff0eceb)),
-                                                  ),
-                                                  focusColor:
-                                                      const Color(0xffff0eceb),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    122,
-                                                                    113,
-                                                                    111)),
-                                                  ),
-                                                  hintText: "Min-age",
-                                                  hintStyle:
-                                                      GoogleFonts.sourceSansPro(
-                                                          color: Constants
-                                                              .subtitleclr,
-                                                          fontSize: 14.sp)
-                                                  //  prefixIcon: Icon(Icons.list)
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ))),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const Text("-"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          /* SizedBox(
-                      width: MediaQuery.of(context).size.width / 6.w,
-                      child: newFormFiled(shorListController, context, "",
-                          "Max-age", true, false),
-                    ), */
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 6.w,
-                              child: /* newFormFiled(
-                              minExp, context, "", "Min-exp", true, true), */
-                                  Container(
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          Container(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                26.h,
-                                            color: Colors.white,
-                                            child: TextField(
-                                              onSubmitted: (newValue) {
-                                                maxAge.text.isNotEmpty
-                                                    ? setState(() {
-                                                        agegroupContainer =
-                                                            newValue.isNotEmpty;
-                                                      })
-                                                    : null;
-                                              },
-                                              onTapOutside: (event) {
-                                                maxAge.text.isNotEmpty
-                                                    ? setState(() {
-                                                        agegroupContainer =
-                                                            !agegroupContainer;
-                                                      })
-                                                    : null;
-                                              },
-                                              onEditingComplete: () {
-                                                maxAge.text.isNotEmpty
-                                                    ? setState(() {
-                                                        agegroupContainer =
-                                                            !agegroupContainer;
-                                                      })
-                                                    : null;
-                                              },
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              controller: maxAge,
-                                              enabled: enableShortListFor,
-                                              /*  validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please select any company';
-                                          }
-                                          return null;
-                                        }, */
-                                              onTap: (() {
-                                                /* showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogList(
-                          dialogTitle: "Company Details",
-                          onSelected: (AutoCompleteModel model) => {
-                            shorListController.text = model.label,
-                            selectedshort = model,
-                            Navigator.pop(context),
-                            if (userType == EUserType.businessPartner.value ||
-                                userType == EUserType.employee.value)
-                              {openCompanyJobsDetails()}
-                            else
-                              {
-                                if (selectedshort.value != model.value)
-                                  {bindProccessLevelList(model.value)},
-                                proccessList = [],
-                                levelList = [],
-                              },
-                            resetProcessLevel(),
-                          },
-                          itemsData: shortList,
-                        );
-                      }); */
-                                              }),
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 8,
-                                                          left: 10,
-                                                          right: 10),
-                                                  // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                  // Icons.workspace_premium
-                                                  // label: const Text("Company Name *"),
-                                                  //border: OutlineInputBorder(),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: Color(
-                                                                0xffff0eceb)),
-                                                  ),
-                                                  focusColor:
-                                                      const Color(0xffff0eceb),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    122,
-                                                                    113,
-                                                                    111)),
-                                                  ),
-                                                  hintText: "Max-age",
-                                                  hintStyle:
-                                                      GoogleFonts.sourceSansPro(
-                                                          color: Constants
-                                                              .subtitleclr,
-                                                          fontSize: 14.sp)
-                                                  //  prefixIcon: Icon(Icons.list)
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ))),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            "Years",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 14.sp,
-                                // color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w400),
-                          ),
-                        ],
-                      ),
+                              itemsData: proccessList,
+                            );
+                          });
+                    }),
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down),
+                        // Icons.workspace_premium
+                        label: Text("Process *"),
+                        //border: OutlineInputBorder(),
+                        border: InputBorder.none,
+                        hintText: "Select proccess",
+                        prefixIcon: Icon(Icons.circle_outlined)),
+                  ), */
+                  //  suggestTextfield("Company", 1, _typeAheadController, shortList),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget customSuggestionField(BuildContext context) {
+    List? suggestion;
+    return SizedBox(
+      child: isEdit
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  "Communication Rating",
+                  "Company Name",
                   style: GoogleFonts.sourceSansPro(
                       fontSize: 14.sp,
                       // color: Colors.grey.shade500,
                       fontWeight: FontWeight.w600),
                 ),
-                Wrap(
-                  children: [
-                    if (veryGood == false && decent == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          excelent = !excelent;
-                          veryGood = false;
-                          decent = false;
-                        });
-                      }, excelent, "Excelent | Versent"),
-                    if (excelent == false && decent == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          excelent = false;
-                          veryGood = !veryGood;
-                          decent = false;
-                        });
-                      }, veryGood, "Very Good | Non Versent"),
-                    if (excelent == false && veryGood == false)
-                      customContainerSelect(() {
-                        setState(() {
-                          excelent = false;
-                          veryGood = false;
-                          decent = !decent;
-                        });
-                      }, decent, "Average | Decent"),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "More Details",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
-                          // color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "  (Optional)",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
-                        // color: Colors.grey.shade500,
-                      ),
-                    )
-                  ],
+                customContainerSelect(() {
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_focusNode);
+                    // isFocus = true;
+                    isEdit = false;
+                    shorListController.clear();
+                    focusNode.requestFocus();
+                  });
+                }, true, shorListController.text),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Company Name",
+                  style: GoogleFonts.sourceSansPro(
+                      fontSize: 14.sp,
+                      // color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(
                   height: 5,
                 ),
-                /*  TextField(
-                  controller: moreDetail,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter text (Press Enter for bullet point)',
+                Container(
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height / 26.h,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    //  border: Border.all(color: Colors.grey),
                   ),
-                  textInputAction: TextInputAction.newline,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  onSubmitted: _handleTextSubmitted,
-                ), */
+                  child: TypeAheadFormField<dynamic>(
+                    suggestionsBoxDecoration: SuggestionsBoxDecoration(
 
-                TextField(
-                  // textInputAction: TextInputAction.newline,
+                        //shape: ShapeBorder.lerp(),
+                        borderRadius: BorderRadius.circular(15),
+                        elevation: 4.0),
+                    textFieldConfiguration: TextFieldConfiguration(
+                      onChanged: (value) {
+                        suggestion = null;
+                      },
+                      autofocus: true,
+                      focusNode: focusNode,
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: shorListController,
+                      decoration: InputDecoration(
+                          hintText: "Aditya Birla Health Insurance",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 14.sp),
+                          // labelText: 'Enter a suggestion',
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(255, 122, 113, 111)),
+                              borderRadius: BorderRadius.circular(10)),
+                          border: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Color(0xffff0eceb)),
+                              borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.only(left: 15)),
+                    ),
+                    suggestionsCallback: (pattern) async {
+                      if (pattern.isNotEmpty) {
+                        suggestion = (await getSuggestions(pattern));
+                        suggestion ??= [];
+                        return suggestion!;
+                      } else {
+                        return <
+                            dynamic>[]; // Return an empty list when the pattern is empty
+                      }
+                    },
+                    itemBuilder: (context, suggestion) {
+                      final index = suggestions.indexOf(suggestion);
+                      final isOdd = index % 2 == 0;
 
-                  // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                  controller: moreDetail,
-                  //  textInputAction: TextInputAction.newline,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      prefix: Column(
-                        children: _getBulletPointWidgets(),
-                        mainAxisAlignment: MainAxisAlignment.start,
-                      ),
-                      // Icons.workspace_premium
-                      // label: const Text("Company Name *"),
-                      //border: OutlineInputBorder(),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xffff0eceb)),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 122, 113, 111)),
-                      ),
-                      hintText: "Optional...",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.subtitleclr, fontSize: 14.sp)
-                      //  prefixIcon: Icon(Icons.list)
-                      ),
+                      final backgroundColor =
+                          isOdd ? Colors.grey.shade200 : Colors.white;
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(15),
+                          // border: Border.all(color: Colors.grey),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            suggestion.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    },
+                    onSuggestionSelected: (suggestion) {
+                      setState(() {
+                        shorListController.text = suggestion.toString();
+                        firstText = shorListController.text;
+
+                        isEdit = true;
+                      });
+                    },
+                    noItemsFoundBuilder: (value) {
+                      String message;
+                      if (suggestion != null && suggestion!.isEmpty) {
+                        message = 'No items found';
+                      } else {
+                        message = 'searching';
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          message,
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                const SizedBox(
-                  height: 5,
-                ),
-
-                /*  newFormFiled(shorListController, context, "More Details",
-                    "Optional", false, false), */
-                newFormFiled(shorListController, context, "Interview Rounds",
-                    "Graduate", false, false, false)
-
-                /* TextFormField(                                           //show dialogue for process//
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select any process';
-                    }
-                    return null;
-                  },
-                  controller: processController,
-                  enabled: enableProcess,
-                  onTap: (() {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return DialogList(
-                            tile: null,
-                            dialogTitle: "Process",
-                            onSelected: (AutoCompleteModel model) => {
-                              processController.text = model.label,
-                              selectedProcess = model,
-                              Navigator.pop(context)
-                            },
-                            itemsData: proccessList,
-                          );
-                        });
-                  }),
-                  decoration: const InputDecoration(
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      // Icons.workspace_premium
-                      label: Text("Process *"),
-                      //border: OutlineInputBorder(),
-                      border: InputBorder.none,
-                      hintText: "Select proccess",
-                      prefixIcon: Icon(Icons.circle_outlined)),
-                ), */
-                //  suggestTextfield("Company", 1, _typeAheadController, shortList),
               ],
             ),
-          ),
-        ),
-      ),
+    );
+  }
+
+  Widget customSuggestionFieldJobTitle(BuildContext context) {
+    return SizedBox(
+      child: isJobTitle
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Job Title",
+                  style: GoogleFonts.sourceSansPro(
+                      fontSize: 14.sp,
+                      // color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w600),
+                ),
+                customContainerSelect(() {
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_focusNode);
+                    //isFocus = true;
+                    isJobTitle = false;
+                    role.clear();
+                  });
+                }, true, role.text),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Job Title",
+                  style: GoogleFonts.sourceSansPro(
+                      fontSize: 14.sp,
+                      // color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Container(
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height / 26.h,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: TypeAheadFormField<dynamic>(
+                    suggestionsBoxDecoration: SuggestionsBoxDecoration(
+
+                        //shape: ShapeBorder.lerp(),
+                        borderRadius: BorderRadius.circular(15),
+                        elevation: 4.0),
+                    textFieldConfiguration: TextFieldConfiguration(
+                      //autofocus: isFocus,
+                      // focusNode: _focusNode,
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: role,
+                      decoration: InputDecoration(
+                          hintText: "Sr.Executive",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 14.sp),
+                          // labelText: 'Enter a suggestion',
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(255, 122, 113, 111)),
+                              borderRadius: BorderRadius.circular(10)),
+                          border: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Color(0xffff0eceb)),
+                              borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.only(left: 15)),
+                    ),
+                    suggestionsCallback: (pattern) async {
+                      if (pattern.isNotEmpty) {
+                        // await Future.delayed(const Duration(seconds: 1));
+                        return await getJobTitle(pattern);
+                      } else {
+                        return <
+                            dynamic>[]; // Return an empty list when the pattern is empty
+                      }
+                    },
+                    itemBuilder: (context, suggestion) {
+                      final index = jobTitleSuggestion.indexOf(suggestion);
+                      final isOdd = index % 2 == 0;
+                      final backgroundColor =
+                          isOdd ? Colors.grey.shade200 : Colors.white;
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        //color: backgroundColor,
+                        child: ListTile(
+                          title: Text(
+                            suggestion.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    },
+                    onSuggestionSelected: (suggestion) {
+                      setState(() {
+                        role.text = suggestion.toString();
+                        isJobTitle = true;
+                      });
+                    },
+                    // debounceDuration: const Duration(seconds: 2),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
