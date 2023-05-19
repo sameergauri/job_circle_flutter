@@ -9,34 +9,36 @@ import 'package:http/http.dart' as http;
 import '../themes/colors.dart';
 
 class CustomJobFormTextField extends StatefulWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   //final bool isEdit;
   // final FocusNode focusNode;
   final String hintText;
+  // List<String>? selectedValuesList = [];
+  final bool isCompany;
   BuildContext contextIn;
   final String title;
   final Function(String) getSuggestions;
   final String? firstText;
   final Function(bool) onChanged;
+  final String name;
   // final Function(FocusNode) onFocusNodeRequested;
 
-   CustomJobFormTextField({
+  CustomJobFormTextField({
     Key? key,
-    required this.controller,
+    this.controller,
     // required this.isEdit,
     // required this.focusNode,
+    // this.selectedValuesList,
     required this.contextIn,
+    required this.isCompany,
     required this.title,
     required this.hintText,
+    required this.name,
     required this.getSuggestions,
     required this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
   }) : super(key: key);
-
-  void initState() {
-    FocusScope.of(contextIn).nextFocus();
-  }
 
   @override
   _CustomJobFormTextFieldState createState() => _CustomJobFormTextFieldState();
@@ -45,6 +47,18 @@ class CustomJobFormTextField extends StatefulWidget {
 class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   List<dynamic>? suggestion;
   bool isEdit = false;
+  List<dynamic> suggestions = [];
+  FocusNode focusNode = FocusNode();
+// Example usage of the handleFocusNodeChange method
+  late TextEditingController? controller = widget.controller;
+  // late bool isEdit = widget.isEdit;
+  // final FocusNode focusNode = widget.focusNode;
+  late String hintText = widget.hintText;
+  late String title = widget.title;
+
+  late String? firstText = widget.firstText;
+
+  //List<String> selectedValuesList = [];
 
   void handleBoolChange(bool newValue) {
     setState(() {
@@ -60,7 +74,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
           focusNode.requestFocus();
 
           setState(() {
-            controller.clear();
+            controller!.clear();
             handleBoolChange(false);
             // widget.focusNode.requestFocus;
             // handleFocusNodeRequest();
@@ -71,7 +85,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
         },
         child: Container(
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(right: 5, bottom: 10, top: 10),
+            margin: const EdgeInsets.only(right: 5, bottom: 15, top: 15),
             decoration: BoxDecoration(
                 //310D44   color code for dark purple
                 //3D3635   color code for greybrown
@@ -82,17 +96,17 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         color: isSelect
                             ? Colors.deepOrange.shade400
                             : Colors.grey),
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                borderRadius: BorderRadius.circular(18)),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(controller.text,
+                      Text(controller!.text,
                           style: GoogleFonts.sourceSansPro(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              fontSize: 14.sp)),
+                              fontSize: 15.sp)),
                       const SizedBox(
                         width: 5,
                       ),
@@ -102,12 +116,10 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       )
                     ],
                   )
-                : Text(widget.controller.text,
+                : Text(widget.controller!.text,
                     style: GoogleFonts.sourceSansPro(
-                        color: Constants.subtitleclr, fontSize: 14.sp))));
+                        color: Constants.subtitleclr, fontSize: 15.sp))));
   }
-
-  List<dynamic> suggestions = [];
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
@@ -127,6 +139,25 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
     }
   }
 
+  Future<List> getJobTitle(String pattern, String name) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      suggestions = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .where((name) =>
+              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+          .toList();
+      print(suggestions);
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
   /* void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       FocusScope.of(context).requestFocus(widget.focusNode);
@@ -139,16 +170,6 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
     widget.onFocusNodeRequested; // Pass the focusNode itself
   } */
 
-  FocusNode focusNode = FocusNode();
-// Example usage of the handleFocusNodeChange method
-  late TextEditingController controller = widget.controller;
-  // late bool isEdit = widget.isEdit;
-  // final FocusNode focusNode = widget.focusNode;
-  late String hintText = widget.hintText;
-  late String title = widget.title;
-
-  late String? firstText = widget.firstText;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -159,7 +180,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                 Text(
                   title,
                   style: GoogleFonts.sourceSansPro(
-                    fontSize: 14.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -173,7 +194,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                 Text(
                   title,
                   style: GoogleFonts.sourceSansPro(
-                    fontSize: 14.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -182,14 +203,14 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                 ),
                 Container(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 26.h,
-                  margin: const EdgeInsets.only(bottom: 10),
+                  height: MediaQuery.of(context).size.height / 18.h,
+                  margin: const EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: TypeAheadFormField<dynamic>(
                     suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(8),
                       elevation: 4.0,
                     ),
                     textFieldConfiguration: TextFieldConfiguration(
@@ -204,26 +225,28 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         hintText: hintText,
                         hintStyle: GoogleFonts.sourceSansPro(
                           color: Constants.subtitleclr,
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: const BorderSide(
                             color: Color.fromARGB(255, 122, 113, 111),
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         border: OutlineInputBorder(
                           borderSide: const BorderSide(
                             color: Color(0xffff0eceb),
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.only(left: 15),
                       ),
                     ),
                     suggestionsCallback: (pattern) async {
                       if (pattern.isNotEmpty) {
-                        suggestion = await getSuggestions(pattern) ?? [];
+                        suggestion = widget.isCompany
+                            ? await getSuggestions(pattern)
+                            : await getJobTitle(pattern, widget.name) ?? [];
                         return suggestion!;
                       } else {
                         return <dynamic>[];
@@ -250,8 +273,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     },
                     onSuggestionSelected: (suggestion) {
                       setState(() {
-                        controller.text = suggestion.toString();
-                        firstText = controller.text;
+                        controller!.text = suggestion.toString();
+                        firstText = controller!.text;
                         handleBoolChange(true);
                         FocusScope.of(context).nextFocus();
                       });

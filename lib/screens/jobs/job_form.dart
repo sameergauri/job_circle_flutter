@@ -35,6 +35,9 @@ class _JobFormState extends State<JobForm> {
   TextEditingController role = TextEditingController();
   TextEditingController proces = TextEditingController();
   TextEditingController natureOfWork = TextEditingController();
+  TextEditingController industry = TextEditingController();
+  TextEditingController skills = TextEditingController();
+  TextEditingController functionalArea = TextEditingController();
   TextEditingController jobDescription = TextEditingController();
   TextEditingController desiredSkills = TextEditingController();
   TextEditingController searchKeyWords = TextEditingController();
@@ -99,8 +102,8 @@ class _JobFormState extends State<JobForm> {
     super.dispose();
   }
 
-  bool _showContainer1 = false;
-  bool _showContainer2 = false;
+  bool _showContainer1 = true;
+  bool _showContainer2 = true;
 
   bool isPartTime = false,
       isFullTime = false,
@@ -264,7 +267,7 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> dropdownItems = []; // List to store the dropdown items
   String selectedValue = "";
 
-  void fetchData() async {
+  /* void fetchData() async {
     final response = await http.get(Uri.parse(
         "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/company/v1/all?pageNumber=1&pageSize=100"));
     if (response.statusCode == 200) {
@@ -278,7 +281,7 @@ class _JobFormState extends State<JobForm> {
     } else {
       print("somthing went wrong");
     }
-  }
+  } */
 
   @override
   void initState() {
@@ -291,7 +294,7 @@ class _JobFormState extends State<JobForm> {
     Eligibility.addListener(_handleTextChangeEligi);
     boundryLimits.addListener(_handleTextChangebond);
     responsibility.addListener(_handleTextChangerespo);
-    fetchData();
+    //  fetchData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (args != null && args["isnew"] != true) {
@@ -467,7 +470,14 @@ class _JobFormState extends State<JobForm> {
     return bulletPoints;
   }
 
-  bool isEdit = false;
+  bool isEdit1 = false;
+  bool isEdit2 = false;
+  bool isEdit3 = false;
+  bool isEdit4 = false;
+  bool isEdit5 = false;
+  bool isEdit6 = false;
+  bool isEdit7 = false;
+
   bool isJobTitle = false;
   List<dynamic> suggestions = [];
   List<dynamic> jobTitleSuggestion = [];
@@ -528,6 +538,8 @@ class _JobFormState extends State<JobForm> {
       myBoolValue = newValue;
     });
   }
+
+  List<String> selectedValuesList = [];
 
   /* void handleFocusNodeRequest() {
     setState(() {
@@ -603,8 +615,26 @@ class _JobFormState extends State<JobForm> {
             }
             setState(() {
               {
-                if (!isEdit) {
+                if (!isEdit1) {
+                  role.clear();
+                }
+                if (!isEdit3) {
+                  natureOfWork.clear();
+                }
+                if (!isEdit2) {
+                  proces.clear();
+                }
+                if (!isEdit4) {
                   shorListController.clear();
+                }
+                if (!isEdit5) {
+                  industry.clear();
+                }
+                if (!isEdit6) {
+                  functionalArea.clear();
+                }
+                if (!isEdit7) {
+                  skills.clear();
                 }
               }
             });
@@ -616,6 +646,8 @@ class _JobFormState extends State<JobForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomJobFormTextField(
+                    isCompany: true,
+                    name: "company",
                     /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
@@ -624,79 +656,105 @@ class _JobFormState extends State<JobForm> {
                     // isEdit: isEdit,
                     //  focusNode: focusNode,
                     onChanged: (p0) {
-                      isEdit = p0;
+                      isEdit4 = p0;
                     },
                     contextIn: context,
                     hintText: "Aditya birla Health Insurance",
                     getSuggestions: getSuggestions,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width / 2.2.w,
-                          child: customSuggestionFieldJobTitle(context)),
-                      /*  newFormFiled(shorListController, context,
-                              "Job Title", "Sr.Executive", false, false, false)), */
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width / 2.2.w,
-                          child: newFormFiled(
-                              shorListController,
-                              context,
-                              "Process",
-                              "Health Insurance",
-                              false,
-                              false,
-                              false)),
-                    ],
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "job_role",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Job title",
+                    controller: role,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit1 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Sr.Executive",
+                    getSuggestions: getJobTitle,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Nature of Work", "Sales", false, false, false),
-                      ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2.2.w,
-                            child: newFormFiled(
-                                shorListController,
-                                context,
-                                "Number of Openings",
-                                "e.g 1",
-                                false,
-                                false,
-                                true),
-                          ),
-                        ],
-                      ),
-                    ],
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "process",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Process",
+                    controller: proces,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit2 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Health Insurance",
+                    getSuggestions: getJobTitle,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Industry", "NBFC", false, false, false),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Functional Area", "Sales", false, false, false),
-                      ),
-                    ],
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "now",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Functional Area", // Nature of Work on update
+                    controller: natureOfWork,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit3 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Sales",
+                    getSuggestions: getJobTitle,
                   ),
+
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "industry",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Industry",
+                    controller: industry,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit5 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "NBFC",
+                    getSuggestions: getJobTitle,
+                  ),
+                  /*  CustomJobFormTextField(     //functional Area
+                    isCompany: false,
+                    name: "functional_area",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Functional Area",
+                    controller: functionalArea,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit6 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Sales",
+                   getSuggestions: getJobTitle,
+                  ), */
+                  newFormFiled(shorListController, context,
+                      "Number of Openings", "e.g 1", false, false, true),
+
                   Text(
                     "Emp Type",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -751,7 +809,7 @@ class _JobFormState extends State<JobForm> {
                   Text(
                     "Education",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -773,12 +831,30 @@ class _JobFormState extends State<JobForm> {
                         }, graduate, "Graduate"),
                     ],
                   ),
-                  newFormFiled(shorListController, context, "Skills Required",
-                      "Advance Excel", false, false, false),
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "skills",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Skills Required",
+                    controller: skills,
+                    // selectedValuesList: selectedValuesList,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit7 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Advance Excel",
+                    getSuggestions: getJobTitle,
+                  ),
+                  /* newFormFiled(shorListController, context, "Skills Required",
+                      "Advance Excel", false, false, false), */
                   Text(
                     "Job Responsibility",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -788,42 +864,45 @@ class _JobFormState extends State<JobForm> {
                     onChanged: (value) {},
                   ),
 
-                  TextField(
-                    // textInputAction: TextInputAction.newline,
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: TextField(
+                      // textInputAction: TextInputAction.newline,
 
-                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                    controller: responsibility,
-                    //  textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(
-                            top: 8, bottom: 8, left: 10, right: 10),
-                        prefix: Column(
-                          children: _getBulletPointWidgetsrespo(),
-                          mainAxisAlignment: MainAxisAlignment.start,
-                        ),
-                        // Icons.workspace_premium
-                        // label: const Text("Company Name *"),
-                        //border: OutlineInputBorder(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(color: Color(0xffff0eceb)),
-                        ),
-                        focusColor: const Color(0xffff0eceb),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 122, 113, 111)),
-                        ),
-                        hintText:
-                            "Any other responsibility that you want to add",
-                        hintStyle: GoogleFonts.sourceSansPro(
-                            color: Constants.subtitleclr, fontSize: 14.sp)
-                        //  prefixIcon: Icon(Icons.list)
-                        ),
+                      // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                      controller: responsibility,
+                      //  textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.only(
+                              top: 8, bottom: 8, left: 10, right: 10),
+                          prefix: Column(
+                            children: _getBulletPointWidgetsrespo(),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                          ),
+                          // Icons.workspace_premium
+                          // label: const Text("Company Name *"),
+                          //border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                const BorderSide(color: Color(0xffff0eceb)),
+                          ),
+                          focusColor: const Color(0xffff0eceb),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 122, 113, 111)),
+                          ),
+                          hintText:
+                              "Any other responsibility that you want to add",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 14.sp)
+                          //  prefixIcon: Icon(Icons.list)
+                          ),
+                    ),
                   ),
                   const SizedBox(
                     height: 5,
@@ -836,7 +915,7 @@ class _JobFormState extends State<JobForm> {
                   Text(
                     "Salary",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -921,14 +1000,14 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "Boundry Limits",
                         style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 18.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                           // color: Colors.grey.shade500,
                         ),
                       )
@@ -938,58 +1017,59 @@ class _JobFormState extends State<JobForm> {
                     height: 5,
                   ),
 
-                  TextField(
-                    // textInputAction: TextInputAction.newline,
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: TextField(
+                      // textInputAction: TextInputAction.newline,
 
-                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                    controller: boundryLimits,
-                    //  textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(
-                            top: 8, bottom: 8, left: 10, right: 10),
-                        prefix: Column(
-                          children: _getBulletPointWidgetsbond(),
-                          mainAxisAlignment: MainAxisAlignment.start,
-                        ),
-                        // Icons.workspace_premium
-                        // label: const Text("Company Name *"),
-                        //border: OutlineInputBorder(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(color: Color(0xffff0eceb)),
-                        ),
-                        focusColor: const Color(0xffff0eceb),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 122, 113, 111)),
-                        ),
-                        hintText: "Dadar to Ambarnath",
-                        hintStyle: GoogleFonts.sourceSansPro(
-                            color: Constants.subtitleclr, fontSize: 14.sp)
-                        //  prefixIcon: Icon(Icons.list)
-                        ),
+                      // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                      controller: boundryLimits,
+                      //  textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.only(
+                              top: 8, bottom: 8, left: 10, right: 10),
+                          prefix: Column(
+                            children: _getBulletPointWidgetsbond(),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                          ),
+                          // Icons.workspace_premium
+                          // label: const Text("Company Name *"),
+                          //border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xffff0eceb)),
+                          ),
+                          focusColor: const Color(0xffff0eceb),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 122, 113, 111)),
+                          ),
+                          hintText: "Dadar to Ambarnath",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 15.sp)
+                          //  prefixIcon: Icon(Icons.list)
+                          ),
+                    ),
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
+
                   Row(
                     children: [
                       Text(
                         "Eligibility",
                         style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 18.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                           // color: Colors.grey.shade500,
                         ),
                       )
@@ -1013,19 +1093,19 @@ class _JobFormState extends State<JobForm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide:
                               const BorderSide(color: Color(0xffff0eceb)),
                         ),
                         focusColor: const Color(0xffff0eceb),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(
                               color: Color.fromARGB(255, 122, 113, 111)),
                         ),
                         hintText: "Banking sales experience ",
                         hintStyle: GoogleFonts.sourceSansPro(
-                            color: Constants.subtitleclr, fontSize: 14.sp)
+                            color: Constants.subtitleclr, fontSize: 15.sp)
                         //  prefixIcon: Icon(Icons.list)
                         ),
                   ),
@@ -1035,7 +1115,7 @@ class _JobFormState extends State<JobForm> {
                   Text(
                     "Experience",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -1087,7 +1167,7 @@ class _JobFormState extends State<JobForm> {
                                 minExp, context, "", "Min-exp", true, true), */
                                         Container(
                                             margin: const EdgeInsets.only(
-                                                bottom: 10),
+                                                bottom: 15),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -1099,7 +1179,7 @@ class _JobFormState extends State<JobForm> {
                                                   height: MediaQuery.of(context)
                                                           .size
                                                           .height /
-                                                      26.h,
+                                                      22.h,
                                                   color: Colors.white,
                                                   child: TextFormField(
                                                     onChanged: (value) {
@@ -1161,7 +1241,7 @@ class _JobFormState extends State<JobForm> {
                                                             OutlineInputBorder(
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(10),
+                                                                  .circular(8),
                                                           borderSide:
                                                               const BorderSide(
                                                                   color: Color(
@@ -1188,7 +1268,7 @@ class _JobFormState extends State<JobForm> {
                                                             .sourceSansPro(
                                                                 color: Constants
                                                                     .subtitleclr,
-                                                                fontSize: 14.sp)
+                                                                fontSize: 15.sp)
                                                         //  prefixIcon: Icon(Icons.list)
                                                         ),
                                                   ),
@@ -1216,7 +1296,7 @@ class _JobFormState extends State<JobForm> {
                                 minExp, context, "", "Min-exp", true, true), */
                                               Container(
                                                   margin: const EdgeInsets.only(
-                                                      bottom: 10),
+                                                      bottom: 15),
                                                   child: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -1230,7 +1310,7 @@ class _JobFormState extends State<JobForm> {
                                                                     context)
                                                                 .size
                                                                 .height /
-                                                            26.h,
+                                                            22.h,
                                                         color: Colors.white,
                                                         child: TextField(
                                                           onChanged: (value) {
@@ -1329,8 +1409,8 @@ class _JobFormState extends State<JobForm> {
                                                                   border:
                                                                       OutlineInputBorder(
                                                                     borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
+                                                                        BorderRadius
+                                                                            .circular(8),
                                                                     borderSide:
                                                                         const BorderSide(
                                                                             color:
@@ -1342,8 +1422,8 @@ class _JobFormState extends State<JobForm> {
                                                                   focusedBorder:
                                                                       OutlineInputBorder(
                                                                     borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
+                                                                        BorderRadius
+                                                                            .circular(8),
                                                                     borderSide: const BorderSide(
                                                                         color: Color.fromARGB(
                                                                             255,
@@ -1357,7 +1437,7 @@ class _JobFormState extends State<JobForm> {
                                                                       color: Constants
                                                                           .subtitleclr,
                                                                       fontSize:
-                                                                          14.sp)
+                                                                          15.sp)
                                                                   //  prefixIcon: Icon(Icons.list)
                                                                   ),
                                                         ),
@@ -1371,7 +1451,7 @@ class _JobFormState extends State<JobForm> {
                                 Text(
                                   "Years",
                                   style: GoogleFonts.sourceSansPro(
-                                      fontSize: 14.sp,
+                                      fontSize: 16.sp,
                                       // color: Colors.grey.shade500,
                                       fontWeight: FontWeight.w400),
                                 ),
@@ -1384,14 +1464,14 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "Gender",
                         style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 18.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                           // color: Colors.grey.shade500,
                         ),
                       )
@@ -1430,14 +1510,14 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "Age Group",
                         style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 18.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                           // color: Colors.grey.shade500,
                         ),
                       )
@@ -1469,7 +1549,7 @@ class _JobFormState extends State<JobForm> {
                                 minExp, context, "", "Min-exp", true, true), */
                                     Container(
                                         margin:
-                                            const EdgeInsets.only(bottom: 10),
+                                            const EdgeInsets.only(bottom: 15),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -1481,7 +1561,7 @@ class _JobFormState extends State<JobForm> {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
-                                                  26.h,
+                                                  22.h,
                                               color: Colors.white,
                                               child: TextFormField(
                                                 onChanged: (value) {},
@@ -1526,7 +1606,7 @@ class _JobFormState extends State<JobForm> {
                                                     contentPadding:
                                                         const EdgeInsets.only(
                                                             top: 8,
-                                                            bottom: 8,
+                                                            bottom: 15,
                                                             left: 10,
                                                             right: 10),
                                                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
@@ -1536,7 +1616,7 @@ class _JobFormState extends State<JobForm> {
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              10),
+                                                              8),
                                                       borderSide:
                                                           const BorderSide(
                                                               color: Color(
@@ -1548,7 +1628,7 @@ class _JobFormState extends State<JobForm> {
                                                         OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              10),
+                                                              8),
                                                       borderSide:
                                                           const BorderSide(
                                                               color: Color
@@ -1563,7 +1643,7 @@ class _JobFormState extends State<JobForm> {
                                                         .sourceSansPro(
                                                             color: Constants
                                                                 .subtitleclr,
-                                                            fontSize: 14.sp)
+                                                            fontSize: 15.sp)
                                                     //  prefixIcon: Icon(Icons.list)
                                                     ),
                                               ),
@@ -1588,7 +1668,7 @@ class _JobFormState extends State<JobForm> {
                                 minExp, context, "", "Min-exp", true, true), */
                                     Container(
                                         margin:
-                                            const EdgeInsets.only(bottom: 10),
+                                            const EdgeInsets.only(bottom: 15),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -1600,7 +1680,7 @@ class _JobFormState extends State<JobForm> {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
-                                                  26.h,
+                                                  22.h,
                                               color: Colors.white,
                                               child: TextField(
                                                 onSubmitted: (newValue) {
@@ -1668,7 +1748,7 @@ class _JobFormState extends State<JobForm> {
                                                     contentPadding:
                                                         const EdgeInsets.only(
                                                             top: 8,
-                                                            bottom: 8,
+                                                            bottom: 15,
                                                             left: 10,
                                                             right: 10),
                                                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
@@ -1678,7 +1758,7 @@ class _JobFormState extends State<JobForm> {
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              10),
+                                                              8),
                                                       borderSide:
                                                           const BorderSide(
                                                               color: Color(
@@ -1690,7 +1770,7 @@ class _JobFormState extends State<JobForm> {
                                                         OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              10),
+                                                              8),
                                                       borderSide:
                                                           const BorderSide(
                                                               color: Color
@@ -1705,7 +1785,7 @@ class _JobFormState extends State<JobForm> {
                                                         .sourceSansPro(
                                                             color: Constants
                                                                 .subtitleclr,
-                                                            fontSize: 14.sp)
+                                                            fontSize: 15.sp)
                                                     //  prefixIcon: Icon(Icons.list)
                                                     ),
                                               ),
@@ -1718,7 +1798,7 @@ class _JobFormState extends State<JobForm> {
                             Text(
                               "Years",
                               style: GoogleFonts.sourceSansPro(
-                                  fontSize: 14.sp,
+                                  fontSize: 16.sp,
                                   // color: Colors.grey.shade500,
                                   fontWeight: FontWeight.w400),
                             ),
@@ -1727,7 +1807,7 @@ class _JobFormState extends State<JobForm> {
                   Text(
                     "Communication Rating",
                     style: GoogleFonts.sourceSansPro(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
@@ -1764,14 +1844,14 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "More Details",
                         style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 18.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 15.sp,
                           // color: Colors.grey.shade500,
                         ),
                       )
@@ -1791,41 +1871,44 @@ class _JobFormState extends State<JobForm> {
                     onSubmitted: _handleTextSubmitted,
                   ), */
 
-                  TextField(
-                    // textInputAction: TextInputAction.newline,
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: TextField(
+                      // textInputAction: TextInputAction.newline,
 
-                    // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                    controller: moreDetail,
-                    //  textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(
-                            top: 8, bottom: 8, left: 10, right: 10),
-                        prefix: Column(
-                          children: _getBulletPointWidgets(),
-                          mainAxisAlignment: MainAxisAlignment.start,
-                        ),
-                        // Icons.workspace_premium
-                        // label: const Text("Company Name *"),
-                        //border: OutlineInputBorder(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(color: Color(0xffff0eceb)),
-                        ),
-                        focusColor: const Color(0xffff0eceb),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 122, 113, 111)),
-                        ),
-                        hintText: "Optional...",
-                        hintStyle: GoogleFonts.sourceSansPro(
-                            color: Constants.subtitleclr, fontSize: 14.sp)
-                        //  prefixIcon: Icon(Icons.list)
-                        ),
+                      // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                      controller: moreDetail,
+                      //  textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.only(
+                              top: 8, bottom: 8, left: 10, right: 10),
+                          prefix: Column(
+                            children: _getBulletPointWidgets(),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                          ),
+                          // Icons.workspace_premium
+                          // label: const Text("Company Name *"),
+                          //border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xffff0eceb)),
+                          ),
+                          focusColor: const Color(0xffff0eceb),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 122, 113, 111)),
+                          ),
+                          hintText: "Optional...",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 15.sp)
+                          //  prefixIcon: Icon(Icons.list)
+                          ),
+                    ),
                   ),
                   const SizedBox(
                     height: 5,
@@ -1883,7 +1966,7 @@ class _JobFormState extends State<JobForm> {
   Widget customSuggestionField(BuildContext context) {
     List? suggestion;
     return SizedBox(
-      child: isEdit
+      child: isEdit1
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1898,7 +1981,7 @@ class _JobFormState extends State<JobForm> {
                   setState(() {
                     FocusScope.of(context).requestFocus(_focusNode);
                     // isFocus = true;
-                    isEdit = false;
+                    isEdit1 = false;
                     shorListController.clear();
                     focusNode.requestFocus();
                   });
@@ -1991,7 +2074,7 @@ class _JobFormState extends State<JobForm> {
                         shorListController.text = suggestion.toString();
                         firstText = shorListController.text;
 
-                        isEdit = true;
+                        isEdit1 = true;
                       });
                     },
                     noItemsFoundBuilder: (value) {
@@ -2148,7 +2231,7 @@ class _JobFormState extends State<JobForm> {
         onTap: onPressed,
         child: Container(
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(right: 5, bottom: 10, top: 10),
+            margin: const EdgeInsets.only(right: 5, bottom: 15, top: 10),
             decoration: BoxDecoration(
                 //310D44   color code for dark purple
                 //3D3635   color code for greybrown
@@ -2159,8 +2242,8 @@ class _JobFormState extends State<JobForm> {
                         color: isSelect
                             ? Colors.deepOrange.shade400
                             : Colors.grey),
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
@@ -2169,7 +2252,7 @@ class _JobFormState extends State<JobForm> {
                           style: GoogleFonts.sourceSansPro(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              fontSize: 14.sp)),
+                              fontSize: 15.sp)),
                       const SizedBox(
                         width: 5,
                       ),
@@ -2181,7 +2264,7 @@ class _JobFormState extends State<JobForm> {
                   )
                 : Text(title,
                     style: GoogleFonts.sourceSansPro(
-                        color: Constants.subtitleclr, fontSize: 14.sp))));
+                        color: Constants.subtitleclr, fontSize: 15.sp))));
   }
 
   Container newFormFiled(
@@ -2193,7 +2276,7 @@ class _JobFormState extends State<JobForm> {
       bool isVisible,
       bool sioptonal) {
     return Container(
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: const EdgeInsets.only(bottom: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2204,14 +2287,14 @@ class _JobFormState extends State<JobForm> {
                         Text(
                           title,
                           style: GoogleFonts.sourceSansPro(
-                              fontSize: 14.sp,
+                              fontSize: 18.sp,
                               // color: Colors.grey.shade500,
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
                           "  (Optional)",
                           style: GoogleFonts.sourceSansPro(
-                            fontSize: 14.sp,
+                            fontSize: 15.sp,
                             // color: Colors.grey.shade500,
                           ),
                         ),
@@ -2220,7 +2303,7 @@ class _JobFormState extends State<JobForm> {
                   : Text(
                       title,
                       style: GoogleFonts.sourceSansPro(
-                          fontSize: 14.sp,
+                          fontSize: 18.sp,
                           // color: Colors.grey.shade500,
                           fontWeight: FontWeight.w600),
                     ),
@@ -2228,7 +2311,7 @@ class _JobFormState extends State<JobForm> {
               height: 5,
             ),
             Container(
-              height: MediaQuery.of(context).size.height / 26.h,
+              height: MediaQuery.of(context).size.height / 18.h,
               color: Colors.white,
               child: TextFormField(
                 enableSuggestions: true,
@@ -2298,7 +2381,7 @@ class _JobFormState extends State<JobForm> {
                 }),
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.only(
-                        top: 8, bottom: 8, left: 10, right: 10),
+                        top: 8, bottom: 15, left: 10, right: 10),
                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
                     // Icons.workspace_premium
                     // label: const Text("Company Name *"),
@@ -2315,7 +2398,7 @@ class _JobFormState extends State<JobForm> {
                     ),
                     hintText: subTitle,
                     hintStyle: GoogleFonts.sourceSansPro(
-                        color: Constants.subtitleclr, fontSize: 14.sp)
+                        color: Constants.subtitleclr, fontSize: 15.sp)
                     //  prefixIcon: Icon(Icons.list)
                     ),
               ),
