@@ -19,6 +19,8 @@ LOCAL_IMAGE_NAME="jbcweb"
 IMAGE_TAG="latest" # first 7 characters of the current commit hash
 SSH_COMMAND=""
 
+echo "Taking a backup of the database"
+docker exec jobapi mysqldump -u admin -p Sa*12345 job_circle_dev > backup.sql
 
 
 echo ssh -i "/Users/admin/Desktop/jobcircle.cer" ubuntu@ec2-43-204-102-150.ap-south-1.compute.amazonaws.com "sudo docker pull ${IMAGE_NAME}:latest && sudo docker stop ${LOCAL_IMAGE_NAME} && sudo docker rm ${LOCAL_IMAGE_NAME} && sudo docker run -dit --name ${LOCAL_IMAGE_NAME} -p 9091:80 ${IMAGE_NAME}:latest && sudo docker system prune -af"

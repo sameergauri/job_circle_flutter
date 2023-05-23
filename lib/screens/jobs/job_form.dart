@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -14,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
+import 'package:job_circle/constants/customSelection.dart';
 import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
@@ -34,6 +36,7 @@ class _JobFormState extends State<JobForm> {
   TextEditingController company = TextEditingController();
   TextEditingController role = TextEditingController();
   TextEditingController proces = TextEditingController();
+  TextEditingController location = TextEditingController();
   TextEditingController natureOfWork = TextEditingController();
   TextEditingController industry = TextEditingController();
   TextEditingController skills = TextEditingController();
@@ -73,6 +76,8 @@ class _JobFormState extends State<JobForm> {
   TextEditingController maxAge = TextEditingController();
   TextEditingController moreDetail = TextEditingController();
   TextEditingController Eligibility = TextEditingController();
+  TextEditingController numberofopenings = TextEditingController();
+
   TextEditingController boundryLimits = TextEditingController();
   TextEditingController responsibility = TextEditingController();
   //TextEditingController shorListController = TextEditingController();
@@ -94,6 +99,7 @@ class _JobFormState extends State<JobForm> {
   int spoc = 0;
   var ddlValues;
   dynamic prevModel;
+  String? pId;
 
   @override
   void dispose() {
@@ -285,6 +291,21 @@ class _JobFormState extends State<JobForm> {
 
   @override
   void initState() {
+    getJobTitle("pattern", "language").then((_) {
+      isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
+      setState(() {});
+    });
+    getJobTitle1("pattern", "language").then((_) {
+      isJobBenefits = List<bool>.filled(jobTitleSuggestion1.length, false);
+      setState(() {});
+    });
+    getJobTitle4("pattern", "language").then((_) {
+      isInterview = List<bool>.filled(jobTitleSuggestion4.length, false);
+      setState(() {});
+    });
+    getJobTitle2("pattern", "language").then((_) {});
+    getJobTitle3("pattern", "language").then((_) {});
+
     // getJobTitle("Admin");
     SchedulerBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_focusNode);
@@ -477,11 +498,16 @@ class _JobFormState extends State<JobForm> {
   bool isEdit5 = false;
   bool isEdit6 = false;
   bool isEdit7 = false;
+  bool isEdit8 = false;
 
   bool isJobTitle = false;
   List<dynamic> suggestions = [];
   List<dynamic> jobTitleSuggestion = [];
+  List<dynamic> jobTitleSuggestion1 = [];
+  List<dynamic> jobTitleSuggestion3 = [];
+  List<dynamic> jobTitleSuggestion4 = [];
   bool isNotFound = false;
+  List<dynamic> jobTitleSuggestion2 = [];
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
@@ -501,17 +527,15 @@ class _JobFormState extends State<JobForm> {
     }
   }
 
-  Future<List> getJobTitle(String pattern) async {
+  Future<List> getJobTitle(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=job_role&pageNumber=1&pageSize=100'));
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       // Parse the response and return the filtered suggestions
       jobTitleSuggestion = data['resultData']['content']
           .map((e) => e['value'].toString())
-          .where((name) =>
-              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
           .toList();
       print(jobTitleSuggestion);
       return jobTitleSuggestion;
@@ -519,6 +543,75 @@ class _JobFormState extends State<JobForm> {
       throw Exception('Failed to retrieve suggestions');
     }
   }
+
+  Future<List> getJobTitle1(String pattern, String? name) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=job_benifits&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion1 = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(jobTitleSuggestion1);
+      return jobTitleSuggestion1;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List> getJobTitle2(String pattern, String? name) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=shifttime&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion2 = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(jobTitleSuggestion2);
+      return jobTitleSuggestion2;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List> getJobTitle3(String pattern, String? name) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion3 = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(jobTitleSuggestion3);
+      return jobTitleSuggestion3;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List> getJobTitle4(String pattern, String? name) async {
+    final response = await http.get(Uri.parse(
+        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion4 = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(jobTitleSuggestion4);
+      return jobTitleSuggestion4;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+  //shifttime
 
   final _focusNode = FocusNode();
 
@@ -532,6 +625,11 @@ class _JobFormState extends State<JobForm> {
   String firstText = '';
 
   bool myBoolValue = false;
+
+  bool l1 = false, l2 = false, l3 = false;
+  //List<bool> isSelected = [];
+
+  bool isNumberOfOpenings = false;
 
   void handleCustomWidgetChange(bool newValue) {
     setState(() {
@@ -547,8 +645,53 @@ class _JobFormState extends State<JobForm> {
     });
   } */
 
+  List<bool> isSelected = [];
+  List<bool> isJobBenefits = [];
+  List<bool> isInterview = [];
+  int selectedShiftTime = -1;
+  int selectedWeakOff = -1;
+
+  bool isOptionVisible = true;
+  bool isWeakOfVisible = true;
+
+  void selectShiftTime(int index) {
+    setState(() {
+      selectedShiftTime = index;
+      isOptionVisible = false;
+    });
+  }
+
+  void clearSelectedShiftTime() {
+    setState(() {
+      selectedShiftTime = -1;
+      isOptionVisible = true;
+    });
+  }
+
+  void selectWeakOff(int index) {
+    setState(() {
+      selectedWeakOff = index;
+      isWeakOfVisible = false;
+    });
+  }
+
+  void clearWeakOff() {
+    setState(() {
+      selectedWeakOff = -1;
+      isWeakOfVisible = true;
+    });
+  }
+
+  //isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    // isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
+    if (jobTitleSuggestion.isEmpty) {
+      // Display a loading indicator or alternative content while fetching data
+      return const Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: SizedBox(
@@ -633,9 +776,9 @@ class _JobFormState extends State<JobForm> {
                 if (!isEdit6) {
                   functionalArea.clear();
                 }
-                if (!isEdit7) {
+                /* if (!isEdit7) {
                   skills.clear();
-                }
+                } */
               }
             });
           },
@@ -662,75 +805,99 @@ class _JobFormState extends State<JobForm> {
                     hintText: "Aditya birla Health Insurance",
                     getSuggestions: getSuggestions,
                   ),
-                  CustomJobFormTextField(
-                    isCompany: false,
-                    name: "job_role",
-                    /* onFocusNodeRequested: (p0) {
-                      focusNode.requestFocus();
-                    }, */
-                    title: "Job title",
-                    controller: role,
-                    // isEdit: isEdit,
-                    //  focusNode: focusNode,
-                    onChanged: (p0) {
-                      isEdit1 = p0;
-                    },
-                    contextIn: context,
-                    hintText: "Sr.Executive",
-                    getSuggestions: getJobTitle,
-                  ),
-                  CustomJobFormTextField(
-                    isCompany: false,
-                    name: "process",
-                    /* onFocusNodeRequested: (p0) {
-                      focusNode.requestFocus();
-                    }, */
-                    title: "Process",
-                    controller: proces,
-                    // isEdit: isEdit,
-                    //  focusNode: focusNode,
-                    onChanged: (p0) {
-                      isEdit2 = p0;
-                    },
-                    contextIn: context,
-                    hintText: "Health Insurance",
-                    getSuggestions: getJobTitle,
-                  ),
-                  CustomJobFormTextField(
-                    isCompany: false,
-                    name: "now",
-                    /* onFocusNodeRequested: (p0) {
-                      focusNode.requestFocus();
-                    }, */
-                    title: "Functional Area", // Nature of Work on update
-                    controller: natureOfWork,
-                    // isEdit: isEdit,
-                    //  focusNode: focusNode,
-                    onChanged: (p0) {
-                      isEdit3 = p0;
-                    },
-                    contextIn: context,
-                    hintText: "Sales",
-                    getSuggestions: getJobTitle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: width / 2.2,
+                        child: CustomJobFormTextField(
+                          isCompany: false,
+                          name: "job_role",
+                          /* onFocusNodeRequested: (p0) {
+                            focusNode.requestFocus();
+                          }, */
+                          title: "Job title",
+                          controller: role,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit1 = p0;
+                          },
+                          contextIn: context,
+                          hintText: "Sr. Executive",
+                          //  getSuggestions: getJobTitle,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width / 2.2,
+                        child: CustomJobFormTextField(
+                          isCompany: false,
+                          name: "process",
+                          /* onFocusNodeRequested: (p0) {
+                        focusNode.requestFocus();
+                                          }, */
+                          title: "Process",
+                          controller: proces,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit2 = p0;
+                          },
+                          contextIn: context,
+                          hintText: "Health Insurance",
+                          //   getSuggestions: getJobTitle,
+                        ),
+                      ),
+                    ],
                   ),
 
-                  CustomJobFormTextField(
-                    isCompany: false,
-                    name: "industry",
-                    /* onFocusNodeRequested: (p0) {
-                      focusNode.requestFocus();
-                    }, */
-                    title: "Industry",
-                    controller: industry,
-                    // isEdit: isEdit,
-                    //  focusNode: focusNode,
-                    onChanged: (p0) {
-                      isEdit5 = p0;
-                    },
-                    contextIn: context,
-                    hintText: "NBFC",
-                    getSuggestions: getJobTitle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: width / 2.2,
+                        child: CustomJobFormTextField(
+                          isCompany: false,
+                          name: "now",
+                          /* onFocusNodeRequested: (p0) {
+                            focusNode.requestFocus();
+                          }, */
+                          title: "Functional Area", // Nature of Work on update
+                          controller: natureOfWork,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          pId: pId,
+                          onChanged: (p0) {
+                            isEdit3 = p0;
+                          },
+                          contextIn: context,
+                          hintText: "Sales",
+                          // getSuggestions: getJobTitle,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width / 2.2,
+                        child: CustomJobFormTextField(
+                          isCompany: false,
+                          name: "industry",
+                          /* onFocusNodeRequested: (p0) {
+                        focusNode.requestFocus();
+                                          }, */
+                          title: "Industry",
+                          controller: industry,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit5 = p0;
+                          },
+                          contextIn: context,
+                          hintText: "NBFC",
+                          // getSuggestions: getJobTitle,
+                        ),
+                      ),
+                    ],
                   ),
+
                   /*  CustomJobFormTextField(     //functional Area
                     isCompany: false,
                     name: "functional_area",
@@ -748,8 +915,113 @@ class _JobFormState extends State<JobForm> {
                     hintText: "Sales",
                    getSuggestions: getJobTitle,
                   ), */
-                  newFormFiled(shorListController, context,
-                      "Number of Openings", "e.g 1", false, false, true),
+                  /*  newFormFiled(shorListController, context,
+                      "Number of Openings", "e.g 1", true, false, true), */
+
+                  Text(
+                    "Number of Openings",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  isNumberOfOpenings
+                      ? customContainerSelect(() {
+                          setState(() {
+                            isNumberOfOpenings = false;
+                            FocusScope.of(context).autofocus(focusNode);
+                            numberofopenings.clear();
+                          });
+                        }, true, numberofopenings.text)
+                      : Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(bottom: 5.h),
+                                height:
+                                    MediaQuery.of(context).size.height / 25.h,
+                                color: Colors.white,
+                                child: TextFormField(
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.deny(
+                                        RegExp(r'[.]')), // Disallow dots
+                                  ],
+                                  maxLength: 3,
+                                  onFieldSubmitted: (value) {
+                                    numberofopenings.text.isNotEmpty
+                                        ? setState(() {
+                                            isNumberOfOpenings = true;
+                                            // _showContainer1 = value.isEmpty;
+                                          })
+                                        : null;
+                                  },
+                                  onChanged: (value) {
+                                    setState(() {});
+                                  },
+                                  onTapOutside: (event) {
+                                    numberofopenings.text.isNotEmpty
+                                        ? setState(() {
+                                            isNumberOfOpenings = true;
+                                            // _showContainer1 = value.isEmpty;
+                                          })
+                                        : null;
+                                  },
+                                  onEditingComplete: () {
+                                    numberofopenings.text.isNotEmpty
+                                        ? setState(() {
+                                            isNumberOfOpenings = true;
+                                            // _showContainer1 = value.isEmpty;
+                                          })
+                                        : null;
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  controller: numberofopenings,
+                                  enabled: enableShortListFor,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select any company';
+                                    }
+                                    return null;
+                                  },
+                                  onTap: (() {}),
+                                  decoration: InputDecoration(
+                                      counterText: '',
+                                      contentPadding: const EdgeInsets.only(
+                                          top: 8,
+                                          bottom: 8,
+                                          left: 10,
+                                          right: 10),
+                                      // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                      // Icons.workspace_premium
+                                      // label: const Text("Company Name *"),
+                                      //border: OutlineInputBorder(),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                            color: Color(0xffff0eceb)),
+                                      ),
+                                      focusColor: const Color(0xffff0eceb),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 122, 113, 111)),
+                                      ),
+                                      hintText: "e.g. 1",
+                                      hintStyle: GoogleFonts.sourceSansPro(
+                                          color: Constants.subtitleclr,
+                                          fontSize: 15.sp)
+                                      //  prefixIcon: Icon(Icons.list)
+                                      ),
+                                ),
+                              ),
+                            ],
+                          )),
 
                   Text(
                     "Emp Type",
@@ -781,7 +1053,7 @@ class _JobFormState extends State<JobForm> {
                             isContract = false;
                             isIntern = false;
                           });
-                        }, isFullTime, "full Time"),
+                        }, isFullTime, "Full Time"),
                       if (isPartTime == false &&
                           isFullTime == false &&
                           isIntern == false)
@@ -831,23 +1103,23 @@ class _JobFormState extends State<JobForm> {
                         }, graduate, "Graduate"),
                     ],
                   ),
-                  CustomJobFormTextField(
-                    isCompany: false,
+                  CustomFormTextFieldMultiSelect(
+                    // isCompany: false,
                     name: "skills",
                     /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
                     title: "Skills Required",
                     controller: skills,
-                    // selectedValuesList: selectedValuesList,
+                    selectedValuesList: selectedValuesList,
                     // isEdit: isEdit,
                     //  focusNode: focusNode,
-                    onChanged: (p0) {
+                    /*  onChanged: (p0) {
                       isEdit7 = p0;
-                    },
+                    }, */
                     contextIn: context,
                     hintText: "Advance Excel",
-                    getSuggestions: getJobTitle,
+                    // getSuggestions: getJobTitle,
                   ),
                   /* newFormFiled(shorListController, context, "Skills Required",
                       "Advance Excel", false, false, false), */
@@ -865,6 +1137,7 @@ class _JobFormState extends State<JobForm> {
                   ),
 
                   Container(
+                    height: height / 25,
                     margin: const EdgeInsets.only(bottom: 15),
                     child: TextField(
                       // textInputAction: TextInputAction.newline,
@@ -877,7 +1150,7 @@ class _JobFormState extends State<JobForm> {
                       maxLines: null,
                       decoration: InputDecoration(
                           contentPadding: const EdgeInsets.only(
-                              top: 8, bottom: 8, left: 10, right: 10),
+                              top: 5, left: 10, right: 10),
                           prefix: Column(
                             children: _getBulletPointWidgetsrespo(),
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -907,11 +1180,185 @@ class _JobFormState extends State<JobForm> {
                   const SizedBox(
                     height: 5,
                   ),
-                  newFormFiled(shorListController, context, "Language Required",
-                      "Tamil, Kannada, Punjabi", false, false, true),
+                  Text(
+                    "Language Required (Optional)",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          List.generate(jobTitleSuggestion.length, (index) {
+                        return JobTitleItem(
+                          ismulti: false,
+                          title: jobTitleSuggestion[index],
+                          isSelected: isSelected[index],
+                          onTap: () {
+                            setState(() {
+                              isSelected[index] = !isSelected[index];
+                            });
+                          },
+                          isVisible: true,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ),
+                  Text(
+                    "Job Benefits (Optional)",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          List.generate(jobTitleSuggestion1.length, (index) {
+                        return JobTitleItem(
+                          ismulti: false,
+                          title: jobTitleSuggestion1[index],
+                          isSelected: isJobBenefits[index],
+                          onTap: () {
+                            setState(() {
+                              isJobBenefits[index] = !isJobBenefits[index];
+                            });
+                          },
+                          isVisible: true,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ),
+                  /* Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(
+                          jobTitleSuggestion.length,
+                          (index) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isSelected[index] = !isSelected[index];
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: isSelected[index]
+                                    ? const Color(0xfff310d44)
+                                    : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    jobTitleSuggestion[index],
+                                    style: TextStyle(
+                                        color: isSelected[index]
+                                            ? Colors.white
+                                            : null),
+                                  ),
+                                  SizedBox(
+                                    width: 5.w,
+                                  ),
+                                  Icon(
+                                    isSelected[index] ? Icons.check : Icons.add,
+                                    size: 15.h,
+                                    color:
+                                        isSelected[index] ? Colors.white : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )), */
 
-                  newFormFiled(shorListController, context, "Job Benefits",
-                      "PF", false, false, false),
+                  /*  newFormFiled(shorListController, context, "Language Required",
+                      "Tamil, Kannada, Punjabi", false, false, true), */
+
+                  /*  newFormFiled(shorListController, context, "Job Benefits",
+                      "PF", false, false, false), */
+
+                  Text(
+                    "Shift Time",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 8 : 0,
+                      runSpacing: 8,
+                      children:
+                          List.generate(jobTitleSuggestion2.length, (index) {
+                        return JobTitleItem(
+                          ismulti: true,
+                          title: jobTitleSuggestion2[index],
+                          isSelected: selectedShiftTime == index,
+                          onTap: () {
+                            setState(() {
+                              if (selectedShiftTime == index) {
+                                clearSelectedShiftTime();
+                              } else {
+                                selectShiftTime(index);
+                              }
+                            });
+                          },
+                          isVisible:
+                              isOptionVisible || selectedShiftTime == index,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ),
+                  Text(
+                    "Weak Off",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Wrap(
+                      spacing: isWeakOfVisible ? 8 : 0,
+                      runSpacing: 8,
+                      children:
+                          List.generate(jobTitleSuggestion3.length, (index) {
+                        return JobTitleItem(
+                          ismulti: true,
+                          title: jobTitleSuggestion3[index],
+                          isSelected: selectedWeakOff == index,
+                          onTap: () {
+                            setState(() {
+                              if (selectedWeakOff == index) {
+                                clearWeakOff();
+                              } else {
+                                selectWeakOff(index);
+                              }
+                            });
+                          },
+                          isVisible:
+                              isWeakOfVisible || selectedWeakOff == index,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ),
                   Text(
                     "Salary",
                     style: GoogleFonts.sourceSansPro(
@@ -976,25 +1423,25 @@ class _JobFormState extends State<JobForm> {
                       const Text("Yearly")
                     ],
                   ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Shift Timing", "Day Shift", false, false, false),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: newFormFiled(shorListController, context,
-                            "Week Off", "Sunday", false, false, false),
-                      ),
-                    ],
+                  CustomJobFormTextField(
+                    isCompany: false,
+                    name: "location",
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Work Location",
+                    controller: location,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      isEdit8 = p0;
+                    },
+                    contextIn: context,
+                    hintText: "Thane",
+                    //   getSuggestions: getJobTitle,
                   ),
-                  newFormFiled(shorListController, context, "Locality", "Thane",
-                      false, false, false),
+                  /* newFormFiled(shorListController, context, "Locality", "Thane",
+                      false, false, false), */
                   Row(
                     children: [
                       Text(
@@ -1916,8 +2363,37 @@ class _JobFormState extends State<JobForm> {
 
                   /*  newFormFiled(shorListController, context, "More Details",
                       "Optional", false, false), */
-                  newFormFiled(shorListController, context, "Interview Rounds",
-                      "Graduate", false, false, false)
+                  /*  newFormFiled(shorListController, context, "Interview Rounds",
+                      "Graduate", false, false, false) */
+                  Text(
+                    "Interview Rounds",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          List.generate(jobTitleSuggestion4.length, (index) {
+                        return JobTitleItem(
+                          ismulti: false,
+                          title: jobTitleSuggestion4[index],
+                          isSelected: isInterview[index],
+                          onTap: () {
+                            setState(() {
+                              isInterview[index] = !isInterview[index];
+                            });
+                          },
+                          isVisible: true,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ),
 
                   /* TextFormField(                                           //show dialogue for process//
                     validator: (value) {
@@ -2154,7 +2630,7 @@ class _JobFormState extends State<JobForm> {
                       textCapitalization: TextCapitalization.sentences,
                       controller: role,
                       decoration: InputDecoration(
-                          hintText: "Sr.Executive",
+                          hintText: "Sr. Executive",
                           hintStyle: GoogleFonts.sourceSansPro(
                               color: Constants.subtitleclr, fontSize: 14.sp),
                           // labelText: 'Enter a suggestion',
@@ -2171,7 +2647,7 @@ class _JobFormState extends State<JobForm> {
                     suggestionsCallback: (pattern) async {
                       if (pattern.isNotEmpty) {
                         // await Future.delayed(const Duration(seconds: 1));
-                        return await getJobTitle(pattern);
+                        return await getJobTitle(pattern, "job_role");
                       } else {
                         return <
                             dynamic>[]; // Return an empty list when the pattern is empty
@@ -2231,28 +2707,20 @@ class _JobFormState extends State<JobForm> {
         onTap: onPressed,
         child: Container(
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(right: 5, bottom: 15, top: 10),
+            margin: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                //310D44   color code for dark purple
-                //3D3635   color code for greybrown
-                color: isSelect ? const Color(0xfff310d44) : null,
-                border: isSelect
-                    ? null
-                    : Border.all(
-                        color: isSelect
-                            ? Colors.deepOrange.shade400
-                            : Colors.grey),
-                borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(title,
                           style: GoogleFonts.sourceSansPro(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15.sp)),
+                              color: Colors.white, fontSize: 15.sp)),
                       const SizedBox(
                         width: 5,
                       ),
@@ -2263,8 +2731,7 @@ class _JobFormState extends State<JobForm> {
                     ],
                   )
                 : Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.subtitleclr, fontSize: 15.sp))));
+                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
   Container newFormFiled(
