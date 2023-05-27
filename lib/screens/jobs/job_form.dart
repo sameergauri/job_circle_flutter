@@ -9,14 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
 import 'package:job_circle/constants/customSelection.dart';
 import 'package:job_circle/constants/customTextfield.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
@@ -37,6 +36,7 @@ class _JobFormState extends State<JobForm> {
   TextEditingController role = TextEditingController();
   TextEditingController proces = TextEditingController();
   TextEditingController location = TextEditingController();
+  TextEditingController city = TextEditingController();
   TextEditingController natureOfWork = TextEditingController();
   TextEditingController industry = TextEditingController();
   TextEditingController skills = TextEditingController();
@@ -291,6 +291,10 @@ class _JobFormState extends State<JobForm> {
 
   @override
   void initState() {
+    /* if (checkboxDataState.isEmpty) {
+      fetchData();
+    } */
+    fetchData();
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
       setState(() {});
@@ -315,7 +319,8 @@ class _JobFormState extends State<JobForm> {
     Eligibility.addListener(_handleTextChangeEligi);
     boundryLimits.addListener(_handleTextChangebond);
     responsibility.addListener(_handleTextChangerespo);
-    //  fetchData();
+    //
+    // ();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (args != null && args["isnew"] != true) {
@@ -499,6 +504,7 @@ class _JobFormState extends State<JobForm> {
   bool isEdit6 = false;
   bool isEdit7 = false;
   bool isEdit8 = false;
+  bool isEdit9 = false;
 
   bool isJobTitle = false;
   List<dynamic> suggestions = [];
@@ -508,10 +514,38 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> jobTitleSuggestion4 = [];
   bool isNotFound = false;
   List<dynamic> jobTitleSuggestion2 = [];
+  List<String> checkboxData = [];
+  List<dynamic> natureofWorkID = [];
+  List<String> checkboxDataState = [];
+
+  Future<List<String>> fetchData() async {
+    final response = await http.get(Uri.parse(
+        'http://192.168.2.102:9090/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=Telesales&parentId=36'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and extract the desired value from each map
+      final content = data['resultData'];
+      if (content is! List) {
+        print('Invalid data format');
+        return []; // or any other appropriate default value
+      } else {
+        checkboxData = content.map((map) => map['value'].toString()).toList();
+        setState(() {
+          checkboxDataState = checkboxData; // Update the state variable
+        });
+        print(checkboxData);
+        return checkboxData;
+      }
+    } else {
+      print('Failed to fetch data');
+      return []; // or any other appropriate default value
+    }
+  }
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/company/v1/all?pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -529,7 +563,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -546,7 +580,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle1(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=job_benifits&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=job_benifits&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -563,7 +597,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle2(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=shifttime&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shifttime&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -580,7 +614,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle3(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -597,7 +631,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle4(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -690,7 +724,9 @@ class _JobFormState extends State<JobForm> {
     // isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
     if (jobTitleSuggestion.isEmpty) {
       // Display a loading indicator or alternative content while fetching data
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+          //backgroundColor: Colors.transparent,
+          body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       backgroundColor: Colors.white,
@@ -869,6 +905,7 @@ class _JobFormState extends State<JobForm> {
                           pId: pId,
                           onChanged: (p0) {
                             isEdit3 = p0;
+                            // fetchData();
                           },
                           contextIn: context,
                           hintText: "Sales",
@@ -1130,12 +1167,20 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
-                  CheckboxListTile(
-                    title: const Text("Data"),
-                    value: true,
-                    onChanged: (value) {},
-                  ),
 
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: checkboxData.length,
+                      itemBuilder: (context, index) {
+                        return CheckboxListTile(
+                          title: Text(checkboxData[index]),
+                          value: checkboxData[index].isNotEmpty ? true : false,
+                          onChanged: (newValue) {
+                            // Handle checkbox state change
+                            // ...
+                          },
+                        );
+                      }),
                   Container(
                     height: height / 25,
                     margin: const EdgeInsets.only(bottom: 15),
@@ -1177,21 +1222,30 @@ class _JobFormState extends State<JobForm> {
                           ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    "Language Required (Optional)",
-                    style: GoogleFonts.sourceSansPro(
-                        fontSize: 18.sp,
-                        // color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w600),
+
+                  Row(
+                    children: [
+                      Text(
+                        "Language Required",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
+                      )
+                    ],
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 5,
+                      runSpacing: 5,
                       children:
                           List.generate(jobTitleSuggestion.length, (index) {
                         return JobTitleItem(
@@ -1209,18 +1263,29 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ),
-                  Text(
-                    "Job Benefits (Optional)",
-                    style: GoogleFonts.sourceSansPro(
-                        fontSize: 18.sp,
-                        // color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w600),
+                  Row(
+                    children: [
+                      Text(
+                        "Job Benefits",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
+                      )
+                    ],
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 5,
+                      runSpacing: 5,
                       children:
                           List.generate(jobTitleSuggestion1.length, (index) {
                         return JobTitleItem(
@@ -1299,10 +1364,10 @@ class _JobFormState extends State<JobForm> {
                         fontWeight: FontWeight.w600),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
-                      spacing: isOptionVisible ? 8 : 0,
-                      runSpacing: 8,
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
                       children:
                           List.generate(jobTitleSuggestion2.length, (index) {
                         return JobTitleItem(
@@ -1333,10 +1398,10 @@ class _JobFormState extends State<JobForm> {
                         fontWeight: FontWeight.w600),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
-                      spacing: isWeakOfVisible ? 8 : 0,
-                      runSpacing: 8,
+                      spacing: isWeakOfVisible ? 5 : 0,
+                      runSpacing: 5,
                       children:
                           List.generate(jobTitleSuggestion3.length, (index) {
                         return JobTitleItem(
@@ -1378,7 +1443,9 @@ class _JobFormState extends State<JobForm> {
                       const SizedBox(
                         width: 5,
                       ),
-                      const Text("-"),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height / 35.h,
+                          child: const Text("-")),
                       const SizedBox(
                         width: 5,
                       ),
@@ -1423,23 +1490,56 @@ class _JobFormState extends State<JobForm> {
                       const Text("Yearly")
                     ],
                   ),
-                  CustomJobFormTextField(
-                    isCompany: false,
-                    name: "location",
-                    /* onFocusNodeRequested: (p0) {
-                      focusNode.requestFocus();
-                    }, */
-                    title: "Work Location",
-                    controller: location,
-                    // isEdit: isEdit,
-                    //  focusNode: focusNode,
-                    onChanged: (p0) {
-                      isEdit8 = p0;
-                    },
-                    contextIn: context,
-                    hintText: "Thane",
-                    //   getSuggestions: getJobTitle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: width / 2.2,
+                        child: CustomJobFormTextField(
+                          isCompany: false,
+                          name: "location",
+                          /* onFocusNodeRequested: (p0) {
+                            focusNode.requestFocus();
+                          }, */
+                          title: "Work Location",
+                          controller: location,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit8 = p0;
+                          },
+                          contextIn: context,
+                          hintText: "Thane",
+                          //   getSuggestions: getJobTitle,
+                        ),
+                      ),
+                      if (location.text == "WFH" || location.text == 'Hybrid')
+                        SizedBox(
+                          width: location.text == "WFH" ||
+                                  location.text == "Hybrid"
+                              ? width / 2.2
+                              : double.maxFinite,
+                          child: CustomJobFormTextField(
+                            isCompany: false,
+                            name: "city",
+                            /* onFocusNodeRequested: (p0) {
+                            focusNode.requestFocus();
+                          }, */
+                            title: "City",
+                            controller: city,
+                            // isEdit: isEdit,
+                            //  focusNode: focusNode,
+                            onChanged: (p0) {
+                              isEdit9 = p0;
+                            },
+                            contextIn: context,
+                            hintText: "Thane",
+                            //   getSuggestions: getJobTitle,
+                          ),
+                        ),
+                    ],
                   ),
+
                   /* newFormFiled(shorListController, context, "Locality", "Thane",
                       false, false, false), */
                   Row(
@@ -1454,9 +1554,9 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 15.sp,
-                          // color: Colors.grey.shade500,
-                        ),
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
                       )
                     ],
                   ),
@@ -1516,9 +1616,9 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 15.sp,
-                          // color: Colors.grey.shade500,
-                        ),
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
                       )
                     ],
                   ),
@@ -1557,7 +1657,7 @@ class _JobFormState extends State<JobForm> {
                         ),
                   ),
                   const SizedBox(
-                    height: 5,
+                    height: 12,
                   ),
                   Text(
                     "Experience",
@@ -1626,7 +1726,7 @@ class _JobFormState extends State<JobForm> {
                                                   height: MediaQuery.of(context)
                                                           .size
                                                           .height /
-                                                      22.h,
+                                                      25.h,
                                                   color: Colors.white,
                                                   child: TextFormField(
                                                     onChanged: (value) {
@@ -1725,7 +1825,10 @@ class _JobFormState extends State<JobForm> {
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                const Text("-"),
+                                SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 35,
+                                    child: const Text("-")),
                                 const SizedBox(
                                   width: 5,
                                 ),
@@ -1757,7 +1860,7 @@ class _JobFormState extends State<JobForm> {
                                                                     context)
                                                                 .size
                                                                 .height /
-                                                            22.h,
+                                                            25.h,
                                                         color: Colors.white,
                                                         child: TextField(
                                                           onChanged: (value) {
@@ -1918,9 +2021,9 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 15.sp,
-                          // color: Colors.grey.shade500,
-                        ),
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
                       )
                     ],
                   ),
@@ -1964,9 +2067,9 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 15.sp,
-                          // color: Colors.grey.shade500,
-                        ),
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
                       )
                     ],
                   ),
@@ -2008,7 +2111,7 @@ class _JobFormState extends State<JobForm> {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
-                                                  22.h,
+                                                  25.h,
                                               color: Colors.white,
                                               child: TextFormField(
                                                 onChanged: (value) {},
@@ -2100,7 +2203,9 @@ class _JobFormState extends State<JobForm> {
                             const SizedBox(
                               width: 5,
                             ),
-                            const Text("-"),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height / 35,
+                                child: const Text("-")),
                             const SizedBox(
                               width: 5,
                             ),
@@ -2127,7 +2232,7 @@ class _JobFormState extends State<JobForm> {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
-                                                  22.h,
+                                                  25.h,
                                               color: Colors.white,
                                               child: TextField(
                                                 onSubmitted: (newValue) {
@@ -2298,9 +2403,9 @@ class _JobFormState extends State<JobForm> {
                       Text(
                         "  (Optional)",
                         style: GoogleFonts.sourceSansPro(
-                          fontSize: 15.sp,
-                          // color: Colors.grey.shade500,
-                        ),
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
                       )
                     ],
                   ),
@@ -2439,275 +2544,13 @@ class _JobFormState extends State<JobForm> {
     );
   }
 
-  Widget customSuggestionField(BuildContext context) {
-    List? suggestion;
-    return SizedBox(
-      child: isEdit1
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Company Name",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                customContainerSelect(() {
-                  setState(() {
-                    FocusScope.of(context).requestFocus(_focusNode);
-                    // isFocus = true;
-                    isEdit1 = false;
-                    shorListController.clear();
-                    focusNode.requestFocus();
-                  });
-                }, true, shorListController.text),
-              ],
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Company Name",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Container(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 26.h,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    //  border: Border.all(color: Colors.grey),
-                  ),
-                  child: TypeAheadFormField<dynamic>(
-                    suggestionsBoxDecoration: SuggestionsBoxDecoration(
-
-                        //shape: ShapeBorder.lerp(),
-                        borderRadius: BorderRadius.circular(15),
-                        elevation: 4.0),
-                    textFieldConfiguration: TextFieldConfiguration(
-                      onChanged: (value) {
-                        suggestion = null;
-                      },
-                      autofocus: true,
-                      focusNode: focusNode,
-                      textCapitalization: TextCapitalization.sentences,
-                      controller: shorListController,
-                      decoration: InputDecoration(
-                          hintText: "Aditya Birla Health Insurance",
-                          hintStyle: GoogleFonts.sourceSansPro(
-                              color: Constants.subtitleclr, fontSize: 14.sp),
-                          // labelText: 'Enter a suggestion',
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 122, 113, 111)),
-                              borderRadius: BorderRadius.circular(10)),
-                          border: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: Color(0xffff0eceb)),
-                              borderRadius: BorderRadius.circular(10)),
-                          contentPadding: const EdgeInsets.only(left: 15)),
-                    ),
-                    suggestionsCallback: (pattern) async {
-                      if (pattern.isNotEmpty) {
-                        suggestion = (await getSuggestions(pattern));
-                        suggestion ??= [];
-                        return suggestion!;
-                      } else {
-                        return <
-                            dynamic>[]; // Return an empty list when the pattern is empty
-                      }
-                    },
-                    itemBuilder: (context, suggestion) {
-                      final index = suggestions.indexOf(suggestion);
-                      final isOdd = index % 2 == 0;
-
-                      final backgroundColor =
-                          isOdd ? Colors.grey.shade200 : Colors.white;
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: backgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                          // border: Border.all(color: Colors.grey),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            suggestion.toString(),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      );
-                    },
-                    onSuggestionSelected: (suggestion) {
-                      setState(() {
-                        shorListController.text = suggestion.toString();
-                        firstText = shorListController.text;
-
-                        isEdit1 = true;
-                      });
-                    },
-                    noItemsFoundBuilder: (value) {
-                      String message;
-                      if (suggestion != null && suggestion!.isEmpty) {
-                        message = 'No items found';
-                      } else {
-                        message = 'searching';
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget customSuggestionFieldJobTitle(BuildContext context) {
-    return SizedBox(
-      child: isJobTitle
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Job Title",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                customContainerSelect(() {
-                  setState(() {
-                    FocusScope.of(context).requestFocus(_focusNode);
-                    //isFocus = true;
-                    isJobTitle = false;
-                    role.clear();
-                  });
-                }, true, role.text),
-              ],
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Job Title",
-                  style: GoogleFonts.sourceSansPro(
-                      fontSize: 14.sp,
-                      // color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Container(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 26.h,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: TypeAheadFormField<dynamic>(
-                    suggestionsBoxDecoration: SuggestionsBoxDecoration(
-
-                        //shape: ShapeBorder.lerp(),
-                        borderRadius: BorderRadius.circular(15),
-                        elevation: 4.0),
-                    textFieldConfiguration: TextFieldConfiguration(
-                      //autofocus: isFocus,
-                      // focusNode: _focusNode,
-                      textCapitalization: TextCapitalization.sentences,
-                      controller: role,
-                      decoration: InputDecoration(
-                          hintText: "Sr. Executive",
-                          hintStyle: GoogleFonts.sourceSansPro(
-                              color: Constants.subtitleclr, fontSize: 14.sp),
-                          // labelText: 'Enter a suggestion',
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 122, 113, 111)),
-                              borderRadius: BorderRadius.circular(10)),
-                          border: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: Color(0xffff0eceb)),
-                              borderRadius: BorderRadius.circular(10)),
-                          contentPadding: const EdgeInsets.only(left: 15)),
-                    ),
-                    suggestionsCallback: (pattern) async {
-                      if (pattern.isNotEmpty) {
-                        // await Future.delayed(const Duration(seconds: 1));
-                        return await getJobTitle(pattern, "job_role");
-                      } else {
-                        return <
-                            dynamic>[]; // Return an empty list when the pattern is empty
-                      }
-                    },
-                    itemBuilder: (context, suggestion) {
-                      final index = jobTitleSuggestion.indexOf(suggestion);
-                      final isOdd = index % 2 == 0;
-                      final backgroundColor =
-                          isOdd ? Colors.grey.shade200 : Colors.white;
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: backgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        //color: backgroundColor,
-                        child: ListTile(
-                          title: Text(
-                            suggestion.toString(),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      );
-                    },
-                    onSuggestionSelected: (suggestion) {
-                      setState(() {
-                        role.text = suggestion.toString();
-                        isJobTitle = true;
-                      });
-                    },
-                    // debounceDuration: const Duration(seconds: 2),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  /*  List<String> suggestions = [
-    'Apple',
-    'Banana',
-    'Cherry',
-    'Durian',
-    'Elderberry',
-    'Fig'
-  ]; */
-  /* Future<List<String>> getSuggestions(String pattern) async {
-    // Perform filtering based on the pattern
-    return suggestions
-        .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
-        .toList();
-  }
- */
   InkWell customContainerSelect(
       final VoidCallback onPressed, bool isSelect, String title) {
     return InkWell(
         onTap: onPressed,
         child: Container(
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.only(top: 5, bottom: 10, right: 8),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
@@ -2778,7 +2621,7 @@ class _JobFormState extends State<JobForm> {
               height: 5,
             ),
             Container(
-              height: MediaQuery.of(context).size.height / 18.h,
+              height: MediaQuery.of(context).size.height / 25.h,
               color: Colors.white,
               child: TextFormField(
                 enableSuggestions: true,
@@ -2924,83 +2767,6 @@ class _JobFormState extends State<JobForm> {
                             borderSide: BorderSide(
                                 color: Color(0xfffc3aea7), width: 0.8))),
                   ),
-                )
-              : SizedBox(
-                  child: TextFormField(
-                    enableSuggestions: true,
-                    maxLines: lineOfTextField,
-                    controller: textController,
-                    decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 10, left: 10),
-                        filled: true,
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8))),
-                  ),
-                )
-        ],
-      ),
-    );
-  }
-
-  Widget suggestTextfield(String title, int lineOfTextField,
-      TextEditingController textController, List data) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10, top: 10),
-      padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 40),
-      decoration: const BoxDecoration(color: Color(0xfffe3bad0)),
-      //height: 150,
-      width: double.maxFinite,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-                fontSize: 18,
-                color: Color(0xfff805c6b),
-                fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          lineOfTextField == 1
-              ? SizedBox(
-                  height: 40.h,
-                  child: TypeAheadField(
-                      textFieldConfiguration: TextFieldConfiguration(
-                          cursorRadius: const Radius.circular(15),
-                          autofocus: true,
-                          style: DefaultTextStyle.of(context)
-                              .style
-                              .copyWith(fontStyle: FontStyle.italic),
-                          decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              border: OutlineInputBorder()),
-                          controller: textController),
-                      suggestionsCallback: (pattern) async {
-                        Completer<List<String>> completer = Completer();
-                        completer.complete([data.first]);
-                        return completer.future;
-                      },
-                      itemBuilder: (context, suggestion) {
-                        return ListTile(
-                          title: data.first,
-                        );
-                      },
-                      onSuggestionSelected: (suggestion) {
-                        textController.text = suggestion.toString();
-                      }),
                 )
               : SizedBox(
                   child: TextFormField(

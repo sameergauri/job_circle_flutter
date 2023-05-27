@@ -264,8 +264,7 @@ class _JobsState extends ConsumerState<Jobs>
     try {
       var id = profilemodel.id; //this id is null, get the user id
       final response = await http.post(
-        Uri.parse(
-            "http://${GlobalConstants.API_Host_one}/favjob/v1/$id/$jobId"),
+        Uri.parse("http://${GlobalConstants.API_Host}/favjob/v1/$id/$jobId"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -284,7 +283,7 @@ class _JobsState extends ConsumerState<Jobs>
   Future<void> removeFromFav(int favJobId) async {
     var id = profileSummaryModel.id;
     final response = await http.post(
-      Uri.parse("http://192.168.2.108:9090/favjob/v1/$favJobId"),
+      Uri.parse("http://192.168.2.104:9090/favjob/v1/$favJobId"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -299,7 +298,7 @@ class _JobsState extends ConsumerState<Jobs>
 
   List jobs = [];
   Future<void> fetchJobs() async {
-    Uri url = Uri.parse('http://192.168.2.108:9090/favjob/v1');
+    Uri url = Uri.parse('http://192.168.2.104:9090/favjob/v1');
     final response = await http.get(url, headers: {
       "Content-Type": "application/json"
     }); // replace with your API endpoint
@@ -1945,7 +1944,7 @@ class _JobsState extends ConsumerState<Jobs>
                         ),
                         if (item['process'] != null)
                           Text(
-                            item['process'],
+                            item['id'].toString(),
                             style: GoogleFonts.varela(
                                 fontWeight: FontWeight.w500, fontSize: 14.sp),
                           ),

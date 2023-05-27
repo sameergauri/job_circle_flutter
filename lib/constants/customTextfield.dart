@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/customButton.dart';
+import 'package:job_circle/constants/gobal.dart';
 
 import '../themes/colors.dart';
 
@@ -130,7 +132,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/company/v1/all?pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -148,7 +150,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 
   Future<List> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -158,11 +160,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
           .where((name) =>
               name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
           .toList();
-      ParentId = data['resultData']['content']
-          .map((e) => e['parentid'].toString())
-          .where((name) =>
-              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
-          .toList();
+
       print(suggestions);
       return suggestions;
     } else {
@@ -351,6 +349,7 @@ class _CustomFormTextFieldMultiSelectState
     extends State<CustomFormTextFieldMultiSelect> {
   List<dynamic>? suggestion;
   bool isEdit = false;
+  bool isLoading = false;
   List<dynamic> suggestions = [];
   List<dynamic> suggestionsLast = [];
   FocusNode focusNode = FocusNode();
@@ -364,7 +363,7 @@ class _CustomFormTextFieldMultiSelectState
   late String? firstText = widget.firstText;
   String? selectedValue;
 
-  List<String>? selectedValuesList = [""];
+  List<String>? selectedValuesList = [];
   bool isDuplicate = false;
   String? customValue;
   bool showAddButton = false;
@@ -377,7 +376,7 @@ class _CustomFormTextFieldMultiSelectState
 
   Future<List> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -398,6 +397,19 @@ class _CustomFormTextFieldMultiSelectState
     }
   }
 
+  /* Future<List<dynamic>> fetchSuggestions(String pattern) async {
+    //List<dynamic> suggestions = [];
+
+    if (pattern.isNotEmpty) {
+      suggestions = await getJobTitle(pattern, widget.name) ?? [];
+      showAddButton = !suggestions.contains(pattern);
+    } else {
+      showAddButton = true;
+    }
+
+    return suggestions;
+  } */
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -412,13 +424,14 @@ class _CustomFormTextFieldMultiSelectState
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(
-            height: 5,
-          ),
           Container(
             width: double.infinity,
-            height: MediaQuery.of(context).size.height / 9.h,
-            margin: const EdgeInsets.only(bottom: 15),
+            //  height: MediaQuery.of(context).size.height / 9.h,
+            margin: selectedValuesList!.isEmpty
+                ? const EdgeInsets.only(bottom: 10, top: 5)
+                : const EdgeInsets.only(
+                    bottom: 10,
+                  ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -458,128 +471,126 @@ class _CustomFormTextFieldMultiSelectState
                       child: SizedBox(
                         height: MediaQuery.of(context).size.height / 25.h,
                         child: TypeAheadFormField<dynamic>(
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            if (selectedValuesList!.contains(value)) {
-                              isDuplicate = true;
-                              return 'Already Added';
-                            }
-                            isDuplicate = false;
-                            return null;
-                          },
-                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            elevation: 4.0,
-                          ),
-                          textFieldConfiguration: TextFieldConfiguration(
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                                customValue = value;
-                                suggestion = null;
-                                if (value.isNotEmpty &&
-                                    !suggestions.contains(value) &&
-                                    suggestion != null) {
-                                  showAddButton = false;
-                                }
-                              });
-                            },
-
-                            //enabled: false,
-
-                            autofocus: true,
-                            focusNode: focusNode,
-                            textCapitalization: TextCapitalization.sentences,
-                            controller: controller,
-                            decoration: InputDecoration(
-                              hintText: hintText,
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.subtitleclr,
-                                fontSize: 15.sp,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: isDuplicate
-                                      ? Colors.red
-                                      : const Color.fromARGB(
-                                          255, 122, 113, 111),
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: isDuplicate
-                                      ? Colors.red
-                                      : const Color(0xffff0eceb),
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: const EdgeInsets.only(left: 15),
-                              errorText: isDuplicate ? 'Already Added' : null,
-                            ),
-                          ),
-                          suggestionsCallback: (pattern) async {
-                            if (pattern.isNotEmpty) {
-                              /* return widget.selectedValuesList!
-                                  .where((getJobTitle) => getJobTitle.contains(pattern))
-                                  .toList(); */
-
-                              suggestion =
-                                  await getJobTitle(pattern, widget.name) ?? [];
-                              if (suggestion != null &&
-                                  suggestion!.isNotEmpty &&
-                                  !suggestions.contains(suggestionsLast)) {
-                                showAddButton = false;
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter a value';
                               }
-
-                              return suggestion!;
-                            } else {
-                              suggestion = [];
-                              showAddButton = true;
-                              return <dynamic>[];
-                            }
-                          },
-                          itemBuilder: (context, suggestion) {
-                            final index = suggestions.indexOf(suggestion);
-                            final isOdd = index % 2 == 0;
-                            final backgroundColor =
-                                isOdd ? Colors.grey.shade200 : Colors.white;
-
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: backgroundColor,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: ListTile(
-                                title: Text(
-                                  suggestion.toString(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            );
-                          },
-                          onSuggestionSelected: (suggestion) {
-                            if (selectedValuesList!.contains(suggestion)) {
-                              setState(() {
+                              if (selectedValuesList!.contains(value)) {
                                 isDuplicate = true;
-                                controller!.clear();
-                                showAddButton = true;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Already Added")),
+                                return 'Already Added';
+                              }
+                              isDuplicate = false;
+                              return null;
+                            },
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              elevation: 4.0,
+                            ),
+                            textFieldConfiguration: TextFieldConfiguration(
+                              onChanged: (value) {
+                                setState(() {
+                                  customValue = value;
+                                  showAddButton = !suggestions.contains(value);
+                                });
+                              },
+
+                              //enabled: false,
+
+                              autofocus: true,
+                              focusNode: focusNode,
+                              textCapitalization: TextCapitalization.sentences,
+                              controller: controller,
+                              decoration: InputDecoration(
+                                hintText: hintText,
+                                hintStyle: GoogleFonts.sourceSansPro(
+                                  color: Constants.subtitleclr,
+                                  fontSize: 15.sp,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: isDuplicate
+                                        ? Colors.red
+                                        : const Color.fromARGB(
+                                            255, 122, 113, 111),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: isDuplicate
+                                        ? Colors.red
+                                        : const Color(0xffff0eceb),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.only(left: 15),
+                                errorText: isDuplicate ? 'Already Added' : null,
+                              ),
+                            ),
+                            suggestionsCallback: (pattern) async {
+                              if (pattern.isNotEmpty) {
+                                isLoading =
+                                    true; // Set isLoading to true when fetching suggestions
+                                setState(
+                                    () {}); // Trigger a rebuild to show the "Searching" message
+
+                                suggestion =
+                                    await getJobTitle(pattern, widget.name) ??
+                                        [];
+                                showAddButton = !suggestion!.contains(pattern);
+
+                                isLoading =
+                                    false; // Set isLoading to false after suggestions are fetched
+                                setState(
+                                    () {}); // Trigger a rebuild to hide the "Searching" message
+
+                                return suggestion!;
+                              } else {
+                                suggestion = [];
+                                showAddButton = false;
+                                return <dynamic>[];
+                              }
+                            },
+                            itemBuilder: (context, suggestion) {
+                              final index = suggestions.indexOf(suggestion);
+                              final isOdd = index % 2 == 0;
+                              final backgroundColor =
+                                  isOdd ? Colors.grey.shade200 : Colors.white;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: backgroundColor,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    suggestion.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               );
-                            } else if (suggestion != null) {
-                              setState(() {
-                                selectedValuesList!.add(suggestion);
-                                isDuplicate = false;
-                                showAddButton = true;
-                                controller!.clear();
-                              });
-                            }
-                            /*  setState(() {                    //before Validation...
+                            },
+                            onSuggestionSelected: (suggestion) {
+                              if (selectedValuesList!.contains(suggestion)) {
+                                setState(() {
+                                  isDuplicate = true;
+                                  controller!.clear();
+                                  showAddButton = true;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("Already Added")),
+                                );
+                              } else if (suggestion != null) {
+                                setState(() {
+                                  selectedValuesList!.add(suggestion);
+                                  isDuplicate = false;
+                                  showAddButton = true;
+                                  controller!.clear();
+                                });
+                              }
+                              /*  setState(() {                    //before Validation...
                               controller!.clear();
                               if (!selectedValuesList!.contains(suggestion)) {
                                 setState(() {
@@ -595,9 +606,61 @@ class _CustomFormTextFieldMultiSelectState
                               //  handleBoolChange(true);
                               // FocusScope.of(context).autofocus(focusNode);  // on hold
                             }); */
-                          },
-                          noItemsFoundBuilder: (value) {
-                            final message =
+                            },
+                            /* noItemsFoundBuilder: (BuildContext context) {
+                            if (isLoading) {
+                              return const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Searching...',
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                              );
+                            } else {
+                              return AddButtonVisibilityWidget(
+                                isLoading: false,
+                                suggestions: suggestion,
+                                customValue: customValue,
+                                selectedValuesList: selectedValuesList,
+                                onAddButtonPressed: () {
+                                  setState(() {
+                                selectedValuesList!.add(suggestion.toString());
+                                isDuplicate = false;
+                                //showAddButton = true;
+                                controller!.clear();
+
+                              });
+                            });},
+   
+                          }, */
+                            noItemsFoundBuilder: (BuildContext context) {
+                              return AddButtonVisibilityWidget(
+                                suggestions: suggestion,
+                                customValue: customValue,
+                                selectedValuesList: selectedValuesList,
+                                isLoading: isLoading,
+                                onAddButtonPressed: () {
+                                  if (selectedValuesList!
+                                      .contains(customValue)) {
+                                    setState(() {
+                                      isDuplicate = true;
+                                      controller!.clear();
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text("Already Added")),
+                                    );
+                                  } else {
+                                    setState(() {
+                                      selectedValuesList!.add(customValue!);
+                                      isDuplicate = false;
+                                      controller!.clear();
+                                    });
+                                  }
+                                },
+                              );
+                            }
+                            /* final message =
                                 suggestion != null && suggestion!.isEmpty
                                     ? 'No items found'
                                     : 'Searching';
@@ -610,36 +673,33 @@ class _CustomFormTextFieldMultiSelectState
                                     fontStyle: FontStyle.italic),
                               ),
                             );
-                          },
-                        ),
+                          }, */
+                            ),
                       ),
                     ),
-                    showAddButton == false
-                        ? IconButton(
-                            onPressed: () {
-                              if (customValue != null &&
-                                  customValue!.isNotEmpty) {
-                                if (selectedValuesList!.contains(customValue)) {
-                                  setState(() {
-                                    isDuplicate = true;
-                                    controller!.clear();
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Already Added")),
-                                  );
-                                } else {
-                                  setState(() {
-                                    selectedValuesList!.add(customValue!);
-                                    isDuplicate = false;
-                                    controller!.clear();
-                                  });
-                                }
-                              }
-                            },
-                            icon: const Icon(Icons.add),
-                          )
-                        : const SizedBox()
+                    /*  if (showAddButton &&
+                        customValue != null &&
+                        customValue!.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          if (selectedValuesList!.contains(customValue)) {
+                            setState(() {
+                              isDuplicate = true;
+                              controller!.clear();
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Already Added")),
+                            );
+                          } else {
+                            setState(() {
+                              selectedValuesList!.add(customValue!);
+                              isDuplicate = false;
+                              controller!.clear();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                      ) */
                   ],
                 ),
               ],
@@ -650,3 +710,24 @@ class _CustomFormTextFieldMultiSelectState
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
