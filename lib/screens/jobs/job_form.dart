@@ -294,7 +294,7 @@ class _JobFormState extends State<JobForm> {
     /* if (checkboxDataState.isEmpty) {
       fetchData();
     } */
-    fetchData();
+    // fetchData();
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
       setState(() {});
@@ -517,10 +517,18 @@ class _JobFormState extends State<JobForm> {
   List<String> checkboxData = [];
   List<dynamic> natureofWorkID = [];
   List<String> checkboxDataState = [];
+  List<String> selectedResponsibility = [];
+  late String jobTitle;
 
-  Future<List<String>> fetchData() async {
+  void getValueOfJobtitle(String getJobTitle) async {
+    setState(() {
+      jobTitle = getJobTitle;
+    });
+  }
+
+  Future<List<String>> fetchData(String? selectedItem) async {
     final response = await http.get(Uri.parse(
-        'http://192.168.2.102:9090/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=Telesales&parentId=36'));
+        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$selectedItem'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -716,6 +724,17 @@ class _JobFormState extends State<JobForm> {
     });
   }
 
+  var parentID;
+
+  void handleSelectedID(String id) {
+    // Process the selected ID as needed
+    print('Selected ID: $id');
+    setState(() {
+      parentID = id;
+    });
+    // Perform any other actions with the ID
+  }
+
   //isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
   @override
   Widget build(BuildContext context) {
@@ -840,6 +859,7 @@ class _JobFormState extends State<JobForm> {
                     contextIn: context,
                     hintText: "Aditya birla Health Insurance",
                     getSuggestions: getSuggestions,
+                    onIDSelected: handleSelectedID,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -859,8 +879,10 @@ class _JobFormState extends State<JobForm> {
                           onChanged: (p0) {
                             isEdit1 = p0;
                           },
+                          onIDSelected: handleSelectedID,
                           contextIn: context,
                           hintText: "Sr. Executive",
+                          onSubmit: getValueOfJobtitle,
                           //  getSuggestions: getJobTitle,
                         ),
                       ),
@@ -881,7 +903,8 @@ class _JobFormState extends State<JobForm> {
                           },
                           contextIn: context,
                           hintText: "Health Insurance",
-                          //   getSuggestions: getJobTitle,
+                          //   getSuggestions: getJobTit
+                          onIDSelected: handleSelectedID,
                         ),
                       ),
                     ],
@@ -905,10 +928,12 @@ class _JobFormState extends State<JobForm> {
                           pId: pId,
                           onChanged: (p0) {
                             isEdit3 = p0;
-                            // fetchData();
+                            //fetchData();
                           },
                           contextIn: context,
                           hintText: "Sales",
+                          onIDSelected: handleSelectedID,
+                          onSubmit: fetchData,
                           // getSuggestions: getJobTitle,
                         ),
                       ),
@@ -929,6 +954,7 @@ class _JobFormState extends State<JobForm> {
                           },
                           contextIn: context,
                           hintText: "NBFC",
+                          onIDSelected: handleSelectedID,
                           // getSuggestions: getJobTitle,
                         ),
                       ),
@@ -1167,8 +1193,21 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
+                  //  if (checkboxData.isNotEmpty)
+                  /*  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: checkboxData.length,
+                    itemBuilder: (context, index) {
+                      final item = checkboxData[index];
 
-                  ListView.builder(
+                      // Call your function here
+                      //   fetchData();
+
+                      // Return the list item widget
+                      return Text(checkboxData[index]);
+                    },
+                  ), */
+                  /* ListView.builder(
                       shrinkWrap: true,
                       itemCount: checkboxData.length,
                       itemBuilder: (context, index) {
@@ -1180,7 +1219,42 @@ class _JobFormState extends State<JobForm> {
                             // ...
                           },
                         );
-                      }),
+                      }), */
+                  checkboxData.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
+                        ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: checkboxData.length,
+                    itemBuilder: (context, index) {
+                      final item = checkboxData[index];
+                      //  fetchData();
+                      return CheckboxListTile(
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        controlAffinity: ListTileControlAffinity
+                            .leading, // Align checkbox to the left
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(item),
+                        value: selectedResponsibility.contains(item),
+                        onChanged: (newValue) {
+                          if (newValue!) {
+                            // Add the item to the list
+                            selectedResponsibility.add(item);
+                          } else {
+                            // Remove the item from the list
+                            selectedResponsibility.remove(item);
+                          }
+                          setState(() {});
+                          print(
+                              selectedResponsibility); // Notify Flutter that the state has changed
+                        },
+                      );
+                    },
+                  ),
                   Container(
                     height: height / 25,
                     margin: const EdgeInsets.only(bottom: 15),
@@ -1190,10 +1264,60 @@ class _JobFormState extends State<JobForm> {
                       // onFieldSubmitted: (_) => _handleTextSubmitted(),
                       controller: responsibility,
                       //  textInputAction: TextInputAction.newline,
-                      keyboardType: TextInputType.multiline,
+                      keyboardType: TextInputType.text,
                       textCapitalization: TextCapitalization.sentences,
+
+                      /*  onSubmitted: (value) {
+                        setState(() {
+                          checkboxData.add(responsibility.text);
+                          selectedResponsibility.add(responsibility.text);
+                          responsibility.clear();
+                        });
+                      }, */
+                      onEditingComplete: () {
+                        final newResponsibility = responsibility.text.trim();
+                        if (newResponsibility.isNotEmpty &&
+                            !checkboxData.contains(newResponsibility)) {
+                          setState(() {
+                            checkboxData.add(newResponsibility);
+                            selectedResponsibility.add(newResponsibility);
+                            responsibility.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content: const Text(
+                                    'Responsibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+
+                      /*  onTapOutside: (event) {
+                        
+                        setState(() {
+                          
+                          checkboxData.add(responsibility.text);
+                        });
+                      }, */
                       maxLines: null,
                       decoration: InputDecoration(
+                          errorText:
+                              checkboxData.contains(responsibility.text.trim())
+                                  ? 'Responsibility already exists.'
+                                  : null,
                           contentPadding: const EdgeInsets.only(
                               top: 5, left: 10, right: 10),
                           prefix: Column(
@@ -1205,20 +1329,25 @@ class _JobFormState extends State<JobForm> {
                           //border: OutlineInputBorder(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                const BorderSide(color: Color(0xffff0eceb)),
+                            borderSide: checkboxData
+                                    .contains(responsibility.text.trim())
+                                ? const BorderSide(color: Color(0xffff0eceb))
+                                : const BorderSide(color: Colors.red),
                           ),
                           focusColor: const Color(0xffff0eceb),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 122, 113, 111)),
+                            borderSide: checkboxData
+                                    .contains(responsibility.text.trim())
+                                ? const BorderSide(color: Color(0xffff0eceb))
+                                : const BorderSide(color: Colors.red),
                           ),
                           hintText:
                               "Any other responsibility that you want to add",
                           hintStyle: GoogleFonts.sourceSansPro(
                               color: Constants.subtitleclr, fontSize: 14.sp)
                           //  prefixIcon: Icon(Icons.list)
+
                           ),
                     ),
                   ),
@@ -1510,6 +1639,7 @@ class _JobFormState extends State<JobForm> {
                           },
                           contextIn: context,
                           hintText: "Thane",
+                          onIDSelected: handleSelectedID,
                           //   getSuggestions: getJobTitle,
                         ),
                       ),
@@ -1534,6 +1664,7 @@ class _JobFormState extends State<JobForm> {
                             },
                             contextIn: context,
                             hintText: "Thane",
+                            onIDSelected: handleSelectedID,
                             //   getSuggestions: getJobTitle,
                           ),
                         ),

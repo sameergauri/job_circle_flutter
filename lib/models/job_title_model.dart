@@ -10,4 +10,8 @@ class JobTitleModel {
       value: json['value'].toString(),
     );
   }
+  @override
+  String toString() {
+    return value;
+  }
 }

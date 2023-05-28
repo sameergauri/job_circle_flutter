@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customButton.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/models/job_title_model.dart';
 
 import '../themes/colors.dart';
 
@@ -24,11 +25,16 @@ class CustomJobFormTextField extends StatefulWidget {
   final Function(bool) onChanged;
   final String name;
   final String? pId;
+  final void Function(String)? onSubmit;
+  final void Function(String)? onJobTitle;
+  var onIDSelected;
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextField({
     Key? key,
     this.controller,
+    this.onSubmit,
+    this.onJobTitle,
     // required this.isEdit,
     // required this.focusNode,
     // this.selectedValuesList,
@@ -40,6 +46,7 @@ class CustomJobFormTextField extends StatefulWidget {
     this.getSuggestions,
     this.pId,
     required this.onChanged,
+    required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
   }) : super(key: key);
@@ -62,6 +69,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   late String title = widget.title;
 
   late String? firstText = widget.firstText;
+
+  late String selectedID;
 
   //List<String> selectedValuesList = [];
 
@@ -148,17 +157,19 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
     }
   }
 
-  Future<List> getJobTitle(String pattern, String name) async {
+  Future<List<JobTitleModel>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
         '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       // Parse the response and return the filtered suggestions
-      suggestions = data['resultData']['content']
-          .map((e) => e['value'].toString())
-          .where((name) =>
-              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+      final suggestions = (data['resultData']['content'] as List)
+          .where((e) => e['value']
+              .toString()
+              .toLowerCase()
+              .startsWith(pattern.toLowerCase()))
+          .map((e) => JobTitleModel.fromJson(e))
           .toList();
 
       print(suggestions);
@@ -179,6 +190,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 /*   void handleFocusNodeRequest() {
     widget.onFocusNodeRequested; // Pass the focusNode itself
   } */
+  late final Function(String) onIDSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -283,9 +295,13 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     },
                     onSuggestionSelected: (suggestion) {
                       setState(() {
-                        controller!.text = suggestion.toString();
+                        controller!.text = suggestion.value.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
+                        var selectedId = suggestion.id.toString();
+                        // onIDSelected(suggestion.id.toString());
+                        widget.onSubmit!(selectedId);
+                        widget.onJobTitle!(firstText.toString());
                         //FocusScope.of(context).nextFocus();
                       });
                     },
