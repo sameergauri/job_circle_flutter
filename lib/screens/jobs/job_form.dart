@@ -77,6 +77,8 @@ class _JobFormState extends State<JobForm> {
   TextEditingController moreDetail = TextEditingController();
   TextEditingController Eligibility = TextEditingController();
   TextEditingController numberofopenings = TextEditingController();
+  TextEditingController minSalary = TextEditingController();
+  TextEditingController maxSalary = TextEditingController();
 
   TextEditingController boundryLimits = TextEditingController();
   TextEditingController responsibility = TextEditingController();
@@ -288,9 +290,13 @@ class _JobFormState extends State<JobForm> {
       print("somthing went wrong");
     }
   } */
+  Timer? _timer;
 
   @override
   void initState() {
+    /* _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchData();
+    }); */
     /* if (checkboxDataState.isEmpty) {
       fetchData();
     } */
@@ -388,7 +394,7 @@ class _JobFormState extends State<JobForm> {
     // bindInterViewList();
   }
 
-  String _selectedOption = "Monthly";
+  String _selectedOption = "";
   bool isFresher = false;
   bool expContainer = false;
   bool agegroupContainer = false;
@@ -518,7 +524,8 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> natureofWorkID = [];
   List<String> checkboxDataState = [];
   List<String> selectedResponsibility = [];
-  late String jobTitle;
+  String? jobTitle;
+  String? Nowid;
 
   void getValueOfJobtitle(String getJobTitle) async {
     setState(() {
@@ -526,9 +533,15 @@ class _JobFormState extends State<JobForm> {
     });
   }
 
-  Future<List<String>> fetchData(String? selectedItem) async {
+  /* void getNowId(String id) async {
+    setState(() {
+      Nowid = id;
+    });
+  } */
+
+  Future<List<String>> fetchData(String id) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$selectedItem'));
+        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$id'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -866,7 +879,7 @@ class _JobFormState extends State<JobForm> {
                     children: [
                       SizedBox(
                         width: width / 2.2,
-                        child: CustomJobFormTextField(
+                        child: CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "job_role",
                           /* onFocusNodeRequested: (p0) {
@@ -915,7 +928,7 @@ class _JobFormState extends State<JobForm> {
                     children: [
                       SizedBox(
                         width: width / 2.2,
-                        child: CustomJobFormTextField(
+                        child: CustomJobFormTextFieldJobRespo(
                           isCompany: false,
                           name: "now",
                           /* onFocusNodeRequested: (p0) {
@@ -932,7 +945,7 @@ class _JobFormState extends State<JobForm> {
                           },
                           contextIn: context,
                           hintText: "Sales",
-                          onIDSelected: handleSelectedID,
+                          //  onIDSelected: handleSelectedID,
                           onSubmit: fetchData,
                           // getSuggestions: getJobTitle,
                         ),
@@ -1186,6 +1199,9 @@ class _JobFormState extends State<JobForm> {
                   ),
                   /* newFormFiled(shorListController, context, "Skills Required",
                       "Advance Excel", false, false, false), */
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Text(
                     "Job Responsibility",
                     style: GoogleFonts.sourceSansPro(
@@ -1257,7 +1273,7 @@ class _JobFormState extends State<JobForm> {
                   ),
                   Container(
                     height: height / 25,
-                    margin: const EdgeInsets.only(bottom: 15),
+                    margin: const EdgeInsets.only(),
                     child: TextField(
                       // textInputAction: TextInputAction.newline,
 
@@ -1312,12 +1328,12 @@ class _JobFormState extends State<JobForm> {
                           checkboxData.add(responsibility.text);
                         });
                       }, */
-                      maxLines: null,
+                      maxLines: 1,
                       decoration: InputDecoration(
-                          errorText:
-                              checkboxData.contains(responsibility.text.trim())
-                                  ? 'Responsibility already exists.'
-                                  : null,
+                          /*  errorText: checkboxData
+                                  .contains(responsibility.text.trim())
+                              ? 'Responsibility already exists.'
+                              : null, */
                           contentPadding: const EdgeInsets.only(
                               top: 5, left: 10, right: 10),
                           prefix: Column(
@@ -1331,16 +1347,16 @@ class _JobFormState extends State<JobForm> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: checkboxData
                                     .contains(responsibility.text.trim())
-                                ? const BorderSide(color: Color(0xffff0eceb))
-                                : const BorderSide(color: Colors.red),
+                                ? const BorderSide(color: Colors.red)
+                                : BorderSide(color: Colors.grey.shade400),
                           ),
                           focusColor: const Color(0xffff0eceb),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: checkboxData
                                     .contains(responsibility.text.trim())
-                                ? const BorderSide(color: Color(0xffff0eceb))
-                                : const BorderSide(color: Colors.red),
+                                ? const BorderSide(color: Colors.red)
+                                : BorderSide(color: Colors.grey.shade400),
                           ),
                           hintText:
                               "Any other responsibility that you want to add",
@@ -1349,6 +1365,21 @@ class _JobFormState extends State<JobForm> {
                           //  prefixIcon: Icon(Icons.list)
 
                           ),
+                    ),
+                  ),
+                  Container(
+                    margin: checkboxData.contains(responsibility.text.trim())
+                        ? const EdgeInsets.only(bottom: 15, left: 10)
+                        : null,
+                    child: Text(
+                      checkboxData.contains(responsibility.text.trim())
+                          ? "This Responsibility is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
 
@@ -1566,8 +1597,14 @@ class _JobFormState extends State<JobForm> {
                     children: [
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 5.w,
-                        child: newFormFiled(shorListController, context, "",
-                            "Min-salary", true, false, false),
+                        child: newFormFiled(
+                            controller: minSalary,
+                            context: context,
+                            title: "",
+                            subTitle: "Min-salary",
+                            isNum: true,
+                            isVisible: false,
+                            sioptonal: false),
                       ),
                       const SizedBox(
                         width: 5,
@@ -1580,8 +1617,14 @@ class _JobFormState extends State<JobForm> {
                       ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 5.w,
-                        child: newFormFiled(shorListController, context, "",
-                            "Max-salary", true, false, false),
+                        child: newFormFiled(
+                            controller: maxSalary,
+                            context: context,
+                            title: "",
+                            subTitle: "Max-salary",
+                            isNum: true,
+                            isVisible: false,
+                            sioptonal: false),
                       ),
                       const SizedBox(
                         width: 10,
@@ -2709,13 +2752,13 @@ class _JobFormState extends State<JobForm> {
   }
 
   Container newFormFiled(
-      TextEditingController controller,
-      BuildContext context,
+      {required TextEditingController controller,
+      required BuildContext context,
       String? title,
-      String subTitle,
-      bool isNum,
-      bool isVisible,
-      bool sioptonal) {
+      required String subTitle,
+      required bool isNum,
+      required bool isVisible,
+      required bool sioptonal}) {
     return Container(
         margin: const EdgeInsets.only(bottom: 15),
         child: Column(
@@ -2766,6 +2809,10 @@ class _JobFormState extends State<JobForm> {
                 keyboardType: isNum ? TextInputType.number : TextInputType.name,
                 controller: controller,
                 enabled: enableShortListFor,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'[.]'))
+                ],
+                maxLength: 7,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please select any company';
@@ -2821,6 +2868,7 @@ class _JobFormState extends State<JobForm> {
                       }); */
                 }),
                 decoration: InputDecoration(
+                    counterText: '',
                     contentPadding: const EdgeInsets.only(
                         top: 8, bottom: 15, left: 10, right: 10),
                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
