@@ -459,6 +459,7 @@ class _CustomFormTextFieldMultiSelectState
                             onDeleted: () {
                               setState(() {
                                 selectedValuesList!.remove(e);
+                                textFieldFocusNode.requestFocus();
                               });
                             },
                           );
@@ -597,6 +598,7 @@ class _CustomFormTextFieldMultiSelectState
                                       isDuplicate = true;
                                       controller!.clear();
                                       showAddButton = true;
+                                      // textFieldFocusNode.requestFocus();
                                     });
                                     showDialog(
                                       context: context,
@@ -606,6 +608,9 @@ class _CustomFormTextFieldMultiSelectState
                                             Navigator.of(context).pop();
                                             textFieldFocusNode.requestFocus();
                                           },
+                                          title: "Error!",
+                                          subtitle:
+                                              " 'This skill is already added',",
                                         );
                                       },
                                     );
@@ -615,6 +620,7 @@ class _CustomFormTextFieldMultiSelectState
                                       isDuplicate = false;
                                       showAddButton = true;
                                       controller!.clear();
+                                      // textFieldFocusNode.requestFocus();
                                     });
                                   }
                                   /*  setState(() {                    //before Validation...
@@ -682,6 +688,9 @@ class _CustomFormTextFieldMultiSelectState
                                                 textFieldFocusNode
                                                     .requestFocus();
                                               },
+                                              title: "Error!",
+                                              subtitle:
+                                                  " 'This skill is already added',",
                                             );
                                           },
                                         );
@@ -1394,7 +1403,12 @@ class _CustomJobFormTextFieldJobRespoState
 
 class CustomDialog extends StatelessWidget {
   final VoidCallback onClose;
-  const CustomDialog({super.key, required this.onClose});
+  final String title, subtitle;
+  const CustomDialog(
+      {super.key,
+      required this.onClose,
+      required this.title,
+      required this.subtitle});
 
   // String? title,Desc;
   @override
@@ -1414,17 +1428,17 @@ class CustomDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Add your custom dialog content here
-            const Text(
-              'Error!',
-              style: TextStyle(
+            Text(
+              title,
+              style: const TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 10.0),
-            const Text(
-              'This skill is already added',
-              style: TextStyle(fontSize: 16.0),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 16.0),
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(

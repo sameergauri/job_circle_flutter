@@ -112,6 +112,12 @@ class _JobFormState extends State<JobForm> {
 
   bool _showContainer1 = true;
   bool _showContainer2 = true;
+  bool isValueValid = true;
+  FocusNode minSalaryFocusNode = FocusNode();
+  FocusNode maxSalaryFocusNode = FocusNode();
+  FocusNode numberOfOpeningFocusNode = FocusNode();
+  FocusNode experinceFocusNode = FocusNode();
+  FocusNode ageGroupFocusNode = FocusNode();
 
   bool isPartTime = false,
       isFullTime = false,
@@ -315,6 +321,7 @@ class _JobFormState extends State<JobForm> {
     });
     getJobTitle2("pattern", "language").then((_) {});
     getJobTitle3("pattern", "language").then((_) {});
+    getJobTitle5("pattern", "language").then((_) {});
 
     // getJobTitle("Admin");
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -520,6 +527,7 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> jobTitleSuggestion4 = [];
   bool isNotFound = false;
   List<dynamic> jobTitleSuggestion2 = [];
+  List<dynamic> jobTitleSuggestion5 = [];
   List<String> checkboxData = [];
   List<dynamic> natureofWorkID = [];
   List<String> checkboxDataState = [];
@@ -633,6 +641,23 @@ class _JobFormState extends State<JobForm> {
     }
   }
 
+  Future<List> getJobTitle5(String pattern, String? name) async {
+    final response = await http.get(Uri.parse(
+        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=rating&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      jobTitleSuggestion5 = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(jobTitleSuggestion5);
+      return jobTitleSuggestion5;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
   Future<List> getJobTitle3(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
         '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
@@ -705,9 +730,11 @@ class _JobFormState extends State<JobForm> {
   List<bool> isInterview = [];
   int selectedShiftTime = -1;
   int selectedWeakOff = -1;
+  int selectedCommunication = -1;
 
   bool isOptionVisible = true;
   bool isWeakOfVisible = true;
+  bool isCommunicationVisible = true;
 
   void selectShiftTime(int index) {
     setState(() {
@@ -734,6 +761,20 @@ class _JobFormState extends State<JobForm> {
     setState(() {
       selectedWeakOff = -1;
       isWeakOfVisible = true;
+    });
+  }
+
+  void clearSelectedCommunication() {
+    setState(() {
+      selectedCommunication = -1;
+      isCommunicationVisible = true;
+    });
+  }
+
+  void selectCommunication(int index) {
+    setState(() {
+      selectedCommunication = index;
+      isCommunicationVisible = false;
     });
   }
 
@@ -1005,8 +1046,9 @@ class _JobFormState extends State<JobForm> {
                       ? customContainerSelect(() {
                           setState(() {
                             isNumberOfOpenings = false;
-                            FocusScope.of(context).autofocus(focusNode);
+                            // FocusScope.of(context).autofocus(focusNode);
                             numberofopenings.clear();
+                            numberOfOpeningFocusNode.requestFocus();
                           });
                         }, true, numberofopenings.text)
                       : Container(
@@ -1027,6 +1069,7 @@ class _JobFormState extends State<JobForm> {
                                     FilteringTextInputFormatter.deny(
                                         RegExp(r'[.]')), // Disallow dots
                                   ],
+                                  focusNode: numberOfOpeningFocusNode,
                                   maxLength: 3,
                                   onFieldSubmitted: (value) {
                                     numberofopenings.text.isNotEmpty
@@ -1604,6 +1647,7 @@ class _JobFormState extends State<JobForm> {
                             subTitle: "Min-salary",
                             isNum: true,
                             isVisible: false,
+                            nonEdit: false,
                             sioptonal: false),
                       ),
                       const SizedBox(
@@ -1615,17 +1659,31 @@ class _JobFormState extends State<JobForm> {
                       const SizedBox(
                         width: 5,
                       ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 5.w,
-                        child: newFormFiled(
-                            controller: maxSalary,
-                            context: context,
-                            title: "",
-                            subTitle: "Max-salary",
-                            isNum: true,
-                            isVisible: false,
-                            sioptonal: false),
-                      ),
+                      minSalary.text.length <= 3
+                          ? SizedBox(
+                              width: MediaQuery.of(context).size.width / 5.w,
+                              child: newFormFiled1(
+                                  controller: maxSalary,
+                                  context: context,
+                                  title: "",
+                                  subTitle: "Max-salary",
+                                  isNum: true,
+                                  isVisible: false,
+                                  nonEdit: false,
+                                  sioptonal: false),
+                            )
+                          : SizedBox(
+                              width: MediaQuery.of(context).size.width / 5.w,
+                              child: newFormFiled1(
+                                  controller: maxSalary,
+                                  context: context,
+                                  title: "",
+                                  subTitle: "Max-salary",
+                                  isNum: true,
+                                  isVisible: false,
+                                  nonEdit: true,
+                                  sioptonal: false),
+                            ),
                       const SizedBox(
                         width: 10,
                       ),
@@ -1662,6 +1720,7 @@ class _JobFormState extends State<JobForm> {
                       const Text("Yearly")
                     ],
                   ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1872,6 +1931,7 @@ class _JobFormState extends State<JobForm> {
                                 customContainerSelect(() {
                                   setState(() {
                                     expContainer = false;
+                                    experinceFocusNode.requestFocus();
                                   });
                                 }, expContainer,
                                     "${minExp.text} - ${maxExp.text} Year"),
@@ -1903,6 +1963,8 @@ class _JobFormState extends State<JobForm> {
                                                       25.h,
                                                   color: Colors.white,
                                                   child: TextFormField(
+                                                    focusNode:
+                                                        experinceFocusNode,
                                                     onChanged: (value) {
                                                       setState(() {
                                                         _showContainer1 =
@@ -2537,33 +2599,32 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
-                  Wrap(
-                    children: [
-                      if (veryGood == false && decent == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            excelent = !excelent;
-                            veryGood = false;
-                            decent = false;
-                          });
-                        }, excelent, "Excelent | Versent"),
-                      if (excelent == false && decent == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            excelent = false;
-                            veryGood = !veryGood;
-                            decent = false;
-                          });
-                        }, veryGood, "Very Good | Non Versent"),
-                      if (excelent == false && veryGood == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            excelent = false;
-                            veryGood = false;
-                            decent = !decent;
-                          });
-                        }, decent, "Average | Decent"),
-                    ],
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isCommunicationVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion5.length, (index) {
+                        return JobTitleItem(
+                          ismulti: true,
+                          title: jobTitleSuggestion5[index],
+                          isSelected: selectedCommunication == index,
+                          onTap: () {
+                            setState(() {
+                              if (selectedCommunication == index) {
+                                clearSelectedCommunication();
+                              } else {
+                                selectCommunication(index);
+                              }
+                            });
+                          },
+                          isVisible: isCommunicationVisible ||
+                              selectedCommunication == index,
+                          getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
                   ),
                   Row(
                     children: [
@@ -2751,6 +2812,85 @@ class _JobFormState extends State<JobForm> {
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
+  Widget customTextField(TextEditingController textController, String title,
+      int? lineOfTextField, bool isColor) {
+    return Container(
+      margin: isColor
+          ? const EdgeInsets.only(top: 5)
+          : const EdgeInsets.only(bottom: 10, left: 10, right: 10, top: 10),
+      padding: isColor
+          ? const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10)
+          : const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 40),
+      decoration: BoxDecoration(
+          color: isColor ? Colors.white : const Color(0xfffe3bad0)),
+      //height: 150,
+      width: double.maxFinite,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+                fontSize: 18,
+                color: Color(0xfff805c6b),
+                fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          lineOfTextField == 1
+              ? SizedBox(
+                  height: 40.h,
+                  child: TextFormField(
+                    enableSuggestions: true,
+                    maxLines: lineOfTextField,
+                    controller: textController,
+                    decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.only(top: 10, left: 10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide: BorderSide(
+                                color: Color(0xfffc3aea7), width: 0.8)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide: BorderSide(
+                                color: Color(0xfffc3aea7), width: 0.8))),
+                  ),
+                )
+              : SizedBox(
+                  child: TextFormField(
+                    enableSuggestions: true,
+                    maxLines: lineOfTextField,
+                    controller: textController,
+                    decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.only(top: 10, left: 10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide: BorderSide(
+                                color: Color(0xfffc3aea7), width: 0.8)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide: BorderSide(
+                                color: Color(0xfffc3aea7), width: 0.8))),
+                  ),
+                )
+        ],
+      ),
+    );
+  }
+
   Container newFormFiled(
       {required TextEditingController controller,
       required BuildContext context,
@@ -2758,6 +2898,7 @@ class _JobFormState extends State<JobForm> {
       required String subTitle,
       required bool isNum,
       required bool isVisible,
+      required bool nonEdit,
       required bool sioptonal}) {
     return Container(
         margin: const EdgeInsets.only(bottom: 15),
@@ -2799,19 +2940,30 @@ class _JobFormState extends State<JobForm> {
               color: Colors.white,
               child: TextFormField(
                 enableSuggestions: true,
-                onChanged: (value) {
-                  isVisible
-                      ? setState(() {
-                          _showContainer1 = value.isEmpty;
-                        })
-                      : null;
-                },
+
                 keyboardType: isNum ? TextInputType.number : TextInputType.name,
                 controller: controller,
-                enabled: enableShortListFor,
+                // enabled: nonEdit ? minSalary.text.isNotEmpty : true,
                 inputFormatters: [
                   FilteringTextInputFormatter.deny(RegExp(r'[.]'))
                 ],
+                onFieldSubmitted: (value) {
+                  _checkLength(true);
+                },
+                onChanged: (value) {
+                  setState(() {
+                    //  _checkLength(true);
+                    // Update the second text field when the first text field changes
+                    if (value.isEmpty) {
+                      maxSalary.clear();
+                    }
+                  });
+                },
+                //onEditingComplete: _checkLength,
+                /*  onTapOutside: (event) {
+                  _checkLength();
+                }, */
+                focusNode: minSalaryFocusNode,
                 maxLength: 7,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -2896,82 +3048,233 @@ class _JobFormState extends State<JobForm> {
         ));
   }
 
-  Widget customTextField(TextEditingController textController, String title,
-      int? lineOfTextField, bool isColor) {
+  void _checkLength(bool isMin) {
+    final String text = minSalary.text.trim();
+    if (text.length < 4) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomDialog(
+              onClose: () {
+                Navigator.of(context).pop();
+                isMin
+                    ? minSalaryFocusNode.requestFocus()
+                    : maxSalaryFocusNode.requestFocus();
+              },
+              title: "Error!",
+              subtitle: "Minimum 4 digit required for salary");
+        },
+      );
+    }
+  }
+
+  Container newFormFiled1(
+      {required TextEditingController controller,
+      required BuildContext context,
+      String? title,
+      required String subTitle,
+      required bool isNum,
+      required bool isVisible,
+      required bool nonEdit,
+      required bool sioptonal}) {
     return Container(
-      margin: isColor
-          ? const EdgeInsets.only(top: 5)
-          : const EdgeInsets.only(bottom: 10, left: 10, right: 10, top: 10),
-      padding: isColor
-          ? const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10)
-          : const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 40),
-      decoration: BoxDecoration(
-          color: isColor ? Colors.white : const Color(0xfffe3bad0)),
-      //height: 150,
-      width: double.maxFinite,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-                fontSize: 18,
-                color: Color(0xfff805c6b),
-                fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          lineOfTextField == 1
-              ? SizedBox(
-                  height: 40.h,
-                  child: TextFormField(
-                    enableSuggestions: true,
-                    maxLines: lineOfTextField,
-                    controller: textController,
-                    decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 10, left: 10),
-                        filled: true,
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8))),
-                  ),
-                )
-              : SizedBox(
-                  child: TextFormField(
-                    enableSuggestions: true,
-                    maxLines: lineOfTextField,
-                    controller: textController,
-                    decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 10, left: 10),
-                        filled: true,
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
-                            ),
-                            borderSide: BorderSide(
-                                color: Color(0xfffc3aea7), width: 0.8))),
-                  ),
-                )
-        ],
-      ),
-    );
+        margin: const EdgeInsets.only(bottom: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title!.isNotEmpty)
+              sioptonal
+                  ? Row(
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              // color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          "  (Optional)",
+                          style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp,
+                            // color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 18.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+            const SizedBox(
+              height: 5,
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height / 25.h,
+              color: Colors.white,
+              child: TextFormField(
+                focusNode: maxSalaryFocusNode,
+                //   enableSuggestions: true,
+                //   onEditingComplete: _checkLength,
+                onChanged: (value) {
+                  setState(() {});
+                },
+
+                onFieldSubmitted: (value) {
+                  _checkLength(false);
+                  if (maxSalary.text.isNotEmpty) {
+                    final int minSalary1 = int.tryParse(minSalary.text) ?? 0;
+                    final int maxSalary2 = int.tryParse(maxSalary.text) ?? 0;
+                    if (maxSalary2 <= minSalary1) {
+                      // Value of the second text field is not greater than the first text field
+                      setState(() {
+                        isValueValid = false;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(
+                              onClose: () {
+                                Navigator.pop(context);
+                                maxSalaryFocusNode.requestFocus();
+                                maxSalary.clear();
+                              },
+                              title: "Invalid Data!",
+                              subtitle:
+                                  "Maximum salary should be more thn minimum salary.",
+                            );
+                          },
+                        );
+                      });
+                    } else {
+                      setState(() {
+                        isValueValid = true;
+                      });
+                    }
+                  }
+                },
+                /*  onTapOutside: (event) {
+                  if (maxSalary.text.isNotEmpty) {
+                    final int minSalary1 = int.tryParse(minSalary.text) ?? 0;
+                    final int maxSalary2 = int.tryParse(maxSalary.text) ?? 0;
+                    if (maxSalary2 <= minSalary1) {
+                      // Value of the second text field is not greater than the first text field
+                      setState(() {
+                        isValueValid = false;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(
+                              onClose: () {
+                                Navigator.pop(context);
+                                salryFocusNode.requestFocus();
+                                maxSalary.clear();
+                              },
+                              title: "Invalid Data!",
+                              subtitle:
+                                  "Maximum salary should be more thn minimum salary.",
+                            );
+                          },
+                        );
+                      });
+                    } else {
+                      setState(() {
+                        isValueValid = true;
+                      });
+                    }
+                  }
+                }, */
+                keyboardType: isNum ? TextInputType.number : TextInputType.name,
+                controller: controller,
+                enabled: nonEdit,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'[.]')),
+                  FilteringTextInputFormatter.singleLineFormatter
+                ],
+                maxLength: 7,
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select any company';
+                  }
+                  return null;
+                },
+                //   onTap: (() {
+                /* TypeAheadFormField<String>(
+                    textFieldConfiguration: const TextFieldConfiguration(
+                      decoration: InputDecoration(
+                        hintText: 'Enter a suggestion...',
+                      ),
+                    ),
+                    suggestionsCallback: (pattern) async {
+                      // Perform your suggestion logic here
+                      // Return a list of suggestions based on the provided pattern
+                      return await getSuggestions(pattern);
+                    },
+                    itemBuilder: (context, suggestion) {
+                      return ListTile(
+                        title: Text(suggestion),
+                      );
+                    },
+                    onSuggestionSelected: (suggestion) {
+                      // Do something with the selected suggestion
+                      Navigator.of(context).pop(suggestion);
+                    },
+                  ); */
+
+                /* showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DialogList(
+                          dialogTitle: "Company Details",
+                          onSelected: (AutoCompleteModel model) => {
+                            shorListController.text = model.label,
+                            selectedshort = model,
+                            Navigator.pop(context),
+                            if (userType == EUserType.businessPartner.value ||
+                                userType == EUserType.employee.value)
+                              {openCompanyJobsDetails()}
+                            else
+                              {
+                                if (selectedshort.value != model.value)
+                                  {bindProccessLevelList(model.value)},
+                                proccessList = [],
+                                levelList = [],
+                              },
+                            resetProcessLevel(),
+                          },
+                          itemsData: shortList,
+                        );
+                      }); */
+                //   }),
+                decoration: InputDecoration(
+                    counterText: '',
+                    contentPadding: const EdgeInsets.only(
+                        top: 8, bottom: 15, left: 10, right: 10),
+                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                    // Icons.workspace_premium
+                    // label: const Text("Company Name *"),
+                    //border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                    ),
+                    focusColor: const Color(0xffff0eceb),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                          color: Color.fromARGB(255, 122, 113, 111)),
+                    ),
+                    hintText: subTitle,
+                    hintStyle: GoogleFonts.sourceSansPro(
+                        color: Constants.subtitleclr, fontSize: 15.sp)
+                    //  prefixIcon: Icon(Icons.list)
+                    ),
+              ),
+            ),
+          ],
+        ));
   }
 }
