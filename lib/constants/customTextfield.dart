@@ -240,7 +240,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         suggestion = null;
                       },
                       autofocus: true,
-                      focusNode: focusNode,
+                      // focusNode: focusNode,
                       textCapitalization: TextCapitalization.sentences,
                       controller: controller,
                       decoration: InputDecoration(
@@ -300,7 +300,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         controller!.text = suggestion.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
-                        FocusScope.of(context).nextFocus();
+                        // FocusScope.of(context).nextFocus();
                       });
                     },
                     noItemsFoundBuilder: (value) {
@@ -330,17 +330,21 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   // final FocusNode focusNode;
   final String hintText;
   List<String>? selectedValuesList = [];
-
+  //yfinal Function(String)? se;
   BuildContext contextIn;
   final String title;
   final Function(String)? getSuggestions;
   final String? firstText;
   final Function(bool)? onChanged;
   final String name;
+  final isSkill;
+  final Function(String)? workType;
 
   CustomFormTextFieldMultiSelect({
     Key? key,
     this.controller,
+    this.workType,
+    required this.isSkill,
     // required this.isEdit,
     // required this.focusNode,
     this.selectedValuesList,
@@ -386,6 +390,10 @@ class _CustomFormTextFieldMultiSelectState
       isEdit = newValue;
     });
     widget.onChanged!(newValue);
+  }
+
+  void handleWorkType(String newValue) {
+    widget.workType!(newValue);
   }
 
   Future<List> getJobTitle(String pattern, String name) async {
@@ -460,6 +468,7 @@ class _CustomFormTextFieldMultiSelectState
                               setState(() {
                                 selectedValuesList!.remove(e);
                                 textFieldFocusNode.requestFocus();
+                                handleBoolChange(false);
                               });
                             },
                           );
@@ -486,7 +495,7 @@ class _CustomFormTextFieldMultiSelectState
                           SizedBox(
                             height: MediaQuery.of(context).size.height / 25.h,
                             child: TypeAheadFormField<dynamic>(
-                                /* validator: (value) {
+                              /* validator: (value) {
                                   if (value!.isEmpty) {
                                     return 'Please enter a value';
                                   }
@@ -497,133 +506,153 @@ class _CustomFormTextFieldMultiSelectState
                                   isDuplicate = false;
                                   return null;
                                 }, */
-                                suggestionsBoxDecoration:
-                                    SuggestionsBoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  elevation: 4.0,
-                                ),
-                                textFieldConfiguration: TextFieldConfiguration(
-                                  maxLines: 1,
-                                  onChanged: (value) {
-                                    setState(() {
+                              suggestionsBoxDecoration:
+                                  SuggestionsBoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                elevation: 4.0,
+                              ),
+                              textFieldConfiguration: TextFieldConfiguration(
+                                maxLines: 1,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (widget.isSkill) {
                                       customValue = value;
                                       showAddButton =
                                           !suggestions.contains(value);
-                                    });
-                                  },
+                                    }
+                                  });
+                                },
 
-                                  //enabled: false,
+                                //enabled: false,
 
-                                  autofocus: true,
-                                  focusNode: textFieldFocusNode,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  controller: controller,
-                                  decoration: InputDecoration(
-                                    hintText: hintText,
-                                    hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp,
+                                autofocus: true,
+                                focusNode: textFieldFocusNode,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                controller: controller,
+                                decoration: InputDecoration(
+                                  hintText: hintText,
+                                  hintStyle: GoogleFonts.sourceSansPro(
+                                    color: Constants.subtitleclr,
+                                    fontSize: 15.sp,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color.fromARGB(255, 122, 113, 111),
                                     ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111),
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color(0xffff0eceb),
                                     ),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb),
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    contentPadding:
-                                        const EdgeInsets.only(left: 15),
-                                    /* errorText: isDuplicate
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 15),
+                                  /* errorText: isDuplicate
                                         ? 'This skill is already added'
                                         : null, */
-                                  ),
                                 ),
-                                suggestionsCallback: (pattern) async {
-                                  if (pattern.isNotEmpty) {
-                                    isLoading =
-                                        true; // Set isLoading to true when fetching suggestions
-                                    setState(
-                                        () {}); // Trigger a rebuild to show the "Searching" message
+                              ),
+                              suggestionsCallback: (pattern) async {
+                                if (pattern.isNotEmpty) {
+                                  isLoading =
+                                      true; // Set isLoading to true when fetching suggestions
+                                  setState(
+                                      () {}); // Trigger a rebuild to show the "Searching" message
 
-                                    suggestion = await getJobTitle(
-                                            pattern, widget.name) ??
-                                        [];
-                                    showAddButton =
-                                        !suggestion!.contains(pattern);
+                                  suggestion =
+                                      await getJobTitle(pattern, widget.name) ??
+                                          [];
+                                  showAddButton =
+                                      !suggestion!.contains(pattern);
 
-                                    isLoading =
-                                        false; // Set isLoading to false after suggestions are fetched
-                                    setState(
-                                        () {}); // Trigger a rebuild to hide the "Searching" message
+                                  isLoading =
+                                      false; // Set isLoading to false after suggestions are fetched
+                                  setState(
+                                      () {}); // Trigger a rebuild to hide the "Searching" message
 
-                                    return suggestion!;
-                                  } else {
-                                    suggestion = [];
-                                    showAddButton = false;
-                                    return <dynamic>[];
-                                  }
-                                },
-                                itemBuilder: (context, suggestion) {
-                                  final index = suggestions.indexOf(suggestion);
-                                  final isOdd = index % 2 == 0;
-                                  final backgroundColor = isOdd
-                                      ? Colors.grey.shade200
-                                      : Colors.white;
+                                  return suggestion!;
+                                } else {
+                                  suggestion = [];
+                                  showAddButton = false;
+                                  return <dynamic>[];
+                                }
+                              },
+                              itemBuilder: (context, suggestion) {
+                                final index = suggestions.indexOf(suggestion);
+                                final isOdd = index % 2 == 0;
+                                final backgroundColor =
+                                    isOdd ? Colors.grey.shade200 : Colors.white;
 
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: backgroundColor,
-                                      borderRadius: BorderRadius.circular(15),
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: backgroundColor,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(
+                                      suggestion.toString(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    child: ListTile(
-                                      title: Text(
-                                        suggestion.toString(),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                onSuggestionSelected: (suggestion) {
-                                  if (selectedValuesList!
-                                      .contains(suggestion)) {
-                                    setState(() {
-                                      isDuplicate = true;
-                                      controller!.clear();
-                                      showAddButton = true;
-                                      // textFieldFocusNode.requestFocus();
-                                    });
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CustomDialog(
+                                  ),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                if (selectedValuesList!.contains(suggestion)) {
+                                  setState(() {
+                                    //selectedValuesList!.add(suggestion);
+                                    isDuplicate = true;
+                                    controller!.clear();
+                                    showAddButton = true;
+                                    controller!.text = suggestion.toString();
+
+                                    if (selectedValuesList!.contains("wfh") ||
+                                        selectedValuesList!.contains("WFH") ||
+                                        selectedValuesList!
+                                            .contains("Hybrid")) {
+                                      handleBoolChange(true);
+                                      handleWorkType(suggestion.toString());
+                                      controller!.text = suggestion.toString();
+                                    }
+                                    // textFieldFocusNode.requestFocus();
+                                  });
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomDialog(
                                           onClose: () {
                                             Navigator.of(context).pop();
                                             textFieldFocusNode.requestFocus();
+                                            controller!.clear();
                                           },
                                           title: "Error!",
-                                          subtitle:
-                                              " 'This skill is already added',",
-                                        );
-                                      },
-                                    );
-                                  } else if (suggestion != null) {
-                                    setState(() {
-                                      selectedValuesList!.add(suggestion);
-                                      isDuplicate = false;
-                                      showAddButton = true;
-                                      controller!.clear();
-                                      // textFieldFocusNode.requestFocus();
-                                    });
-                                  }
-                                  /*  setState(() {                    //before Validation...
+                                          subtitle: widget.isSkill
+                                              ? 'This skill is already added'
+                                              : "This location is already added");
+                                    },
+                                  );
+                                } else if (suggestion != null) {
+                                  setState(() {
+                                    selectedValuesList!.add(suggestion);
+                                    isDuplicate = false;
+                                    showAddButton = true;
+                                    controller!.text = suggestion.toString();
+                                    if (selectedValuesList!.contains("wfh") ||
+                                        selectedValuesList!.contains("WFH") ||
+                                        selectedValuesList!
+                                            .contains("Hybrid")) {
+                                      handleBoolChange(true);
+                                      handleWorkType(suggestion.toString());
+                                      controller!.text = suggestion.toString();
+                                    }
+                                    controller!.clear();
+                                    // textFieldFocusNode.requestFocus();
+                                  });
+                                }
+                                /*  setState(() {                    //before Validation...
                                   controller!.clear();
                                   if (!selectedValuesList!.contains(suggestion)) {
                                     setState(() {
@@ -639,8 +668,8 @@ class _CustomFormTextFieldMultiSelectState
                                   //  handleBoolChange(true);
                                   // FocusScope.of(context).autofocus(focusNode);  // on hold
                                 }); */
-                                },
-                                /* noItemsFoundBuilder: (BuildContext context) {
+                              },
+                              /* noItemsFoundBuilder: (BuildContext context) {
                                 if (isLoading) {
                                   return const Padding(
                                     padding: EdgeInsets.all(8.0),
@@ -666,45 +695,63 @@ class _CustomFormTextFieldMultiSelectState
                                 });},
    
                               }, */
-                                noItemsFoundBuilder: (BuildContext context) {
-                                  return AddButtonVisibilityWidget(
-                                    suggestions: suggestion,
-                                    customValue: customValue,
-                                    selectedValuesList: selectedValuesList,
-                                    isLoading: isLoading,
-                                    onAddButtonPressed: () {
-                                      if (selectedValuesList!
-                                          .contains(customValue)) {
-                                        setState(() {
-                                          isDuplicate = true;
-                                          controller!.clear();
-                                        });
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return CustomDialog(
-                                              onClose: () {
-                                                Navigator.of(context).pop();
-                                                textFieldFocusNode
-                                                    .requestFocus();
+
+                              noItemsFoundBuilder: widget.isSkill
+                                  ? (BuildContext context) {
+                                      return AddButtonVisibilityWidget(
+                                        suggestions: suggestion,
+                                        customValue: customValue,
+                                        selectedValuesList: selectedValuesList,
+                                        isLoading: isLoading,
+                                        onAddButtonPressed: () {
+                                          if (selectedValuesList!
+                                              .contains(customValue)) {
+                                            setState(() {
+                                              isDuplicate = true;
+                                              controller!.clear();
+                                            });
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CustomDialog(
+                                                  onClose: () {
+                                                    Navigator.of(context).pop();
+                                                    textFieldFocusNode
+                                                        .requestFocus();
+                                                  },
+                                                  title: "Error!",
+                                                  subtitle:
+                                                      " 'This skill is already added',",
+                                                );
                                               },
-                                              title: "Error!",
-                                              subtitle:
-                                                  " 'This skill is already added',",
                                             );
-                                          },
-                                        );
-                                      } else {
-                                        setState(() {
-                                          selectedValuesList!.add(customValue!);
-                                          isDuplicate = false;
-                                          controller!.clear();
-                                        });
-                                      }
+                                          } else {
+                                            setState(() {
+                                              selectedValuesList!
+                                                  .add(customValue!);
+                                              isDuplicate = false;
+                                              controller!.clear();
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }
+                                  : (value) {
+                                      final message = suggestion != null &&
+                                              suggestion!.isEmpty
+                                          ? 'No result found. Search again and select from suggestion.'
+                                          : 'Searching';
+
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          message,
+                                          style: const TextStyle(
+                                              fontStyle: FontStyle.italic),
+                                        ),
+                                      );
                                     },
-                                  );
-                                }
-                                /* final message =
+                              /* final message =
                                     suggestion != null && suggestion!.isEmpty
                                         ? 'No items found'
                                         : 'Searching';
@@ -718,7 +765,7 @@ class _CustomFormTextFieldMultiSelectState
                                   ),
                                 );
                               }, */
-                                ),
+                            ),
                           ),
                           /* Container(
                             child: Text(

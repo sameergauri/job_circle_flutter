@@ -103,11 +103,29 @@ class _JobFormState extends State<JobForm> {
   dynamic prevModel;
   String? pId;
 
+  bool nextValid = true;
+  bool _isSecondTextFieldEnabled = false;
+
   @override
   void dispose() {
     minExp.dispose();
     maxExp.dispose();
     super.dispose();
+  }
+
+  void checkAgeGroup(String ageText) {
+    int? age = int.tryParse(ageText);
+
+    if (age != null && age >= 18) {
+      setState(() {
+        _isSecondTextFieldEnabled = true;
+      });
+    } else {
+      setState(() {
+        _isSecondTextFieldEnabled = false;
+        maxAge.clear();
+      });
+    }
   }
 
   bool _showContainer1 = true;
@@ -518,6 +536,7 @@ class _JobFormState extends State<JobForm> {
   bool isEdit7 = false;
   bool isEdit8 = false;
   bool isEdit9 = false;
+  bool isEdit10 = false;
 
   bool isJobTitle = false;
   List<dynamic> suggestions = [];
@@ -718,6 +737,8 @@ class _JobFormState extends State<JobForm> {
   }
 
   List<String> selectedValuesList = [];
+  List<String> selectedWorkLocation = [];
+  String workFromHome = "";
 
   /* void handleFocusNodeRequest() {
     setState(() {
@@ -794,6 +815,7 @@ class _JobFormState extends State<JobForm> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+
     // isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
     if (jobTitleSuggestion.isEmpty) {
       // Display a loading indicator or alternative content while fetching data
@@ -1067,7 +1089,8 @@ class _JobFormState extends State<JobForm> {
                                 child: TextFormField(
                                   inputFormatters: [
                                     FilteringTextInputFormatter.deny(
-                                        RegExp(r'[.]')), // Disallow dots
+                                        RegExp(r'[.]')),
+                                    FilteringTextInputFormatter.digitsOnly
                                   ],
                                   focusNode: numberOfOpeningFocusNode,
                                   maxLength: 3,
@@ -1225,6 +1248,7 @@ class _JobFormState extends State<JobForm> {
                   CustomFormTextFieldMultiSelect(
                     // isCompany: false,
                     name: "skills",
+                    isSkill: true,
                     /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
@@ -1242,6 +1266,7 @@ class _JobFormState extends State<JobForm> {
                   ),
                   /* newFormFiled(shorListController, context, "Skills Required",
                       "Advance Excel", false, false, false), */
+
                   const SizedBox(
                     height: 10,
                   ),
@@ -1634,6 +1659,7 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
+                  // if (minSalary.text.length >= 4 && _selectedOption.isNotEmpty)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
@@ -1720,18 +1746,65 @@ class _JobFormState extends State<JobForm> {
                       const Text("Yearly")
                     ],
                   ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: width / 2.2,
-                        child: CustomJobFormTextField(
-                          isCompany: false,
+                  isEdit8
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.2.w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Work Location",
+                                    style: GoogleFonts.sourceSansPro(
+                                        fontSize: 18.sp,
+                                        // color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  customContainerSelect(() {
+                                    setState(() {
+                                      isEdit8 = false;
+                                      location.clear();
+                                      city.clear();
+                                    });
+                                  }, true, workFromHome)
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.2.w,
+                              child: CustomJobFormTextField(
+                                isCompany: false,
+                                name: "city",
+                                /* onFocusNodeRequested: (p0) {
+                                                      focusNode.requestFocus();
+                                                    }, */
+                                title: "City",
+                                controller: city,
+                                // isEdit: isEdit,
+                                //  focusNode: focusNode,
+                                onChanged: (p0) {
+                                  isEdit10 = p0;
+                                },
+                                contextIn: context,
+                                hintText: "Thane",
+                                onIDSelected: handleSelectedID,
+                                //   getSuggestions: getJobTitle,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        )
+                      : CustomFormTextFieldMultiSelect(
+                          // isCompany: false,
                           name: "location",
+                          isSkill: false,
                           /* onFocusNodeRequested: (p0) {
-                            focusNode.requestFocus();
-                          }, */
+                      focusNode.requestFocus();
+                    }, */
                           title: "Work Location",
                           controller: location,
                           // isEdit: isEdit,
@@ -1739,38 +1812,17 @@ class _JobFormState extends State<JobForm> {
                           onChanged: (p0) {
                             isEdit8 = p0;
                           },
+                          workType: (p0) {
+                            workFromHome = p0;
+                          },
+                          selectedValuesList: selectedWorkLocation,
                           contextIn: context,
                           hintText: "Thane",
-                          onIDSelected: handleSelectedID,
+                          //  onIDSelected: handleSelectedID,
                           //   getSuggestions: getJobTitle,
                         ),
-                      ),
-                      if (location.text == "WFH" || location.text == 'Hybrid')
-                        SizedBox(
-                          width: location.text == "WFH" ||
-                                  location.text == "Hybrid"
-                              ? width / 2.2
-                              : double.maxFinite,
-                          child: CustomJobFormTextField(
-                            isCompany: false,
-                            name: "city",
-                            /* onFocusNodeRequested: (p0) {
-                            focusNode.requestFocus();
-                          }, */
-                            title: "City",
-                            controller: city,
-                            // isEdit: isEdit,
-                            //  focusNode: focusNode,
-                            onChanged: (p0) {
-                              isEdit9 = p0;
-                            },
-                            contextIn: context,
-                            hintText: "Thane",
-                            onIDSelected: handleSelectedID,
-                            //   getSuggestions: getJobTitle,
-                          ),
-                        ),
-                    ],
+                  const SizedBox(
+                    height: 10,
                   ),
 
                   /* newFormFiled(shorListController, context, "Locality", "Thane",
@@ -1963,6 +2015,11 @@ class _JobFormState extends State<JobForm> {
                                                       25.h,
                                                   color: Colors.white,
                                                   child: TextFormField(
+                                                    inputFormatters: [
+                                                      FilteringTextInputFormatter
+                                                          .allow(RegExp(
+                                                              r'^\d+\.?\d{0,2}')),
+                                                    ],
                                                     focusNode:
                                                         experinceFocusNode,
                                                     onChanged: (value) {
@@ -2099,6 +2156,11 @@ class _JobFormState extends State<JobForm> {
                                                             25.h,
                                                         color: Colors.white,
                                                         child: TextField(
+                                                          inputFormatters: [
+                                                            FilteringTextInputFormatter
+                                                                .allow(RegExp(
+                                                                    r'^\d+\.?\d{0,2}')),
+                                                          ],
                                                           onChanged: (value) {
                                                             setState(() {
                                                               _showContainer2 =
@@ -2350,7 +2412,25 @@ class _JobFormState extends State<JobForm> {
                                                   25.h,
                                               color: Colors.white,
                                               child: TextFormField(
-                                                onChanged: (value) {},
+                                                maxLength: 2,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .deny(RegExp(r'[.]')),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                onFieldSubmitted: (value) {
+                                                  checkAge();
+                                                },
+                                                onEditingComplete: () {
+                                                  checkAge();
+                                                },
+                                                /*  onTapOutside: (event) {
+                                                  checkAge();
+                                                }, */
+                                                onChanged: (value) {
+                                                  checkAgeGroup(minAge.text);
+                                                },
                                                 keyboardType:
                                                     TextInputType.number,
                                                 controller: minAge,
@@ -2389,6 +2469,7 @@ class _JobFormState extends State<JobForm> {
                         }); */
                                                 }),
                                                 decoration: InputDecoration(
+                                                    counterText: "",
                                                     contentPadding:
                                                         const EdgeInsets.only(
                                                             top: 8,
@@ -2449,7 +2530,8 @@ class _JobFormState extends State<JobForm> {
                         width: MediaQuery.of(context).size.width / 6.w,
                         child: newFormFiled(shorListController, context, "",
                             "Max-age", true, false),
-                      ), */
+                      ), */ //if (maxAge.text.isNotEmpty&&ma)
+
                             SizedBox(
                                 width: MediaQuery.of(context).size.width / 6.w,
                                 child: /* newFormFiled(
@@ -2471,35 +2553,149 @@ class _JobFormState extends State<JobForm> {
                                                   25.h,
                                               color: Colors.white,
                                               child: TextField(
+                                                maxLength: 2,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .deny(RegExp(r'[.]')),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                enabled:
+                                                    _isSecondTextFieldEnabled,
+                                                onChanged: (value) {
+                                                  if (value.isNotEmpty) {
+                                                    int? age =
+                                                        int.tryParse(value);
+                                                    if (age! <= 18) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                      });
+                                                    }
+                                                  }
+                                                },
                                                 onSubmitted: (newValue) {
-                                                  maxAge.text.isNotEmpty
+                                                  maxAge.text.isNotEmpty &&
+                                                          minAge.text.isNotEmpty
                                                       ? setState(() {
                                                           agegroupContainer =
                                                               newValue
                                                                   .isNotEmpty;
                                                         })
-                                                      : null;
+                                                      : showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return CustomDialog(
+                                                                onClose: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                title: "Error!",
+                                                                subtitle:
+                                                                    "You have to fill min age as well");
+                                                          },
+                                                        );
+                                                  checkAge();
+                                                  if (newValue.isNotEmpty) {
+                                                    int? age =
+                                                        int.tryParse(newValue);
+                                                    if (age! <= 18) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                      });
+                                                    }
+                                                  }
                                                 },
                                                 onTapOutside: (event) {
-                                                  maxAge.text.isNotEmpty
-                                                      ? setState(() {
-                                                          agegroupContainer =
-                                                              !agegroupContainer;
-                                                        })
-                                                      : null;
+                                                  /*   maxAge.text.isNotEmpty &&
+                                                          minAge.text.isNotEmpty */
+
+                                                  if (maxAge.text.isNotEmpty) {
+                                                    int? age = int.tryParse(
+                                                        maxAge.text);
+                                                    int? age2 = int.tryParse(
+                                                        minAge.text);
+                                                    if (age! <= age2!) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      /* WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                        
+                                                      }); */
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
+                                                              },
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should be greater than Min age");
+                                                        },
+                                                      );
+                                                    } else if (age > 55) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
+                                                              },
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should not be greater than 55 years");
+                                                        },
+                                                      );
+                                                    } else {
+                                                      setState(() {
+                                                        agegroupContainer =
+                                                            !agegroupContainer;
+                                                      });
+                                                    }
+                                                  }
                                                 },
                                                 onEditingComplete: () {
-                                                  maxAge.text.isNotEmpty
+                                                  maxAge.text.isNotEmpty &&
+                                                          minAge.text.isNotEmpty
                                                       ? setState(() {
                                                           agegroupContainer =
                                                               !agegroupContainer;
                                                         })
-                                                      : null;
+                                                      : showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return CustomDialog(
+                                                                onClose: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                title: "Error!",
+                                                                subtitle:
+                                                                    "You have to fill min age as well");
+                                                          },
+                                                        );
                                                 },
                                                 keyboardType:
                                                     TextInputType.number,
                                                 controller: maxAge,
-                                                enabled: enableShortListFor,
+                                                //   enabled: enableShortListFor,
                                                 /*  validator: (value) {
                                             if (value == null || value.isEmpty) {
                                               return 'Please select any company';
@@ -2533,6 +2729,7 @@ class _JobFormState extends State<JobForm> {
                         }); */
                                                 }),
                                                 decoration: InputDecoration(
+                                                    counterText: "",
                                                     contentPadding:
                                                         const EdgeInsets.only(
                                                             top: 8,
@@ -2779,6 +2976,64 @@ class _JobFormState extends State<JobForm> {
     );
   }
 
+  void checkAge() {
+    int age = int.tryParse(minAge.text) ?? 0;
+    int checkAge = int.tryParse(maxAge.text) ?? 0;
+
+    if (age < 18) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Entry Restricted'),
+          content: const Text('Candidate above age of 18 years can Eligible.'),
+          actions: [
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                minAge.clear();
+              },
+            ),
+          ],
+        ),
+      );
+    } else if (checkAge < age) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Entry Restricted'),
+          content: const Text('Max age should be more than minimum age.'),
+          actions: [
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                maxAge.clear();
+              },
+            ),
+          ],
+        ),
+      );
+    } else if (checkAge > 60) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Entry Restricted'),
+          content: const Text('Eligible candidate should be below 60 years.'),
+          actions: [
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                maxAge.clear();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   InkWell customContainerSelect(
       final VoidCallback onPressed, bool isSelect, String title) {
     return InkWell(
@@ -2945,7 +3200,8 @@ class _JobFormState extends State<JobForm> {
                 controller: controller,
                 // enabled: nonEdit ? minSalary.text.isNotEmpty : true,
                 inputFormatters: [
-                  FilteringTextInputFormatter.deny(RegExp(r'[.]'))
+                  FilteringTextInputFormatter.deny(RegExp(r'[.]')),
+                  FilteringTextInputFormatter.digitsOnly
                 ],
                 onFieldSubmitted: (value) {
                   _checkLength(true);
@@ -3191,7 +3447,8 @@ class _JobFormState extends State<JobForm> {
                 enabled: nonEdit,
                 inputFormatters: [
                   FilteringTextInputFormatter.deny(RegExp(r'[.]')),
-                  FilteringTextInputFormatter.singleLineFormatter
+                  FilteringTextInputFormatter.singleLineFormatter,
+                  FilteringTextInputFormatter.digitsOnly
                 ],
                 maxLength: 7,
 
