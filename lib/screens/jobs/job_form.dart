@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/autolistviewmodal.dart';
 import 'package:job_circle/constants/customSelection.dart';
@@ -103,6 +104,10 @@ class _JobFormState extends State<JobForm> {
   dynamic prevModel;
   String? pId;
 
+  bool isCheckBox = false;
+
+  String minSalaryk = "", maxSalaryk = "";
+
   bool nextValid = true;
   bool _isSecondTextFieldEnabled = false;
 
@@ -112,6 +117,8 @@ class _JobFormState extends State<JobForm> {
     maxExp.dispose();
     super.dispose();
   }
+
+  bool isRelevantExpperience = false;
 
   void checkAgeGroup(String ageText) {
     int? age = int.tryParse(ageText);
@@ -423,6 +430,7 @@ class _JobFormState extends State<JobForm> {
   bool isFresher = false;
   bool expContainer = false;
   bool agegroupContainer = false;
+  bool enableExperience = false;
 
   final List<String> _bulletPointsrespo = [];
   String _textrespo = '';
@@ -1065,14 +1073,17 @@ class _JobFormState extends State<JobForm> {
                         fontWeight: FontWeight.w600),
                   ),
                   isNumberOfOpenings
-                      ? customContainerSelect(() {
-                          setState(() {
-                            isNumberOfOpenings = false;
-                            // FocusScope.of(context).autofocus(focusNode);
-                            numberofopenings.clear();
-                            numberOfOpeningFocusNode.requestFocus();
-                          });
-                        }, true, numberofopenings.text)
+                      ? customContainerSelect(
+                          onPressed: () {
+                            setState(() {
+                              isNumberOfOpenings = false;
+                              // FocusScope.of(context).autofocus(focusNode);
+                              numberofopenings.clear();
+                              numberOfOpeningFocusNode.requestFocus();
+                            });
+                          },
+                          isSelect: true,
+                          title: numberofopenings.text)
                       : Container(
                           margin: const EdgeInsets.only(bottom: 10),
                           child: Column(
@@ -1177,47 +1188,59 @@ class _JobFormState extends State<JobForm> {
                       if (isContract == false &&
                           isFullTime == false &&
                           isIntern == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            isPartTime = !isPartTime;
-                            isFullTime = false;
-                            isContract = false;
-                            isIntern = false;
-                          });
-                        }, isPartTime, "Part Time"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                isPartTime = !isPartTime;
+                                isFullTime = false;
+                                isContract = false;
+                                isIntern = false;
+                              });
+                            },
+                            isSelect: isPartTime,
+                            title: "Part Time"),
                       if (isPartTime == false &&
                           isContract == false &&
                           isIntern == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            isPartTime = false;
-                            isFullTime = !isFullTime;
-                            isContract = false;
-                            isIntern = false;
-                          });
-                        }, isFullTime, "Full Time"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                isPartTime = false;
+                                isFullTime = !isFullTime;
+                                isContract = false;
+                                isIntern = false;
+                              });
+                            },
+                            isSelect: isFullTime,
+                            title: "Full Time"),
                       if (isPartTime == false &&
                           isFullTime == false &&
                           isIntern == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            isPartTime = false;
-                            isFullTime = false;
-                            isContract = !isContract;
-                            isIntern = false;
-                          });
-                        }, isContract, "Contractual"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                isPartTime = false;
+                                isFullTime = false;
+                                isContract = !isContract;
+                                isIntern = false;
+                              });
+                            },
+                            isSelect: isContract,
+                            title: "Contractual"),
                       if (isPartTime == false &&
                           isFullTime == false &&
                           isContract == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            isPartTime = false;
-                            isFullTime = false;
-                            isContract = false;
-                            isIntern = !isIntern;
-                          });
-                        }, isIntern, "Internship"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                isPartTime = false;
+                                isFullTime = false;
+                                isContract = false;
+                                isIntern = !isIntern;
+                              });
+                            },
+                            isSelect: isIntern,
+                            title: "Internship"),
                     ],
                   ),
                   Text(
@@ -1230,19 +1253,25 @@ class _JobFormState extends State<JobForm> {
                   Wrap(
                     children: [
                       if (graduate == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            undeGraduate = !undeGraduate;
-                            graduate = false;
-                          });
-                        }, undeGraduate, "Under-Graduate"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                undeGraduate = !undeGraduate;
+                                graduate = false;
+                              });
+                            },
+                            isSelect: undeGraduate,
+                            title: "Under-Graduate"),
                       if (undeGraduate == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            graduate = !graduate;
-                            undeGraduate = false;
-                          });
-                        }, graduate, "Graduate"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                graduate = !graduate;
+                                undeGraduate = false;
+                              });
+                            },
+                            isSelect: graduate,
+                            title: "Graduate"),
                     ],
                   ),
                   CustomFormTextFieldMultiSelect(
@@ -1660,92 +1689,106 @@ class _JobFormState extends State<JobForm> {
                         fontWeight: FontWeight.w600),
                   ),
                   // if (minSalary.text.length >= 4 && _selectedOption.isNotEmpty)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 5.w,
-                        child: newFormFiled(
-                            controller: minSalary,
-                            context: context,
-                            title: "",
-                            subTitle: "Min-salary",
-                            isNum: true,
-                            isVisible: false,
-                            nonEdit: false,
-                            sioptonal: false),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height / 35.h,
-                          child: const Text("-")),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      minSalary.text.length <= 3
-                          ? SizedBox(
+
+                  isValueValid && minSalaryk.isNotEmpty && maxSalaryk.isNotEmpty
+                      ? customContainerSelect(
+                          onPressed: () {
+                            setState(() {
+                              isValueValid = false;
+                            });
+                          },
+                          isSelect: true,
+                          isSalary: true,
+                          title: "$minSalaryk - $maxSalaryk $_selectedOption")
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
                               width: MediaQuery.of(context).size.width / 5.w,
-                              child: newFormFiled1(
-                                  controller: maxSalary,
+                              child: newFormFiled(
+                                  controller: minSalary,
                                   context: context,
                                   title: "",
-                                  subTitle: "Max-salary",
+                                  subTitle: "Min-salary",
                                   isNum: true,
                                   isVisible: false,
                                   nonEdit: false,
                                   sioptonal: false),
-                            )
-                          : SizedBox(
-                              width: MediaQuery.of(context).size.width / 5.w,
-                              child: newFormFiled1(
-                                  controller: maxSalary,
-                                  context: context,
-                                  title: "",
-                                  subTitle: "Max-salary",
-                                  isNum: true,
-                                  isVisible: false,
-                                  nonEdit: true,
-                                  sioptonal: false),
                             ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      /* Text(
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height / 35.h,
+                                child: const Text("-")),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            minSalary.text.length <= 3
+                                ? SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 5.w,
+                                    child: newFormFiled1(
+                                        controller: maxSalary,
+                                        context: context,
+                                        title: "",
+                                        subTitle: "Max-salary",
+                                        isNum: true,
+                                        isVisible: false,
+                                        nonEdit: false,
+                                        sioptonal: false),
+                                  )
+                                : SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 5.w,
+                                    child: newFormFiled1(
+                                        controller: maxSalary,
+                                        context: context,
+                                        title: "",
+                                        subTitle: "Max-salary",
+                                        isNum: true,
+                                        isVisible: false,
+                                        nonEdit: true,
+                                        sioptonal: false),
+                                  ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            /* Text(
                         "Years",
                         style: GoogleFonts.sourceSansPro(
                             fontSize: 14.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w400),
                       ), */
-                      SizedBox(
-                          child: Radio(
-                        // contentPadding: EdgeInsets.zero,
-                        // title: const Text('Monthly'),
-                        value: 'Monthly',
-                        groupValue: _selectedOption,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedOption = value.toString();
-                          });
-                        },
-                      )),
-                      const Text("Monthly"),
-                      SizedBox(
-                          child: Radio(
-                        value: 'Yearly',
-                        groupValue: _selectedOption,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedOption = value.toString();
-                          });
-                        },
-                      )),
-                      const Text("Yearly")
-                    ],
-                  ),
+                            SizedBox(
+                                child: Radio(
+                              // contentPadding: EdgeInsets.zero,
+                              // title: const Text('Monthly'),
+                              value: 'Per Month',
+                              groupValue: _selectedOption,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedOption = value.toString();
+                                });
+                              },
+                            )),
+                            const Text("Monthly"),
+                            SizedBox(
+                                child: Radio(
+                              value: 'PA',
+                              groupValue: _selectedOption,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedOption = value.toString();
+                                });
+                              },
+                            )),
+                            const Text("Yearly")
+                          ],
+                        ),
                   isEdit8
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1762,13 +1805,16 @@ class _JobFormState extends State<JobForm> {
                                         // color: Colors.grey.shade500,
                                         fontWeight: FontWeight.w600),
                                   ),
-                                  customContainerSelect(() {
-                                    setState(() {
-                                      isEdit8 = false;
-                                      location.clear();
-                                      city.clear();
-                                    });
-                                  }, true, workFromHome)
+                                  customContainerSelect(
+                                      onPressed: () {
+                                        setState(() {
+                                          isEdit8 = false;
+                                          location.clear();
+                                          city.clear();
+                                        });
+                                      },
+                                      isSelect: true,
+                                      title: workFromHome)
                                 ],
                               ),
                             ),
@@ -1924,6 +1970,8 @@ class _JobFormState extends State<JobForm> {
                           children: _getBulletPointWidgetsEligi(),
                           mainAxisAlignment: MainAxisAlignment.start,
                         ),
+                        prefixIconConstraints:
+                            const BoxConstraints(minWidth: 24.0),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide:
@@ -1953,11 +2001,14 @@ class _JobFormState extends State<JobForm> {
                   ),
                   Visibility(
                       visible: _showContainer1 && _showContainer2,
-                      child: customContainerSelect(() {
-                        setState(() {
-                          isFresher = !isFresher;
-                        });
-                      }, isFresher, "Fresher can also apply.")
+                      child: customContainerSelect(
+                          onPressed: () {
+                            setState(() {
+                              isFresher = !isFresher;
+                            });
+                          },
+                          isSelect: isFresher,
+                          title: "Fresher can also apply.")
 
                       /* Row(
                       children: [
@@ -1980,13 +2031,16 @@ class _JobFormState extends State<JobForm> {
                       child: expContainer
                           ? Row(
                               children: [
-                                customContainerSelect(() {
-                                  setState(() {
-                                    expContainer = false;
-                                    experinceFocusNode.requestFocus();
-                                  });
-                                }, expContainer,
-                                    "${minExp.text} - ${maxExp.text} Year"),
+                                customContainerSelect(
+                                    onPressed: () {
+                                      setState(() {
+                                        expContainer = false;
+                                        experinceFocusNode.requestFocus();
+                                      });
+                                    },
+                                    isSelect: expContainer,
+                                    title:
+                                        "${minExp.text} - ${maxExp.text} Yrs"),
                               ],
                             )
                           : Row(
@@ -2015,6 +2069,7 @@ class _JobFormState extends State<JobForm> {
                                                       25.h,
                                                   color: Colors.white,
                                                   child: TextFormField(
+                                                    maxLength: 3,
                                                     inputFormatters: [
                                                       FilteringTextInputFormatter
                                                           .allow(RegExp(
@@ -2024,8 +2079,30 @@ class _JobFormState extends State<JobForm> {
                                                         experinceFocusNode,
                                                     onChanged: (value) {
                                                       setState(() {
+                                                        if (minExp
+                                                            .text.isNotEmpty) {
+                                                          setState(() {
+                                                            isCheckBox =
+                                                                !isCheckBox;
+                                                          });
+                                                        }
+                                                        enableExperience =
+                                                            value.isNotEmpty;
                                                         _showContainer1 =
                                                             value.isEmpty;
+                                                        if (minExp
+                                                            .text.isEmpty) {
+                                                          setState(() {
+                                                            isRelevantExpperience =
+                                                                false;
+                                                          });
+                                                          maxExp.clear();
+                                                          /*  _showContainer1 =
+                                                              !_showContainer1; */
+                                                          _showContainer2 !=
+                                                              _showContainer2;
+                                                          expContainer = false;
+                                                        }
                                                       });
                                                     },
                                                     keyboardType:
@@ -2066,6 +2143,7 @@ class _JobFormState extends State<JobForm> {
                         }); */
                                                     }),
                                                     decoration: InputDecoration(
+                                                        counterText: '',
                                                         contentPadding:
                                                             const EdgeInsets
                                                                     .only(
@@ -2156,6 +2234,7 @@ class _JobFormState extends State<JobForm> {
                                                             25.h,
                                                         color: Colors.white,
                                                         child: TextField(
+                                                          maxLength: 3,
                                                           inputFormatters: [
                                                             FilteringTextInputFormatter
                                                                 .allow(RegExp(
@@ -2163,11 +2242,11 @@ class _JobFormState extends State<JobForm> {
                                                           ],
                                                           onChanged: (value) {
                                                             setState(() {
-                                                              _showContainer2 =
-                                                                  value.isEmpty;
+                                                              /* _showContainer2 =
+                                                                  value.isEmpty; */
                                                             });
                                                           },
-                                                          onSubmitted:
+                                                          /*  onSubmitted:
                                                               (newValue) {
                                                             maxExp.text
                                                                     .isNotEmpty
@@ -2177,8 +2256,145 @@ class _JobFormState extends State<JobForm> {
                                                                             .isNotEmpty;
                                                                   })
                                                                 : null;
+                                                          }, */
+                                                          onSubmitted:
+                                                              (newValue) {
+                                                            /*   maxAge.text.isNotEmpty &&
+                                                          minAge.text.isNotEmpty */
+
+                                                            if (maxExp.text
+                                                                .isNotEmpty) {
+                                                              double? age =
+                                                                  double.tryParse(
+                                                                      maxExp
+                                                                          .text);
+                                                              double? age2 =
+                                                                  double.tryParse(
+                                                                      minExp
+                                                                          .text);
+                                                              if (age! <=
+                                                                  age2!) {
+                                                                // Clear the text field if the entered number is not above 18
+                                                                /* WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                        
+                                                      }); */
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        onClose:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+
+                                                                          setState(
+                                                                              () {
+                                                                            expContainer =
+                                                                                !newValue.isNotEmpty;
+                                                                            _showContainer1 =
+                                                                                true;
+                                                                            _showContainer2 =
+                                                                                true;
+                                                                            enableExperience =
+                                                                                false;
+                                                                            minExp.clear();
+                                                                            maxExp.clear();
+                                                                          });
+                                                                        },
+                                                                        title:
+                                                                            "Invalid Experience Value!",
+                                                                        subtitle:
+                                                                            "Max Experience should be greater than Min Experience");
+                                                                  },
+                                                                );
+                                                              } else if (maxExp
+                                                                      .text
+                                                                      .isNotEmpty &&
+                                                                  minExp.text
+                                                                      .isNotEmpty) {
+                                                                setState(() {
+                                                                  expContainer =
+                                                                      newValue
+                                                                          .isNotEmpty;
+                                                                });
+                                                              }
+                                                            } /* else {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return CustomDialog(
+                                                                      onClose:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        minExp
+                                                                            .clear();
+                                                                        // maxExp.clear();
+                                                                        setState(
+                                                                            () {
+                                                                          expContainer =
+                                                                              !newValue.isNotEmpty;
+                                                                          enableExperience =
+                                                                              enableExperience = newValue.isNotEmpty;
+                                                                          /*   _showContainer1 = !_showContainer1;
+                                                                              _showContainer2 = !_showContainer2; */
+                                                                        });
+                                                                      },
+                                                                      title:
+                                                                          "Invalid Experience Value!",
+                                                                      subtitle:
+                                                                          "Please enter min experince");
+                                                                },
+                                                              );
+                                                            } */
                                                           },
-                                                          onTapOutside:
+                                                          onEditingComplete:
+                                                              () {
+                                                            if (minExp
+                                                                .text.isEmpty) {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return CustomDialog(
+                                                                      onClose:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        minExp
+                                                                            .clear();
+                                                                        maxExp
+                                                                            .clear();
+                                                                        // maxExp.clear();
+                                                                        setState(
+                                                                            () {
+                                                                          expContainer =
+                                                                              !expContainer;
+                                                                          enableExperience =
+                                                                              false;
+                                                                          /*   enableExperience =
+                                                                             // newValue.isNotEmpty; */
+                                                                          /*   _showContainer1 = !_showContainer1;
+                                                                              _showContainer2 = !_showContainer2; */
+                                                                        });
+                                                                      },
+                                                                      title:
+                                                                          "Invalid Experience Value!",
+                                                                      subtitle:
+                                                                          "Please enter min experince");
+                                                                },
+                                                              );
+                                                            }
+                                                          },
+                                                          /* onTapOutside:
                                                               (event) {
                                                             maxExp.text
                                                                     .isNotEmpty
@@ -2187,8 +2403,8 @@ class _JobFormState extends State<JobForm> {
                                                                         !expContainer;
                                                                   })
                                                                 : null;
-                                                          },
-                                                          onEditingComplete:
+                                                          }, */
+                                                          /* onEditingComplete:
                                                               () {
                                                             maxExp.text
                                                                     .isNotEmpty
@@ -2197,13 +2413,15 @@ class _JobFormState extends State<JobForm> {
                                                                         !expContainer;
                                                                   })
                                                                 : null;
-                                                          },
+                                                          }, */
                                                           keyboardType:
                                                               TextInputType
                                                                   .number,
                                                           controller: maxExp,
+                                                          /*   enabled:
+                                                              enableShortListFor, */
                                                           enabled:
-                                                              enableShortListFor,
+                                                              enableExperience,
                                                           /* validator: (value) {
                                                             if (value == null ||
                                                                 value.isEmpty) {
@@ -2239,6 +2457,8 @@ class _JobFormState extends State<JobForm> {
                                                           }),
                                                           decoration:
                                                               InputDecoration(
+                                                                  counterText:
+                                                                      '',
                                                                   contentPadding:
                                                                       const EdgeInsets
                                                                               .only(
@@ -2297,7 +2517,7 @@ class _JobFormState extends State<JobForm> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "Years",
+                                  "Yrs",
                                   style: GoogleFonts.sourceSansPro(
                                       fontSize: 16.sp,
                                       // color: Colors.grey.shade500,
@@ -2305,6 +2525,26 @@ class _JobFormState extends State<JobForm> {
                                 ),
                               ],
                             ),
+                    ),
+
+                  if (minExp.text.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          //   shape: const OutlineInputBorder(),
+                          value: isRelevantExpperience,
+                          onChanged: (value) {
+                            setState(() {
+                              isRelevantExpperience = value!;
+                            });
+                          },
+                        ),
+                        const Text(
+                          "Candidate should be from relevant experience background.",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
                     ),
 
                   Row(
@@ -2328,29 +2568,38 @@ class _JobFormState extends State<JobForm> {
                   Wrap(
                     children: [
                       if (onlyFemale == false && femalePrefered == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            onlyMale = !onlyMale;
-                            onlyFemale = false;
-                            femalePrefered = false;
-                          });
-                        }, onlyMale, "Only Male"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                onlyMale = !onlyMale;
+                                onlyFemale = false;
+                                femalePrefered = false;
+                              });
+                            },
+                            isSelect: onlyMale,
+                            title: "Only Male"),
                       if (onlyMale == false && femalePrefered == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            femalePrefered = false;
-                            onlyMale = false;
-                            onlyFemale = !onlyFemale;
-                          });
-                        }, onlyFemale, "Only Female"),
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                femalePrefered = false;
+                                onlyMale = false;
+                                onlyFemale = !onlyFemale;
+                              });
+                            },
+                            isSelect: onlyFemale,
+                            title: "Only Female"),
                       if (onlyFemale == false && onlyMale == false)
-                        customContainerSelect(() {
-                          setState(() {
-                            femalePrefered = !femalePrefered;
-                            onlyMale = false;
-                            onlyFemale = false;
-                          });
-                        }, femalePrefered, "Female Prefered")
+                        customContainerSelect(
+                            onPressed: () {
+                              setState(() {
+                                femalePrefered = !femalePrefered;
+                                onlyMale = false;
+                                onlyFemale = false;
+                              });
+                            },
+                            isSelect: femalePrefered,
+                            title: "Female Prefered")
                     ],
                   ),
                   Row(
@@ -2374,12 +2623,14 @@ class _JobFormState extends State<JobForm> {
                   agegroupContainer
                       ? Row(
                           children: [
-                            customContainerSelect(() {
-                              setState(() {
-                                agegroupContainer = false;
-                              });
-                            }, agegroupContainer,
-                                "${minAge.text} - ${maxAge.text} Year"),
+                            customContainerSelect(
+                                onPressed: () {
+                                  setState(() {
+                                    agegroupContainer = false;
+                                  });
+                                },
+                                isSelect: agegroupContainer,
+                                title: "${minAge.text} - ${maxAge.text} Yrs"),
                           ],
                         )
                       : Row(
@@ -2577,6 +2828,64 @@ class _JobFormState extends State<JobForm> {
                                                   }
                                                 },
                                                 onSubmitted: (newValue) {
+                                                  /*   maxAge.text.isNotEmpty &&
+                                                          minAge.text.isNotEmpty */
+
+                                                  if (maxAge.text.isNotEmpty) {
+                                                    int? age = int.tryParse(
+                                                        maxAge.text);
+                                                    int? age2 = int.tryParse(
+                                                        minAge.text);
+                                                    if (age! <= age2!) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      /* WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                        
+                                                      }); */
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
+                                                              },
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should be greater than Min age");
+                                                        },
+                                                      );
+                                                    } else if (age > 55) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
+                                                              },
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should not be greater than 55 years");
+                                                        },
+                                                      );
+                                                    } else {
+                                                      setState(() {
+                                                        agegroupContainer =
+                                                            !agegroupContainer;
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                /* {
                                                   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty
                                                       ? setState(() {
@@ -2611,7 +2920,7 @@ class _JobFormState extends State<JobForm> {
                                                       });
                                                     }
                                                   }
-                                                },
+                                                }, */
                                                 onTapOutside: (event) {
                                                   /*   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty */
@@ -2670,7 +2979,7 @@ class _JobFormState extends State<JobForm> {
                                                     }
                                                   }
                                                 },
-                                                onEditingComplete: () {
+                                                /* onEditingComplete: () {
                                                   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty
                                                       ? setState(() {
@@ -2691,7 +3000,7 @@ class _JobFormState extends State<JobForm> {
                                                                     "You have to fill min age as well");
                                                           },
                                                         );
-                                                },
+                                                }, */
                                                 keyboardType:
                                                     TextInputType.number,
                                                 controller: maxAge,
@@ -2781,7 +3090,7 @@ class _JobFormState extends State<JobForm> {
                               width: 10,
                             ),
                             Text(
-                              "Years",
+                              "Yrs",
                               style: GoogleFonts.sourceSansPro(
                                   fontSize: 16.sp,
                                   // color: Colors.grey.shade500,
@@ -3035,7 +3344,10 @@ class _JobFormState extends State<JobForm> {
   }
 
   InkWell customContainerSelect(
-      final VoidCallback onPressed, bool isSelect, String title) {
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      bool? isSalary = false}) {
     return InkWell(
         onTap: onPressed,
         child: Container(
@@ -3051,6 +3363,13 @@ class _JobFormState extends State<JobForm> {
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      isSalary!
+                          ? const Icon(
+                              Icons.currency_rupee_rounded,
+                              color: Colors.white,
+                              size: 15,
+                            )
+                          : const SizedBox(),
                       Text(title,
                           style: GoogleFonts.sourceSansPro(
                               color: Colors.white, fontSize: 15.sp)),
@@ -3210,7 +3529,8 @@ class _JobFormState extends State<JobForm> {
                   setState(() {
                     //  _checkLength(true);
                     // Update the second text field when the first text field changes
-                    if (value.isEmpty) {
+
+                    if (value.length <= 3) {
                       maxSalary.clear();
                     }
                   });
@@ -3376,14 +3696,18 @@ class _JobFormState extends State<JobForm> {
                 //   enableSuggestions: true,
                 //   onEditingComplete: _checkLength,
                 onChanged: (value) {
-                  setState(() {});
+                  if (minSalary.text.length <= 3) {
+                    maxSalary.clear();
+                  }
                 },
 
                 onFieldSubmitted: (value) {
                   _checkLength(false);
+
                   if (maxSalary.text.isNotEmpty) {
                     final int minSalary1 = int.tryParse(minSalary.text) ?? 0;
                     final int maxSalary2 = int.tryParse(maxSalary.text) ?? 0;
+
                     if (maxSalary2 <= minSalary1) {
                       // Value of the second text field is not greater than the first text field
                       setState(() {
@@ -3404,10 +3728,54 @@ class _JobFormState extends State<JobForm> {
                           },
                         );
                       });
-                    } else {
+                    } else if (_selectedOption.isNotEmpty) {
+                      String formatValue(int value, bool ismax) {
+                        if (value >= 100000) {
+                          double formattedValue = value / 100000;
+                          return ismax
+                              ? NumberFormat("0.00' Lacs'")
+                                  .format(formattedValue)
+                              : NumberFormat("0.00' '").format(formattedValue);
+                        } else {
+                          return value.toString();
+                        }
+                      }
+
                       setState(() {
                         isValueValid = true;
+                        if (minSalary1 <= 100000) {
+                          minSalaryk = NumberFormat.compact()
+                              .format(double.tryParse(minSalary.text));
+                        } else {
+                          minSalaryk = formatValue(minSalary1, false);
+                        }
+
+                        if (maxSalary2 <= 100000) {
+                          maxSalaryk = NumberFormat.compact()
+                              .format(double.tryParse(maxSalary.text));
+                        } else {
+                          maxSalaryk = formatValue(maxSalary2, true);
+                        }
+
+                        /*  maxSalaryk = NumberFormat.compact()
+                            .format(double.tryParse(maxSalary.text)); */
                       });
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                            onClose: () {
+                              Navigator.pop(context);
+                              maxSalaryFocusNode.requestFocus();
+                              // maxSalary.clear();
+                            },
+                            title: "Invalid Data!",
+                            subtitle:
+                                "Please select any option from salary type.",
+                          );
+                        },
+                      );
                     }
                   }
                 },

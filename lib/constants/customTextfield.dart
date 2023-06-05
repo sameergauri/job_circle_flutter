@@ -1,6 +1,9 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,6 +62,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   List<dynamic>? suggestion;
   bool isEdit = false;
   List<dynamic> suggestions = [];
+  // ignore: non_constant_identifier_names
   List<dynamic> ParentId = [];
   FocusNode focusNode = FocusNode();
 // Example usage of the handleFocusNodeChange method
@@ -102,6 +106,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
             margin: const EdgeInsets.all(5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
+              // ignore: use_full_hex_values_for_flutter_colors
               color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(15),
             ),
@@ -172,7 +177,6 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
           .map((e) => JobTitleModel.fromJson(e))
           .toList();
 
-      print(suggestions);
       return suggestions;
     } else {
       throw Exception('Failed to retrieve suggestions');
@@ -236,6 +240,9 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       elevation: 4.0,
                     ),
                     textFieldConfiguration: TextFieldConfiguration(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                      ],
                       onChanged: (value) {
                         suggestion = null;
                       },
@@ -257,6 +264,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         ),
                         border: OutlineInputBorder(
                           borderSide: const BorderSide(
+                            // ignore: use_full_hex_values_for_flutter_colors
                             color: Color(0xffff0eceb),
                           ),
                           borderRadius: BorderRadius.circular(8),
@@ -268,7 +276,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       if (pattern.isNotEmpty) {
                         suggestion = widget.isCompany
                             ? await getSuggestions(pattern)
-                            : await getJobTitle(pattern, widget.name) ?? [];
+                            : await getJobTitle(pattern, widget.name);
                         return suggestion!;
                       } else {
                         return <dynamic>[];
@@ -506,12 +514,17 @@ class _CustomFormTextFieldMultiSelectState
                                   isDuplicate = false;
                                   return null;
                                 }, */
+
                               suggestionsBoxDecoration:
                                   SuggestionsBoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 elevation: 4.0,
                               ),
                               textFieldConfiguration: TextFieldConfiguration(
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z]')),
+                                ],
                                 maxLines: 1,
                                 onChanged: (value) {
                                   setState(() {
@@ -563,8 +576,7 @@ class _CustomFormTextFieldMultiSelectState
                                       () {}); // Trigger a rebuild to show the "Searching" message
 
                                   suggestion =
-                                      await getJobTitle(pattern, widget.name) ??
-                                          [];
+                                      await getJobTitle(pattern, widget.name);
                                   showAddButton =
                                       !suggestion!.contains(pattern);
 
@@ -1073,7 +1085,7 @@ class _CustomJobFormTextFieldRespoOneState
                       if (pattern.isNotEmpty) {
                         suggestion = widget.isCompany
                             ? await getSuggestions(pattern)
-                            : await getJobTitle(pattern, widget.name) ?? [];
+                            : await getJobTitle(pattern, widget.name);
                         return suggestion!;
                       } else {
                         return <dynamic>[];
@@ -1389,7 +1401,7 @@ class _CustomJobFormTextFieldJobRespoState
                       if (pattern.isNotEmpty) {
                         suggestion = widget.isCompany
                             ? await getSuggestions(pattern)
-                            : await getJobTitle(pattern, widget.name) ?? [];
+                            : await getJobTitle(pattern, widget.name);
                         return suggestion!;
                       } else {
                         return <dynamic>[];
