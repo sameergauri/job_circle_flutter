@@ -1,4 +1,7 @@
-import 'dart:convert';
 
-class More_details {
+class CheckItem {
+  String text;
+  bool isChecked;
+
+  CheckItem(this.text, this.isChecked);
 }

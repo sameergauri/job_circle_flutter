@@ -102,13 +102,14 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
           });
         },
         child: Container(
+            width: double.maxFinite,
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               // ignore: use_full_hex_values_for_flutter_colors
               color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
                 //310D44   color code for dark purple
@@ -125,6 +126,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
             child: isSelect
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(controller!.text,
                           style: GoogleFonts.sourceSansPro(
@@ -230,7 +232,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                 Container(
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height / 25.h,
-                  margin: const EdgeInsets.only(bottom: 15),
+                  margin: const EdgeInsets.only(bottom: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -456,7 +458,9 @@ class _CustomFormTextFieldMultiSelectState
           ),
           Container(
             width: double.infinity,
-            margin: const EdgeInsets.only(top: 5),
+            margin: selectedValuesList!.isNotEmpty
+                ? EdgeInsets.zero
+                : const EdgeInsets.only(top: 5),
             //  height: MediaQuery.of(context).size.height / 9.h,
 
             decoration: BoxDecoration(
@@ -471,6 +475,8 @@ class _CustomFormTextFieldMultiSelectState
                         spacing: 8,
                         children: selectedValuesList!.map((e) {
                           return Chip(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             label: Text(e),
                             onDeleted: () {
                               setState(() {
@@ -915,12 +921,13 @@ class _CustomJobFormTextFieldRespoOneState
           });
         },
         child: Container(
+            width: double.maxFinite,
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
                 //310D44   color code for dark purple
@@ -936,6 +943,7 @@ class _CustomJobFormTextFieldRespoOneState
             //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(controller!.text,
@@ -1043,7 +1051,7 @@ class _CustomJobFormTextFieldRespoOneState
                 Container(
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height / 25.h,
-                  margin: const EdgeInsets.only(bottom: 15),
+                  margin: const EdgeInsets.only(bottom: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -1231,12 +1239,13 @@ class _CustomJobFormTextFieldJobRespoState
           });
         },
         child: Container(
+            width: double.maxFinite,
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
                 //310D44   color code for dark purple
@@ -1252,6 +1261,7 @@ class _CustomJobFormTextFieldJobRespoState
             //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(controller!.text,

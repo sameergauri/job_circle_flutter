@@ -13,6 +13,7 @@ import 'maxexperience.dart';
 import 'minctc.dart';
 import 'minexperience.dart';
 import 'more__details.dart';
+import 'more__details_1.dart';
 import 'skills.dart';
 
 class Job {

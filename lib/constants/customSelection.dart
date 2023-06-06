@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class JobTitleItem extends StatefulWidget {
   final String title;
@@ -7,6 +6,7 @@ class JobTitleItem extends StatefulWidget {
   final bool ismulti;
   final VoidCallback onTap;
   final bool isVisible;
+  final bool onlyOneIcon;
 
   const JobTitleItem({
     super.key,
@@ -15,6 +15,7 @@ class JobTitleItem extends StatefulWidget {
     required this.isSelected,
     required this.onTap,
     required getJobTitle1isSelected,
+    required this.onlyOneIcon,
     required this.isVisible,
   });
 
@@ -46,15 +47,16 @@ class _JobTitleItemState extends State<JobTitleItem> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            isSelected = !isSelected;
+            isSelected = true;
           });
           widget.onTap();
         },
         child: Container(
+          
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xfff310d44) : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -64,27 +66,19 @@ class _JobTitleItemState extends State<JobTitleItem> {
                 style: TextStyle(color: isSelected ? Colors.white : null),
               ),
               widget.ismulti
-                  ? SizedBox(
-                      child: isSelected
-                          ? Row(
-                              children: [
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Image.asset(
-                                  "assets/images/cross.png",
-                                  height: 11.h,
-                                ),
-                              ],
-                            )
-                          : null,
-                    )
+                  ? const SizedBox()
                   : SizedBox(
-                      child: Icon(
-                        isSelected ? Icons.check : Icons.add,
-                        color: isSelected ? Colors.white : null,
-                        size: 15,
-                      ),
+                      child: widget.onlyOneIcon
+                          ? Icon(
+                              isSelected ? Icons.check : Icons.abc,
+                              color: isSelected ? Colors.white : null,
+                              size: isSelected ? 15 : 0,
+                            )
+                          : Icon(
+                              isSelected ? Icons.check : Icons.add,
+                              color: isSelected ? Colors.white : null,
+                              size: 15,
+                            ),
                     )
             ],
           ),
