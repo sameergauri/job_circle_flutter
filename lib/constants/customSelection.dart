@@ -52,7 +52,6 @@ class _JobTitleItemState extends State<JobTitleItem> {
           widget.onTap();
         },
         child: Container(
-          
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xfff310d44) : Colors.grey.shade200,
