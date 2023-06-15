@@ -69,3 +69,4 @@ class JobTitleModel1 {
     return 'JobTitleModel{id: $id, groupName: $groupName, code: $code, value: $value, active: $active, deleted: $deleted, urlSlug: $urlSlug, parentId: $parentId, parentName: $parentName, orderNo: $orderNo, extra: $extra}';
   }
 }
+

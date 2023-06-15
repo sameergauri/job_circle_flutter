@@ -13,12 +13,16 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/job_title_model.dart';
 
 import '../themes/colors.dart';
+import 'customDialogue.dart';
+
+int suggestionIndex = 0;
 
 class CustomJobFormTextField extends StatefulWidget {
   final TextEditingController? controller;
   //final bool isEdit;
   // final FocusNode focusNode;
   final String hintText;
+  final FocusNode? focusNode;
   // List<String>? selectedValuesList = [];
   final bool isCompany;
   BuildContext contextIn;
@@ -37,6 +41,7 @@ class CustomJobFormTextField extends StatefulWidget {
     Key? key,
     this.controller,
     this.onSubmit,
+    this.focusNode,
     //  this.onJobTitle,
     // required this.isEdit,
     // required this.focusNode,
@@ -64,7 +69,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   List<JobTitleModel> suggestions = [];
   // ignore: non_constant_identifier_names
   List<dynamic> ParentId = [];
-  FocusNode focusNode = FocusNode();
+  // FocusNode focusNode = FocusNode();
 // Example usage of the handleFocusNodeChange method
   late TextEditingController? controller = widget.controller;
   // late bool isEdit = widget.isEdit;
@@ -89,7 +94,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
     return InkWell(
         onTap: () {
           //  log("Requesting Focus");
-          focusNode.requestFocus();
+          widget.focusNode!.requestFocus();
 
           setState(() {
             controller!.clear();
@@ -266,6 +271,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
     widget.onFocusNodeRequested; // Pass the focusNode itself
   } */
   late final Function(String) onIDSelected;
+  int suggestionIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -306,11 +312,18 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TypeAheadFormField<dynamic>(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "This Text field Cant be empty";
+                      }
+                      return null;
+                    },
                     suggestionsBoxDecoration: SuggestionsBoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       elevation: 4.0,
                     ),
                     textFieldConfiguration: TextFieldConfiguration(
+                      focusNode: widget.focusNode,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                       ],
@@ -354,6 +367,27 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       }
                     },
                     itemBuilder: (context, suggestion) {
+                      final isOdd = suggestionIndex % 2 == 0;
+                      final backgroundColor =
+                          isOdd ? Colors.grey.shade200 : Colors.white;
+
+                      // Increment the suggestion index counter
+                      suggestionIndex++;
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            suggestion.name.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    },
+
+                    /* itemBuilder: (context, suggestion) {
                       final index = suggestions.indexOf(suggestion);
                       final isOdd = index % 2 == 0;
                       final backgroundColor =
@@ -371,7 +405,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                           ),
                         ),
                       );
-                    },
+                    }, */
                     onSuggestionSelected: (suggestion) {
                       setState(() {
                         controller!.text = suggestion.name.toString();
@@ -424,9 +458,11 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   final String name;
   final isSkill;
   final Function(String)? workType;
+  final Function(List<String>)? submit;
 
   CustomFormTextFieldMultiSelect({
     required this.callback,
+    this.submit,
     Key? key,
     this.controller,
     this.workType,
@@ -468,6 +504,7 @@ class _CustomFormTextFieldMultiSelectState
   String? selectedValue;
 
   List<String>? selectedValuesList = [];
+  List<String> selectedDataList = [];
   bool isDuplicate = false;
   String? customValue;
   bool showAddButton = false;
@@ -478,11 +515,36 @@ class _CustomFormTextFieldMultiSelectState
     widget.onChanged!(newValue);
   }
 
-  void handleWorkType(String newValue) {
-    widget.workType!(newValue);
+  Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
+    final response = await http.get(Uri.parse(
+        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobTitleModel1> suggestions = [];
+      Set<String> uniqueValues = {};
+
+      List<dynamic> content = data['resultData']['content'];
+
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
   }
 
-  Future<List> getJobTitle(String pattern, String name) async {
+  /* Future<List> getJobTitle(String pattern, String name) async {    // old skills and work location working function
     final response = await http.get(Uri.parse(
         '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
@@ -503,7 +565,7 @@ class _CustomFormTextFieldMultiSelectState
     } else {
       throw Exception('Failed to retrieve suggestions');
     }
-  }
+  } */
 
   /* Future<List<dynamic>> fetchSuggestions(String pattern) async {
     //List<dynamic> suggestions = [];
@@ -543,14 +605,16 @@ class _CustomFormTextFieldMultiSelectState
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 selectedValuesList!.isEmpty
                     ? Container()
                     : Wrap(
-                        spacing: 8,
+                        spacing: 4,
                         children: selectedValuesList!.map((e) {
                           return Chip(
+                            visualDensity: VisualDensity.compact,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8)),
                             label: Text(e),
@@ -604,8 +668,10 @@ class _CustomFormTextFieldMultiSelectState
                               ),
                               textFieldConfiguration: TextFieldConfiguration(
                                 inputFormatters: [
+                                  FilteringTextInputFormatter.deny(RegExp(
+                                      r'^\s')), // Disallow spaces at the beginning
                                   FilteringTextInputFormatter.allow(
-                                      RegExp(r'[a-zA-Z]')),
+                                      RegExp(r'[a-zA-Z\s]')),
                                 ],
                                 maxLines: 1,
                                 onChanged: (value) {
@@ -675,19 +741,21 @@ class _CustomFormTextFieldMultiSelectState
                                 }
                               },
                               itemBuilder: (context, suggestion) {
-                                final index = suggestions.indexOf(suggestion);
-                                final isOdd = index % 2 == 0;
+                                final isOdd = suggestionIndex % 2 == 0;
                                 final backgroundColor =
                                     isOdd ? Colors.grey.shade200 : Colors.white;
+
+                                // Increment the suggestion index counter
+                                suggestionIndex++;
 
                                 return Container(
                                   decoration: BoxDecoration(
                                     color: backgroundColor,
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: ListTile(
                                     title: Text(
-                                      suggestion.toString(),
+                                      suggestion.value.toString(),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -695,23 +763,98 @@ class _CustomFormTextFieldMultiSelectState
                                 );
                               },
                               onSuggestionSelected: (suggestion) {
-                                if (selectedValuesList!.contains(suggestion)) {
+                                if (selectedValuesList!
+                                    .contains(suggestion.value)) {
+                                  // Dialog for duplicate value
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomDialog(
+                                        isFisrt: false,
+                                        onClose: () {
+                                          Navigator.of(context).pop();
+                                          textFieldFocusNode.requestFocus();
+                                          controller!.clear();
+                                        },
+                                        title: "Error!",
+                                        subtitle: widget.isSkill
+                                            ? 'This skill is already added'
+                                            : "This location is already added",
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  setState(() {
+                                    selectedValuesList!.add(suggestion.value);
+                                    isDuplicate = false;
+                                    showAddButton = true;
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    controller!.clear();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
+
+                                    if (suggestion.value != "WFH" &&
+                                        suggestion.value != "Hybrid") {
+                                      controller!
+                                          .clear(); // Clear the controller for all suggestions except "wfh" and "hybrid"
+                                    }
+                                  });
+
+                                  if (selectedValuesList!.contains("wfh") ||
+                                      selectedValuesList!.contains("WFH") ||
+                                      selectedValuesList!.contains("Hybrid")) {
+                                    // Perform additional operations for "wfh" or "Hybrid" values
+                                    // ...
+                                    handleBoolChange(true);
+                                    widget.workType!(suggestion.value);
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
+                                  }
+                                }
+                              },
+
+                              /*  onSuggestionSelected: (suggestion) {  // working skills suggestion
+                                if (selectedValuesList!
+                                    .contains(suggestion.value)) {
                                   setState(() {
                                     //selectedValuesList!.add(suggestion);
                                     isDuplicate = true;
                                     controller!.clear();
                                     showAddButton = true;
-                                    controller!.text = suggestion.toString();
-                                    widget.callback(suggestion.toString());
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
 
                                     if (selectedValuesList!.contains("wfh") ||
                                         selectedValuesList!.contains("WFH") ||
                                         selectedValuesList!
                                             .contains("Hybrid")) {
                                       handleBoolChange(true);
-                                      handleWorkType(suggestion.toString());
-                                      controller!.text = suggestion.toString();
-                                      widget.callback(suggestion.toString());
+                                      widget.workType!(suggestion.value);
+                                      controller!.text =
+                                          suggestion.value.toString();
+                                      widget.callback(
+                                          suggestion.value.toString());
+                                      selectedDataList
+                                          .add(suggestion.id.toString());
+                                      widget.submit!(selectedDataList);
+                                      controller!.clear();
                                     }
                                     // textFieldFocusNode.requestFocus();
                                   });
@@ -719,6 +862,7 @@ class _CustomFormTextFieldMultiSelectState
                                     context: context,
                                     builder: (BuildContext context) {
                                       return CustomDialog(
+                                          isFisrt: false,
                                           onClose: () {
                                             Navigator.of(context).pop();
                                             textFieldFocusNode.requestFocus();
@@ -730,21 +874,35 @@ class _CustomFormTextFieldMultiSelectState
                                               : "This location is already added");
                                     },
                                   );
-                                } else if (suggestion != null) {
+                                } else if (suggestion.value != null) {
                                   setState(() {
-                                    selectedValuesList!.add(suggestion);
+                                    selectedValuesList!.add(suggestion.value);
                                     isDuplicate = false;
                                     showAddButton = true;
-                                    controller!.text = suggestion.toString();
-                                    widget.callback(suggestion.toString());
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
                                     if (selectedValuesList!.contains("wfh") ||
                                         selectedValuesList!.contains("WFH") ||
                                         selectedValuesList!
                                             .contains("Hybrid")) {
                                       handleBoolChange(true);
-                                      handleWorkType(suggestion.toString());
-                                      controller!.text = suggestion.toString();
-                                      widget.callback(suggestion.toString());
+                                      /*  handleWorkType(
+                                          suggestion.value.toString()); */
+                                      selectedValuesList!.add(suggestion.value);
+                                      controller!.text =
+                                          suggestion.value.toString();
+                                      widget.callback(
+                                          suggestion.value.toString());
+                                      selectedDataList
+                                          .add(suggestion.id.toString());
+                                      widget.submit!(selectedDataList);
+                                      // controller!.clear();
                                     }
                                     controller!.clear();
                                     // textFieldFocusNode.requestFocus();
@@ -766,7 +924,7 @@ class _CustomFormTextFieldMultiSelectState
                                   //  handleBoolChange(true);
                                   // FocusScope.of(context).autofocus(focusNode);  // on hold
                                 }); */
-                              },
+                              }, */
                               /* noItemsFoundBuilder: (BuildContext context) {
                                 if (isLoading) {
                                   return const Padding(
@@ -812,6 +970,7 @@ class _CustomFormTextFieldMultiSelectState
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return CustomDialog(
+                                                  isFisrt: false,
                                                   onClose: () {
                                                     Navigator.of(context).pop();
                                                     textFieldFocusNode
@@ -927,6 +1086,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
+  final FocusNode? focusNode;
   // final void Function(String)? onJobTitle;
   var onIDSelected;
   // final Function(FocusNode) onFocusNodeRequested;
@@ -935,6 +1095,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
     Key? key,
     this.controller,
     this.onSubmit,
+    this.focusNode,
     //  this.onJobTitle,
     // required this.isEdit,
     // required this.focusNode,
@@ -963,7 +1124,7 @@ class _CustomJobFormTextFieldRespoOneState
   bool isEdit = false;
   List<dynamic> suggestions = [];
   List<dynamic> ParentId = [];
-  FocusNode focusNode = FocusNode();
+  //FocusNode focusNode = FocusNode();
 // Example usage of the handleFocusNodeChange method
   late TextEditingController? controller = widget.controller;
   // late bool isEdit = widget.isEdit;
@@ -988,7 +1149,7 @@ class _CustomJobFormTextFieldRespoOneState
     return InkWell(
         onTap: () {
           //  log("Requesting Focus");
-          focusNode.requestFocus();
+          widget.focusNode?.requestFocus();
 
           setState(() {
             controller!.clear();
@@ -1165,6 +1326,12 @@ class _CustomJobFormTextFieldRespoOneState
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TypeAheadFormField<dynamic>(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "This Text field Cant be empty";
+                      }
+                      return null;
+                    },
                     suggestionsBoxDecoration: SuggestionsBoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       elevation: 4.0,
@@ -1174,7 +1341,7 @@ class _CustomJobFormTextFieldRespoOneState
                         suggestion = null;
                       },
                       autofocus: true,
-                      focusNode: focusNode,
+                      focusNode: widget.focusNode,
                       textCapitalization: TextCapitalization.sentences,
                       controller: controller,
                       decoration: InputDecoration(
@@ -1209,15 +1376,17 @@ class _CustomJobFormTextFieldRespoOneState
                       }
                     },
                     itemBuilder: (context, suggestion) {
-                      final index = suggestions.indexOf(suggestion);
-                      final isOdd = index % 2 == 0;
+                      final isOdd = suggestionIndex % 2 == 0;
                       final backgroundColor =
                           isOdd ? Colors.grey.shade200 : Colors.white;
+
+                      // Increment the suggestion index counter
+                      suggestionIndex++;
 
                       return Container(
                         decoration: BoxDecoration(
                           color: backgroundColor,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(
                           title: Text(
@@ -1276,6 +1445,7 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
+  final FocusNode? focusNode;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -1283,7 +1453,7 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
     Key? key,
     this.controller,
     this.onSubmit,
-
+    this.focusNode,
     // required this.isEdit,
     // required this.focusNode,
     // this.selectedValuesList,
@@ -1335,7 +1505,7 @@ class _CustomJobFormTextFieldJobRespoState
     return InkWell(
         onTap: () {
           //  log("Requesting Focus");
-          focusNode.requestFocus();
+          widget.focusNode!.requestFocus();
 
           setState(() {
             controller!.clear();
@@ -1507,11 +1677,17 @@ class _CustomJobFormTextFieldJobRespoState
                 Container(
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height / 25.h,
-                  margin: const EdgeInsets.only(bottom: 15),
+                  // margin: const EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TypeAheadFormField<dynamic>(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "This Text field Cant be empty";
+                      }
+                      return null;
+                    },
                     suggestionsBoxDecoration: SuggestionsBoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       elevation: 4.0,
@@ -1521,7 +1697,7 @@ class _CustomJobFormTextFieldJobRespoState
                         suggestion = null;
                       },
                       autofocus: true,
-                      focusNode: focusNode,
+                      focusNode: widget.focusNode,
                       textCapitalization: TextCapitalization.sentences,
                       controller: controller,
                       decoration: InputDecoration(
@@ -1556,15 +1732,17 @@ class _CustomJobFormTextFieldJobRespoState
                       }
                     },
                     itemBuilder: (context, suggestion) {
-                      final index = suggestions.indexOf(suggestion);
-                      final isOdd = index % 2 == 0;
+                      final isOdd = suggestionIndex % 2 == 0;
                       final backgroundColor =
                           isOdd ? Colors.grey.shade200 : Colors.white;
+
+                      // Increment the suggestion index counter
+                      suggestionIndex++;
 
                       return Container(
                         decoration: BoxDecoration(
                           color: backgroundColor,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(
                           title: Text(
@@ -1608,56 +1786,7 @@ class _CustomJobFormTextFieldJobRespoState
   }
 }
 
-class CustomDialog extends StatelessWidget {
-  final VoidCallback onClose;
-  final String title, subtitle;
-  const CustomDialog(
-      {super.key,
-      required this.onClose,
-      required this.title,
-      required this.subtitle});
 
-  // String? title,Desc;
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Add your custom dialog content here
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Text(
-              subtitle,
-              style: const TextStyle(fontSize: 16.0),
-            ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: onClose,
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 
 

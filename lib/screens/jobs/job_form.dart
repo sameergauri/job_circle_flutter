@@ -20,14 +20,15 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
-import 'package:job_circle/models/job_post_model.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/company.dart';
-import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 
+import '../../constants/customDialogue.dart';
+import '../../models/job_post_model.dart';
 import '../../models/more__details.dart';
+import '../../service/job_post_api_service.dart';
 
 class JobForm extends StatefulWidget {
   const JobForm({super.key});
@@ -326,6 +327,66 @@ class _JobFormState extends State<JobForm> {
     }
   } */
   Timer? _timer;
+  InkWell customContainerSelect1(bool isSelect, String text) {
+    return InkWell(
+        onTap: () {
+          //  log("Requesting Focus");
+          focusNode.requestFocus();
+
+          setState(() {
+            // controller!.clear();
+//handleBoolChange(false);
+            // widget.focusNode.requestFocus;
+            // handleFocusNodeRequest();
+            //focusNode.requestFocus();
+            // handleFocusNodeChange();
+            //focusNode.requestFocus();
+          });
+        },
+        child: Container(
+            width: double.maxFinite,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            /* decoration: BoxDecoration(
+                //310D44   color code for dark purple
+                //3D3635   color code for greybrown
+                color: isSelect ? const Color(0xfff310d44) : null,
+                border: isSelect
+                    ? null
+                    : Border.all(
+                        color: isSelect
+                            ? Colors.deepOrange.shade400
+                            : Colors.grey),
+                borderRadius: BorderRadius.circular(18)), */
+            //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: isSelect
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(text,
+                          style: GoogleFonts.sourceSansPro(
+                              // fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 15.sp)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Icon(
+                        Icons.check,
+                        size: 15,
+                        color: Colors.white,
+                      )
+                    ],
+                  )
+                : Text(text,
+                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+  }
 
   @override
   void initState() {
@@ -336,6 +397,48 @@ class _JobFormState extends State<JobForm> {
       fetchData();
     } */
     // fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        // barrierColor: Colors.grey.shade100,
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return CustomDialog(
+            getCompanyName: (value) {
+              setState(() {
+                shorListController = value; // Update the value in Class1
+              });
+            },
+            getCompanyId: (value) {
+              setState(() {
+                CompanyID = value;
+              });
+            },
+            getJobtitile: (value) {
+              setState(() {
+                role = value;
+              });
+            },
+            getJobtitleValue: getValueOfJobtitle,
+            getNatureOfWorkId: fetchData,
+            getProcess: (value) {
+              setState(() {
+                proces = value;
+              });
+            },
+            getNatureOFWork: (value) {
+              setState(() {
+                natureOfWork = value;
+              });
+            },
+            isFisrt: true,
+            onClose: () {},
+            title: "Quick & Easy Job Posting",
+            subtitle: "",
+          );
+        },
+      );
+    });
 
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
@@ -564,6 +667,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 moreDetail.clear();
                 Navigator.of(context).pop();
@@ -577,6 +681,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 moreDetail.clear();
                 Navigator.of(context).pop();
@@ -606,6 +711,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 Eligibility.clear();
                 Navigator.of(context).pop();
@@ -619,6 +725,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 Eligibility.clear();
                 Navigator.of(context).pop();
@@ -648,6 +755,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 boundryLimits.clear();
                 Navigator.of(context).pop();
@@ -661,6 +769,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 boundryLimits.clear();
                 Navigator.of(context).pop();
@@ -711,6 +820,24 @@ class _JobFormState extends State<JobForm> {
   String? Nowid;
   int? NatureOfWorkID;
   String? CompanyID;
+  String? CityID = "0";
+  List<String> worklocationList = [];
+
+  void getWorkLocation(List<String> data) {
+    // Store the received data in the list
+    setState(() {
+      worklocationList = data;
+    });
+
+    // Perform further operations on the storedData list if needed
+    // ...
+  }
+
+  void getCityId(String cityId) async {
+    setState(() {
+      CityID = cityId;
+    });
+  }
 
   void getValueOfJobtitle(String getJobTitle) async {
     setState(() {
@@ -1028,24 +1155,30 @@ class _JobFormState extends State<JobForm> {
     });
   }
 
+  FocusNode roleFocusNodeFrom = FocusNode();
+
   List<String> selectedValuesList = [];
   List<String> selectedWorkLocation = [];
-  String workFromHome = "";
+  String? workFromHome;
   List<String> selectedValues = [];
   // List<String> selectedWorkLocation = [];
+  void getWorkValue(String value) {
+    setState(() {
+      workFromHome = value;
+    });
+  }
 
   void updateSelectedValues(String value) {
     setState(() {
       selectedValues.add(value);
     });
   }
+
   void updateSelectedValues1(String value) {
     setState(() {
       selectedWorkLocation.add(value);
     });
   }
-
-
 
   /* void handleFocusNodeRequest() {
     setState(() {
@@ -1160,7 +1293,222 @@ class _JobFormState extends State<JobForm> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (selectedComunication == "Excellent | Versant") {
+                    selectedEligibility.add(
+                        "Excellent English written & verbal Communication skills required.");
+                  }
+                  if (isFresher == false) {
+                    if (isRelevantExpperience == true) {
+                      selectedEligibility.add(
+                          "Candidate should be from relevant experience background.");
+                    }
+                  }
+                  if (_formKey.currentState!.validate()) {
+                    if (isFullTime == false &&
+                        isPartTime == false &&
+                        isIntern == false &&
+                        isContract == false) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Emp Type");
+                        },
+                      );
+                    } else if (graduate == false && undeGraduate == false) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Education type Type");
+                        },
+                      );
+                    } else if (selectedValues.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Add some skill");
+                        },
+                      );
+                    } else if (selectedResponsibility.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Responsibility ");
+                        },
+                      );
+                    } else if (selectedShiftTime1 == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select shift time");
+                        },
+                      );
+                    } else if (selectedWeakOff1 == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Weak-off");
+                        },
+                      );
+                    } else if (worklocationList.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Add work location ");
+                        },
+                      );
+                    } else if (selectedComunication == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select communication rating");
+                        },
+                      );
+                    } else if (selectedInterViewRounds.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select atleast one interview round");
+                        },
+                      );
+                    } else {
+                      jobPostModel model = jobPostModel(
+                        active: null,
+
+                        roleName: role.text,
+                        process: proces.text,
+                        // natureOfWorkId: natureofWorkID.toString()
+                        industry: industry.text,
+                        noOfVacancy: int.parse(numberofopenings.text),
+                        empType: isFullTime
+                            ? "Full Time"
+                            : isPartTime
+                                ? "Part Time"
+                                : isContract
+                                    ? "Contractual"
+                                    : isIntern
+                                        ? "InternShip"
+                                        : " ",
+                        education: graduate ? "Graduate" : "Under-Graduate",
+                        skills: selectedValues,
+                        keyResponsible: selectedResponsibility,
+                        languageKnown: selectedLanguages,
+                        jobBenefits: selectedJobBenefits,
+                        shiftTime: selectedShiftTime1,
+                        shiftDesc: selectedWeakOff1,
+                        minCtc: int.parse(minSalary.text),
+                        maxCtc: int.parse(maxSalary.text),
+                        isMonthly: _selectedOption,
+                        minExperience: minExp.text,
+                        maxExperience: maxExp.text,
+                        isFresher: isFresher ? "Fresher" : " ",
+                        boundaryLimits: selectedBoundryLimit
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        gender: onlyMale
+                            ? "Male"
+                            : onlyFemale
+                                ? "Female"
+                                : femalePrefered
+                                    ? "Female prefered"
+                                    : " ",
+                        minAge: int.parse(minAge.text),
+                        maxAge: int.parse(maxAge.text),
+                        eligibility: selectedEligibility
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        moreDetails: selectedMoreDetail
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        interviewRounds: selectedInterViewRounds,
+                        rating: selectedComunication,
+
+                        workCity: int.parse(CityID.toString()),
+                        companyId: int.parse(CompanyID!),
+                        natureOfWorkId: NatureOfWorkID,
+                        workLocation: worklocationList
+                            .map((str) => int.parse(str))
+                            .toList(),
+
+                        //  workLocation: sele
+//empType:
+//minAge: minAge.text
+                        // Populate other properties here
+                      );
+
+                      Map<String, dynamic> jsonData = model.toJson();
+                      JobPostApiService.postDataToApi(jsonData);
+                    }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Please Fill All The Deatils");
+                      },
+                    );
+                  }
+                  // if (shorListController.text.isEmpty) {}//   if(noOfVacancy.text.isEmpty||languageKnown.text.isEmpty||boundryLimits.text.isEmpty){}  these field may be empty
+                },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 5, top: 5),
                   padding: const EdgeInsets.symmetric(
@@ -1178,70 +1526,220 @@ class _JobFormState extends State<JobForm> {
               ),
               InkWell(
                 onTap: () {
-                 // if(r)
-                  jobPostModel model = jobPostModel(
-                      active: null,
-                      payout: "PayOut",
-                      roleName: role.text,
-                      process: proces.text,
-                      // natureOfWorkId: natureofWorkID.toString()
-                      industry: industry.text,
-                      noOfVacancy: int.parse(numberofopenings.text),
-                      empType: isFullTime
-                          ? "Full Time"
-                          : isPartTime
-                              ? "Part Time"
-                              : isContract
-                                  ? "Contractual"
-                                  : isIntern
-                                      ? "InternShip"
-                                      : " ",
-                      education: graduate ? "Graduate" : "Under-Graduate",
-                      skills: selectedValues,
-                      jobResponsible: selectedResponsibility
-                          .map((str) => '- $str')
-                          .join('\n'),
-                      languageKnown: selectedLanguages,
-                      jobBenefits: selectedJobBenefits,
-                      shiftTime: selectedShiftTime1,
-                      shiftDesc: selectedWeakOff1,
-                      minCtc: int.parse(minSalary.text),
-                      maxCtc: int.parse(maxSalary.text),
-                      isMonthly: _selectedOption,
-                      minExperience: minExp.text,
-                      maxExperience: maxExp.text,
-                      isFresher: isFresher ? "Fresher" : " ",
-                      boundaryLimits: selectedBoundryLimit
-                          .map((str) => '- $str')
-                          .join('\n'),
-                      gender: onlyMale
-                          ? "Male"
-                          : onlyFemale
-                              ? "Female"
-                              : femalePrefered
-                                  ? "Female prefered"
-                                  : " ",
-                      minAge: int.parse(minAge.text),
-                      maxAge: int.parse(maxAge.text),
-                      eligibility:
-                          selectedEligibility.map((str) => '- $str').join('\n'),
-                      moreDetails:
-                          selectedMoreDetail.map((str) => '- $str').join('\n'),
-                      interviewRounds: selectedInterViewRounds,
-                      rating: selectedComunication,
-                      workCity: 2,
-                      companyId: int.parse(CompanyID!),
-                      natureOfWorkId: NatureOfWorkID,
+                  if (selectedComunication == "Excellent | Versant") {
+                    selectedEligibility.add(
+                        "Excellent English written & verbal Communication skills required.");
+                  }
+                  if (isFresher == false) {
+                    if (isRelevantExpperience == true) {
+                      selectedEligibility.add(
+                          "Candidate should be from relevant experience background.");
+                    }
+                  }
+                  if (_formKey.currentState!.validate()) {
+                    if (isFullTime == false &&
+                        isPartTime == false &&
+                        isIntern == false &&
+                        isContract == false) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Emp Type");
+                        },
+                      );
+                    } else if (graduate == false && undeGraduate == false) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Education type Type");
+                        },
+                      );
+                    } else if (selectedValues.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Add some skill");
+                        },
+                      );
+                    } else if (selectedResponsibility.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Responsibility ");
+                        },
+                      );
+                    } else if (selectedShiftTime1 == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select shift time");
+                        },
+                      );
+                    } else if (selectedWeakOff1 == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select Weak-off");
+                        },
+                      );
+                    } else if (worklocationList.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Add work location ");
+                        },
+                      );
+                    } else if (selectedComunication == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select communication rating");
+                        },
+                      );
+                    } else if (selectedInterViewRounds.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                              },
+                              title: "Error",
+                              subtitle: "Select atleast one interview round");
+                        },
+                      );
+                    } else {
+                      jobPostModel model = jobPostModel(
+                        active: 1,
 
-                    //  workLocation: sele
+                        roleName: role.text,
+                        process: proces.text,
+                        // natureOfWorkId: natureofWorkID.toString()
+                        industry: industry.text,
+                        noOfVacancy: int.parse(numberofopenings.text),
+                        empType: isFullTime
+                            ? "Full Time"
+                            : isPartTime
+                                ? "Part Time"
+                                : isContract
+                                    ? "Contractual"
+                                    : isIntern
+                                        ? "InternShip"
+                                        : " ",
+                        education: graduate ? "Graduate" : "Under-Graduate",
+                        skills: selectedValues,
+                        keyResponsible: selectedResponsibility,
+                        languageKnown: selectedLanguages,
+                        jobBenefits: selectedJobBenefits,
+                        shiftTime: selectedShiftTime1,
+                        shiftDesc: selectedWeakOff1,
+                        minCtc: int.parse(minSalary.text),
+                        maxCtc: int.parse(maxSalary.text),
+                        isMonthly: _selectedOption,
+                        minExperience: minExp.text,
+                        maxExperience: maxExp.text,
+                        isFresher: isFresher ? "Fresher" : " ",
+                        boundaryLimits: selectedBoundryLimit
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        gender: onlyMale
+                            ? "Male"
+                            : onlyFemale
+                                ? "Female"
+                                : femalePrefered
+                                    ? "Female prefered"
+                                    : " ",
+                        minAge: int.parse(minAge.text),
+                        maxAge: int.parse(maxAge.text),
+                        eligibility: selectedEligibility
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        moreDetails: selectedMoreDetail
+                            .map((str) => '- $str')
+                            .join('\n'),
+                        interviewRounds: selectedInterViewRounds,
+                        rating: selectedComunication,
+
+                        workCity: int.parse(CityID.toString()),
+                        companyId: int.parse(CompanyID!),
+                        natureOfWorkId: NatureOfWorkID,
+                        workLocation: worklocationList
+                            .map((str) => int.parse(str))
+                            .toList(),
+
+                        //  workLocation: sele
 //empType:
 //minAge: minAge.text
-                      // Populate other properties here
+                        // Populate other properties here
                       );
 
-                  Map<String, dynamic> jsonData = model.toJson();
-                  JobPostApiService.postDataToApi(jsonData);
-                  //   if(noOfVacancy.text.isEmpty||languageKnown.text.isEmpty||boundryLimits.text.isEmpty){}  these field may be empty
+                      Map<String, dynamic> jsonData = model.toJson();
+                      JobPostApiService.postDataToApi(jsonData);
+                    }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Please Fill All The Deatils");
+                      },
+                    );
+                  }
+                  // if (shorListController.text.isEmpty) {}//   if(noOfVacancy.text.isEmpty||languageKnown.text.isEmpty||boundryLimits.text.isEmpty){}  these field may be empty
                 },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 5, top: 5),
@@ -1264,7 +1762,7 @@ class _JobFormState extends State<JobForm> {
       ),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 143, 172, 187),
-        title: const Text("New Job"),
+        title: const Text("Job Posting"),
       ),
       body: Form(
         key: _formKey,
@@ -1273,7 +1771,7 @@ class _JobFormState extends State<JobForm> {
             if (shorListController.text.isNotEmpty) {
               FocusScope.of(context).nextFocus();
             }
-            setState(() {
+            /* setState(() {
               {
                 if (!isEdit1) {
                   role.clear();
@@ -1297,7 +1795,7 @@ class _JobFormState extends State<JobForm> {
                   skills.clear();
                 } */
               }
-            });
+            }); */
           },
           child: SingleChildScrollView(
             child: Padding(
@@ -1305,7 +1803,22 @@ class _JobFormState extends State<JobForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomJobFormTextField(
+                  if (shorListController.text.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Company Name",
+                          style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        customContainerSelect1(true, shorListController.text),
+                      ],
+                    ),
+
+                  /* CustomJobFormTextField(
                     isCompany: true,
                     name: "company",
                     /* onFocusNodeRequested: (p0) {
@@ -1323,13 +1836,27 @@ class _JobFormState extends State<JobForm> {
                     hintText: "Aditya birla Health Insurance",
                     getSuggestions: getSuggestions,
                     onIDSelected: handleSelectedID,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: width / 2.2,
-                        child: CustomJobFormTextFieldRespOne(
+                  ), */
+                  if (role.text.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: width / 2.2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Job Title / Role",
+                                style: GoogleFonts.sourceSansPro(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              customContainerSelect1(true, role.text),
+                            ],
+                          ),
+                          /* CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "job_role",
                           /* onFocusNodeRequested: (p0) {
@@ -1347,11 +1874,25 @@ class _JobFormState extends State<JobForm> {
                           hintText: "Sr. Executive",
                           onSubmit: getValueOfJobtitle,
                           //  getSuggestions: getJobTitle,
+                        ), */
                         ),
-                      ),
-                      SizedBox(
-                        width: width / 2.2,
-                        child: CustomJobFormTextFieldRespOne(
+                        if (proces.text.isNotEmpty)
+                          SizedBox(
+                            width: width / 2.2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Process",
+                                  style: GoogleFonts.sourceSansPro(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                customContainerSelect1(true, proces.text),
+                              ],
+                            ),
+                            /*  CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "process",
                           /* onFocusNodeRequested: (p0) {
@@ -1368,17 +1909,30 @@ class _JobFormState extends State<JobForm> {
                           hintText: "Health Insurance",
                           //   getSuggestions: getJobTit
                           onIDSelected: handleSelectedID,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: width / 2.2,
-                        child: CustomJobFormTextFieldJobRespo(
+                        ), */
+                          ),
+                      ],
+                    ),
+                  if (natureOfWork.text.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: width / 2.2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "functional Area",
+                                style: GoogleFonts.sourceSansPro(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              customContainerSelect1(true, natureOfWork.text),
+                            ],
+                          ),
+                          /* CustomJobFormTextFieldJobRespo(
                           isCompany: false,
                           name: "now",
                           /* onFocusNodeRequested: (p0) {
@@ -1398,31 +1952,32 @@ class _JobFormState extends State<JobForm> {
                           //  onIDSelected: handleSelectedID,
                           onSubmit: fetchData,
                           // getSuggestions: getJobTitle,
+                        ), */
                         ),
-                      ),
-                      SizedBox(
-                        width: width / 2.2,
-                        child: CustomJobFormTextFieldRespOne(
-                          isCompany: false,
-                          name: "industry",
-                          /* onFocusNodeRequested: (p0) {
+                        SizedBox(
+                          width: width / 2.2,
+                          child: CustomJobFormTextFieldRespOne(
+                            focusNode: roleFocusNodeFrom,
+                            isCompany: false,
+                            name: "industry",
+                            /* onFocusNodeRequested: (p0) {
                         focusNode.requestFocus();
                                           }, */
-                          title: "Industry",
-                          controller: industry,
-                          // isEdit: isEdit,
-                          //  focusNode: focusNode,
-                          onChanged: (p0) {
-                            isEdit5 = p0;
-                          },
-                          contextIn: context,
-                          hintText: "NBFC",
-                          onIDSelected: handleSelectedID,
-                          // getSuggestions: getJobTitle,
+                            title: "Industry",
+                            controller: industry,
+                            // isEdit: isEdit,
+                            //  focusNode: focusNode,
+                            onChanged: (p0) {
+                              isEdit5 = p0;
+                            },
+                            contextIn: context,
+                            hintText: "NBFC",
+                            onIDSelected: handleSelectedID,
+                            // getSuggestions: getJobTitle,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
 
                   /*  CustomJobFormTextField(     //functional Area
                     isCompany: false,
@@ -1481,6 +2036,12 @@ class _JobFormState extends State<JobForm> {
                                     MediaQuery.of(context).size.height / 25.h,
                                 color: Colors.white,
                                 child: TextFormField(
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "This Text field Cant be empty";
+                                    }
+                                    return null;
+                                  },
                                   inputFormatters: [
                                     FilteringTextInputFormatter.deny(
                                         RegExp(r'[.]')),
@@ -1518,12 +2079,6 @@ class _JobFormState extends State<JobForm> {
                                   keyboardType: TextInputType.number,
                                   controller: numberofopenings,
                                   enabled: enableShortListFor,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select any company';
-                                    }
-                                    return null;
-                                  },
                                   onTap: (() {}),
                                   decoration: InputDecoration(
                                       counterText: '',
@@ -1790,6 +2345,12 @@ class _JobFormState extends State<JobForm> {
                   SizedBox(
                     height: height / 25,
                     child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(
+                            RegExp(r'^\s')), // Disallow spaces at the beginning
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
                       // textInputAction: TextInputAction.newline,
 
                       // onFieldSubmitted: (_) => _handleTextSubmitted(),
@@ -2342,7 +2903,7 @@ class _JobFormState extends State<JobForm> {
                                 });
                               },
                             )),
-                            const Text("PM"),
+                            const Text("P.M"),
                             SizedBox(
                                 child: Radio(
                               value: 'PA',
@@ -2353,7 +2914,7 @@ class _JobFormState extends State<JobForm> {
                                 });
                               },
                             )),
-                            const Text("PY")
+                            const Text("P.A")
                           ],
                         ),
                   isEdit8
@@ -2384,13 +2945,13 @@ class _JobFormState extends State<JobForm> {
                                         });
                                       },
                                       isSelect: true,
-                                      title: workFromHome)
+                                      title: workFromHome.toString())
                                 ],
                               ),
                             ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 2.2.w,
-                              child: CustomJobFormTextFieldRespOne(
+                              child: CustomJobFormTextFieldJobRespo(
                                 isCompany: false,
                                 name: "city",
                                 /* onFocusNodeRequested: (p0) {
@@ -2404,8 +2965,9 @@ class _JobFormState extends State<JobForm> {
                                   isEdit10 = p0;
                                 },
                                 contextIn: context,
+                                onSubmit: getCityId,
                                 hintText: "Thane",
-                                onIDSelected: handleSelectedID,
+                                //  onIDSelected: handleSelectedID,
                                 //   getSuggestions: getJobTitle,
                               ),
                             ),
@@ -2428,10 +2990,9 @@ class _JobFormState extends State<JobForm> {
                           onChanged: (p0) {
                             isEdit8 = p0;
                           },
-                          workType: (p0) {
-                            workFromHome = p0;
-                          },
-                         // selectedValuesList: selectedWorkLocation,
+                          workType: getWorkValue,
+                          submit: getWorkLocation,
+                          // selectedValuesList: selectedWorkLocation,
                           callback: updateSelectedValues1,
                           contextIn: context,
                           hintText: "Thane",
@@ -2556,6 +3117,12 @@ class _JobFormState extends State<JobForm> {
                     height: height / 25.h,
                     margin: const EdgeInsets.only(bottom: 15),
                     child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(
+                            RegExp(r'^\s')), // Disallow spaces at the beginning
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
                       // textInputAction: TextInputAction.newline,
                       onEditingComplete: () {
                         _handleBoundrySubmitted(boundryLimits.text);
@@ -2657,7 +3224,7 @@ class _JobFormState extends State<JobForm> {
                                 children: [
                                   SizedBox(
                                       width: MediaQuery.of(context).size.width /
-                                          6.w,
+                                          5.w,
                                       child: /* newFormFiled(
                                   minExp, context, "", "Min-exp", true, true), */
                                           Container(
@@ -2675,6 +3242,13 @@ class _JobFormState extends State<JobForm> {
                                                 25.h,
                                             color: Colors.white,
                                             child: TextFormField(
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return "This Text field Cant be empty";
+                                                }
+                                                return null;
+                                              },
                                               maxLength: 3,
                                               inputFormatters: [
                                                 FilteringTextInputFormatter
@@ -2711,13 +3285,6 @@ class _JobFormState extends State<JobForm> {
                                                   TextInputType.number,
                                               controller: minExp,
                                               enabled: enableShortListFor,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please select any company';
-                                                }
-                                                return null;
-                                              },
                                               onTap: (() {
                                                 /* showDialog(
                                                   context: context,
@@ -2796,17 +3363,13 @@ class _JobFormState extends State<JobForm> {
                                   const SizedBox(
                                     width: 5,
                                   ),
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              35,
-                                      child: const Text("-")),
+                                  const SizedBox(child: Text("-")),
                                   const SizedBox(
                                     width: 5,
                                   ),
                                   SizedBox(
                                     width:
-                                        MediaQuery.of(context).size.width / 6.w,
+                                        MediaQuery.of(context).size.width / 5.w,
                                     child: /* newFormFiled(
                                   maxExp, context, "", "Max-exp", true, true), */
                                         SizedBox(
@@ -2830,7 +3393,14 @@ class _JobFormState extends State<JobForm> {
                                                           .height /
                                                       25.h,
                                                   color: Colors.white,
-                                                  child: TextField(
+                                                  child: TextFormField(
+                                                    validator: (value) {
+                                                      if (value == null ||
+                                                          value.isEmpty) {
+                                                        return "This Text field Cant be empty";
+                                                      }
+                                                      return null;
+                                                    },
                                                     maxLength: 3,
                                                     inputFormatters: [
                                                       FilteringTextInputFormatter
@@ -2854,7 +3424,8 @@ class _JobFormState extends State<JobForm> {
                                                                     })
                                                                   : null;
                                                             }, */
-                                                    onSubmitted: (newValue) {
+                                                    onFieldSubmitted:
+                                                        (newValue) {
                                                       /*   maxAge.text.isNotEmpty &&
                                                             minAge.text.isNotEmpty */
 
@@ -2878,6 +3449,8 @@ class _JobFormState extends State<JobForm> {
                                                             context: context,
                                                             builder: (context) {
                                                               return CustomDialog(
+                                                                  isFisrt:
+                                                                      false,
                                                                   onClose: () {
                                                                     Navigator.pop(
                                                                         context);
@@ -2953,6 +3526,7 @@ class _JobFormState extends State<JobForm> {
                                                           context: context,
                                                           builder: (context) {
                                                             return CustomDialog(
+                                                                isFisrt: false,
                                                                 onClose: () {
                                                                   Navigator.pop(
                                                                       context);
@@ -3290,7 +3864,7 @@ class _JobFormState extends State<JobForm> {
                             "Min-age", true, false),
                       ), */
                             SizedBox(
-                                width: MediaQuery.of(context).size.width / 6.w,
+                                width: MediaQuery.of(context).size.width / 5.w,
                                 child: /* newFormFiled(
                                 minExp, context, "", "Min-exp", true, true), */
                                     Container(
@@ -3310,6 +3884,13 @@ class _JobFormState extends State<JobForm> {
                                                   25.h,
                                               color: Colors.white,
                                               child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
                                                 maxLength: 2,
                                                 inputFormatters: [
                                                   FilteringTextInputFormatter
@@ -3333,13 +3914,6 @@ class _JobFormState extends State<JobForm> {
                                                     TextInputType.number,
                                                 controller: minAge,
                                                 enabled: enableShortListFor,
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return 'Please select any company';
-                                                  }
-                                                  return null;
-                                                },
                                                 onTap: (() {
                                                   /* showDialog(
                         context: context,
@@ -3431,7 +4005,7 @@ class _JobFormState extends State<JobForm> {
                       ), */ //if (maxAge.text.isNotEmpty&&ma)
 
                             SizedBox(
-                                width: MediaQuery.of(context).size.width / 6.w,
+                                width: MediaQuery.of(context).size.width / 5.w,
                                 child: /* newFormFiled(
                                 minExp, context, "", "Min-exp", true, true), */
                                     Container(
@@ -3450,7 +4024,14 @@ class _JobFormState extends State<JobForm> {
                                                       .height /
                                                   25.h,
                                               color: Colors.white,
-                                              child: TextField(
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
                                                 maxLength: 2,
                                                 inputFormatters: [
                                                   FilteringTextInputFormatter
@@ -3474,7 +4055,7 @@ class _JobFormState extends State<JobForm> {
                                                     }
                                                   }
                                                 },
-                                                onSubmitted: (newValue) {
+                                                onFieldSubmitted: (newValue) {
                                                   /*   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty */
 
@@ -3495,6 +4076,7 @@ class _JobFormState extends State<JobForm> {
                                                         context: context,
                                                         builder: (context) {
                                                           return CustomDialog(
+                                                              isFisrt: false,
                                                               onClose: () {
                                                                 Navigator.pop(
                                                                     context);
@@ -3512,6 +4094,7 @@ class _JobFormState extends State<JobForm> {
                                                         context: context,
                                                         builder: (context) {
                                                           return CustomDialog(
+                                                              isFisrt: false,
                                                               onClose: () {
                                                                 Navigator.pop(
                                                                     context);
@@ -3589,6 +4172,7 @@ class _JobFormState extends State<JobForm> {
                                                         context: context,
                                                         builder: (context) {
                                                           return CustomDialog(
+                                                              isFisrt: false,
                                                               onClose: () {
                                                                 Navigator.pop(
                                                                     context);
@@ -3606,6 +4190,7 @@ class _JobFormState extends State<JobForm> {
                                                         context: context,
                                                         builder: (context) {
                                                           return CustomDialog(
+                                                              isFisrt: false,
                                                               onClose: () {
                                                                 Navigator.pop(
                                                                     context);
@@ -3951,6 +4536,12 @@ class _JobFormState extends State<JobForm> {
                   SizedBox(
                     height: height / 25,
                     child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(
+                            RegExp(r'^\s')), // Disallow spaces at the beginning
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
                       onEditingComplete: () {
                         _handleEligibilitySubmitted(Eligibility.text);
                       },
@@ -4138,6 +4729,12 @@ class _JobFormState extends State<JobForm> {
                     height: height / 25,
                     margin: const EdgeInsets.only(bottom: 15),
                     child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(
+                            RegExp(r'^\s')), // Disallow spaces at the beginning
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
                       // textInputAction: TextInputAction.newline,
                       onEditingComplete: () {
                         _handleMoreDetailSubmitted(moreDetail.text);
@@ -4549,6 +5146,12 @@ class _JobFormState extends State<JobForm> {
               height: MediaQuery.of(context).size.height / 25.h,
               color: Colors.white,
               child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "This Text field Cant be empty";
+                  }
+                  return null;
+                },
                 enableSuggestions: true,
 
                 keyboardType: isNum ? TextInputType.number : TextInputType.name,
@@ -4577,12 +5180,7 @@ class _JobFormState extends State<JobForm> {
                 }, */
                 focusNode: minSalaryFocusNode,
                 maxLength: 7,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select any company';
-                  }
-                  return null;
-                },
+
                 onTap: (() {
                   /* TypeAheadFormField<String>(
                     textFieldConfiguration: const TextFieldConfiguration(
@@ -4667,6 +5265,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (BuildContext context) {
           return CustomDialog(
+              isFisrt: false,
               onClose: () {
                 Navigator.of(context).pop();
                 isMin
@@ -4728,6 +5327,12 @@ class _JobFormState extends State<JobForm> {
               height: MediaQuery.of(context).size.height / 25.h,
               color: Colors.white,
               child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "This Text field Cant be empty";
+                  }
+                  return null;
+                },
                 focusNode: maxSalaryFocusNode,
                 //   enableSuggestions: true,
                 //   onEditingComplete: _checkLength,
@@ -4752,6 +5357,7 @@ class _JobFormState extends State<JobForm> {
                           context: context,
                           builder: (context) {
                             return CustomDialog(
+                              isFisrt: false,
                               onClose: () {
                                 Navigator.pop(context);
                                 maxSalaryFocusNode.requestFocus();
@@ -4801,6 +5407,7 @@ class _JobFormState extends State<JobForm> {
                         context: context,
                         builder: (context) {
                           return CustomDialog(
+                            isFisrt: false,
                             onClose: () {
                               Navigator.pop(context);
                               maxSalaryFocusNode.requestFocus();
@@ -4856,12 +5463,6 @@ class _JobFormState extends State<JobForm> {
                 ],
                 maxLength: 7,
 
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select any company';
-                  }
-                  return null;
-                },
                 //   onTap: (() {
                 /* TypeAheadFormField<String>(
                     textFieldConfiguration: const TextFieldConfiguration(

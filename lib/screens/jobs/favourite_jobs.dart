@@ -7,7 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:job_circle/common/app_utils.dart';
+
+import '../../models/favorite_job_model.dart';
 
 class JobListPage extends StatefulWidget {
   const JobListPage({super.key});
@@ -17,7 +18,7 @@ class JobListPage extends StatefulWidget {
 }
 
 class _JobListPageState extends State<JobListPage> {
-  List jobs = [];
+  List<JobData> jobs = [];
 
   @override
   void initState() {
@@ -25,29 +26,51 @@ class _JobListPageState extends State<JobListPage> {
     fetchJobs();
   }
 
-NumberFormat format = NumberFormat.compact();
+  NumberFormat format = NumberFormat.compact();
 
   Future<void> fetchJobs() async {
-    Uri url = Uri.parse('http://192.168.2.111:9090/favjob/v1');
-    final response = await http.get(url, headers: {
-      "Content-Type": "application/json"
-    }); // replace with your API endpoint
+    final url = Uri.parse(
+        'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      final data = jsonDecode(response.body);
+      final jobModel = JobModel.fromJson(data);
+
+      setState(() {
+        jobs.addAll(jobModel.resultData);
+        print(jobs);
+      });
+    } else {
+      print('Something went wrong');
+      // handle error
+    }
+  }
+
+  /* Future<void> fetchJobs() async {
+    Uri url = Uri.parse(
+        'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
+    final response = await http.get(
+      url,
+    ); // replace with your API endpoint
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       print(data);
-      var list = data as List;
+      //  var list = ;
+
       setState(() {
-        jobs.addAll(list);
+        jobs.addAll(data as List);
         print(jobs);
       });
     } else {
       print("Somthing Wrong");
       // handle error
     }
-  }
+  } */
 
   Future<void> deleteResource(int id) async {
-    final url = 'http://192.168.2.111:9090/favjob/v1/$id';
+    final url = 'http://192.168.1.110:9090/favjob/v1/$id';
 
     final response = await http
         .delete(Uri.parse(url), headers: {"Content-Type": "application/json"});
@@ -61,7 +84,6 @@ NumberFormat format = NumberFormat.compact();
   }
 
   //Ye to list me display karna hai na?
-  
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +92,40 @@ NumberFormat format = NumberFormat.compact();
         title: const Text('Job List'),
       ),
       body: ListView.builder(
+        shrinkWrap: true,
         itemCount: jobs.length,
         itemBuilder: (BuildContext context, int index) {
           //   final job = jobs[index];
-          return ListView(
+          return ListView.builder(
+            itemCount: jobs.length,
+            itemBuilder: (context, index) {
+              var jobData = jobs[index];
+
+              return ListTile(
+                title: Text('Job ID: ${jobData.id}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Location: ${jobData.jobDetails.location}'),
+                    Text(
+                        'Min Experience: ${jobData.jobDetails.minExperience ?? "N/A"}'),
+                    Text(
+                        'Max Experience: ${jobData.jobDetails.maxExperience ?? "N/A"}'),
+                    Text('Min CTC: ${jobData.jobDetails.minCtc ?? "N/A"}'),
+                    Text('Max CTC: ${jobData.jobDetails.maxCtc ?? "N/A"}'),
+                    Text('Company Name: ${jobData.jobDetails.companyName}'),
+                    Text('Process: ${jobData.jobDetails.process}'),
+                    Text('Role Name: ${jobData.jobDetails.roleName}'),
+                    if (jobData.jobDetails.skills != null)
+                      Text('Skills: ${jobData.jobDetails.skills}'),
+                    Text('Nature of Work: ${jobData.jobDetails.natureOfWork}'),
+                  ],
+                ),
+              );
+            },
+          );
+
+          /* ListView(
             shrinkWrap: true,
             children: [
               Text(jobs[index]['id'].toString()),
@@ -86,20 +138,18 @@ NumberFormat format = NumberFormat.compact();
                   },
                   child: const Text("Delete"))
             ],
-          );
+          ); */
         },
       ),
     );
   }
-
 
   Widget listViewItem_new(BuildContext context, int index, item, bool isTrue) {
     List<String>? myStrings;
     bool stopIteration = false;
     if (item['skills'] != null) {
       myStrings = item['skills'].split(",");
-    
-    } 
+    }
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -118,8 +168,6 @@ NumberFormat format = NumberFormat.compact();
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-            
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -165,7 +213,7 @@ NumberFormat format = NumberFormat.compact();
                             style: GoogleFonts.varela(
                                 fontWeight: FontWeight.w500, fontSize: 14.sp),
                           )
-                                     ],
+                      ],
                     ),
                   ],
                 ),
@@ -174,17 +222,13 @@ NumberFormat format = NumberFormat.compact();
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                        onPressed: () {
-                          
-                        },
+                        onPressed: () {},
                         icon: Icon(
                             /*   jobs[index]["id"].toString() ==
                                     item[index]["id"].toString() */
-                             Icons.bookmark,
-                                
+                            Icons.bookmark,
                             size: 18.h,
                             color: Constants.themeBgColor)),
-                  
                   ],
                 )),
               ],
@@ -415,7 +459,7 @@ NumberFormat format = NumberFormat.compact();
                     Navigator.pushNamed(context, ERoute.application.name,
                         arguments: {
                           "isnew": false,
-                        //  "prevModel": jobDetailsModel,
+                          //  "prevModel": jobDetailsModel,
                           "refer": true,
                           "cmpnyname": item['companyname'].toString()
                         });

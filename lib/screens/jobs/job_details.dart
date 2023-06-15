@@ -1839,7 +1839,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
           // color: Constants.themeBgColorLight,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Constants.subtitleclr, width: 0.5)),
       child: Text(
         "#$title",
