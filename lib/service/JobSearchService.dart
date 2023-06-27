@@ -13,7 +13,7 @@ class JobSearchService extends ServiceBase {
     return callGetLocal(GlobalConstants.API_company_name_v1, param: params);
   }
 
-  Future<FavJobModel?> getFavoriteJob(int jobId) async {
+  Future<FavJobModel?> getFavoriteJob(int jobId) async {  
     try {
       //on click pe job add to ho rahi hai
       var response = await callGetLocal("favjob/v1", param: {});

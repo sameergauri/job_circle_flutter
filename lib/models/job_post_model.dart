@@ -2,7 +2,7 @@ class jobPostModel {
   int? active;
   DateTime? activeDate;
   String? ageGroup;
-  String? boundaryLimits;
+  List<String>? boundry_limits;
   String? category;
   String? clientPayout;
   int? commercial;
@@ -10,7 +10,7 @@ class jobPostModel {
   DateTime? createdDate;
   String? ctcDesc;
   String? education;
-  String? eligibility;
+  List<String>? eligible;
   String? empType;
   String? functionalArea;
   String? gender;
@@ -18,11 +18,12 @@ class jobPostModel {
   DateTime? inActiveDate;
   String? industry;
   List<String>? interviewRounds;
+  List<String>? job_skills;
   String? isFresher;
   String? isMonthly;
   List<String>? jobBenefits;
   String? jobResponsible;
-  List<String>? keyResponsible;
+  List<dynamic>? keyResponsible;
   List<String>? languageKnown;
   int? locationId;
   int? maxAge;
@@ -31,7 +32,7 @@ class jobPostModel {
   int? minAge;
   int? minCtc;
   String? minExperience;
-  String? moreDetails;
+  List<String>? moredetails;
   int? natureOfWorkId;
   int? noOfVacancy;
   String? paymentClause;
@@ -44,10 +45,10 @@ class jobPostModel {
   String? searchKeywords;
   String? shiftDesc;
   String? shiftTime;
-  List<String>? skills;
+  List<dynamic>? skills;
   int? spoc;
   int? spocInactive;
-  String? textResponsible;
+  List<String>? textResponsible;
   String? totalExperience;
   String? totalSalary;
   DateTime? updatedDate;
@@ -59,7 +60,9 @@ class jobPostModel {
     this.active,
     this.activeDate,
     this.ageGroup,
-    this.boundaryLimits,
+    // ignore: non_constant_identifier_names
+    this.boundry_limits,
+    this.job_skills,
     this.category,
     this.clientPayout,
     this.commercial,
@@ -67,7 +70,7 @@ class jobPostModel {
     this.createdDate,
     this.ctcDesc,
     this.education,
-    this.eligibility,
+    this.eligible,
     this.empType,
     this.functionalArea,
     this.gender,
@@ -88,7 +91,7 @@ class jobPostModel {
     this.minAge,
     this.minCtc,
     this.minExperience,
-    this.moreDetails,
+    this.moredetails,
     this.natureOfWorkId,
     this.noOfVacancy,
     this.paymentClause,
@@ -119,7 +122,12 @@ class jobPostModel {
             ? DateTime.parse(json["active_date"])
             : null,
         ageGroup: json["age_group"],
-        boundaryLimits: json["boundarylimits"],
+        boundry_limits: json["boundry_limits"] != null
+            ? List<String>.from(json["boundry_limits"].map((x) => x))
+            : null,
+        job_skills: json["job_skills"] != null
+            ? List<String>.from(json["job_skills"].map((x) => x))
+            : null,
         category: json["category"],
         clientPayout: json["client_payout"],
         commercial: json["commercial"],
@@ -129,7 +137,9 @@ class jobPostModel {
             : null,
         ctcDesc: json["ctcdesc"],
         education: json["education"],
-        eligibility: json["eligibility"],
+        eligible: json["eligible"] != null
+            ? List<String>.from(json["eligible"].map((x) => x))
+            : null,
         empType: json["emptype"],
         functionalArea: json["functional_area"],
         gender: json["gender"],
@@ -160,7 +170,9 @@ class jobPostModel {
         minAge: json["min_age"],
         minCtc: json["minctc"],
         minExperience: json["minexperience"],
-        moreDetails: json["more_details"],
+        moredetails: json["moredetails"] != null
+            ? List<String>.from(json["moredetails"].map((x) => x))
+            : null,
         natureOfWorkId: json["naturofworkid"],
         noOfVacancy: json["no_of_vacancy"],
         paymentClause: json["paymentclause"],
@@ -178,7 +190,9 @@ class jobPostModel {
             : null,
         spoc: json["spoc"],
         spocInactive: json["spoc_inactive"],
-        textResponsible: json["text_responsible"],
+        textResponsible: json["text_responsible"] != null
+            ? List<String>.from(json["text_responsible"].map((x) => x))
+            : null,
         totalExperience: json["total_experience"],
         totalSalary: json["total_salary"],
         updatedDate: json["updated_date"] != null
@@ -196,7 +210,9 @@ class jobPostModel {
         "active_date":
             activeDate != null ? activeDate?.toIso8601String() : null,
         "age_group": ageGroup,
-        "boundarylimits": boundaryLimits,
+        "boundary_limits": boundry_limits != null
+            ? List<dynamic>.from(boundry_limits!.map((x) => x))
+            : null,
         "category": category,
         "client_payout": clientPayout,
         "commercial": commercial,
@@ -205,7 +221,9 @@ class jobPostModel {
             createdDate != null ? createdDate?.toIso8601String() : null,
         "ctcdesc": ctcDesc,
         "education": education,
-        "eligibility": eligibility,
+        "eligible": eligible != null
+            ? List<dynamic>.from(eligible!.map((x) => x))
+            : null,
         "emptype": empType,
         "functional_area": functionalArea,
         "gender": gender,
@@ -215,6 +233,9 @@ class jobPostModel {
         "industry": industry,
         "inteviewrounds": interviewRounds != null
             ? List<dynamic>.from(interviewRounds!.map((x) => x))
+            : null,
+        "job_skills": job_skills != null
+            ? List<dynamic>.from(job_skills!.map((x) => x))
             : null,
         "isfresher": isFresher,
         "ismonthly": isMonthly,
@@ -235,7 +256,9 @@ class jobPostModel {
         "min_age": minAge,
         "minctc": minCtc,
         "minexperience": minExperience,
-        "more_details": moreDetails,
+        "moredetails": moredetails != null
+            ? List<dynamic>.from(moredetails!.map((x) => x))
+            : null,
         "naturofworkid": natureOfWorkId,
         "no_of_vacancy": noOfVacancy,
         "paymentclause": paymentClause,

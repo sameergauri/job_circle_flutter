@@ -78,7 +78,7 @@ class _AppliedJobState extends State<AppliedJob>
   late List<dynamic> data;
   Future<List<dynamic>> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://192.168.2.108:9090/jobs/v2/search?status=APPLIED'));
+        Uri.parse('http://192.168.1.109:9090/jobs/v2/search?status=APPLIED'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,

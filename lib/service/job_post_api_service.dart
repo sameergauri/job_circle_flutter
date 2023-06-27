@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class JobPostApiService {
   static Future<void> postDataToApi(Map<String, dynamic> jsonData) async {
-    String apiUrl = 'http://192.168.1.110:9090/jobs/v1';
+    String apiUrl = 'http://192.168.1.109:9090/jobs/v1';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),

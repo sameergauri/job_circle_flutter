@@ -44,7 +44,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
   List jobs = [];
 
   Future<void> fetchJobs() async {
-    Uri url = Uri.parse('http://192.168.2.106:9090/favjob/v1');
+    Uri url = Uri.parse('http://192.168.1.109:9090/favjob/v1');
     final response = await http.get(url, headers: {
       "Content-Type": "application/json"
     }); // replace with your API endpoint

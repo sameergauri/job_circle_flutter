@@ -447,7 +447,7 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   //final bool isEdit;
   // final FocusNode focusNode;
   final String hintText;
-  List<String>? selectedValuesList = [];
+  List<dynamic>? selectedValuesList = [];
   //yfinal Function(String)? se;
   BuildContext contextIn;
   final Function(String) callback;
@@ -459,9 +459,11 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   final isSkill;
   final Function(String)? workType;
   final Function(List<String>)? submit;
+  List<dynamic>? fetchApiskill = [];
 
   CustomFormTextFieldMultiSelect({
     required this.callback,
+    this.fetchApiskill,
     this.submit,
     Key? key,
     this.controller,
@@ -503,7 +505,7 @@ class _CustomFormTextFieldMultiSelectState
   late String? firstText = widget.firstText;
   String? selectedValue;
 
-  List<String>? selectedValuesList = [];
+  List<dynamic>? selectedValuesList = [];
   List<String> selectedDataList = [];
   bool isDuplicate = false;
   String? customValue;
@@ -511,6 +513,7 @@ class _CustomFormTextFieldMultiSelectState
   void handleBoolChange(bool newValue) {
     setState(() {
       isEdit = newValue;
+//selectedValuesList = widget.fetchApiskill;
     });
     widget.onChanged!(newValue);
   }
@@ -579,9 +582,17 @@ class _CustomFormTextFieldMultiSelectState
 
     return suggestions;
   } */
-
+  @override
+/*   void initState() {
+    // TODO: implement initState
+    super.initState();
+     setState(() {
+        selectedDataList = widget.fetchApiskill!;
+      });
+  } */
   @override
   Widget build(BuildContext context) {
+   title=="Work Location"?selectedValuesList=widget.fetchApiskill: selectedValuesList = widget.fetchApiskill;
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -608,25 +619,25 @@ class _CustomFormTextFieldMultiSelectState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                selectedValuesList!.isEmpty
-                    ? Container()
-                    : Wrap(
-                        spacing: 4,
-                        children: selectedValuesList!.map((e) {
-                          return Chip(
-                            visualDensity: VisualDensity.compact,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            label: Text(e),
-                            onDeleted: () {
-                              setState(() {
-                                selectedValuesList!.remove(e);
-                                textFieldFocusNode.requestFocus();
-                                handleBoolChange(false);
-                              });
-                            },
-                          );
-                        }).toList()),
+                //selectedValuesList=
+                Wrap(
+                    spacing: 4,
+                    children: selectedValuesList!.map((e) {
+                      return Chip(
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        label: Text(e),
+                        onDeleted: () {
+                          setState(() {
+                            selectedValuesList!.remove(e);
+                            widget.fetchApiskill!.remove(e);
+                            textFieldFocusNode.requestFocus();
+                            handleBoolChange(false);
+                          });
+                        },
+                      );
+                    }).toList()),
 
                 /* SizedBox(
                   child: ListView.builder(

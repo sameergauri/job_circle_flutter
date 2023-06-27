@@ -30,7 +30,7 @@ class _JobListPageState extends State<JobListPage> {
 
   Future<void> fetchJobs() async {
     final url = Uri.parse(
-        'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
+        'http://192.168.1.109:9090/favjob/v1/all?pageNumber=1&pageSize=100');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -70,7 +70,7 @@ class _JobListPageState extends State<JobListPage> {
   } */
 
   Future<void> deleteResource(int id) async {
-    final url = 'http://192.168.1.110:9090/favjob/v1/$id';
+    final url = 'http://192.168.1.109:9090/favjob/v1/$id';
 
     final response = await http
         .delete(Uri.parse(url), headers: {"Content-Type": "application/json"});

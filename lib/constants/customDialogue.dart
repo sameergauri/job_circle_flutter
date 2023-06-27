@@ -17,6 +17,9 @@ class CustomDialog extends StatefulWidget {
   final ValueSetter<String>? getNatureOfWorkId;
   final ValueSetter<String>? getCompanyId;
   final ValueSetter<String>? getJobtitleValue;
+  final Function(JobData?)? onDataReceived;
+  final Function? fetchDataFromApi;
+
   //final ValueSetter<String>? get;
 
   final VoidCallback onClose;
@@ -24,6 +27,8 @@ class CustomDialog extends StatefulWidget {
   final bool isFisrt;
   const CustomDialog(
       {super.key,
+      this.onDataReceived,
+      this.fetchDataFromApi,
       this.getJobtitleValue,
       this.getCompanyId,
       this.getNatureOfWorkId,
@@ -38,6 +43,38 @@ class CustomDialog extends StatefulWidget {
 
   @override
   State<CustomDialog> createState() => _CustomDialogState();
+}
+
+Future<JobData?> fetchMatchingJobs({
+  int? companyId,
+  String? process,
+  String? jobTitle,
+  int? natureOfWorkId,
+  Function(JobData?)? onDataReceived,
+}) async {
+  try {
+    final response = await http.get(Uri.parse(
+        '${GlobalConstants.API_Host}/jobs/v1/matchngjob?companyid=$companyId&process=$process&naturofworkid=$natureOfWorkId&rolename=$jobTitle&page=1&size=100'));
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      JobDetails jobDetails = JobDetails.fromJson(jsonData);
+
+      if (jobDetails.resultData.isNotEmpty) {
+        JobData jobData = jobDetails.resultData[0];
+        onDataReceived!(jobData); // ha ab kr
+        return jobData;
+      }
+//Agaian tere wo bade wale model me issue lag raha hai
+      // Handle the case when jobDetails.resultData is empty
+      print('Job data is empty');
+      return null;
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error during JSON decoding: $error'); // nhi hua
+  }
+  return null;
 }
 
 class _CustomDialogState extends State<CustomDialog> {
@@ -139,26 +176,7 @@ class _CustomDialogState extends State<CustomDialog> {
   List<String> checkboxData = [];
   List<String> checkboxDataState = [];
 
- // List<String> data = [];
-
-  Future<void> fetchMatchingJobs() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'http://192.168.1.105:9090/jobs/v1/matchngjob?companyid=$CompanyID&process=$pro&naturofworkid=$NatureOfWorkID&rolename=$jobTitle&page=1&size=100'));
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        JobDetails jobDetails = JobDetails.fromJson(jsonData);
-
-        if (jobDetails.resultData.isNotEmpty) {
-          JobData jobData = jobDetails.resultData[0];
-        }
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
+  // List<String> data = [];
 
   Future<List<String>> fetchData(String id) async {
     // function to fetch nature of work
@@ -364,13 +382,21 @@ class _CustomDialogState extends State<CustomDialog> {
                                       widget.getProcess!(proces);
                                       widget.getNatureOFWork!(natureOfWork);
                                       widget.getJobtitile!(role);
-                                      Navigator.pop(context);
-                                      widget
-                                          .getCompanyId!(CompanyID.toString());
-                                      widget.getJobtitleValue!(
-                                          jobTitle.toString());
                                       widget.getNatureOfWorkId!(
                                           NatureOfWorkID.toString());
+                                      widget
+                                          .getCompanyId!(CompanyID.toString());
+                                      fetchMatchingJobs(
+                                          companyId: int.parse(CompanyID!),
+                                          natureOfWorkId: NatureOfWorkID,
+                                          jobTitle: jobTitle,
+                                          onDataReceived: widget.onDataReceived,
+                                          process: pro);
+                                      Navigator.pop(context);
+                                      widget.fetchDataFromApi!();
+
+                                      widget.getJobtitleValue!(
+                                          jobTitle.toString());
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(top: 5),

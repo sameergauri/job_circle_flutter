@@ -20,10 +20,14 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
+import 'package:job_circle/models/matching_job_model.dart';
+import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/service/JobSearchService.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/company.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/customDialogue.dart';
 import '../../models/job_post_model.dart';
@@ -327,22 +331,10 @@ class _JobFormState extends State<JobForm> {
     }
   } */
   Timer? _timer;
-  InkWell customContainerSelect1(bool isSelect, String text) {
+  InkWell customContainerSelect1(
+      bool isSelect, String text, bool isFetch, Function() onTab) {
     return InkWell(
-        onTap: () {
-          //  log("Requesting Focus");
-          focusNode.requestFocus();
-
-          setState(() {
-            // controller!.clear();
-//handleBoolChange(false);
-            // widget.focusNode.requestFocus;
-            // handleFocusNodeRequest();
-            //focusNode.requestFocus();
-            // handleFocusNodeChange();
-            //focusNode.requestFocus();
-          });
-        },
+        onTap: onTab,
         child: Container(
             width: double.maxFinite,
             // height: MediaQuery.of(context).size.height / 26.h,
@@ -377,19 +369,220 @@ class _JobFormState extends State<JobForm> {
                       const SizedBox(
                         width: 5,
                       ),
-                      const Icon(
-                        Icons.check,
-                        size: 15,
-                        color: Colors.white,
-                      )
+                      isFetch
+                          ? Image.asset(
+                              "assets/images/cross.png",
+                              height: 12,
+                            )
+                          : const Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            )
                     ],
                   )
                 : Text(text,
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
+  List<String> fetchApiLanguages = [];
+  List<String> fetchApiBenefits = [];
+  List<String> fetchApiInterViewRounds = [];
+  String? fetchApiGender;
+  List<dynamic> fetchApiskill = [];
+  List<dynamic> fetchApilocation = [];
+  List<dynamic> fetchApiWoekLocation = [];
+  bool? isIndustry = false;
+  bool? isCity = false;
+  int? jobID;
+  List<dynamic> worklocationint = [];
+
+  void assignDataToController(JobData? jobData) {
+    if (jobData != null) {
+      setState(() {
+        isNumberOfOpenings = true;
+        jobID = jobData.id;
+        numberofopenings.text = jobData.noOfVacancy.toString();
+        industry.text = jobData.industry.toString();
+        if (jobData.industry.isNotEmpty) {
+          isIndustry = true;
+        }
+        minSalaryk = NumberFormat.compact()
+            .format(double.tryParse(jobData.minctc.toString()));
+        maxSalaryk = NumberFormat.compact()
+            .format(double.tryParse(jobData.maxctc.toString()));
+        isValueValid = true;
+        if (jobData.isMonthly == 'per month') {
+          _selectedOption = "per month";
+        } else if (jobData.isMonthly == "PA") {
+          _selectedOption = "PA";
+        }
+        if (jobData.empType == "Full Time") {
+          isFullTime = true;
+        } else if (jobData.empType == "Part Time") {
+          isPartTime = true;
+        } else if (jobData.empType == "Contractual") {
+          isContract = true;
+        } else if (jobData.empType == "InternShip") {
+          isIntern = true;
+        }
+        if (jobData.education == "Graduate") {
+          graduate = true;
+        } else if (jobData.education == "Under-Graduate") {
+          undeGraduate = true;
+        }
+        /* if (jobData.jobSkills != null) {
+          selectedValues.add(jobData.jobSkills);
+        } */
+        if (jobData.isFresher == "Fresher") {
+          isFresher = true;
+        } else {
+          //  isFresher = false;
+          expContainer = true;
+          _showContainer1 = false;
+          _showContainer2 = false;
+
+          minExp.text = jobData.minExperience;
+          maxExp.text = jobData.maxExperience;
+        }
+        fetchApiLanguages = jobData.languageKnown.cast<String>();
+        fetchApiskill = jobData.skills;
+        selectedLanguages = fetchApiLanguages;
+        city.text = jobData.city.toString();
+        worklocationint = jobData.workLocation;
+        if (city.text.isNotEmpty) {
+          isCity = true;
+        }
+
+        fetchApiBenefits = jobData.jobBenefits.cast<String>();
+        selectedJobBenefits = fetchApiBenefits;
+        selectedShiftTime1 = jobData.shiftTime;
+        selectedWeakOff1 = jobData.shiftDesc;
+        if (jobData.gender == "Male") {
+          onlyMale = true;
+        } else if (jobData.gender == "Female") {
+          onlyFemale = true;
+        } else if (jobData.gender == "âï¸ Female Prefered") {
+          femalePrefered = true;
+        } else if (jobData.gender == "Female prefered") {
+          femalePrefered = true;
+        }
+        minAge.text = jobData.minAge.toString();
+        maxAge.text = jobData.maxAge.toString();
+        selectedComunication = jobData.rating;
+        selectedInterViewRounds = jobData.inteviewrounds.cast<String>();
+        if (jobData.eligible.contains(
+            "Candidate should be from relevant experience background.")) {
+          isRelevantExpperience = true;
+        } else if (jobData.eligible
+            .contains("Candidate should be from relevant experience.")) {
+          isRelevantExpperience = true;
+        }
+        selectedValuesList = jobData.skills;
+        //selectedKeyResponsible = jobData.keyResponsible;
+        print(selectedKeyResponsible);
+        fetchApilocation = jobData.location;
+        if (fetchApilocation.isNotEmpty) {
+          if (fetchApilocation.contains("WFH") ||
+              fetchApilocation.contains("Hybrid")) {
+            isEdit8 = true;
+            workFromHome = "WFH";
+          }
+        }
+        fetchApiWoekLocation = jobData.workLocation;
+//boundry limit
+        List<dynamic> boundaryLimits = jobData.boundry_limits;
+
+        for (var item in boundaryLimits) {
+          _boundryLimitList.add(CheckItem(item.toString(), true));
+        } //boundry limit
+//Eligiblity
+        // _eligibilityList = [CheckItem(jobData.eligible, true)];
+        List<dynamic> eligibility = jobData.eligible;
+
+        for (var item in eligibility) {
+          if (item ==
+              "Candidate should be from relevant experience background.") {
+          } else if (item == "Candidate should be from relevant experience.") {
+          } else if (item ==
+              "Excellent English written & verbal Communication skills required.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else {
+            _eligibilityList.add(CheckItem(item.toString(), true));
+          }
+        } //bou
+        //Eligibility
+        //more details
+
+        List<dynamic> moreDetails = jobData.moredetails;
+
+        for (var item in moreDetails) {
+          _moreDetailsList.add(CheckItem(item.toString(), true));
+        }
+
+        //more details
+        List<dynamic> jobResponsible = jobData.key_responsible;
+
+        for (var item in jobResponsible) {
+          selectedKeyResponsible.add(item.toString());
+        }
+        //  fetchApiInterViewRounds = jobData.
+      });
+    } else {
+      numberofopenings
+          .clear(); // Clear the TextEditingController if data is null
+    }
+  }
+
+  late ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  var userId;
+
+  save(filePath, data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      if (data['stage'] == 'profile_pic') {
+        profilemodel.profile_pic = filePath;
+        userId = Utils.resolveImage(profilemodel.id);
+      } else if (data['stage'] == 'upload_cv') {
+        profilemodel.cv_link = filePath;
+
+        profilemodel.cv_upladted_date =
+            DateFormat('MMM dd, yyyy').format(DateTime.now());
+      } else if (data['stage'] == 'partnerRequest') {
+        profilemodel.partner_request = data['data']['partner_request'];
+      }
+    }
+    setState(() {});
+  }
+
+  bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().getUserProfileSummary(userId);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      var dataResult = Utils.parseResponse(result).resultData;
+      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      userId = Utils.resolveImage(profilemodel.id);
+
+      // user_selected_lcoation = user_selected_lcoation;
+    }
+    setState(() {});
+  }
+
+  Future<void> fetchDataFromApi() async {
+    JobData? jobData = await fetchMatchingJobs(
+        companyId: int.parse(CompanyID!),
+        process: proces.text,
+        natureOfWorkId: NatureOfWorkID,
+        jobTitle: role.text); // Call the API function and await the result
+    assignDataToController(
+        jobData); // Assign the received data to the TextEditingController
+  }
+
+  List<String> preselectedLanguages = [];
+
   @override
   void initState() {
+    bindProfileSummary();
     /* _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       fetchData();
     }); */
@@ -397,6 +590,7 @@ class _JobFormState extends State<JobForm> {
       fetchData();
     } */
     // fetchData();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
         // barrierColor: Colors.grey.shade100,
@@ -404,23 +598,28 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (BuildContext context) {
           return CustomDialog(
-            getCompanyName: (value) {
-              setState(() {
-                shorListController = value; // Update the value in Class1
-              });
-            },
+            getJobtitleValue: getValueOfJobtitle,
+            getNatureOfWorkId: fetchData,
+            onDataReceived: assignDataToController,
+            // fetchDataFromApi: fetchDataFromApi,
             getCompanyId: (value) {
               setState(() {
                 CompanyID = value;
               });
             },
+            getCompanyName: (value) {
+              setState(() {
+                shorListController = value; // Update the value in Class1
+              });
+            },
+
             getJobtitile: (value) {
+              //
               setState(() {
                 role = value;
               });
             },
-            getJobtitleValue: getValueOfJobtitle,
-            getNatureOfWorkId: fetchData,
+
             getProcess: (value) {
               setState(() {
                 proces = value;
@@ -548,6 +747,7 @@ class _JobFormState extends State<JobForm> {
   bool expContainer = false;
   bool agegroupContainer = false;
   bool enableExperience = false;
+  List<int> preselectedIndices = [];
 
   final List<String> _bulletPointsrespo = [];
   String _textrespo = '';
@@ -692,7 +892,9 @@ class _JobFormState extends State<JobForm> {
       );
     } else {
       setState(() {
+          selectedMoreDetail.add(value);
         _moreDetailsList.add(CheckItem(value, true));
+      
         moreDetail.clear();
       });
     }
@@ -807,6 +1009,7 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> suggestions = [];
   List<dynamic> jobTitleSuggestion = [];
   List<dynamic> jobTitleSuggestion1 = [];
+
   List<dynamic> jobTitleSuggestion3 = [];
   List<dynamic> jobTitleSuggestion4 = [];
   bool isNotFound = false;
@@ -815,7 +1018,8 @@ class _JobFormState extends State<JobForm> {
   List<String> checkboxData = [];
   List<dynamic> natureofWorkID = [];
   List<String> checkboxDataState = [];
-  List<String> selectedResponsibility = [];
+  List<dynamic> selectedKeyResponsible = [];
+  List<String> selectedTextResponsible = [];
   String? jobTitle;
   String? Nowid;
   int? NatureOfWorkID;
@@ -862,7 +1066,7 @@ class _JobFormState extends State<JobForm> {
       NatureOfWorkID = int.parse(id);
     });
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$id'));
+        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=${role.text}&parentId=$id'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1157,8 +1361,8 @@ class _JobFormState extends State<JobForm> {
 
   FocusNode roleFocusNodeFrom = FocusNode();
 
-  List<String> selectedValuesList = [];
-  List<String> selectedWorkLocation = [];
+  List<dynamic> selectedValuesList = [];
+  List<dynamic> selectedWorkLocation = [];
   String? workFromHome;
   List<String> selectedValues = [];
   // List<String> selectedWorkLocation = [];
@@ -1222,7 +1426,8 @@ class _JobFormState extends State<JobForm> {
 
   void clearSelectedShiftTime() {
     setState(() {
-      selectedShiftTime = -1;
+      selectedShiftTime =
+          -1; // kya chahiye ? Selectionlist or data list// api se jaha store ho raha hai wo ? ha wo or jisme select karne pe store kar raha haiok
       isOptionVisible = true;
     });
   }
@@ -1279,6 +1484,7 @@ class _JobFormState extends State<JobForm> {
           //backgroundColor: Colors.transparent,
           body: Center(child: CircularProgressIndicator()));
     }
+
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: SizedBox(
@@ -1334,7 +1540,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Select Education type Type");
                         },
                       );
-                    } else if (selectedValues.isEmpty) {
+                    } else if (selectedValuesList.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1347,7 +1553,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Add some skill");
                         },
                       );
-                    } else if (selectedResponsibility.isEmpty) {
+                    } else if (selectedKeyResponsible.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1445,7 +1651,7 @@ class _JobFormState extends State<JobForm> {
                                         : " ",
                         education: graduate ? "Graduate" : "Under-Graduate",
                         skills: selectedValues,
-                        keyResponsible: selectedResponsibility,
+                        keyResponsible: selectedKeyResponsible,
                         languageKnown: selectedLanguages,
                         jobBenefits: selectedJobBenefits,
                         shiftTime: selectedShiftTime1,
@@ -1456,9 +1662,7 @@ class _JobFormState extends State<JobForm> {
                         minExperience: minExp.text,
                         maxExperience: maxExp.text,
                         isFresher: isFresher ? "Fresher" : " ",
-                        boundaryLimits: selectedBoundryLimit
-                            .map((str) => '- $str')
-                            .join('\n'),
+                        boundry_limits: selectedBoundryLimit,
                         gender: onlyMale
                             ? "Male"
                             : onlyFemale
@@ -1468,12 +1672,8 @@ class _JobFormState extends State<JobForm> {
                                     : " ",
                         minAge: int.parse(minAge.text),
                         maxAge: int.parse(maxAge.text),
-                        eligibility: selectedEligibility
-                            .map((str) => '- $str')
-                            .join('\n'),
-                        moreDetails: selectedMoreDetail
-                            .map((str) => '- $str')
-                            .join('\n'),
+                        eligible: selectedEligibility,
+                        moredetails: selectedMoreDetail,
                         interviewRounds: selectedInterViewRounds,
                         rating: selectedComunication,
 
@@ -1566,7 +1766,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Select Education type Type");
                         },
                       );
-                    } else if (selectedValues.isEmpty) {
+                    } else if (selectedValuesList.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1579,7 +1779,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Add some skill");
                         },
                       );
-                    } else if (selectedResponsibility.isEmpty) {
+                    } else if (selectedKeyResponsible.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1660,7 +1860,7 @@ class _JobFormState extends State<JobForm> {
                     } else {
                       jobPostModel model = jobPostModel(
                         active: 1,
-
+                        id: jobID,
                         roleName: role.text,
                         process: proces.text,
                         // natureOfWorkId: natureofWorkID.toString()
@@ -1676,8 +1876,9 @@ class _JobFormState extends State<JobForm> {
                                         ? "InternShip"
                                         : " ",
                         education: graduate ? "Graduate" : "Under-Graduate",
-                        skills: selectedValues,
-                        keyResponsible: selectedResponsibility,
+                        skills: selectedValuesList,
+                        keyResponsible: selectedKeyResponsible,
+                        // textResponsible: selectedTextResponsible,
                         languageKnown: selectedLanguages,
                         jobBenefits: selectedJobBenefits,
                         shiftTime: selectedShiftTime1,
@@ -1688,9 +1889,7 @@ class _JobFormState extends State<JobForm> {
                         minExperience: minExp.text,
                         maxExperience: maxExp.text,
                         isFresher: isFresher ? "Fresher" : " ",
-                        boundaryLimits: selectedBoundryLimit
-                            .map((str) => '- $str')
-                            .join('\n'),
+                        boundry_limits: selectedBoundryLimit,
                         gender: onlyMale
                             ? "Male"
                             : onlyFemale
@@ -1700,12 +1899,9 @@ class _JobFormState extends State<JobForm> {
                                     : " ",
                         minAge: int.parse(minAge.text),
                         maxAge: int.parse(maxAge.text),
-                        eligibility: selectedEligibility
-                            .map((str) => '- $str')
-                            .join('\n'),
-                        moreDetails: selectedMoreDetail
-                            .map((str) => '- $str')
-                            .join('\n'),
+                        eligible: selectedEligibility,
+
+                        moredetails: selectedMoreDetail,
                         interviewRounds: selectedInterViewRounds,
                         rating: selectedComunication,
 
@@ -1715,7 +1911,8 @@ class _JobFormState extends State<JobForm> {
                         workLocation: worklocationList
                             .map((str) => int.parse(str))
                             .toList(),
-
+                        //  spoc: profileSummaryModel.id
+                        spoc: 552,
                         //  workLocation: sele
 //empType:
 //minAge: minAge.text
@@ -1814,7 +2011,8 @@ class _JobFormState extends State<JobForm> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        customContainerSelect1(true, shorListController.text),
+                        customContainerSelect1(
+                            true, shorListController.text, false, () {}),
                       ],
                     ),
 
@@ -1853,7 +2051,8 @@ class _JobFormState extends State<JobForm> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              customContainerSelect1(true, role.text),
+                              customContainerSelect1(
+                                  true, role.text, false, () {}),
                             ],
                           ),
                           /* CustomJobFormTextFieldRespOne(
@@ -1889,7 +2088,8 @@ class _JobFormState extends State<JobForm> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                customContainerSelect1(true, proces.text),
+                                customContainerSelect1(
+                                    true, proces.text, false, () {}),
                               ],
                             ),
                             /*  CustomJobFormTextFieldRespOne(
@@ -1923,13 +2123,14 @@ class _JobFormState extends State<JobForm> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "functional Area",
+                                "Functional Area",
                                 style: GoogleFonts.sourceSansPro(
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              customContainerSelect1(true, natureOfWork.text),
+                              customContainerSelect1(
+                                  true, natureOfWork.text, false, () {}),
                             ],
                           ),
                           /* CustomJobFormTextFieldJobRespo(
@@ -1956,25 +2157,52 @@ class _JobFormState extends State<JobForm> {
                         ),
                         SizedBox(
                           width: width / 2.2,
-                          child: CustomJobFormTextFieldRespOne(
-                            focusNode: roleFocusNodeFrom,
-                            isCompany: false,
-                            name: "industry",
-                            /* onFocusNodeRequested: (p0) {
+                          child: isIndustry!
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Industry",
+                                      style: GoogleFonts.sourceSansPro(
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    customContainerSelect1(
+                                      true,
+                                      industry.text,
+                                      true,
+                                      () {
+                                        setState(() {
+                                          isIndustry = false;
+                                          roleFocusNodeFrom.requestFocus();
+                                          industry.clear();
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : CustomJobFormTextFieldRespOne(
+                                  // isSelected: isIndustry,
+                                  focusNode: roleFocusNodeFrom,
+                                  isCompany: false,
+                                  name: "industry",
+                                  /* onFocusNodeRequested: (p0) {
                         focusNode.requestFocus();
                                           }, */
-                            title: "Industry",
-                            controller: industry,
-                            // isEdit: isEdit,
-                            //  focusNode: focusNode,
-                            onChanged: (p0) {
-                              isEdit5 = p0;
-                            },
-                            contextIn: context,
-                            hintText: "NBFC",
-                            onIDSelected: handleSelectedID,
-                            // getSuggestions: getJobTitle,
-                          ),
+                                  title: "Industry",
+                                  controller: industry,
+
+                                  // isEdit: isEdit,
+                                  //  focusNode: focusNode,
+                                  onChanged: (p0) {
+                                    isEdit5 = true;
+                                  },
+                                  contextIn: context,
+                                  hintText: "NBFC",
+                                  onIDSelected: handleSelectedID,
+                                  // getSuggestions: getJobTitle,
+                                ),
                         ),
                       ],
                     ),
@@ -2000,7 +2228,7 @@ class _JobFormState extends State<JobForm> {
                       "Number of Openings", "e.g 1", true, false, true), */
 
                   Text(
-                    "Number of Openings",
+                    "Number of vacancies",
                     style: GoogleFonts.sourceSansPro(
                         fontSize: 18.sp,
                         // color: Colors.grey.shade500,
@@ -2208,6 +2436,7 @@ class _JobFormState extends State<JobForm> {
                     // isCompany: false,
                     name: "skills",
                     isSkill: true,
+                    fetchApiskill: fetchApiskill,
                     /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
@@ -2292,7 +2521,7 @@ class _JobFormState extends State<JobForm> {
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color:
-                                          // selectedResponsibility.contains(item)
+                                          // selectedKeyResponsible.contains(item)
                                           Colors.grey,
                                       width: 1.5,
                                     ),
@@ -2308,19 +2537,19 @@ class _JobFormState extends State<JobForm> {
                                       checkColor: Colors.red,
                                       visualDensity: VisualDensity.compact,
                                       value:
-                                          selectedResponsibility.contains(item),
+                                          selectedKeyResponsible.contains(item),
                                       onChanged: (newValue) {
                                         setState(() {
                                           if (newValue!) {
                                             // Add the item to the list
-                                            selectedResponsibility.add(item);
+                                            selectedKeyResponsible.add(item);
                                           } else {
                                             // Remove the item from the list
-                                            selectedResponsibility.remove(item);
+                                            selectedKeyResponsible.remove(item);
                                           }
                                         });
                                         print(
-                                            selectedResponsibility); // Notify Flutter that the state has changed
+                                            selectedKeyResponsible); // Notify Flutter that the state has changed
                                       },
                                     ),
                                   ),
@@ -2362,7 +2591,7 @@ class _JobFormState extends State<JobForm> {
                       /*  onSubmitted: (value) {
                         setState(() {
                           checkboxData.add(responsibility.text);
-                          selectedResponsibility.add(responsibility.text);
+                          selectedKeyResponsible.add(responsibility.text);
                           responsibility.clear();
                         });
                       }, */
@@ -2372,7 +2601,7 @@ class _JobFormState extends State<JobForm> {
                             !checkboxData.contains(newResponsibility)) {
                           setState(() {
                             checkboxData.add(newResponsibility);
-                            selectedResponsibility.add(newResponsibility);
+                            selectedKeyResponsible.add(newResponsibility);
                             responsibility.clear();
                           });
                         } else {
@@ -2487,24 +2716,33 @@ class _JobFormState extends State<JobForm> {
                       children: List.generate(
                         jobTitleSuggestion.length,
                         (index) {
+                          String title = jobTitleSuggestion[index];
+                          bool isSelected = selectedLanguages.contains(title);
+
+                          /*  if (isPreselected && !isSelected) {
+                            isSelected =
+                                true; // Mark the preselected item as selected
+                          } */
+
                           JobTitleItem item = JobTitleItem(
-                            ismulti: false,
-                            title: jobTitleSuggestion[index],
-                            isSelected: isSelected[index],
-                            onTap: () {
+                            getJobTitle1isSelected: null,
+                            ismulti:
+                                false, // Set ismulti to true for multi-select functionality
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
                               setState(() {
-                                isSelected[index] = !isSelected[index];
-                                JobTitleItem currentItem = jobTitleItems[index];
-                                if (isSelected[index]) {
-                                  selectedLanguages.add(currentItem.title);
+                                if (selected) {
+                                  // Select the item
+                                  selectedLanguages.add(title);
                                 } else {
-                                  selectedLanguages.remove(currentItem.title);
+                                  // Unselect the item
+                                  selectedLanguages.remove(title);
                                 }
                               });
                             },
                             isVisible: true,
                             onlyOneIcon: false,
-                            getJobTitle1isSelected: null,
                           );
 
                           jobTitleItems.add(item);
@@ -2513,6 +2751,147 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ),
                   ),
+
+                  /*  Container( // preselected item getting unselect but not multiselect
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion.length,
+                        (index) {
+                          String title = jobTitleSuggestion[index];
+                          bool isSelected = selectedLanguages.contains(title);
+                          bool isPreselected =
+                              fetchApiLanguages.contains(title);
+
+                          if (isPreselected && !isSelected) {
+                            selectedLanguages.add(title);
+                          }
+
+                          JobTitleItem item = JobTitleItem(
+                            ismulti:
+                                false, // Set ismulti to true for multi-select functionality
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                if (isPreselected) {
+                                  if (isSelected) {
+                                    // Unselect the preselected item
+                                    selectedLanguages.remove(title);
+                                  } else {
+                                    // Toggle selection for preselected item
+                                    selectedLanguages.contains(title)
+                                        ? selectedLanguages.remove(title)
+                                        : selectedLanguages.add(title);
+                                  }
+                                } else {
+                                  if (isSelected) {
+                                    // Unselect the item
+                                    selectedLanguages.remove(title);
+                                  } else {
+                                    // Select the item
+                                    selectedLanguages.add(title);
+                                  }
+                                }
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                            getJobTitle1isSelected: () => isSelected,
+                          );
+
+                          jobTitleItems.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ), */
+
+                  /* Container( // Selected data fetch hua but unselectd is remaining
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion.length,
+                        (index) {
+                          String title = jobTitleSuggestion[index];
+                          bool isSelected = selectedLanguages.contains(title);
+
+                          if (fetchApiLanguages.contains(title) &&
+                              !isSelected) {
+                            isSelected = true;
+                            selectedLanguages.add(title);
+                          }
+
+                          JobTitleItem item = JobTitleItem(
+                            ismulti: false,
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                if (selectedLanguages.contains(title)) {
+                                  selectedLanguages.remove(title);
+                                } else {
+                                  selectedLanguages.add(title);
+                                }
+                                isSelected = !isSelected;
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                            getJobTitle1isSelected: () => isSelected,
+                          );
+
+                          jobTitleItems.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ), */
+
+                  /*  Container(
+                      width: double.maxFinite,
+                      margin: const EdgeInsets.only(top: 10, bottom: 12),
+                      child: Wrap(
+                        direction: Axis.horizontal,
+                        spacing: 5,
+                        runSpacing: 5,
+                        children: List.generate(
+                          jobTitleSuggestion.length,
+                          (index) {
+                            JobTitleItem item = JobTitleItem(
+                              ismulti: false,
+                              title: jobTitleSuggestion[index],
+                              isSelected: isSelected[index],
+                              onTap: () {
+                                setState(() {
+                                  isSelected[index] = !isSelected[index];
+                                  JobTitleItem currentItem = jobTitleItems[index];
+                                  if (isSelected[index]) {
+                                    selectedLanguages.add(currentItem.title);
+                                  } else {
+                                    selectedLanguages.remove(currentItem.title);
+                                  }
+                                });
+                              },
+                              isVisible: true,
+                              onlyOneIcon: false,
+                              getJobTitle1isSelected: null,
+                            );
+
+                            jobTitleItems.add(item);
+                            return item;
+                          },
+                        ),
+                      ),
+                    ), */
 
                   Row(
                     children: [
@@ -2565,19 +2944,18 @@ class _JobFormState extends State<JobForm> {
                       children: List.generate(
                         jobTitleSuggestion1.length,
                         (index) {
+                          String title = jobTitleSuggestion1[index];
+                          bool isSelected = selectedJobBenefits.contains(title);
                           JobTitleItem item = JobTitleItem(
                             ismulti: false,
-                            title: jobTitleSuggestion1[index],
-                            isSelected: isJobBenefits[index],
-                            onTap: () {
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
                               setState(() {
-                                isJobBenefits[index] = !isJobBenefits[index];
-                                JobTitleItem currentItem =
-                                    jobTitleItems1[index];
-                                if (isJobBenefits[index]) {
-                                  selectedJobBenefits.add(currentItem.title);
+                                if (selected) {
+                                  selectedJobBenefits.add(title);
                                 } else {
-                                  selectedJobBenefits.remove(currentItem.title);
+                                  selectedJobBenefits.remove(title);
                                 }
                               });
                             },
@@ -2659,32 +3037,33 @@ class _JobFormState extends State<JobForm> {
                       runSpacing: 5,
                       children:
                           List.generate(jobTitleSuggestion2.length, (index) {
+                        final jobTitle = jobTitleSuggestion2[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedShiftTime1?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedShiftTime1 != null;
+
                         return JobTitleItem(
+                          getJobTitle1isSelected: _isSelected,
                           onlyOneIcon: true,
-                          ismulti:
-                              false, // Set ismulti to false for single select
-                          title: jobTitleSuggestion2[index],
-                          isSelected: isShiftTime1[index],
-                          onTap: () {
-                            setState(() {
-                              // Clear all previous selections
-                              for (int i = 0; i < isShiftTime1.length; i++) {
-                                isShiftTime1[i] = false;
-                              }
-                              // Select the tapped item
-                              isShiftTime1[index] = true;
-
-                              // Update selectedJobTitles
-
-                              selectedShiftTime1 = jobTitleSuggestion2[index];
-                            });
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (selected) {
+                              setState(() {
+                                selectedShiftTime1 = jobTitle;
+                              });
+                            }
                           },
                           isVisible: true,
-                          getJobTitle1isSelected: null,
                         );
                       }),
                     ),
                   ),
+
                   /* Container(// previous code of shift time before 8/06/23
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
@@ -2743,7 +3122,7 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
-                  Container(
+                  /* Container(  // Before Fetching From Api 
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isOptionVisible ? 5 : 0,
@@ -2756,7 +3135,7 @@ class _JobFormState extends State<JobForm> {
                               false, // Set ismulti to false for single select
                           title: jobTitleSuggestion3[index],
                           isSelected: isWeakOff[index],
-                          onTap: () {
+                          onTap: (_) {
                             setState(() {
                               // Clear all previous selections
                               for (int i = 0; i < isWeakOff.length; i++) {
@@ -2772,6 +3151,39 @@ class _JobFormState extends State<JobForm> {
                           },
                           isVisible: true,
                           getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ), */
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion3.length, (index) {
+                        final jobTitle = jobTitleSuggestion3[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedWeakOff1?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedWeakOff1 != null;
+
+                        return JobTitleItem(
+                          getJobTitle1isSelected: _isSelected,
+                          onlyOneIcon: true,
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (selected) {
+                              setState(() {
+                                selectedWeakOff1 = jobTitle;
+                              });
+                            }
+                          },
+                          isVisible: true,
                         );
                       }),
                     ),
@@ -2951,25 +3363,51 @@ class _JobFormState extends State<JobForm> {
                             ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 2.2.w,
-                              child: CustomJobFormTextFieldJobRespo(
-                                isCompany: false,
-                                name: "city",
-                                /* onFocusNodeRequested: (p0) {
+                              child: isCity!
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "City",
+                                          style: GoogleFonts.sourceSansPro(
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        customContainerSelect1(
+                                          true,
+                                          city.text,
+                                          true,
+                                          () {
+                                            setState(() {
+                                              isCity = false;
+                                              //roleFocusNodeFrom.requestFocus();
+                                              city.clear();
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  : CustomJobFormTextFieldJobRespo(
+                                      isCompany: false,
+                                      name: "city",
+                                      /* onFocusNodeRequested: (p0) {
                                                       focusNode.requestFocus();
                                                     }, */
-                                title: "City",
-                                controller: city,
-                                // isEdit: isEdit,
-                                //  focusNode: focusNode,
-                                onChanged: (p0) {
-                                  isEdit10 = p0;
-                                },
-                                contextIn: context,
-                                onSubmit: getCityId,
-                                hintText: "Thane",
-                                //  onIDSelected: handleSelectedID,
-                                //   getSuggestions: getJobTitle,
-                              ),
+                                      title: "City",
+                                      controller: city,
+                                      // isEdit: isEdit,
+                                      //  focusNode: focusNode,
+                                      onChanged: (p0) {
+                                        isEdit10 = p0;
+                                      },
+                                      contextIn: context,
+                                      onSubmit: getCityId,
+                                      hintText: "Thane",
+                                      //  onIDSelected: handleSelectedID,
+                                      //   getSuggestions: getJobTitle,
+                                    ),
                             ),
                             const SizedBox(
                               height: 10,
@@ -2980,6 +3418,7 @@ class _JobFormState extends State<JobForm> {
                           // isCompany: false,
                           name: "location",
                           isSkill: false,
+                          fetchApiskill: fetchApilocation,
                           /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
@@ -2992,7 +3431,7 @@ class _JobFormState extends State<JobForm> {
                           },
                           workType: getWorkValue,
                           submit: getWorkLocation,
-                          // selectedValuesList: selectedWorkLocation,
+                          selectedValuesList: selectedWorkLocation,
                           callback: updateSelectedValues1,
                           contextIn: context,
                           hintText: "Thane",
@@ -3046,17 +3485,7 @@ class _JobFormState extends State<JobForm> {
                               width:
                                   20, // Adjust the width according to your requirements
                               child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _boundryLimitList[index].isChecked =
-                                        !isChecked;
-                                    if (isChecked) {
-                                      selectedBoundryLimit.remove(item);
-                                    } else {
-                                      selectedBoundryLimit.add(item);
-                                    }
-                                  });
-                                },
+                                onTap: () {},
                                 child: Container(
                                   // margin: const EdgeInsets.only(bottom: 4),
                                   height: 16,
@@ -4337,7 +4766,7 @@ class _JobFormState extends State<JobForm> {
                         // color: Colors.grey.shade500,
                         fontWeight: FontWeight.w600),
                   ),
-                  Container(
+                  /* Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isCommunicationVisible ? 5 : 0,
@@ -4350,7 +4779,7 @@ class _JobFormState extends State<JobForm> {
                               false, // Set ismulti to false for single select
                           title: jobTitleSuggestion5[index],
                           isSelected: isCommunication[index],
-                          onTap: () {
+                          onTap: (_) {
                             setState(() {
                               // Clear all previous selections
                               for (int i = 0; i < isCommunication.length; i++) {
@@ -4366,6 +4795,39 @@ class _JobFormState extends State<JobForm> {
                           },
                           isVisible: true,
                           getJobTitle1isSelected: null,
+                        );
+                      }),
+                    ),
+                  ), */
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion5.length, (index) {
+                        final jobTitle = jobTitleSuggestion5[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedComunication?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedComunication != null;
+
+                        return JobTitleItem(
+                          getJobTitle1isSelected: _isSelected,
+                          onlyOneIcon: true,
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (selected) {
+                              setState(() {
+                                selectedComunication = jobTitle;
+                              });
+                            }
+                          },
+                          isVisible: true,
                         );
                       }),
                     ),
@@ -4812,7 +5274,7 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                  Container(
+                  /* Container(   Before Fetching data from api Related to matching jobs.
                     width: double.maxFinite,
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
@@ -4826,7 +5288,7 @@ class _JobFormState extends State<JobForm> {
                             ismulti: false,
                             title: jobTitleSuggestion4[index],
                             isSelected: isInterview[index],
-                            onTap: () {
+                            onTap: (_) {
                               setState(() {
                                 isInterview[index] = !isInterview[index];
                                 JobTitleItem currentItem =
@@ -4837,6 +5299,43 @@ class _JobFormState extends State<JobForm> {
                                 } else {
                                   selectedInterViewRounds
                                       .remove(currentItem.title);
+                                }
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                            getJobTitle1isSelected: null,
+                          );
+
+                          jobTitleItems2.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ), */
+                  Container(
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion4.length,
+                        (index) {
+                          String title = jobTitleSuggestion4[index];
+                          bool isSelected =
+                              selectedInterViewRounds.contains(title);
+                          JobTitleItem item = JobTitleItem(
+                            ismulti: false,
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  selectedInterViewRounds.add(title);
+                                } else {
+                                  selectedInterViewRounds.remove(title);
                                 }
                               });
                             },
