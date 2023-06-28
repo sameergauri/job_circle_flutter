@@ -11,11 +11,710 @@ import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customButton.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/job_title_model.dart';
+import 'package:job_circle/models/matching_job_model.dart';
 
 import '../themes/colors.dart';
 import 'customDialogue.dart';
 
 int suggestionIndex = 0;
+
+class CustomFormTextFieldMultiSelectLocation extends StatefulWidget {
+  final TextEditingController? controller;
+  //final bool isEdit;
+  // final FocusNode focusNode;
+  final String hintText;
+  List<dynamic>? selectedValuesList1 = [];
+  //yfinal Function(String)? se;
+  BuildContext contextIn;
+  final Function(String) callback1;
+  final String title;
+  final Function(String)? getSuggestions;
+  final String? firstText;
+  final Function(bool)? onChanged;
+  final String name;
+  final isSkill;
+  final Function(String)? workType1;
+  final Function(List<String>)? submit1;
+  List<Location>? fetchApiskill1 = [];
+
+  CustomFormTextFieldMultiSelectLocation({
+    required this.callback1,
+    this.fetchApiskill1,
+    this.submit1,
+    Key? key,
+    this.controller,
+    this.workType1,
+    required this.isSkill,
+    // required this.isEdit,
+    // required this.focusNode,
+    this.selectedValuesList1,
+    required this.contextIn,
+    required this.title,
+    required this.hintText,
+    required this.name,
+    this.getSuggestions,
+    this.onChanged,
+    this.firstText,
+    // required this.onFocusNodeRequested
+  }) : super(key: key);
+
+  @override
+  State<CustomFormTextFieldMultiSelectLocation> createState() =>
+      _CustomFormTextFieldMultiSelectLocationState();
+}
+
+class _CustomFormTextFieldMultiSelectLocationState
+    extends State<CustomFormTextFieldMultiSelectLocation> {
+  List<dynamic>? suggestion;
+  bool isEdit = false;
+  bool isLoading = false;
+  List<dynamic> suggestions = [];
+  List<dynamic> suggestionsLast = [];
+  final FocusNode textFieldFocusNode = FocusNode();
+// Example usage of the handleFocusNodeChange method
+  late TextEditingController? controller = widget.controller;
+  // late bool isEdit = widget.isEdit;
+  // final FocusNode focusNode = widget.focusNode;
+  late String hintText = widget.hintText;
+  late String title = widget.title;
+
+  late String? firstText = widget.firstText;
+  String? selectedValue;
+
+  List<Location>? selectedValuesList = [];
+  List<String> selectedDataList = [];
+  bool isDuplicate = false;
+  String? customValue;
+  bool showAddButton = false;
+  void handleBoolChange(bool newValue) {
+    setState(() {
+      isEdit = newValue;
+//selectedValuesList = widget.fetchApiskill;
+    });
+    widget.onChanged!(newValue);
+  }
+
+  Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
+    final response = await http.get(Uri.parse(
+        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobTitleModel1> suggestions = [];
+      Set<String> uniqueValues = {};
+
+      List<dynamic> content = data['resultData']['content'];
+
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  /* Future<List> getJobTitle(String pattern, String name) async {    // old skills and work location working function
+    final response = await http.get(Uri.parse(
+        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      suggestions = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .where((name) =>
+              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+          .toList();
+      suggestionsLast = data['resultData']['content']
+          .map((e) => e['value'].toString())
+          .toList();
+      print(suggestions);
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  } */
+
+  /* Future<List<dynamic>> fetchSuggestions(String pattern) async {
+    //List<dynamic> suggestions = [];
+
+    if (pattern.isNotEmpty) {
+      suggestions = await getJobTitle(pattern, widget.name) ?? [];
+      showAddButton = !suggestions.contains(pattern);
+    } else {
+      showAddButton = true;
+    }
+
+    return suggestions;
+  } */
+  @override
+/*   void initState() {
+    // TODO: implement initState
+    super.initState();
+     setState(() {
+        selectedDataList = widget.fetchApiskill!;
+      });
+  } */
+  @override
+  Widget build(BuildContext context) {
+    selectedValuesList = widget.fetchApiskill1!;
+    return SizedBox(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.sourceSansPro(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            margin: selectedValuesList!.isNotEmpty
+                ? EdgeInsets.zero
+                : const EdgeInsets.only(top: 5),
+            //  height: MediaQuery.of(context).size.height / 9.h,
+
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //selectedValuesList=
+                Wrap(
+                    spacing: 4,
+                    children: selectedValuesList!.map((e) {
+                      return Chip(
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        label: Text(e.value),
+                        onDeleted: () {
+                          setState(() {
+                            selectedValuesList!.remove(e);
+                            widget.fetchApiskill1!.remove(e);
+                            textFieldFocusNode.requestFocus();
+                            handleBoolChange(false);
+                          });
+                        },
+                      );
+                    }).toList()),
+
+                /* SizedBox(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    // scrollDirection: Axis.horizontal,
+                    itemCount: selectedValuesList!.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(selectedValuesList![index]),
+                      );
+                    },
+                  ),
+                ), */
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 25.h,
+                            child: TypeAheadFormField<dynamic>(
+                              /* validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please enter a value';
+                                  }
+                                  if (selectedValuesList!.contains(value)) {
+                                    isDuplicate = true;
+                                    return 'Already Added';
+                                  }
+                                  isDuplicate = false;
+                                  return null;
+                                }, */
+
+                              suggestionsBoxDecoration:
+                                  SuggestionsBoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                elevation: 4.0,
+                              ),
+                              textFieldConfiguration: TextFieldConfiguration(
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.deny(RegExp(
+                                      r'^\s')), // Disallow spaces at the beginning
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z\s]')),
+                                ],
+                                maxLines: 1,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (widget.isSkill) {
+                                      customValue = value;
+                                      showAddButton =
+                                          !suggestions.contains(value);
+                                    }
+                                  });
+                                },
+
+                                //enabled: false,
+
+                                autofocus: true,
+                                focusNode: textFieldFocusNode,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                controller: controller,
+                                decoration: InputDecoration(
+                                  hintText: hintText,
+                                  hintStyle: GoogleFonts.sourceSansPro(
+                                    color: Constants.subtitleclr,
+                                    fontSize: 15.sp,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color.fromARGB(255, 122, 113, 111),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color(0xffff0eceb),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 15),
+                                  /* errorText: isDuplicate
+                                        ? 'This skill is already added'
+                                        : null, */
+                                ),
+                              ),
+                              suggestionsCallback: (pattern) async {
+                                if (pattern.isNotEmpty) {
+                                  isLoading =
+                                      true; // Set isLoading to true when fetching suggestions
+                                  setState(
+                                      () {}); // Trigger a rebuild to show the "Searching" message
+
+                                  suggestion =
+                                      await getJobTitle(pattern, widget.name);
+                                  showAddButton =
+                                      !suggestion!.contains(pattern);
+
+                                  isLoading =
+                                      false; // Set isLoading to false after suggestions are fetched
+                                  setState(
+                                      () {}); // Trigger a rebuild to hide the "Searching" message
+
+                                  return suggestion!;
+                                } else {
+                                  suggestion = [];
+                                  showAddButton = false;
+                                  return <dynamic>[];
+                                }
+                              },
+                              itemBuilder: (context, suggestion) {
+                                final isOdd = suggestionIndex % 2 == 0;
+                                final backgroundColor =
+                                    isOdd ? Colors.grey.shade200 : Colors.white;
+
+                                // Increment the suggestion index counter
+                                suggestionIndex++;
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: backgroundColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(
+                                      suggestion.value.toString(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                if (selectedValuesList!
+                                    .map((e) => e.value)
+                                    .contains(suggestion.value)) {
+                                  // Dialog for duplicate value
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomDialog(
+                                        isFisrt: false,
+                                        onClose: () {
+                                          Navigator.of(context).pop();
+                                          textFieldFocusNode.requestFocus();
+                                          controller!.clear();
+                                        },
+                                        title: "Error!",
+                                        subtitle: widget.isSkill
+                                            ? 'This skill is already added'
+                                            : "This location is already added",
+                                      );
+                                    },
+                                  );
+                                } else if (suggestion.id != 786 &&
+                                    suggestion.id != 787) {
+                                  setState(() {
+                                    Location newList = Location(
+                                        id: suggestion.id,
+                                        value: suggestion.value);
+                                    selectedValuesList!.add(newList);
+                                    isDuplicate = false;
+                                    showAddButton = true;
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    controller!.clear();
+                                    widget
+                                        .callback1(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit1!(selectedDataList);
+                                    controller!.clear();
+
+                                    if (suggestion.id != 786 &&
+                                        suggestion.value != 787) {
+                                      controller!
+                                          .clear(); // Clear the controller for all suggestions except "wfh" and "hybrid"
+                                    }
+                                  });
+
+                                  if (selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("wfh") ||
+                                      selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("WFH") ||
+                                      selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("Hybrid")) {
+                                    selectedValuesList!.clear();
+                                    // Perform additional operations for "wfh" or "Hybrid" values
+                                    // ...
+                                    handleBoolChange(true);
+                                    //widget.workType1!(suggestion.value);
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback1(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit1!(selectedDataList);
+                                    controller!.clear();
+                                  }
+                                } else {
+                                  setState(() {
+                                    Location newList = Location(
+                                        id: suggestion.id,
+                                        value: suggestion.value);
+                                    selectedValuesList!.add(newList);
+                                    isDuplicate = false;
+                                    showAddButton = true;
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    controller!.clear();
+                                    widget
+                                        .callback1(suggestion.value.toString());
+
+                                    widget.submit1!(selectedDataList);
+                                    controller!.clear();
+
+                                    if (suggestion.id != 786 &&
+                                        suggestion.value != 787) {
+                                      controller!
+                                          .clear(); // Clear the controller for all suggestions except "wfh" and "hybrid"
+                                    }
+                                  });
+
+                                  if (selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("wfh") ||
+                                      selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("WFH") ||
+                                      selectedValuesList!
+                                          .map((e) => e.value)
+                                          .contains("Hybrid")) {
+                                    selectedValuesList!.clear();
+                                    // Perform additional operations for "wfh" or "Hybrid" values
+                                    // ...
+                                    handleBoolChange(true);
+                                    widget.workType1!(suggestion.value);
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback1(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit1!(selectedDataList);
+                                    controller!.clear();
+                                  }
+                                }
+                              },
+
+                              /*  onSuggestionSelected: (suggestion) {  // working skills suggestion
+                                if (selectedValuesList!
+                                    .contains(suggestion.value)) {
+                                  setState(() {
+                                    //selectedValuesList!.add(suggestion);
+                                    isDuplicate = true;
+                                    controller!.clear();
+                                    showAddButton = true;
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
+
+                                    if (selectedValuesList!.contains("wfh") ||
+                                        selectedValuesList!.contains("WFH") ||
+                                        selectedValuesList!
+                                            .contains("Hybrid")) {
+                                      handleBoolChange(true);
+                                      widget.workType!(suggestion.value);
+                                      controller!.text =
+                                          suggestion.value.toString();
+                                      widget.callback(
+                                          suggestion.value.toString());
+                                      selectedDataList
+                                          .add(suggestion.id.toString());
+                                      widget.submit!(selectedDataList);
+                                      controller!.clear();
+                                    }
+                                    // textFieldFocusNode.requestFocus();
+                                  });
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomDialog(
+                                          isFisrt: false,
+                                          onClose: () {
+                                            Navigator.of(context).pop();
+                                            textFieldFocusNode.requestFocus();
+                                            controller!.clear();
+                                          },
+                                          title: "Error!",
+                                          subtitle: widget.isSkill
+                                              ? 'This skill is already added'
+                                              : "This location is already added");
+                                    },
+                                  );
+                                } else if (suggestion.value != null) {
+                                  setState(() {
+                                    selectedValuesList!.add(suggestion.value);
+                                    isDuplicate = false;
+                                    showAddButton = true;
+                                    controller!.text =
+                                        suggestion.value.toString();
+                                    widget
+                                        .callback(suggestion.value.toString());
+                                    selectedDataList
+                                        .add(suggestion.id.toString());
+                                    widget.submit!(selectedDataList);
+                                    controller!.clear();
+                                    if (selectedValuesList!.contains("wfh") ||
+                                        selectedValuesList!.contains("WFH") ||
+                                        selectedValuesList!
+                                            .contains("Hybrid")) {
+                                      handleBoolChange(true);
+                                      /*  handleWorkType(
+                                          suggestion.value.toString()); */
+                                      selectedValuesList!.add(suggestion.value);
+                                      controller!.text =
+                                          suggestion.value.toString();
+                                      widget.callback(
+                                          suggestion.value.toString());
+                                      selectedDataList
+                                          .add(suggestion.id.toString());
+                                      widget.submit!(selectedDataList);
+                                      // controller!.clear();
+                                    }
+                                    controller!.clear();
+                                    // textFieldFocusNode.requestFocus();
+                                  });
+                                }
+                                /*  setState(() {                    //before Validation...
+                                  controller!.clear();
+                                  if (!selectedValuesList!.contains(suggestion)) {
+                                    setState(() {
+                                      selectedValuesList!.add(suggestion);
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("Already Added")));
+                                  }
+                                              
+                                  //controller!.text += suggestion.toString();   // textField me show krne ke liy ke kya selected hai
+                                  //  firstText = controller!.text;
+                                  //  handleBoolChange(true);
+                                  // FocusScope.of(context).autofocus(focusNode);  // on hold
+                                }); */
+                              }, */
+                              /* noItemsFoundBuilder: (BuildContext context) {
+                                if (isLoading) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Searching...',
+                                      style: TextStyle(fontStyle: FontStyle.italic),
+                                    ),
+                                  );
+                                } else {
+                                  return AddButtonVisibilityWidget(
+                                    isLoading: false,
+                                    suggestions: suggestion,
+                                    customValue: customValue,
+                                    selectedValuesList: selectedValuesList,
+                                    onAddButtonPressed: () {
+                                      setState(() {
+                                    selectedValuesList!.add(suggestion.toString());
+                                    isDuplicate = false;
+                                    //showAddButton = true;
+                                    controller!.clear();
+
+                                  });
+                                });},
+   
+                              }, */
+
+                              noItemsFoundBuilder: widget.isSkill
+                                  ? (BuildContext context) {
+                                      return AddButtonVisibilityWidget(
+                                        suggestions: suggestion,
+                                        customValue: customValue,
+                                        selectedValuesList: selectedValuesList,
+                                        isLoading: isLoading,
+                                        onAddButtonPressed: () {
+                                          if (selectedValuesList!
+                                              .contains(customValue)) {
+                                            setState(() {
+                                              isDuplicate = true;
+                                              controller!.clear();
+                                            });
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CustomDialog(
+                                                  isFisrt: false,
+                                                  onClose: () {
+                                                    Navigator.of(context).pop();
+                                                    textFieldFocusNode
+                                                        .requestFocus();
+                                                  },
+                                                  title: "Error!",
+                                                  subtitle:
+                                                      " 'This skill is already added',",
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            setState(() {
+                                              //  selectedValuesList!.add(customValue);
+                                              isDuplicate = false;
+                                              controller!.clear();
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }
+                                  : (value) {
+                                      final message = suggestion != null &&
+                                              suggestion!.isEmpty
+                                          ? 'No result found. Search again and select from suggestion.'
+                                          : 'Searching';
+
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          message,
+                                          style: const TextStyle(
+                                              fontStyle: FontStyle.italic),
+                                        ),
+                                      );
+                                    },
+                              /* final message =
+                                    suggestion != null && suggestion!.isEmpty
+                                        ? 'No items found'
+                                        : 'Searching';
+
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    message,
+                                    style: const TextStyle(
+                                        fontStyle: FontStyle.italic),
+                                  ),
+                                );
+                              }, */
+                            ),
+                          ),
+                          /* Container(
+                            child: Text(
+                              isDuplicate ? "This Skill is already added." : "",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 12.sp,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ), */
+                        ],
+                      ),
+                    ),
+                    /*  if (showAddButton &&
+                        customValue != null &&
+                        customValue!.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          if (selectedValuesList!.contains(customValue)) {
+                            setState(() {
+                              isDuplicate = true;
+                              controller!.clear();
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Already Added")),
+                            );
+                          } else {
+                            setState(() {
+                              selectedValuesList!.add(customValue!);
+                              isDuplicate = false;
+                              controller!.clear();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                      ) */
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class CustomJobFormTextField extends StatefulWidget {
   final TextEditingController? controller;
@@ -592,7 +1291,9 @@ class _CustomFormTextFieldMultiSelectState
   } */
   @override
   Widget build(BuildContext context) {
-   title=="Work Location"?selectedValuesList=widget.fetchApiskill: selectedValuesList = widget.fetchApiskill;
+    title == "Work Location"
+        ? selectedValuesList = widget.fetchApiskill
+        : selectedValuesList = widget.fetchApiskill;
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

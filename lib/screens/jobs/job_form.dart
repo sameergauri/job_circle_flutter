@@ -390,8 +390,11 @@ class _JobFormState extends State<JobForm> {
   List<String> fetchApiInterViewRounds = [];
   String? fetchApiGender;
   List<dynamic> fetchApiskill = [];
-  List<dynamic> fetchApilocation = [];
+  List<Location> fetchApilocation = [];
   List<dynamic> fetchApiWoekLocation = [];
+  List<dynamic> fetchApieligibility = [];
+  List<dynamic> fetchApiMoreDEtail = [];
+  List<dynamic> fetchApiBoundryLimit = [];
   bool? isIndustry = false;
   bool? isCity = false;
   int? jobID;
@@ -407,13 +410,15 @@ class _JobFormState extends State<JobForm> {
         if (jobData.industry.isNotEmpty) {
           isIndustry = true;
         }
+        minSalary.text = (jobData.minctc).truncate().toString();
+        maxSalary.text = (jobData.maxctc).truncate().toString();
         minSalaryk = NumberFormat.compact()
             .format(double.tryParse(jobData.minctc.toString()));
         maxSalaryk = NumberFormat.compact()
             .format(double.tryParse(jobData.maxctc.toString()));
         isValueValid = true;
-        if (jobData.isMonthly == 'per month') {
-          _selectedOption = "per month";
+        if (jobData.isMonthly == 'Per Month') {
+          _selectedOption = "Per Month";
         } else if (jobData.isMonthly == "PA") {
           _selectedOption = "PA";
         }
@@ -444,6 +449,9 @@ class _JobFormState extends State<JobForm> {
 
           minExp.text = jobData.minExperience;
           maxExp.text = jobData.maxExperience;
+          List<dynamic> loc = jobData.workLocation;
+
+          print(loc);
         }
         fetchApiLanguages = jobData.languageKnown.cast<String>();
         fetchApiskill = jobData.skills;
@@ -483,10 +491,18 @@ class _JobFormState extends State<JobForm> {
         print(selectedKeyResponsible);
         fetchApilocation = jobData.location;
         if (fetchApilocation.isNotEmpty) {
-          if (fetchApilocation.contains("WFH") ||
-              fetchApilocation.contains("Hybrid")) {
+          bool containsWFH = fetchApilocation
+              .any((location) => location.value.contains("WFH"));
+          bool containsHybrid = fetchApilocation
+              .any((location) => location.value.contains("Hybrid"));
+          if (containsWFH == true) {
             isEdit8 = true;
             workFromHome = "WFH";
+            workLocation.text = "WFH";
+          } else if (containsHybrid == true) {
+            isEdit8 = true;
+            workFromHome = "Hybrid";
+            workLocation.text = "Hybrid";
           }
         }
         fetchApiWoekLocation = jobData.workLocation;
@@ -494,10 +510,13 @@ class _JobFormState extends State<JobForm> {
         List<dynamic> boundaryLimits = jobData.boundry_limits;
 
         for (var item in boundaryLimits) {
-          _boundryLimitList.add(CheckItem(item.toString(), true));
+          fetchApiBoundryLimit.add(item);
+          selectedKeyBoundryLimits.add(item);
         } //boundry limit
 //Eligiblity
+
         // _eligibilityList = [CheckItem(jobData.eligible, true)];
+
         List<dynamic> eligibility = jobData.eligible;
 
         for (var item in eligibility) {
@@ -508,7 +527,8 @@ class _JobFormState extends State<JobForm> {
               "Excellent English written & verbal Communication skills required.") {
             // _eligibilityList.add(CheckItem(item.toString(), true));
           } else {
-            _eligibilityList.add(CheckItem(item.toString(), true));
+            fetchApieligibility.add(item);
+            selectedKeyEligibility.add(item);
           }
         } //bou
         //Eligibility
@@ -517,7 +537,8 @@ class _JobFormState extends State<JobForm> {
         List<dynamic> moreDetails = jobData.moredetails;
 
         for (var item in moreDetails) {
-          _moreDetailsList.add(CheckItem(item.toString(), true));
+          fetchApiMoreDEtail.add(item);
+          selectedKeyMoreDetails.add(item);
         }
 
         //more details
@@ -526,6 +547,7 @@ class _JobFormState extends State<JobForm> {
         for (var item in jobResponsible) {
           selectedKeyResponsible.add(item.toString());
         }
+        worklocationList = jobData.location;
         //  fetchApiInterViewRounds = jobData.
       });
     } else {
@@ -556,6 +578,24 @@ class _JobFormState extends State<JobForm> {
   }
 
   bindProfileSummary() async {
+    save(filePath, data) async {
+      var result = await UserDataService().saveUserStages(data);
+      if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+        if (data['stage'] == 'profile_pic') {
+          profilemodel.profile_pic = filePath;
+          userId = Utils.resolveImage(profilemodel.id);
+        } else if (data['stage'] == 'upload_cv') {
+          profilemodel.cv_link = filePath;
+
+          profilemodel.cv_upladted_date =
+              DateFormat('MMM dd, yyyy').format(DateTime.now());
+        } else if (data['stage'] == 'partnerRequest') {
+          profilemodel.partner_request = data['data']['partner_request'];
+        }
+      }
+      setState(() {});
+    }
+
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var result = await UserDataService().getUserProfileSummary(userId);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -892,9 +932,9 @@ class _JobFormState extends State<JobForm> {
       );
     } else {
       setState(() {
-          selectedMoreDetail.add(value);
+        selectedMoreDetail.add(value);
         _moreDetailsList.add(CheckItem(value, true));
-      
+
         moreDetail.clear();
       });
     }
@@ -1019,18 +1059,25 @@ class _JobFormState extends State<JobForm> {
   List<dynamic> natureofWorkID = [];
   List<String> checkboxDataState = [];
   List<dynamic> selectedKeyResponsible = [];
+  List<String> selectedKeyEligibility = [];
+  List<String> selectedKeyMoreDetails = [];
+  List<String> selectedKeyBoundryLimits = [];
+
   List<String> selectedTextResponsible = [];
   String? jobTitle;
   String? Nowid;
   int? NatureOfWorkID;
   String? CompanyID;
   String? CityID = "0";
-  List<String> worklocationList = [];
+  List<Location> worklocationList = [];
 
   void getWorkLocation(List<String> data) {
     // Store the received data in the list
     setState(() {
-      worklocationList = data;
+      List<Location> customLocation = data
+          .map((location) => Location(id: int.parse(location), value: ""))
+          .toList();
+      worklocationList = customLocation;
     });
 
     // Perform further operations on the storedData list if needed
@@ -1680,9 +1727,8 @@ class _JobFormState extends State<JobForm> {
                         workCity: int.parse(CityID.toString()),
                         companyId: int.parse(CompanyID!),
                         natureOfWorkId: NatureOfWorkID,
-                        workLocation: worklocationList
-                            .map((str) => int.parse(str))
-                            .toList(),
+                        workLocation:
+                            worklocationList.map((e) => e.id).toList(),
 
                         //  workLocation: sele
 //empType:
@@ -1727,12 +1773,12 @@ class _JobFormState extends State<JobForm> {
               InkWell(
                 onTap: () {
                   if (selectedComunication == "Excellent | Versant") {
-                    selectedEligibility.add(
+                    selectedKeyEligibility.add(
                         "Excellent English written & verbal Communication skills required.");
                   }
                   if (isFresher == false) {
                     if (isRelevantExpperience == true) {
-                      selectedEligibility.add(
+                      selectedKeyEligibility.add(
                           "Candidate should be from relevant experience background.");
                     }
                   }
@@ -1766,7 +1812,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Select Education type Type");
                         },
                       );
-                    } else if (selectedValuesList.isEmpty) {
+                    } else if (fetchApiskill.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1876,20 +1922,20 @@ class _JobFormState extends State<JobForm> {
                                         ? "InternShip"
                                         : " ",
                         education: graduate ? "Graduate" : "Under-Graduate",
-                        skills: selectedValuesList,
+                        skills: fetchApiskill,
                         keyResponsible: selectedKeyResponsible,
                         // textResponsible: selectedTextResponsible,
                         languageKnown: selectedLanguages,
                         jobBenefits: selectedJobBenefits,
                         shiftTime: selectedShiftTime1,
                         shiftDesc: selectedWeakOff1,
-                        minCtc: int.parse(minSalary.text),
-                        maxCtc: int.parse(maxSalary.text),
+                        minCtc: double.parse(minSalary.text).truncate(),
+                        maxCtc: double.parse(maxSalary.text).truncate(),
                         isMonthly: _selectedOption,
                         minExperience: minExp.text,
                         maxExperience: maxExp.text,
                         isFresher: isFresher ? "Fresher" : " ",
-                        boundry_limits: selectedBoundryLimit,
+                        boundry_limits: selectedKeyBoundryLimits,
                         gender: onlyMale
                             ? "Male"
                             : onlyFemale
@@ -1897,20 +1943,21 @@ class _JobFormState extends State<JobForm> {
                                 : femalePrefered
                                     ? "Female prefered"
                                     : " ",
+
                         minAge: int.parse(minAge.text),
                         maxAge: int.parse(maxAge.text),
-                        eligible: selectedEligibility,
+                        eligible: selectedKeyEligibility,
 
-                        moredetails: selectedMoreDetail,
+                        moredetails: selectedKeyMoreDetails,
                         interviewRounds: selectedInterViewRounds,
                         rating: selectedComunication,
 
                         workCity: int.parse(CityID.toString()),
                         companyId: int.parse(CompanyID!),
                         natureOfWorkId: NatureOfWorkID,
-                        workLocation: worklocationList
-                            .map((str) => int.parse(str))
-                            .toList(),
+                        workLocation:
+                            worklocationList.map((e) => e.id).toList(),
+
                         //  spoc: profileSummaryModel.id
                         spoc: 552,
                         //  workLocation: sele
@@ -3228,7 +3275,7 @@ class _JobFormState extends State<JobForm> {
                   ),
                   // if (minSalary.text.length >= 4 && _selectedOption.isNotEmpty)
 
-                  isValueValid && minSalaryk.isNotEmpty && maxSalaryk.isNotEmpty
+                  isValueValid && minSalaryk.isNotEmpty
                       ? customContainerSelect(
                           isCross: true,
                           isAnother: true,
@@ -3239,7 +3286,8 @@ class _JobFormState extends State<JobForm> {
                           },
                           isSelect: true,
                           isSalary: true,
-                          title: "$minSalaryk -  $maxSalaryk $_selectedOption")
+                          title:
+                              "$minSalaryk  ${maxSalary.text.isEmpty ? "" : maxSalaryk} $_selectedOption")
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.max,
@@ -3354,6 +3402,7 @@ class _JobFormState extends State<JobForm> {
                                           isEdit8 = false;
                                           location.clear();
                                           city.clear();
+                                          worklocationList.clear();
                                         });
                                       },
                                       isSelect: true,
@@ -3414,11 +3463,12 @@ class _JobFormState extends State<JobForm> {
                             ),
                           ],
                         )
-                      : CustomFormTextFieldMultiSelect(
+                      : CustomFormTextFieldMultiSelectLocation(
                           // isCompany: false,
                           name: "location",
                           isSkill: false,
-                          fetchApiskill: fetchApilocation,
+                          fetchApiskill1: fetchApilocation,
+
                           /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
@@ -3429,10 +3479,10 @@ class _JobFormState extends State<JobForm> {
                           onChanged: (p0) {
                             isEdit8 = p0;
                           },
-                          workType: getWorkValue,
-                          submit: getWorkLocation,
-                          selectedValuesList: selectedWorkLocation,
-                          callback: updateSelectedValues1,
+                          workType1: getWorkValue,
+                          submit1: getWorkLocation,
+                          selectedValuesList1: selectedWorkLocation,
+                          callback1: updateSelectedValues1,
                           contextIn: context,
                           hintText: "Thane",
                           //  onIDSelected: handleSelectedID,
@@ -3462,7 +3512,178 @@ class _JobFormState extends State<JobForm> {
                       )
                     ],
                   ),
-                  const SizedBox(
+                  fetchApiBoundryLimit.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
+                        ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApiBoundryLimit.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApiBoundryLimit[index];
+                      //  fetchData();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: selectedKeyBoundryLimits
+                                              .contains(item)
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value: selectedKeyBoundryLimits
+                                          .contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            // Add the item to the list
+                                            selectedKeyBoundryLimits.add(item);
+                                          } else {
+                                            // Remove the item from the list
+                                            selectedKeyBoundryLimits
+                                                .remove(item);
+                                          }
+                                        });
+                                        print(
+                                            selectedKeyBoundryLimits); // Notify Flutter that the state has changed
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap:
+                                    true, // Allow text to wrap into the next line
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
+                      controller: boundryLimits,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newBoundaryLimit = boundryLimits.text.trim();
+                        if (newBoundaryLimit.isNotEmpty &&
+                            !fetchApiBoundryLimit.contains(newBoundaryLimit)) {
+                          setState(() {
+                            fetchApiBoundryLimit.add(newBoundaryLimit);
+                            selectedKeyBoundryLimits.add(newBoundaryLimit);
+                            boundryLimits.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content: const Text(
+                                    'Boundary limit already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyBoundryLimits
+                                  .contains(boundryLimits.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyBoundryLimits
+                                  .contains(boundryLimits.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText:
+                            "Any other Boundary Limit that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin:
+                        fetchApiBoundryLimit.contains(boundryLimits.text.trim())
+                            ? const EdgeInsets.only(bottom: 15, left: 10)
+                            : null,
+                    child: Text(
+                      fetchApiBoundryLimit.contains(boundryLimits.text.trim())
+                          ? "This Boundary Limit is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+
+                  //old code of boundry limits down
+                  /* const SizedBox(
                     height: 5,
                   ),
                   ListView.builder(
@@ -3590,7 +3811,8 @@ class _JobFormState extends State<JobForm> {
                           //  prefixIcon: Icon(Icons.list)
                           ),
                     ),
-                  ),
+                  ), */
+                  //old code of boundry limits
 
                   Text(
                     "Experience",
@@ -4899,7 +5121,166 @@ class _JobFormState extends State<JobForm> {
                       );
                     },
                   ), */
+                  fetchApieligibility.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(height: 5),
                   ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApieligibility.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApieligibility[index];
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value:
+                                          selectedKeyEligibility.contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            selectedKeyEligibility.add(item);
+                                          } else {
+                                            selectedKeyEligibility.remove(item);
+                                          }
+                                        });
+                                        print(selectedKeyEligibility);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+// Rest of the code...
+
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
+                      controller: Eligibility,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newEligibility = Eligibility.text.trim();
+                        if (newEligibility.isNotEmpty &&
+                            !fetchApieligibility.contains(newEligibility)) {
+                          setState(() {
+                            fetchApieligibility.add(newEligibility);
+                            selectedKeyEligibility.add(newEligibility);
+                            Eligibility.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content:
+                                    const Text('Eligibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyEligibility
+                                  .contains(Eligibility.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyEligibility
+                                  .contains(Eligibility.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText: "Any other eligibility that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin:
+                        fetchApieligibility.contains(Eligibility.text.trim())
+                            ? const EdgeInsets.only(bottom: 15, left: 10)
+                            : null,
+                    child: Text(
+                      fetchApieligibility.contains(Eligibility.text.trim())
+                          ? "This Eligibility is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+
+                  //old eligibility down
+                  /* ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _eligibilityList.length,
@@ -5038,7 +5419,9 @@ class _JobFormState extends State<JobForm> {
                           //  prefixIcon: Icon(Icons.list)
                           ),
                     ),
-                  ),
+                  ), */
+                  //old eligibility
+
                   const SizedBox(
                     height: 12,
                   ),
@@ -5081,7 +5464,175 @@ class _JobFormState extends State<JobForm> {
                       );
                     },
                   ), */
+
+                  fetchApiMoreDEtail.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
+                        ),
                   ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApiMoreDEtail.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApiMoreDEtail[index];
+                      //  fetchData();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color:
+                                          selectedKeyMoreDetails.contains(item)
+                                              ? Colors.red
+                                              : Colors.grey,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value:
+                                          selectedKeyMoreDetails.contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            // Add the item to the list
+                                            selectedKeyMoreDetails.add(item);
+                                          } else {
+                                            // Remove the item from the list
+                                            selectedKeyMoreDetails.remove(item);
+                                          }
+                                        });
+                                        print(
+                                            selectedKeyMoreDetails); // Notify Flutter that the state has changed
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap:
+                                    true, // Allow text to wrap into the next line
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
+                      ],
+                      controller: moreDetail,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newMoreDetail = moreDetail.text.trim();
+                        if (newMoreDetail.isNotEmpty &&
+                            !fetchApiMoreDEtail.contains(newMoreDetail)) {
+                          setState(() {
+                            fetchApiMoreDEtail.add(newMoreDetail);
+                            selectedKeyMoreDetails.add(newMoreDetail);
+                            moreDetail.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content:
+                                    const Text('Eligibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyMoreDetails
+                                  .contains(moreDetail.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyMoreDetails
+                                  .contains(moreDetail.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText: "Any other More Detail that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: fetchApiMoreDEtail.contains(moreDetail.text.trim())
+                        ? const EdgeInsets.only(bottom: 15, left: 10)
+                        : null,
+                    child: Text(
+                      fetchApiMoreDEtail.contains(moreDetail.text.trim())
+                          ? "This More Detail is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  // old more detail down
+                  /* ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _moreDetailsList.length,
@@ -5235,10 +5786,11 @@ class _JobFormState extends State<JobForm> {
                           //  prefixIcon: Icon(Icons.list)
                           ),
                     ),
-                  ),
+                  ),   
+                  //old more detail
                   const SizedBox(
                     height: 5,
-                  ),
+                  ), */
 
                   /*  newFormFiled(shorListController, context, "More Details",
                       "Optional", false, false), */
@@ -5469,7 +6021,7 @@ class _JobFormState extends State<JobForm> {
             width: isAnother
                 ? null
                 : isNumberOfOpenings
-                    ? MediaQuery.of(context).size.width / 5
+                    ? MediaQuery.of(context).size.width / 4.5
                     : isAnother
                         ? double.infinity
                         : MediaQuery.of(context).size.width / 2.2,
@@ -5660,8 +6212,78 @@ class _JobFormState extends State<JobForm> {
                   FilteringTextInputFormatter.deny(RegExp(r'[.]')),
                   FilteringTextInputFormatter.digitsOnly
                 ],
+                onTapOutside: (event) {
+                  //    _checkLength(false);
+                },
                 onFieldSubmitted: (value) {
                   _checkLength(true);
+                  if (minSalary.text.isNotEmpty) {
+                    final int minSalary1 = int.tryParse(minSalary.text) ?? 0;
+                    final int maxSalary2 = int.tryParse(maxSalary.text) ?? 0;
+                    if (minSalary1 <= 4) {
+                      setState(() {
+                        isValueValid = false;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                                maxSalaryFocusNode.requestFocus();
+                                maxSalary.clear();
+                              },
+                              title: "Invalid Data!",
+                              subtitle:
+                                  "Maximum salary should be more thn minimum salary.",
+                            );
+                          },
+                        );
+                      });
+                    } else if ( _selectedOption.isNotEmpty) {
+                      String formatValue(int value, bool ismax) {
+                        if (value >= 100000) {
+                          double formattedValue = value / 100000;
+                          return ismax
+                              ? NumberFormat("0.00' Lacs'")
+                                  .format(formattedValue)
+                              : NumberFormat("0.00' '").format(formattedValue);
+                        } else {
+                          return value.toString();
+                        }
+                      }
+
+                      setState(() {
+                        isValueValid = true;
+                        if (minSalary1 <= 100000) {
+                          minSalaryk = NumberFormat.compact()
+                              .format(double.tryParse(minSalary.text));
+                        } else {
+                          minSalaryk = formatValue(minSalary1, false);
+                        }
+
+                        /*  maxSalaryk = NumberFormat.compact()
+                            .format(double.tryParse(maxSalary.text)); */
+                      });
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                              maxSalaryFocusNode.requestFocus();
+                              // maxSalary.clear();
+                            },
+                            title: "Invalid Data!",
+                            subtitle:
+                                "Please select any option from salary type.",
+                          );
+                        },
+                      );
+                    }
+                  }
                 },
                 onChanged: (value) {
                   setState(() {
@@ -5731,7 +6353,7 @@ class _JobFormState extends State<JobForm> {
                 decoration: InputDecoration(
                     counterText: '',
                     contentPadding: const EdgeInsets.only(
-                        top: 8, bottom: 15, left: 10, right: 10),
+                        top: 8, bottom: 8, left: 10, right: 10),
                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
                     // Icons.workspace_premium
                     // label: const Text("Company Name *"),
@@ -5840,6 +6462,85 @@ class _JobFormState extends State<JobForm> {
                     maxSalary.clear();
                   }
                 },
+                /* onTapOutside: (event) {
+                  _checkLength(false);
+
+                  if (maxSalary.text.isNotEmpty) {
+                    final int minSalary1 = int.tryParse(minSalary.text) ?? 0;
+                    final int maxSalary2 = int.tryParse(maxSalary.text) ?? 0;
+                    if (maxSalary2 <= minSalary1) {
+                      // Value of the second text field is not greater than the first text field
+                      setState(() {
+                        isValueValid = false;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(
+                              isFisrt: false,
+                              onClose: () {
+                                Navigator.pop(context);
+                                maxSalaryFocusNode.requestFocus();
+                                maxSalary.clear();
+                              },
+                              title: "Invalid Data!",
+                              subtitle:
+                                  "Maximum salary should be more thn minimum salary.",
+                            );
+                          },
+                        );
+                      });
+                    } else if (_selectedOption.isNotEmpty) {
+                      String formatValue(int value, bool ismax) {
+                        if (value >= 100000) {
+                          double formattedValue = value / 100000;
+                          return ismax
+                              ? NumberFormat("0.00' Lacs'")
+                                  .format(formattedValue)
+                              : NumberFormat("0.00' '").format(formattedValue);
+                        } else {
+                          return value.toString();
+                        }
+                      }
+
+                      setState(() {
+                        isValueValid = true;
+                        if (minSalary1 <= 100000) {
+                          minSalaryk = NumberFormat.compact()
+                              .format(double.tryParse(minSalary.text));
+                        } else {
+                          minSalaryk = formatValue(minSalary1, false);
+                        }
+
+                        if (maxSalary2 <= 100000) {
+                          maxSalaryk = NumberFormat.compact()
+                              .format(double.tryParse(maxSalary.text));
+                        } else {
+                          maxSalaryk = formatValue(maxSalary2, true);
+                        }
+
+                        /*  maxSalaryk = NumberFormat.compact()
+                            .format(double.tryParse(maxSalary.text)); */
+                      });
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialog(
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                              maxSalaryFocusNode.requestFocus();
+                              // maxSalary.clear();
+                            },
+                            title: "Invalid Data!",
+                            subtitle:
+                                "Please select any option from salary type.",
+                          );
+                        },
+                      );
+                    }
+                  }
+                }, */
 
                 onFieldSubmitted: (value) {
                   _checkLength(false);
@@ -6013,7 +6714,7 @@ class _JobFormState extends State<JobForm> {
                 decoration: InputDecoration(
                     counterText: '',
                     contentPadding: const EdgeInsets.only(
-                        top: 8, bottom: 15, left: 10, right: 10),
+                        top: 8, bottom: 8, left: 10, right: 10),
                     // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
                     // Icons.workspace_premium
                     // label: const Text("Company Name *"),

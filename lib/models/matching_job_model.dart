@@ -46,7 +46,7 @@ class JobData {
   final List<dynamic> skills;
   final List<dynamic> jobBenefits;
   final List<dynamic> inteviewrounds;
-  final List<dynamic> location;
+  final List<Location> location;
   final String isFresher;
   final int maxAge;
   final String industry;
@@ -142,9 +142,11 @@ class JobData {
         gender: json['gender'] ?? '',
         rating: json['rating'] ?? '',
         // location: decodeListString(json['location']),
-        location: json['location'] != null && json['location'] != ''
+        /*  location: json['location'] != null && json['location'] != ''
             ? List<String>.from(jsonDecode(json['location']).map((loc) => loc))
-            : [],
+            : [], */
+        location: List<Location>.from(
+            json['location'].map((data) => Location.fromJson(data))),
         eligible: json['eligible'] != null && json['eligible'] != ''
             ? List<String>.from(
                 jsonDecode(json['eligible']).map((eligible) => eligible))
@@ -188,17 +190,15 @@ class JobData {
             json['naturofworkid'] != null ? json['naturofworkid'].toInt() : 0,
         roleName: json['rolename'] ?? '',
         id: json['id'] != null ? json['id'].toInt() : 0,
-        key_responsible: json['key_responsible'] != null && json['key_responsible'] != ''
-            ? List<String>.from(
-                jsonDecode(json['key_responsible']).map((loc) => loc))
-            : [],
+        key_responsible:
+            json['key_responsible'] != null && json['key_responsible'] != ''
+                ? List<String>.from(jsonDecode(json['key_responsible']).map((loc) => loc))
+                : [],
         companyId: json['compnayid'] != null ? json['compnayid'].toInt() : 0,
         textResponsible: json['text_responsible'] ?? '',
         active: json['active'] ?? 0,
         totalExperience: json['total_experience'] ?? '',
-        boundry_limits: json['boundry_limits'] != null && json['boundry_limits'] != ''
-            ? List<String>.from(jsonDecode(json['boundry_limits']).map((limit) => limit))
-            : [],
+        boundry_limits: json['boundry_limits'] != null && json['boundry_limits'] != '' ? List<String>.from(jsonDecode(json['boundry_limits']).map((limit) => limit)) : [],
         minAge: json['min_age'] != null ? json['min_age'].toInt() : 0,
         workLocation: json['work_location'] != null ? List<int>.from(jsonDecode(json['work_location']).map((location) => location)) : [],
         functionalArea: json['functional_area'] != null && json['functional_area'] != '' ? List<String>.from(jsonDecode(json['functional_area']).map((area) => area)) : [],
@@ -448,4 +448,22 @@ void main() {
   Map<String, dynamic> jsonData = jsonDecode(json);
   JobDetails jobDetails = JobDetails.fromJson(jsonData);
   print(jobDetails.resultData[0].industry);
+}
+
+class Location {
+  int id;
+  String value;
+
+  Location({
+    required this.id,
+    required this.value,
+  });
+
+  factory Location.fromJson(Map<String, dynamic> json) {
+    return Location(
+      id: json['id'] ?? 0, // Replace 0 with your desired default value for 'id'
+      value: json['value'] ??
+          '', // Replace '' with your desired default value for 'value'
+    );
+  }
 }

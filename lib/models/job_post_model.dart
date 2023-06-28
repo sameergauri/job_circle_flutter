@@ -210,7 +210,7 @@ class jobPostModel {
         "active_date":
             activeDate != null ? activeDate?.toIso8601String() : null,
         "age_group": ageGroup,
-        "boundary_limits": boundry_limits != null
+        "boundry_limits": boundry_limits != null
             ? List<dynamic>.from(boundry_limits!.map((x) => x))
             : null,
         "category": category,
