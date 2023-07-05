@@ -49,12 +49,12 @@ Future<JobData?> fetchMatchingJobs({
   int? companyId,
   String? process,
   String? jobTitle,
-  int? natureOfWorkId,
+  String? natureOfWork,
   Function(JobData?)? onDataReceived,
 }) async {
   try {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/jobs/v1/matchngjob?companyid=$companyId&process=$process&naturofworkid=$natureOfWorkId&rolename=$jobTitle&page=1&size=100'));
+        'http://${GlobalConstants.API_Host}/jobs/v1/matchngjob?companyid=$companyId&process=$process&naturofwork=$natureOfWork&rolename=$jobTitle&page=1&size=100'));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       JobDetails jobDetails = JobDetails.fromJson(jsonData);
@@ -92,7 +92,7 @@ class _CustomDialogState extends State<CustomDialog> {
   List<dynamic> suggestions = [];
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -184,7 +184,7 @@ class _CustomDialogState extends State<CustomDialog> {
       //  NatureOfWorkID = int.parse(id);
     });
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$id'));
+        'http://${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=$jobTitle&parentId=$natureOfWork'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -283,7 +283,9 @@ class _CustomDialogState extends State<CustomDialog> {
                         CustomJobFormTextFieldRespOne(
                           focusNode: roleFocusNode,
                           isCompany: false,
-                          name: "job_role",
+                          isIndustry: false,
+                          name: CompanyID.toString(),
+                          role: "",
                           /* onFocusNodeRequested: (p0) {
                                   focusNode.requestFocus();
                                 }, */
@@ -303,11 +305,13 @@ class _CustomDialogState extends State<CustomDialog> {
                         CustomJobFormTextFieldRespOne(
                           focusNode: processFocusNode,
                           isCompany: false,
-                          name: "process",
+                          name: CompanyID.toString(),
+                          isIndustry: false,
                           /* onFocusNodeRequested: (p0) {
                               focusNode.requestFocus();
                                                 }, */
                           title: "Process",
+                          role: jobTitle.toString(),
                           controller: proces,
                           // isEdit: isEdit,
                           //  focusNode: focusNode,
@@ -323,7 +327,10 @@ class _CustomDialogState extends State<CustomDialog> {
                         CustomJobFormTextFieldJobRespo(
                           focusNode: functionalAreaFocusNode,
                           isCompany: false,
-                          name: "now",
+                          name: CompanyID.toString(),
+                          role: jobTitle.toString(),
+                          process: pro,
+                          isCity: false,
                           /* onFocusNodeRequested: (p0) {
                                   focusNode.requestFocus();
                                 }, */
@@ -332,6 +339,7 @@ class _CustomDialogState extends State<CustomDialog> {
                           // isEdit: isEdit,
                           //  focusNode: focusNode,
                           pId: pId,
+
                           onChanged: (p0) {
                             isEdit3 = p0;
                             //fetchData();
@@ -388,7 +396,7 @@ class _CustomDialogState extends State<CustomDialog> {
                                           .getCompanyId!(CompanyID.toString());
                                       fetchMatchingJobs(
                                           companyId: int.parse(CompanyID!),
-                                          natureOfWorkId: NatureOfWorkID,
+                                          natureOfWork: natureOfWork.text,
                                           jobTitle: jobTitle,
                                           onDataReceived: widget.onDataReceived,
                                           process: pro);

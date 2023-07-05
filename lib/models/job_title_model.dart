@@ -70,3 +70,53 @@ class JobTitleModel1 {
   }
 }
 
+class RoleModel {
+  int id;
+  String roleName;
+
+  RoleModel({required this.id, required this.roleName});
+
+  factory RoleModel.fromJson(Map<String, dynamic> json) {
+    return RoleModel(
+      id: json['id'] ?? json['id'], // Handle both property orders
+      roleName:
+          json['rolename'] ?? json['rolename'], // Handle both property orders
+    );
+  }
+}
+
+class RoleResponseModel {
+  String resultKey;
+  Map<String, dynamic> resultData;
+  String code;
+  String errorMessage;
+
+  RoleResponseModel({
+    required this.resultKey,
+    required this.resultData,
+    required this.code,
+    required this.errorMessage,
+  });
+
+  factory RoleResponseModel.fromJson(Map<String, dynamic> json) {
+    return RoleResponseModel(
+      resultKey: json['resultKey'],
+      resultData: json['resultData'],
+      code: json['code'],
+      errorMessage: json['errorMessage'],
+    );
+  }
+
+  List<RoleModel> getRoles() {
+    List<RoleModel> roles = [];
+    List<dynamic> contentList = resultData['content'];
+
+    for (var content in contentList) {
+      roles.add(RoleModel.fromJson(content));
+    }
+
+    return roles;
+  }
+}
+
+

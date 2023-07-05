@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/gobal.dart';
 
 class JobPostApiService {
   static Future<void> postDataToApi(Map<String, dynamic> jsonData) async {
-    String apiUrl = 'http://192.168.1.109:9090/jobs/v1';
+    String apiUrl = 'http://${GlobalConstants.API_Host_one}/jobs/v1';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),

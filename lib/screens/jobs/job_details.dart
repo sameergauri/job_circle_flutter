@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/service/JobSearchService.dart';
@@ -44,7 +45,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
   List jobs = [];
 
   Future<void> fetchJobs() async {
-    Uri url = Uri.parse('http://192.168.1.109:9090/favjob/v1');
+    Uri url = Uri.parse('http://${GlobalConstants.API_Host_one}/favjob/v1');
     final response = await http.get(url, headers: {
       "Content-Type": "application/json"
     }); // replace with your API endpoint

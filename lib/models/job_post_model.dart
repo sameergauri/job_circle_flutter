@@ -33,7 +33,7 @@ class jobPostModel {
   int? minCtc;
   String? minExperience;
   List<String>? moredetails;
-  int? natureOfWorkId;
+  String? natureOfWork;
   int? noOfVacancy;
   String? paymentClause;
   String? payout;
@@ -92,7 +92,7 @@ class jobPostModel {
     this.minCtc,
     this.minExperience,
     this.moredetails,
-    this.natureOfWorkId,
+    this.natureOfWork,
     this.noOfVacancy,
     this.paymentClause,
     this.payout,
@@ -173,7 +173,7 @@ class jobPostModel {
         moredetails: json["moredetails"] != null
             ? List<String>.from(json["moredetails"].map((x) => x))
             : null,
-        natureOfWorkId: json["naturofworkid"],
+        natureOfWork: json["naturofwork"],
         noOfVacancy: json["no_of_vacancy"],
         paymentClause: json["paymentclause"],
         payout: json["payout"],
@@ -259,7 +259,7 @@ class jobPostModel {
         "moredetails": moredetails != null
             ? List<dynamic>.from(moredetails!.map((x) => x))
             : null,
-        "naturofworkid": natureOfWorkId,
+        "naturofwork": natureOfWork,
         "no_of_vacancy": noOfVacancy,
         "paymentclause": paymentClause,
         "payout": payout,

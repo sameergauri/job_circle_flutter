@@ -612,7 +612,7 @@ class _JobFormState extends State<JobForm> {
     JobData? jobData = await fetchMatchingJobs(
         companyId: int.parse(CompanyID!),
         process: proces.text,
-        natureOfWorkId: NatureOfWorkID,
+        natureOfWork: natureOfWork.text,
         jobTitle: role.text); // Call the API function and await the result
     assignDataToController(
         jobData); // Assign the received data to the TextEditingController
@@ -678,7 +678,7 @@ class _JobFormState extends State<JobForm> {
         },
       );
     });
-
+    industryFocus.requestFocus();
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
       setState(() {});
@@ -1113,7 +1113,7 @@ class _JobFormState extends State<JobForm> {
       NatureOfWorkID = int.parse(id);
     });
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=${role.text}&parentId=$id'));
+        'http://${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=${role.text}&parentId=$id'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1138,7 +1138,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1156,7 +1156,7 @@ class _JobFormState extends State<JobForm> {
 
   Future<List> getJobTitle(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1194,7 +1194,7 @@ class _JobFormState extends State<JobForm> {
   Future<List> getJobTitle1(String pattern, String? name) async {
     //Job Benefits
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=job_benifits&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=job_benifits&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1232,7 +1232,7 @@ class _JobFormState extends State<JobForm> {
   Future<List> getJobTitle2(String pattern, String? name) async {
     // shift Time
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shifttime&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shifttime&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1270,7 +1270,7 @@ class _JobFormState extends State<JobForm> {
   Future<List> getJobTitle5(String pattern, String? name) async {
     //CommunicationRating
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=rating&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=rating&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1308,7 +1308,7 @@ class _JobFormState extends State<JobForm> {
   Future<List> getJobTitle3(String pattern, String? name) async {
     // Weak off
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=shiftdesc&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1346,7 +1346,7 @@ class _JobFormState extends State<JobForm> {
   Future<List> getJobTitle4(String pattern, String? name) async {
     // Interview Rounds
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1406,7 +1406,9 @@ class _JobFormState extends State<JobForm> {
     });
   }
 
-  FocusNode roleFocusNodeFrom = FocusNode();
+  FocusNode industryFocus = FocusNode();
+  FocusNode numberOfOpeneningFocus = FocusNode();
+  FocusNode skillsFocus = FocusNode();
 
   List<dynamic> selectedValuesList = [];
   List<dynamic> selectedWorkLocation = [];
@@ -1587,7 +1589,7 @@ class _JobFormState extends State<JobForm> {
                               subtitle: "Select Education type Type");
                         },
                       );
-                    } else if (selectedValuesList.isEmpty) {
+                    } else if (fetchApiskill.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -1680,8 +1682,8 @@ class _JobFormState extends State<JobForm> {
                       );
                     } else {
                       jobPostModel model = jobPostModel(
-                        active: null,
-
+                        active: 0,
+                        id: jobID,
                         roleName: role.text,
                         process: proces.text,
                         // natureOfWorkId: natureofWorkID.toString()
@@ -1697,19 +1699,20 @@ class _JobFormState extends State<JobForm> {
                                         ? "InternShip"
                                         : " ",
                         education: graduate ? "Graduate" : "Under-Graduate",
-                        skills: selectedValues,
+                        skills: fetchApiskill,
                         keyResponsible: selectedKeyResponsible,
+                        // textResponsible: selectedTextResponsible,
                         languageKnown: selectedLanguages,
                         jobBenefits: selectedJobBenefits,
                         shiftTime: selectedShiftTime1,
                         shiftDesc: selectedWeakOff1,
-                        minCtc: int.parse(minSalary.text),
-                        maxCtc: int.parse(maxSalary.text),
+                        minCtc: double.parse(minSalary.text).truncate(),
+                        maxCtc: double.parse(maxSalary.text).truncate(),
                         isMonthly: _selectedOption,
                         minExperience: minExp.text,
                         maxExperience: maxExp.text,
                         isFresher: isFresher ? "Fresher" : " ",
-                        boundry_limits: selectedBoundryLimit,
+                        boundry_limits: selectedKeyBoundryLimits,
                         gender: onlyMale
                             ? "Male"
                             : onlyFemale
@@ -1717,19 +1720,23 @@ class _JobFormState extends State<JobForm> {
                                 : femalePrefered
                                     ? "Female prefered"
                                     : " ",
+
                         minAge: int.parse(minAge.text),
                         maxAge: int.parse(maxAge.text),
-                        eligible: selectedEligibility,
-                        moredetails: selectedMoreDetail,
+                        eligible: selectedKeyEligibility,
+
+                        moredetails: selectedKeyMoreDetails,
                         interviewRounds: selectedInterViewRounds,
                         rating: selectedComunication,
 
                         workCity: int.parse(CityID.toString()),
                         companyId: int.parse(CompanyID!),
-                        natureOfWorkId: NatureOfWorkID,
+                        natureOfWork: natureOfWork.text,
                         workLocation:
                             worklocationList.map((e) => e.id).toList(),
 
+                        //  spoc: profileSummaryModel.id
+                        spoc: 552,
                         //  workLocation: sele
 //empType:
 //minAge: minAge.text
@@ -1954,7 +1961,7 @@ class _JobFormState extends State<JobForm> {
 
                         workCity: int.parse(CityID.toString()),
                         companyId: int.parse(CompanyID!),
-                        natureOfWorkId: NatureOfWorkID,
+                        natureOfWork: natureOfWork.text,
                         workLocation:
                             worklocationList.map((e) => e.id).toList(),
 
@@ -2222,7 +2229,7 @@ class _JobFormState extends State<JobForm> {
                                       () {
                                         setState(() {
                                           isIndustry = false;
-                                          roleFocusNodeFrom.requestFocus();
+                                          industryFocus.requestFocus();
                                           industry.clear();
                                         });
                                       },
@@ -2231,8 +2238,10 @@ class _JobFormState extends State<JobForm> {
                                 )
                               : CustomJobFormTextFieldRespOne(
                                   // isSelected: isIndustry,
-                                  focusNode: roleFocusNodeFrom,
+                                  focusNode: industryFocus,
+                                  role: "",
                                   isCompany: false,
+                                  isIndustry: true,
                                   name: "industry",
                                   /* onFocusNodeRequested: (p0) {
                         focusNode.requestFocus();
@@ -2291,7 +2300,7 @@ class _JobFormState extends State<JobForm> {
                               isNumberOfOpenings = false;
                               // FocusScope.of(context).autofocus(focusNode);
                               numberofopenings.clear();
-                              numberOfOpeningFocusNode.requestFocus();
+                              numberOfOpeneningFocus.requestFocus();
                             });
                           },
                           isSelect: true,
@@ -2322,7 +2331,7 @@ class _JobFormState extends State<JobForm> {
                                         RegExp(r'[.]')),
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
-                                  focusNode: numberOfOpeningFocusNode,
+                                  focusNode: numberOfOpeneningFocus,
                                   maxLength: 3,
                                   onFieldSubmitted: (value) {
                                     numberofopenings.text.isNotEmpty
@@ -3287,7 +3296,7 @@ class _JobFormState extends State<JobForm> {
                           isSelect: true,
                           isSalary: true,
                           title:
-                              "$minSalaryk  ${maxSalary.text.isEmpty ? "" : maxSalaryk} $_selectedOption")
+                              "$minSalaryk ${maxSalary.text.isEmpty ? "" : "- $maxSalaryk"} $_selectedOption")
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.max,
@@ -3366,7 +3375,7 @@ class _JobFormState extends State<JobForm> {
                             const Text("P.M"),
                             SizedBox(
                                 child: Radio(
-                              value: 'PA',
+                              value: "Per Annum",
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -3441,10 +3450,12 @@ class _JobFormState extends State<JobForm> {
                                   : CustomJobFormTextFieldJobRespo(
                                       isCompany: false,
                                       name: "city",
+                                      isCity: true,
                                       /* onFocusNodeRequested: (p0) {
                                                       focusNode.requestFocus();
                                                     }, */
                                       title: "City",
+                                      role: "",
                                       controller: city,
                                       // isEdit: isEdit,
                                       //  focusNode: focusNode,
@@ -6240,7 +6251,7 @@ class _JobFormState extends State<JobForm> {
                           },
                         );
                       });
-                    } else if ( _selectedOption.isNotEmpty) {
+                    } else if (_selectedOption.isNotEmpty) {
                       String formatValue(int value, bool ismax) {
                         if (value >= 100000) {
                           double formattedValue = value / 100000;

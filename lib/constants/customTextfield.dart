@@ -12,6 +12,8 @@ import 'package:job_circle/constants/customButton.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/job_title_model.dart';
 import 'package:job_circle/models/matching_job_model.dart';
+import 'package:job_circle/models/nature_of_work.dart';
+import 'package:job_circle/models/process_model.dart';
 
 import '../themes/colors.dart';
 import 'customDialogue.dart';
@@ -96,7 +98,7 @@ class _CustomFormTextFieldMultiSelectLocationState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -883,7 +885,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   Future<List<JobTitleModel>> getSuggestions(String pattern) async {
     // 2 min wait
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -910,7 +912,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1219,7 +1221,7 @@ class _CustomFormTextFieldMultiSelectState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1791,6 +1793,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
   // List<String>? selectedValuesList = [];
   final bool isCompany;
   BuildContext contextIn;
+  final bool isIndustry;
   final String title;
   final Function(String)? getSuggestions;
   final String? firstText;
@@ -1799,6 +1802,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
   final String? pId;
   final void Function(String)? onSubmit;
   final FocusNode? focusNode;
+  final String role;
   // final void Function(String)? onJobTitle;
   var onIDSelected;
   // final Function(FocusNode) onFocusNodeRequested;
@@ -1806,8 +1810,10 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
   CustomJobFormTextFieldRespOne({
     Key? key,
     this.controller,
+    required this.isIndustry,
     this.onSubmit,
     this.focusNode,
+    required this.role,
     //  this.onJobTitle,
     // required this.isEdit,
     // required this.focusNode,
@@ -1919,7 +1925,7 @@ class _CustomJobFormTextFieldRespoOneState
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1935,25 +1941,56 @@ class _CustomJobFormTextFieldRespoOneState
     }
   }
 
-  Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
+  Future<List<RoleModel>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctRolename?companyid=$name"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      List<JobTitleModel1> suggestions = [];
-      Set<String> uniqueValues = {};
+      List<RoleModel> suggestions = [];
+      List<int> uniqueValues = [];
 
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      RoleResponseModel? roleResponseModel;
+      try {
+        roleResponseModel = RoleResponseModel.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
       List<dynamic> content = data['resultData']['content'];
 
-      for (var entry in content) {
-        String? value = entry['value']?.toString();
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
         if (value != null &&
             value.toLowerCase().startsWith(pattern.toLowerCase())) {
           if (!uniqueValues.contains(value)) {
             uniqueValues.add(value);
-            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
             suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          RoleModel role = RoleModel.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id);
+            suggestions.add(role);
           }
         }
       }
@@ -1964,11 +2001,74 @@ class _CustomJobFormTextFieldRespoOneState
     }
   }
 
-  /*  Future<List<JobTitleModel>> getJobTitle(String pattern, String name) async {  //old Working code of job title
+  Future<List<ProcessModel>> getJobProcess(
+      String pattern, String name, String role) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctProcess?companyid=$name&rolename=$role"));
 
     if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<ProcessModel> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      ProcessResponseModel? roleResponseModel;
+      try {
+        roleResponseModel = ProcessResponseModel.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['process']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          ProcessModel role = ProcessModel.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id);
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List<JobTitleModel1>> getJobIndustry(
+      String pattern, String name) async {
+    //old Working code of job title
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    /*   if (response.statusCode == 200) {
       final data = json.decode(response.body);
       // Parse the response and return the filtered suggestions
       final suggestions = (data['resultData']['content'] as List)
@@ -1983,8 +2083,61 @@ class _CustomJobFormTextFieldRespoOneState
       return suggestions;
     } else {
       throw Exception('Failed to retrieve suggestions');
+    } */
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobTitleModel1> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      JobTitleModel1? roleResponseModel;
+      try {
+        roleResponseModel = JobTitleModel1.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      //  String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          JobTitleModel1 role = JobTitleModel1.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id!.toInt());
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
     }
-  } */
+  }
 
   /* void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -2079,9 +2232,17 @@ class _CustomJobFormTextFieldRespoOneState
                     ),
                     suggestionsCallback: (pattern) async {
                       if (pattern.isNotEmpty) {
-                        suggestion = widget.isCompany
-                            ? await getSuggestions(pattern)
-                            : await getJobTitle(pattern, widget.name);
+                        if (widget.role.isNotEmpty) {
+                          suggestion = widget.isIndustry
+                              ? await getJobIndustry(pattern, widget.name)
+                              : await getJobProcess(
+                                  pattern, widget.name, widget.role.toString());
+                        } else {
+                          suggestion = widget.isIndustry
+                              ? await getJobIndustry(pattern, widget.name)
+                              : await getJobTitle(pattern, widget.name);
+                        }
+
                         return suggestion!;
                       } else {
                         return <dynamic>[];
@@ -2102,15 +2263,26 @@ class _CustomJobFormTextFieldRespoOneState
                         ),
                         child: ListTile(
                           title: Text(
-                            suggestion.value.toString(),
+                            widget.isIndustry
+                                ? suggestion.value.toString()
+                                : widget.role.isNotEmpty
+                                    ? suggestion.process.toString()
+                                    : suggestion.roleName.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       );
                     },
                     onSuggestionSelected: (suggestion) {
+                      widget.focusNode!.nextFocus();
                       setState(() {
-                        controller!.text = suggestion.value.toString();
+                        widget.isIndustry
+                            ? controller!.text = suggestion.value.toString()
+                            : widget.role.isNotEmpty
+                                ? controller!.text =
+                                    suggestion.process.toString()
+                                : controller!.text =
+                                    suggestion.roleName.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
                         var selectedId = suggestion.id;
@@ -2151,6 +2323,9 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
   final bool isCompany;
   BuildContext contextIn;
   final String title;
+  final String role;
+  final String? process;
+  final bool isCity;
   final Function(String)? getSuggestions;
   final String? firstText;
   final Function(bool) onChanged;
@@ -2164,8 +2339,12 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
   CustomJobFormTextFieldJobRespo({
     Key? key,
     this.controller,
+    required this.role,
+    this.process,
     this.onSubmit,
     this.focusNode,
+    required this.isCity,
+
     // required this.isEdit,
     // required this.focusNode,
     // this.selectedValuesList,
@@ -2275,7 +2454,7 @@ class _CustomJobFormTextFieldJobRespoState
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -2293,7 +2472,7 @@ class _CustomJobFormTextFieldJobRespoState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        '${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -2310,6 +2489,67 @@ class _CustomJobFormTextFieldJobRespoState
             uniqueValues.add(value);
             JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
             suggestions.add(jobTitle);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List<NatureOfWorkModel>> getJobNatureOfWork(
+      String pattern, String name, String role, String process) async {
+    final response = await http.get(Uri.parse(
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctFunctionalArea?companyid=$name&rolename=$role&process=$process"));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<NatureOfWorkModel> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      NatureOfWorkResponseModel? roleResponseModel;
+      try {
+        roleResponseModel = NatureOfWorkResponseModel.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['functional_area']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          NatureOfWorkModel natureOFwork = NatureOfWorkModel.fromJson(entry);
+          if (!uniqueValues.contains(natureOFwork.id)) {
+            uniqueValues.add(natureOFwork.id);
+            suggestions.add(natureOFwork);
           }
         }
       }
@@ -2435,9 +2675,23 @@ class _CustomJobFormTextFieldJobRespoState
                     ),
                     suggestionsCallback: (pattern) async {
                       if (pattern.isNotEmpty) {
-                        suggestion = widget.isCompany
-                            ? await getSuggestions(pattern)
-                            : await getJobTitle(pattern, widget.name);
+                        if (widget.isCity) {
+                          suggestion = widget.isCompany
+                              ? await getSuggestions(pattern)
+                              : await getJobTitle(
+                                  pattern,
+                                  widget.name,
+                                );
+                        } else {
+                          suggestion = widget.isCompany
+                              ? await getSuggestions(pattern)
+                              : await getJobNatureOfWork(
+                                  pattern,
+                                  widget.name,
+                                  widget.role.toString(),
+                                  widget.process.toString());
+                        }
+
                         return suggestion!;
                       } else {
                         return <dynamic>[];
@@ -2458,7 +2712,8 @@ class _CustomJobFormTextFieldJobRespoState
                         ),
                         child: ListTile(
                           title: Text(
-                            suggestion.value.toString(),
+                            widget.isCity?suggestion.value.toString():
+                            suggestion.functional_area.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -2466,7 +2721,10 @@ class _CustomJobFormTextFieldJobRespoState
                     },
                     onSuggestionSelected: (suggestion) {
                       setState(() {
-                        controller!.text = suggestion.value.toString();
+                        widget.isCity?
+                        controller!.text = suggestion.value.toString():
+                        controller!.text =
+                            suggestion.functional_area.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
                         var selectedId = suggestion.id;

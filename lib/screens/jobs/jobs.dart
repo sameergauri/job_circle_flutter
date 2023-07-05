@@ -264,7 +264,7 @@ class _JobsState extends ConsumerState<Jobs>
     try {
       var id = profilemodel.id; //this id is null, get the user id
       final response = await http.post(
-        Uri.parse("http://192.168.1.109:9090/favjob/v1/$id/$jobId"),
+        Uri.parse("http://192.168.1.110:9090/favjob/v1/$id/$jobId"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -283,7 +283,7 @@ class _JobsState extends ConsumerState<Jobs>
   Future<void> removeFromFav(int favJobId) async {
     var id = profileSummaryModel.id;
     final response = await http.post(
-      Uri.parse("http://192.168.1.109:9090/favjob/v1/$favJobId"),
+      Uri.parse("http://${GlobalConstants.API_Host_one}/favjob/v1/$favJobId"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -299,7 +299,7 @@ class _JobsState extends ConsumerState<Jobs>
   List jobs = [];
   Future<void> fetchJobs() async {
     Uri url = Uri.parse(
-        'http://192.168.1.109:9090/favjob/v1/all?pageNumber=1&pageSize=100');
+        'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
     final response = await http.get(url); // replace with your API endpoint
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

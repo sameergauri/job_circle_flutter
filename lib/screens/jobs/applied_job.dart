@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/jobs/report.dart';
@@ -78,7 +79,7 @@ class _AppliedJobState extends State<AppliedJob>
   late List<dynamic> data;
   Future<List<dynamic>> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://192.168.1.109:9090/jobs/v2/search?status=APPLIED'));
+        Uri.parse('http://${GlobalConstants.API_Host_one}/jobs/v2/search?status=APPLIED'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
