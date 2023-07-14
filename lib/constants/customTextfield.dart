@@ -1013,6 +1013,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TypeAheadFormField<dynamic>(
+                    enabled: false,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return "This Text field Cant be empty";
@@ -1941,10 +1942,11 @@ class _CustomJobFormTextFieldRespoOneState
     }
   }
 
-  Future<List<RoleModel>> getJobTitle(String pattern, String name) async {
+  Future<List<RoleModel>> getJobTitle(
+      String pattern, String name, String role) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctRolename?companyid=$name"));
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctRolename?companyid=$name&process=$role"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -2002,10 +2004,12 @@ class _CustomJobFormTextFieldRespoOneState
   }
 
   Future<List<ProcessModel>> getJobProcess(
-      String pattern, String name, String role) async {
+    String pattern,
+    String name,
+  ) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctProcess?companyid=$name&rolename=$role"));
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctProcess?companyid=$name"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -2235,12 +2239,12 @@ class _CustomJobFormTextFieldRespoOneState
                         if (widget.role.isNotEmpty) {
                           suggestion = widget.isIndustry
                               ? await getJobIndustry(pattern, widget.name)
-                              : await getJobProcess(
-                                  pattern, widget.name, widget.role.toString());
+                              : await getJobTitle(
+                                  pattern, widget.name, widget.role);
                         } else {
                           suggestion = widget.isIndustry
                               ? await getJobIndustry(pattern, widget.name)
-                              : await getJobTitle(pattern, widget.name);
+                              : await getJobProcess(pattern, widget.name);
                         }
 
                         return suggestion!;
@@ -2266,8 +2270,8 @@ class _CustomJobFormTextFieldRespoOneState
                             widget.isIndustry
                                 ? suggestion.value.toString()
                                 : widget.role.isNotEmpty
-                                    ? suggestion.process.toString()
-                                    : suggestion.roleName.toString(),
+                                    ? suggestion.roleName.toString()
+                                    : suggestion.process.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -2280,9 +2284,9 @@ class _CustomJobFormTextFieldRespoOneState
                             ? controller!.text = suggestion.value.toString()
                             : widget.role.isNotEmpty
                                 ? controller!.text =
-                                    suggestion.process.toString()
+                                    suggestion.roleName.toString()
                                 : controller!.text =
-                                    suggestion.roleName.toString();
+                                    suggestion.process.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
                         var selectedId = suggestion.id;
@@ -2712,8 +2716,9 @@ class _CustomJobFormTextFieldJobRespoState
                         ),
                         child: ListTile(
                           title: Text(
-                            widget.isCity?suggestion.value.toString():
-                            suggestion.functional_area.toString(),
+                            widget.isCity
+                                ? suggestion.value.toString()
+                                : suggestion.functional_area.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -2721,10 +2726,10 @@ class _CustomJobFormTextFieldJobRespoState
                     },
                     onSuggestionSelected: (suggestion) {
                       setState(() {
-                        widget.isCity?
-                        controller!.text = suggestion.value.toString():
-                        controller!.text =
-                            suggestion.functional_area.toString();
+                        widget.isCity
+                            ? controller!.text = suggestion.value.toString()
+                            : controller!.text =
+                                suggestion.functional_area.toString();
                         firstText = controller!.text;
                         handleBoolChange(true);
                         var selectedId = suggestion.id;

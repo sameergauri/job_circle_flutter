@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/constants/gobal.dart';
@@ -216,6 +217,7 @@ class _CustomDialogState extends State<CustomDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      // barrierDismissible: false,
       backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -280,76 +282,85 @@ class _CustomDialogState extends State<CustomDialog> {
                           getSuggestions: getSuggestions,
                           onIDSelected: handleSelectedID,
                         ),
-                        CustomJobFormTextFieldRespOne(
-                          focusNode: roleFocusNode,
-                          isCompany: false,
-                          isIndustry: false,
-                          name: CompanyID.toString(),
-                          role: "",
-                          /* onFocusNodeRequested: (p0) {
-                                  focusNode.requestFocus();
-                                }, */
-                          title: "Job Title / Role",
-                          controller: role,
-                          // isEdit: isEdit,
-                          //  focusNode: focusNode,
-                          onChanged: (p0) {
-                            isEdit1 = p0;
-                          },
-                          onIDSelected: handleSelectedID,
-                          contextIn: context,
-                          hintText: "Sr. Executive",
-                          onSubmit: getValueOfJobtitle,
-                          //  getSuggestions: getJobTitle,
-                        ),
-                        CustomJobFormTextFieldRespOne(
-                          focusNode: processFocusNode,
-                          isCompany: false,
-                          name: CompanyID.toString(),
-                          isIndustry: false,
-                          /* onFocusNodeRequested: (p0) {
+                        shorListController.text.isNotEmpty
+                            ? CustomJobFormTextFieldRespOne(
+                                focusNode: processFocusNode,
+                                isCompany: false,
+                                name: CompanyID.toString(),
+                                isIndustry: false,
+                                /* onFocusNodeRequested: (p0) {
                               focusNode.requestFocus();
                                                 }, */
-                          title: "Process",
-                          role: jobTitle.toString(),
-                          controller: proces,
-                          // isEdit: isEdit,
-                          //  focusNode: focusNode,
-                          onChanged: (p0) {
-                            isEdit2 = p0;
-                          },
-                          onSubmit: getValuOfProcess,
-                          contextIn: context,
-                          hintText: "Health Insurance",
-                          //   getSuggestions: getJobTit
-                          onIDSelected: handleSelectedID,
-                        ),
-                        CustomJobFormTextFieldJobRespo(
-                          focusNode: functionalAreaFocusNode,
-                          isCompany: false,
-                          name: CompanyID.toString(),
-                          role: jobTitle.toString(),
-                          process: pro,
-                          isCity: false,
-                          /* onFocusNodeRequested: (p0) {
+                                title: "Process",
+                                role: "",
+                                controller: proces,
+                                // isEdit: isEdit,
+                                //  focusNode: focusNode,
+                                onChanged: (p0) {
+                                  isEdit2 = p0;
+                                },
+                                onSubmit: getValuOfProcess,
+                                contextIn: context,
+                                hintText: "Health Insurance",
+                                //   getSuggestions: getJobTit
+                                onIDSelected: handleSelectedID,
+                              )
+                            : const SizedBox(),
+                        proces.text.isEmpty
+                            ? const SizedBox()
+                            : CustomJobFormTextFieldRespOne(
+                                focusNode: roleFocusNode,
+                                isCompany: false,
+                                isIndustry: false,
+                                name: CompanyID.toString(),
+                                role: proces.text,
+                                /* onFocusNodeRequested: (p0) {
                                   focusNode.requestFocus();
                                 }, */
-                          title: "Functional Area", // Nature of Work on update
-                          controller: natureOfWork,
-                          // isEdit: isEdit,
-                          //  focusNode: focusNode,
-                          pId: pId,
+                                title: "Job Title / Role",
+                                controller: role,
+                                // isEdit: isEdit,
+                                //  focusNode: focusNode,
+                                onChanged: (p0) {
+                                  isEdit1 = p0;
+                                },
+                                onIDSelected: handleSelectedID,
+                                contextIn: context,
+                                hintText: "Sr. Executive",
+                                onSubmit: getValueOfJobtitle,
+                                //  getSuggestions: getJobTitle,
+                              ),
+                        shorListController.text.isNotEmpty &&
+                                role.text.isNotEmpty &&
+                                proces.text.isNotEmpty
+                            ? CustomJobFormTextFieldJobRespo(
+                                focusNode: functionalAreaFocusNode,
+                                isCompany: false,
+                                name: CompanyID.toString(),
+                                role: jobTitle.toString(),
+                                process: pro,
+                                isCity: false,
+                                /* onFocusNodeRequested: (p0) {
+                                  focusNode.requestFocus();
+                                }, */
+                                title:
+                                    "Functional Area", // Nature of Work on update
+                                controller: natureOfWork,
+                                // isEdit: isEdit,
+                                //  focusNode: focusNode,
+                                pId: pId,
 
-                          onChanged: (p0) {
-                            isEdit3 = p0;
-                            //fetchData();
-                          },
-                          contextIn: context,
-                          hintText: "Sales",
-                          //  onIDSelected: handleSelectedID,
-                          onSubmit: getNatureOfWorkId,
-                          // getSuggestions: getJobTitle,
-                        ),
+                                onChanged: (p0) {
+                                  isEdit3 = p0;
+                                  //fetchData();
+                                },
+                                contextIn: context,
+                                hintText: "Sales",
+                                //  onIDSelected: handleSelectedID,
+                                onSubmit: getNatureOfWorkId,
+                                // getSuggestions: getJobTitle,
+                              )
+                            : const SizedBox(),
 
                         /* Text(
                           widget.subtitle,
@@ -364,11 +375,10 @@ class _CustomDialogState extends State<CustomDialog> {
                             children: [
                               InkWell(
                                   onTap: () {
-                                    Navigator.pushReplacement(
-                                        context,
+                                    Navigator.of(context).pushAndRemoveUntil(
                                         MaterialPageRoute(
-                                          builder: (context) => const Jobs(),
-                                        ));
+                                            builder: (context) => const Jobs()),
+                                        (Route<dynamic> route) => false);
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
@@ -400,9 +410,12 @@ class _CustomDialogState extends State<CustomDialog> {
                                           jobTitle: jobTitle,
                                           onDataReceived: widget.onDataReceived,
                                           process: pro);
-                                      Navigator.pop(context);
-                                      widget.fetchDataFromApi!();
 
+                                      Future.delayed(const Duration(seconds: 1),
+                                          () {
+                                        Navigator.pop(context);
+                                      });
+                                      widget.fetchDataFromApi!();
                                       widget.getJobtitleValue!(
                                           jobTitle.toString());
                                     },
@@ -454,6 +467,36 @@ class _CustomDialogState extends State<CustomDialog> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget customContainer({required String title, required String subtitle}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.sourceSansPro(
+              fontSize: 18.sp,
+              // color: Colors.grey.shade500,
+              fontWeight: FontWeight.w600),
+        ),
+        Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height / 25.h,
+          margin: const EdgeInsets.only(top: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: TextField(
+            enabled: false,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8))),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:circular_menu/circular_menu.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,21 +16,24 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/active_state_model.dart';
 import 'package:job_circle/models/api_response.dart';
+import 'package:job_circle/models/location_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/career_assets.dart';
 import 'package:job_circle/screens/jobs/filter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
+import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../components/theme_button.dart';
 import '../../models/job_details_model.dart';
 import '../../service/masterService.dart';
 
@@ -54,7 +59,7 @@ class _JobsState extends ConsumerState<Jobs>
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
   List<String> citiesList = [];
-  List<LocationItem> locations = [];
+  List<Content> locations = [];
   late ScrollController _controllerListView;
 
   var searchText = "";
@@ -72,11 +77,40 @@ class _JobsState extends ConsumerState<Jobs>
   bool isbannerVisible = false;
 
   final List<String> _favorites = [];
+
+  bool isEdit = false;
   void _handleItemTap(String item) {
     setState(() {
       _favorites.add(item);
     });
   }
+
+  String formatSalaryRange(double minSalary, double maxSalary) {
+    String formattedMinSalary = '';
+    String formattedMaxSalary = '';
+
+    if (minSalary >= 100000) {
+      formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
+    } else if (minSalary >= 1000) {
+      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(0)}k';
+    } else {
+      formattedMinSalary = minSalary.toStringAsFixed(2);
+    }
+
+    if (maxSalary >= 100000) {
+      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
+    } else if (maxSalary >= 1000) {
+      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(0)}k';
+    } else {
+      formattedMaxSalary = maxSalary.toStringAsFixed(2);
+    }
+
+    return '$formattedMinSalary - $formattedMaxSalary';
+  }
+
+  bool isMenuOpen = false;
+
+  // CircularMenuController _menuController = CircularMenuController();
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -128,6 +162,7 @@ class _JobsState extends ConsumerState<Jobs>
       bindProfileSummary();
       bindInit();
       fetchJobs();
+      // getJobDetails()
     });
   }
 
@@ -369,17 +404,35 @@ class _JobsState extends ConsumerState<Jobs>
                           Navigator.pushNamed(
                               context, ERoute.profile_summary.name);
                         },
-                        child: CircleAvatar(
-                          backgroundColor:
-                              const Color.fromARGB(255, 190, 190, 190),
-                          radius: 43,
-                          onBackgroundImageError: ((error, stackTrace) =>
-                              Image.asset("assets/images/company.png",
-                                  height: 80, width: 80, fit: BoxFit.contain)),
-                          backgroundImage: Image.network(
-                            profile_final_pic,
-                          ).image,
-                        )), //circleAvatar
+                        child: profile_final_pic == ""
+                            ? CircleAvatar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 190, 190, 190),
+                                radius: 43,
+                                onBackgroundImageError: ((error, stackTrace) =>
+                                    Image.asset("assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)),
+                                backgroundImage: Image.asset(
+                                        "assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)
+                                    .image)
+                            : CircleAvatar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 190, 190, 190),
+                                radius: 43,
+                                onBackgroundImageError: ((error, stackTrace) =>
+                                    Image.asset("assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)),
+                                backgroundImage: Image.network(
+                                  profile_final_pic,
+                                ).image,
+                              )), //circleAvatar
                   ),
                 ), //DrawerHeader
                 ListTile(
@@ -451,13 +504,13 @@ class _JobsState extends ConsumerState<Jobs>
                           // url: "192.168.31.107:9090/mobile/jobform",
                           title: "New Job",
                         )));
-
+    
             setState(() {}); */
 
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const JobForm(),
+                  builder: (context) => const JobForm(formEdit: false),
                 ));
           },
         )),
@@ -529,9 +582,8 @@ class _JobsState extends ConsumerState<Jobs>
                       border: Border.all(
                           color: Constants.borderColor) // Creates border
                       )
-
-                 : null,
-             onTap: (value) {
+                  : null,
+              onTap: (value) {
                 setState(() {
                   cutTab = value;
                   isSelect = !isSelect;
@@ -785,7 +837,16 @@ class _JobsState extends ConsumerState<Jobs>
                         bool istrue = false;
                         TextEditingController loc = TextEditingController();
                         // searchLocation(context); // old
-                        await showModalBottomSheet(
+                        // searchAgain();
+                        searchLocation(context);
+
+                        /* showModalBottomSheet(
+                            isScrollControlled: true,
+                            isDismissible: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                            ),
                             context: context,
                             builder: (BuildContext context) {
                               return Container(
@@ -794,7 +855,7 @@ class _JobsState extends ConsumerState<Jobs>
                                 margin: const EdgeInsets.symmetric(
                                     horizontal: 24, vertical: 20),
                                 height:
-                                    MediaQuery.of(context).size.height * 0.18.h,
+                                    MediaQuery.of(context).size.height / 1.16,
                                 child: Padding(
                                   padding: const EdgeInsets.only(),
                                   child: Column(
@@ -880,7 +941,7 @@ class _JobsState extends ConsumerState<Jobs>
                                   ),
                                 ),
                               );
-                            });
+                            }); */
                       }),
                       child: Text(user_selected_lcoation ?? 'Select Location',
                           style: GoogleFonts.varela(
@@ -889,6 +950,7 @@ class _JobsState extends ConsumerState<Jobs>
                             //fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                           ))
+
                       /* Text.rich(
                         TextSpan(
                           text: '',
@@ -951,7 +1013,7 @@ class _JobsState extends ConsumerState<Jobs>
           //   )
           // ],
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        //  backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -1096,7 +1158,7 @@ class _JobsState extends ConsumerState<Jobs>
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       // const Text("Sort by"),
-    
+          
                                       DropdownButton<String>(
                                         icon: const Icon(
                                           Icons.filter_list,
@@ -1298,7 +1360,7 @@ class _JobsState extends ConsumerState<Jobs>
                                                 context,
                                                 ERoute.jobsdetail.name,
                                                 arguments: {
-                                                  'id': jobItems[index]['id']
+                                                  'id': jobItems[index]["id"]
                                                 },
                                               );
 
@@ -1536,7 +1598,8 @@ class _JobsState extends ConsumerState<Jobs>
                                     children: [
                                       Text(
                                         "Company 1",
-                                        style: TextStyle(fontSize: 14.sp),
+                                        style:
+                                            GoogleFonts.varela(fontSize: 14.sp),
                                       ),
                                       SizedBox(
                                         width: 3.w,
@@ -1669,7 +1732,7 @@ class _JobsState extends ConsumerState<Jobs>
               ));
   }
 
-  bindLocation() async {
+  /*  bindLocation() async {
     var result = await MasterService().masterGetByGroups(
         {'groupName': 'city', 'pageNumber': '1', 'pageSize': '1500'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -1680,6 +1743,35 @@ class _JobsState extends ConsumerState<Jobs>
       }
     }
     return "done";
+  } */
+
+  Future<MyModel> bindLocation() async {
+    const apiUrl =
+        "http://${GlobalConstants.API_Host_one}/jobs/v1/city?pageNumber=1&pageSize=1000";
+    List<String> cityList = [];
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        MyModel myModel = MyModel.fromJson(jsonData);
+
+        if (myModel.resultData?.content != null) {
+          for (Content content in myModel.resultData!.content!) {
+            if (content.name != null) {
+              locations.add(Content(id: content.id, name: content.name));
+            }
+          }
+        }
+
+        return myModel;
+      } else {
+        throw Exception(
+            'Failed to fetch data from the API. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('An error occurred while fetching data from the API: $e');
+    }
   }
 
   void bindBanner() async {
@@ -1862,11 +1954,15 @@ class _JobsState extends ConsumerState<Jobs>
 
   Widget listViewItem_new(BuildContext context, int index, item, bool isTrue) {
     var favProvider = ref.watch(favJobProvider(item['id'] ?? 0));
-
+    String _colorName;
+    Color _color;
     List<String>? myStrings;
+    List<String> updatedList = [];
     bool stopIteration = false;
     if (item['skills'] != null) {
       myStrings = item['skills'].split(",");
+      updatedList = myStrings!.map((item) => item.trim()).toList();
+
       // do something with the parts array
     } else {
       // handle the case where str is null
@@ -1882,14 +1978,14 @@ class _JobsState extends ConsumerState<Jobs>
           // shadowColor: Constants.themeBgColor,
           elevation: 4,
           // padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 5),
-          margin: const EdgeInsets.symmetric(horizontal: 10),
+          margin: const EdgeInsets.only(left: 10, right: 10, top: 1),
           /* decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(
                 color: const Color.fromARGB(255, 213, 213, 213),
                 width: 0.0.w,
                 style: BorderStyle.solid), //Border.all
-
+        
             borderRadius: BorderRadius.circular(10.r),
             //BorderRadius.only
             /************************************/
@@ -2005,7 +2101,7 @@ class _JobsState extends ConsumerState<Jobs>
                                               item['id'] ??
                                               0);
                                         }
-
+        
                                         ref.refresh(favJobProvider(item['id'] ??
                                             0)); //yeha null hai value
                                       },
@@ -2059,15 +2155,22 @@ class _JobsState extends ConsumerState<Jobs>
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
+                        Padding(
+                          padding: const EdgeInsets.only(top: 1),
+                          child: Image.asset(
+                            "assets/images/cmpny.png",
+                            height: 12.h,
+                          ),
+                        ),
+                        /* SizedBox(
                           child: Icon(
                             Icons.business_outlined,
                             size: 12.h,
                             color: Constants.subtitleclr,
                           ),
-                        ),
+                        ), */
                         SizedBox(
-                          width: 4.w,
+                          width: 8.w,
                         ),
                         Text(
                           item['companyname'],
@@ -2076,109 +2179,123 @@ class _JobsState extends ConsumerState<Jobs>
                               // color: Colors.black54,
                               color: Constants.subtitleclr,
                               fontWeight: FontWeight.normal,
-                              fontSize: 12.sp),
+                              fontSize: 13.sp),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
+                    item["isfresher"] == "Fresher"
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/bag.png",
+                                height: 12.h,
+                                //  color: Constants.subtitleclr,
+                              ),
+                              SizedBox(
+                                width: 8.w,
+                              ),
+                              Text(
+                                "Fresher can apply",
+                                style: GoogleFonts.varela(
+                                    // color: Colors.black54,
+                                    color: Constants.subtitleclr,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 13.sp),
+                              )
+                            ],
+                          )
+                        : (item["total_experience"] != null)
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/bag.png",
+                                    height: 12.h,
+                                    //  color: Constants.subtitleclr,
+                                  ),
+                                  SizedBox(
+                                    width: 8.w,
+                                  ),
+                                  Text(
+                                    "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
+                                    style: GoogleFonts.varela(
+                                        // color: Colors.black54,
+                                        color: Constants.subtitleclr,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 13.sp),
+                                  )
+                                ],
+                              )
+                            : const SizedBox(),
 
-                    if (item["total_experience"] != null)
+                    if (item['minctc'] != null)
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(
-                            "assets/images/bag.png",
-                            height: 10.h,
-                            color: Constants.subtitleclr,
+                            "assets/images/wallet.png",
+                            height: 14.h,
                           ),
-                          SizedBox(
-                            width: 4.2.w,
-                          ),
-                          Text(
-                            item["total_experience"],
-                            style: GoogleFonts.varela(
-                                // color: Colors.black54,
-                                color: Constants.subtitleclr,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 12.sp),
-                          )
-                        ],
-                      ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-
-                    if (item['maxctc'] != null &&
-                        item['minctc'] != null &&
-                        item['minctc'] != 0.0 &&
-                        item['maxctc'] != 0.0)
-                      Row(
-                        children: [
-                          Icon(
+                          /* Icon(
                             Icons.currency_rupee,
                             size: 13.h,
                             color: Constants.subtitleclr,
-                          ),
+                          ), */
                           SizedBox(
-                            width: 1.8.w,
+                            width: 6.w,
                           ),
                           Text(
-                            format.format(double.parse(
-                              item['minctc'].toString().replaceAll(".0", ""),
-                            )),
+                            formatSalaryRange(item['minctc'], item['maxctc']),
+                            style: GoogleFonts.varela(
+                              fontSize: 13.sp,
+                              color: Constants.subtitleclr,
+                            ),
+                          ),
+                          if (item['ismonthly'] != "")
+                            Text(
+                              " ${item['ismonthly']}",
+                              style: GoogleFonts.varela(
+                                fontSize: 13.sp,
+                                color: Constants.subtitleclr,
+                              ),
+                            )
+
+                          /* Text(
+                            item['total_salary'],
                             style: GoogleFonts.varela(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.normal,
                                 fontSize: 13.sp),
-                          ),
-                          const Text(" - "),
-                          Text(
-                            format.format(double.parse(
-                              item['maxctc'].toString().replaceAll(".0", ""),
-                            )),
-                            style: GoogleFonts.varela(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13.sp),
-                          ),
-                          const Text(" "),
-                          item['ismonthly'] == true
-                              ? Text(
-                                  "Per Year",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 13.sp),
-                                )
-                              : Text(
-                                  "Per Month",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 13.sp),
-                                )
+                          ) */
                         ],
                       ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
+
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.location_pin,
-                          size: 15,
-                          color: Constants.subtitleclr,
+                        Image.asset(
+                          "assets/images/loc.png",
+                          height: 14.sp,
                         ),
+                        /* Icon(
+                          Icons.pin_drop_outlined,
+                          size: 13.sp,
+                          color: Constants.subtitleclr,
+                        ), */
                         SizedBox(
-                          width: 3.4.w,
+                          width: 6.w,
                         ),
                         Text(
                           item['location'] ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.varela(
-                            fontSize: 12.sp,
+                            fontSize: 13.sp,
                             color: Constants.subtitleclr,
                           ),
                         ),
@@ -2189,105 +2306,69 @@ class _JobsState extends ConsumerState<Jobs>
                 SizedBox(
                   height: 3.h,
                 ),
-                if (myStrings != null)
-                  Row(
+                if (updatedList != null)
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    spacing: 8.0,
                     children: [
-                      Flexible(
-                        child: Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: [
-                            for (int i = 0;
-                                i < (stopIteration ? 3 : myStrings.length);
-                                i++)
-                              Container(
-                                //   margin: const EdgeInsets.symmetric(horizontal: 4),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  myStrings[i]
-                                      .replaceAll('"', '')
-                                      .replaceAll('[', '')
-                                      .replaceAll(']', ''),
-                                  style: GoogleFonts.varela(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13.sp,
-                                  ),
+                      ...updatedList
+                          .take(5)
+                          .map(
+                            (item) => Container(
+                              margin: const EdgeInsets.only(bottom: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "#$item"
+                                    .replaceAll('"', '')
+                                    .replaceAll('[', '')
+                                    .replaceAll(']', ''),
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.sp,
                                 ),
                               ),
-                            if (myStrings.length > 3 && !stopIteration)
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 2),
-                                child: Text(
-                                  "+${myStrings.length - 4} ",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (myStrings.length > 4 && !stopIteration)
-                        if (myStrings.length > 5)
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  for (int i = 4; i < myStrings.length; i++)
-                                    Container(
-                                      /*  margin:
-                                          const EdgeInsets.symmetric(horizontal: 4), */
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        myStrings[i]
-                                            .replaceAll('"', '')
-                                            .replaceAll('[', '')
-                                            .replaceAll(']', ''),
-                                        style: GoogleFonts.varela(
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13.sp,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          )
-                        else
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              myStrings[1]
-                                  .replaceAll('"', '')
-                                  .replaceAll('[', '')
-                                  .replaceAll(']', ''),
-                              style: GoogleFonts.varela(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.sp,
-                              ),
+                          )
+                          .toList(),
+                      if (updatedList.length > 5)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 5),
+                          //   margin: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Constants.borderColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '+${updatedList.length - 5}'
+                                .replaceAll('"', '')
+                                .replaceAll('[', '')
+                                .replaceAll(']', ''),
+                            style: GoogleFonts.varela(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
                             ),
                           ),
+                        ),
+                      /*  Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Text(
+                            '+${myStrings.length - 5} more',
+                            style: const GoogleFonts.varela(color: Colors.white),
+                          ),
+                        ), */
                     ],
                   ),
                 Container(
@@ -2340,7 +2421,7 @@ class _JobsState extends ConsumerState<Jobs>
                             vertical: 5, horizontal: 10),
                         decoration: BoxDecoration(
                             border: Border.all(color: Constants.themeBgColor),
-                            borderRadius: BorderRadius.circular(15)),
+                            borderRadius: BorderRadius.circular(8)),
                         child: Text(
                           "Apply Now",
                           style: GoogleFonts.varela(
@@ -2370,58 +2451,258 @@ class _JobsState extends ConsumerState<Jobs>
             ),
           ),
         ),
-        Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              child: Column(
-                children: [
-                  favProvider
-                          .whenData(
-                            (value) => IconButton(
-                                onPressed: () async {
-                                  if (value?.isFav ?? false) {
-                                    await removeFromFav(value!.id);
-                                  } else {
-                                    await addToFav(value?.jobDetails.id ??
-                                        item['id'] ??
-                                        0);
-                                  }
+        item["spoc"].toString() == profilemodel.id.toString()
+            ? Padding(
+                padding: EdgeInsets.only(right: 15.w),
+                child: CircularMenu(
+                  toggleButtonOnPressed: () {
+                    setState(() {
+                      isMenuOpen =
+                          !isMenuOpen; // Toggle the menu open/close state
+                    });
+                  },
+                  radius: 55.r,
+                  alignment: Alignment.topRight,
+                  backgroundWidget: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(100.0),
+                          child: RichText(
+                            text: TextSpan(
+                              style: GoogleFonts.varela(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                              children: const <TextSpan>[
+                                //  TextSpan(text: 'Press the menu button'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  toggleButtonSize: isMenuOpen ? 24.h : 18.h,
+                  toggleButtonMargin: 10,
+                  toggleButtonPadding: 0,
+                  startingAngleInRadian: 0.4 * pi,
+                  endingAngleInRadian: 3.4,
+                  curve: Curves.bounceInOut,
+                  reverseCurve: Curves.bounceInOut,
+                  toggleButtonIconColor: Constants.themeBgColor,
+                  toggleButtonColor: Colors.transparent,
+                  items: [
+                    CircularMenuItem(
+                        icon: Icons.delete_outlined,
+                        color: Colors.transparent,
+                        iconColor: Colors.red,
+                        iconSize: 18.h,
+                        onTap: () {
+                          setState(() {
+                            _color = Colors.red;
+                            _colorName = 'red';
+                          });
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Dialog Title'),
+                                content:
+                                    const Text('This is the dialog content.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      // Perform any action here
+                                      // Navigator.of(context).pop();
+                                      Autogenerated model = Autogenerated(
+                                          active: 0
+                                          /*  active: 0,
+                                          id: jobDetailsModel.id,
+                                          companyId: jobDetailsModel.compnayid,
+                                          roleName:jobDetailsModel.rolename,
+                                          natureOfWork:
+                                             jobDetailsModel.naturofwork,
+                                          process:jobDetailsModel.process,
+                                          noOfVacancy: jobDetailsModel.no_of_vacancy,
+                                          ageGroup: jobDetailsModel.age_group,
+                                          boundry_limits: jobDetailsModel.boundarylimits,
+                                          education: jobDetailsModel.education,
+                                          eligible: jobDetailsModel.eligible,
+                                          gender: jobDetailsModel.gender,
+                                          skills: jobDetailsModel.skills,
+                                        keyResponsible: jobDetailsModel.key_responsible,
+                                        minExperience: jobDetailsModel.minexperience.toString(),
+                                        maxExperience: jobDetailsModel.maxexperience.toString(),
+                                        minCtc: jobDetailsModel.minctc!.toInt(),
+                                        maxCtc: jobDetailsModel.maxctc!.toInt(),
+                                       // minAge:jobDetailsModel.minAge,
+                                       // maxAge: jobDetailsModel.maxAge,
+                                       isFresher: jobDetailsModel.isfresher,
+                                       isMonthly: jobDetailsModel.ismonthly,
+                                       empType: jobDetailsModel.emptype,
+                                       shiftDesc: jobDetailsModel.shiftdesc,
+                                       shiftTime: jobDetailsModel.shifttime,
+                                       interviewRounds: jobDetailsModel.inteviewrounds,
+                                       jobBenefits: jobDetailsModel.job_benifits,
+                                      languageKnown: jobDetailsModel.languageknown, */
 
-                                  ref.refresh(favJobProvider(
-                                      item['id'] ?? 0)); //yeha null hai value
-                                },
-                                icon: Icon(
-                                    /*   jobs[index]["id"].toString() ==
-                                        item[index]["id"].toString() */
-                                    value?.isFav ?? false
-                                        ? Icons.bookmark
-                                        : Icons.bookmark_border_outlined,
-                                    size: 18.h,
-                                    color: Constants.themeBgColor)),
-                          )
-                          .valueOrNull ??
-                      const SizedBox.shrink(),
-                  IconButton(
-                      onPressed: () async {
-                        const url =
-                            "https://wa.me/?text=Hey buddy, try this super cool new app!";
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                      icon: Icon(Icons.share,
-                          size: 15.h, color: Constants.themeBgColor)),
-                ],
+                                          );
+                                      Map<String, dynamic> jsonData =
+                                          model.toJson();
+                                      JobPostApiService.jobInActive(
+                                          jsonData, item['id']);
+                                      _onRefresh();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }),
+                    CircularMenuItem(
+                        icon: Icons.bookmark_add_outlined,
+                        color: Colors.transparent,
+                        iconColor: Colors.brown,
+                        iconSize: 18.h,
+                        onTap: () {
+                          setState(() {
+                            _color = Colors.brown;
+                            _colorName = 'Brown';
+                          });
+                        }),
+                    CircularMenuItem(
+                        icon: Icons.share,
+                        color: Colors.transparent,
+                        iconColor: Colors.green,
+                        iconSize: 18.h,
+                        onTap: () async {
+                          setState(() {
+                            _color = Colors.green;
+                            _colorName = 'Green';
+                          });
+                          const url =
+                              "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        }),
+                    CircularMenuItem(
+                        icon: Icons.edit,
+                        color: Colors.transparent,
+                        iconColor: Colors.red,
+                        iconSize: 18.h,
+                        onTap: () {
+                          setState(() {
+                            _color = Colors.red;
+                            _colorName = 'red';
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => JobForm(
+                                          formEdit: true,
+                                          companyName:
+                                              item['companyname'].toString(),
+                                          companyId:
+                                              item["compnayid"].toString(),
+                                          jobTitle: item['rolename'].toString(),
+                                          natureOfWork:
+                                              item['naturofwork'].toString(),
+                                          process: item['process'].toString(),
+                                        )));
+                          });
+                        }),
+                  ],
+                ),
+              )
+            /*  : Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      child: Column(
+                        children: [
+                          IconButton(
+                              onPressed: () async {
+                                setState(() {
+                                  isEdit = true;
+                                });
+                              },
+                              icon: Icon(Icons.more_vert,
+                                  size: 24.h, color: Constants.themeBgColor)),
+                        ],
+                      ),
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10),
+                              topRight: Radius.circular(10))),
+                      margin: const EdgeInsets.only(right: 10),
+                    ),
+                  ) */
+            : Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  child: Column(
+                    children: [
+                      favProvider
+                              .whenData(
+                                (value) => IconButton(
+                                    onPressed: () async {
+                                      if (value?.isFav ?? false) {
+                                        await removeFromFav(value!.id);
+                                      } else {
+                                        await addToFav(value?.jobDetails.id ??
+                                            item['id'] ??
+                                            0);
+                                      }
+
+                                      ref.refresh(favJobProvider(item['id'] ??
+                                          0)); //yeha null hai value
+                                    },
+                                    icon: Icon(
+                                        /*   jobs[index]["id"].toString() ==
+                                      item[index]["id"].toString() */
+                                        value?.isFav ?? false
+                                            ? Icons.bookmark
+                                            : Icons.bookmark_add_outlined,
+                                        size: 18.h,
+                                        color: Constants.themeBgColor)),
+                              )
+                              .valueOrNull ??
+                          const SizedBox.shrink(),
+                      IconButton(
+                          onPressed: () async {
+                            const url =
+                                "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          icon: Icon(Icons.share,
+                              size: 15.h, color: Constants.themeBgColor)),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          topRight: Radius.circular(10))),
+                  margin: const EdgeInsets.only(right: 10),
+                ),
               ),
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              margin: const EdgeInsets.only(right: 10),
-            ))
       ],
     );
   }
@@ -2466,7 +2747,9 @@ class _JobsState extends ConsumerState<Jobs>
 
     setState(() {
       locationid = prefs.getInt('loc')!;
-      _isLoadMoreRunning = true; // Display a progress indicator at the bottom
+      _isLoadMoreRunning = true;
+
+      // Display a progress indicator at the bottom
     });
     _page += 1; // Increase _page by 1
     try {
@@ -2502,27 +2785,48 @@ class _JobsState extends ConsumerState<Jobs>
     });
   }
 
-  void searchLocation(context) async {
+  void searchLocation(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    showSearch(
-        context: context,
-        delegate: LocationSearch(
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      // Set background color to transparent
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height /
+            1.10, // Set the maximum height of the bottom sheet
+      ),
+      builder: (BuildContext context) {
+        return GestureDetector(
+          onTap: () {}, // Prevent tap event propagation
+          child: LocationSearchBottomSheet(
+            jobItems: jobItems,
             locations: locations,
-            onSelected: (locationitem) async => {
-                  locationname = locationitem.name.toString(),
-                  user_selected_lcoation = locationitem.name.toString(),
-                  locationid = int.parse(locationitem.id.toString()),
-                  await prefs.setInt('loc', locationid),
-                  await Utils.setPreference(
-                      null,
-                      ESharedPreferences.user_selected_lcoation.name,
-                      user_selected_lcoation.toString()),
-                  // close(context, query);
-                  //  onSelected(query);
-                  // searchAgain(),
-                  //setState(() {})     //old
-                }));
+            onSelected: (locationItem) async {
+              String locationName = locationItem.name.toString();
+              user_selected_lcoation = locationItem.name.toString();
+              int locationId = int.parse(locationItem.id.toString());
+
+              await prefs.setInt('loc', locationId);
+
+              // Assuming `Utils` is a custom class you have defined
+              await Utils.setPreference(
+                null,
+                ESharedPreferences.user_selected_lcoation.name,
+                user_selected_lcoation.toString(),
+              );
+
+              await prefs.reload(); // Reload SharedPreferences
+
+              // Assuming `searchAgain()` is a function you have defined
+              searchAgain();
+
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -2621,88 +2925,6 @@ class DataSearch extends SearchDelegate<String> {
   //     });
   //   }
   // }
-}
-
-class LocationSearch extends SearchDelegate<String> {
-  List<LocationItem> locations = [];
-  final Function(LocationItem) onSelected;
-
-  LocationSearch({required this.locations, required this.onSelected});
-
-  final cities = [];
-  final recentCities = [];
-  @override
-  String get searchFieldLabel => 'Type your city';
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    // TODO: implement buildActions
-
-    return [
-      IconButton(
-          onPressed: () {
-            query = "";
-          },
-          icon: const Icon(Icons.clear))
-    ];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(
-        onPressed: () {
-          close(context, "");
-        },
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
-          progress: transitionAnimation,
-        ));
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    return const Card();
-  }
-
-  @override
-  void showResults(BuildContext context) {
-    super.showResults(context);
-    showSuggestions(context);
-    FocusScope.of(context).unfocus();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestionList = locations
-        .where((element) =>
-            element.name!.toLowerCase().startsWith(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          //showResults(context);
-          onSelected(suggestionList[index]);
-          close(context, query);
-        },
-        leading: const Icon(Icons.location_city),
-        title: RichText(
-          text: TextSpan(
-              children: [
-                TextSpan(
-                    text: suggestionList[index].name!.substring(query.length),
-                    style: GoogleFonts.varela(
-                        fontWeight: FontWeight.normal, color: Colors.black))
-              ],
-              text: suggestionList[index].name!.substring(0, query.length),
-              style: GoogleFonts.varela(
-                  fontWeight: FontWeight.bold, color: Colors.black)),
-        ),
-      ),
-      itemCount: suggestionList.length,
-    );
-  }
 }
 
 class LocationItem {

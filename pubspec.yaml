@@ -28,7 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   csc_picker: ^0.2.6
-
+  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -68,6 +68,14 @@ dependencies:
   cached_network_image: ^3.2.3
   flutter_riverpod: ^2.3.6
   riverpod: ^2.3.6
+  circular_menu: ^2.0.1
+  fab_circular_menu: ^1.0.0
+  timelines: ^0.1.0
+  timeline_tile: ^2.0.0
+  fluttertoast: ^8.2.2
+  
+ 
+  
  
 
 dev_dependencies:
@@ -87,6 +95,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/watch_gif.gif
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
