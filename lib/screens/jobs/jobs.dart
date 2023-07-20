@@ -2219,14 +2219,23 @@ class _JobsState extends ConsumerState<Jobs>
                                   SizedBox(
                                     width: 8.w,
                                   ),
-                                  Text(
-                                    "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
-                                    style: GoogleFonts.varela(
-                                        // color: Colors.black54,
-                                        color: Constants.subtitleclr,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 13.sp),
-                                  )
+                                  item["maxexperience"] == "& above"
+                                      ? Text(
+                                          "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                          style: GoogleFonts.varela(
+                                              // color: Colors.black54,
+                                              color: Constants.subtitleclr,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 13.sp),
+                                        )
+                                      : Text(
+                                          "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
+                                          style: GoogleFonts.varela(
+                                              // color: Colors.black54,
+                                              color: Constants.subtitleclr,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 13.sp),
+                                        )
                                 ],
                               )
                             : const SizedBox(),

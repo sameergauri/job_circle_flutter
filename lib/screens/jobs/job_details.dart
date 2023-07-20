@@ -629,16 +629,30 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         SizedBox(
                                           width: 7.w,
                                         ),
-                                        SizedBox(
-                                          child: Text(
-                                            "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} - ${jobDetailsModel.maxexperience.toString().replaceAll(".0", "")} Years",
-                                            style: GoogleFonts.varela(
-                                                color: Colors.grey.shade700,
-                                                // color: Colors.black54,
-                                                //fontWeight: FontWeight.normal,
-                                                fontSize: 13.sp),
-                                          ),
-                                        ),
+                                        jobDetailsModel.maxexperience ==
+                                                "& above"
+                                            ? SizedBox(
+                                                child: Text(
+                                                  "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Years & above.",
+                                                  style: GoogleFonts.varela(
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                      // color: Colors.black54,
+                                                      //fontWeight: FontWeight.normal,
+                                                      fontSize: 13.sp),
+                                                ),
+                                              )
+                                            : SizedBox(
+                                                child: Text(
+                                                  "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} - ${jobDetailsModel.maxexperience.toString().replaceAll(".0", "")} Years",
+                                                  style: GoogleFonts.varela(
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                      // color: Colors.black54,
+                                                      //fontWeight: FontWeight.normal,
+                                                      fontSize: 13.sp),
+                                                ),
+                                              ),
                                       ],
                                     ),
                           if (jobDetailsModel.minctc != null &&

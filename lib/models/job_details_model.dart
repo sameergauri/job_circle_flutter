@@ -15,7 +15,7 @@ class JobDetailsModel {
   String? gender;
   int? naturofworkid;
   double? minexperience;
-  double? maxexperience;
+  String? maxexperience;
   String? naturofwork;
   String? shifttime;
   String? shiftdesc;
@@ -147,7 +147,7 @@ class JobDetailsModel {
       gender: map['gender'],
       naturofworkid: map['naturofworkid'],
       minexperience: double.tryParse(map['minexperience']?.toString() ?? ''),
-      maxexperience: double.tryParse(map['maxexperience']?.toString() ?? ''),
+      maxexperience: map['maxexperience'] ?? '',
       naturofwork: map['naturofwork'],
       shifttime: map['shifttime'],
       shiftdesc: map['shiftdesc'],

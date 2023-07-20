@@ -66,7 +66,7 @@ class ProfileSummaryModel {
       this.profile_pic,
       this.cv_link,
       this.cv_upladted_date,
-      this.partner_request,
+      this.partner_request, 
       this.salary,
       this.salaryid});
 

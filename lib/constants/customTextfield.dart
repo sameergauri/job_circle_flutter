@@ -736,6 +736,7 @@ class CustomJobFormTextField extends StatefulWidget {
   final void Function(String)? onSubmit;
   // final void Function(String)? onJobTitle;
   var onIDSelected;
+  final Function onTapCallback;
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextField({
@@ -743,6 +744,7 @@ class CustomJobFormTextField extends StatefulWidget {
     this.controller,
     this.onSubmit,
     this.focusNode,
+    required this.onTapCallback,
     //  this.onJobTitle,
     // required this.isEdit,
     // required this.focusNode,
@@ -800,6 +802,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
           setState(() {
             controller!.clear();
             handleBoolChange(false);
+            widget.onTapCallback(controller);
+
             // widget.focusNode.requestFocus;
             // handleFocusNodeRequest();
             //focusNode.requestFocus();
@@ -814,7 +818,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               // ignore: use_full_hex_values_for_flutter_colors
-              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              color: isSelect ? Colors.grey.shade500 : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
@@ -842,9 +846,14 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       const SizedBox(
                         width: 5,
                       ),
-                      Image.asset(
+                      /*   Image.asset(
                         "assets/images/cross.png",
                         height: 12,
+                      ) */
+                      const Icon(
+                        Icons.edit,
+                        size: 15,
+                        color: Colors.white,
                       )
                     ],
                   )
@@ -1033,10 +1042,13 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         suggestion = null;
                       },
                       autofocus: true,
+
                       // focusNode: focusNode,
                       textCapitalization: TextCapitalization.sentences,
                       controller: controller,
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
                         hintText: hintText,
                         hintStyle: GoogleFonts.sourceSansPro(
                           color: Constants.subtitleclr,
@@ -1914,9 +1926,10 @@ class _CustomJobFormTextFieldRespoOneState
                       const SizedBox(
                         width: 5,
                       ),
-                      Image.asset(
-                        "assets/images/cross.png",
-                        height: 12,
+                      Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 15.h,
                       )
                     ],
                   )
@@ -2446,9 +2459,14 @@ class _CustomJobFormTextFieldJobRespoState
                       const SizedBox(
                         width: 5,
                       ),
-                      Image.asset(
+                      /* Image.asset(
                         "assets/images/cross.png",
                         height: 12,
+                      ) */
+                      Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 15.h,
                       )
                     ],
                   )

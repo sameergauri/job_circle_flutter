@@ -5,11 +5,13 @@ class JobTitleItem extends StatefulWidget {
   final bool isSelected;
   final bool ismulti;
   final Function(bool) onTap;
+  final bool isunSelect;
   final bool isVisible;
   final bool onlyOneIcon;
 
   const JobTitleItem({
     super.key,
+    required this.isunSelect,
     required this.ismulti,
     required this.title,
     required this.isSelected,
@@ -46,9 +48,13 @@ class _JobTitleItemState extends State<JobTitleItem> {
       visible: widget.isVisible,
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            isSelected = !isSelected;
-          });
+          widget.isunSelect
+              ? setState(() {
+                  isSelected = !isSelected;
+                })
+              : setState(() {
+                  isSelected = true;
+                });
           widget.onTap(isSelected);
         },
         child: Container(

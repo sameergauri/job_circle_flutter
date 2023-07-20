@@ -78,8 +78,8 @@ class _AppliedJobState extends State<AppliedJob>
 
   late List<dynamic> data;
   Future<List<dynamic>> fetchData() async {
-    final response = await http.get(
-        Uri.parse('http://${GlobalConstants.API_Host_one}/jobs/v2/search?status=APPLIED'));
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/jobs/v2/search?status=APPLIED'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -169,24 +169,24 @@ class _AppliedJobState extends State<AppliedJob>
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
-          title: const Text(
-            "Application status",
-            style: TextStyle(color: Colors.black),
-          ),
           bottom: PreferredSize(
-            preferredSize: const Size(0, 35.1),
+            preferredSize: const Size(0, 0),
             child: TabBar(
               labelPadding: const EdgeInsets.only(left: 5, right: 5),
               controller: _tabController,
               labelColor: Colors.black,
               unselectedLabelColor: Colors.black,
-              indicatorSize: TabBarIndicatorSize.label,
-              splashBorderRadius: BorderRadius.circular(50),
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: BorderRadius.circular(8),
+              //indicatorSize: TabBarIndicatorSize.label,
+              indicatorWeight: 1.h,
+              indicatorPadding:
+                  EdgeInsets.only(top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
               //indicatorSize: TabBarIndicatorSize.label,
               // indicatorWeight: 0,
               indicator: BoxDecoration(
                   color: Constants.borderColor,
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(8),
                   border:
                       Border.all(color: Constants.borderColor) // Creates border
                   ),
@@ -341,7 +341,7 @@ class _AppliedJobState extends State<AppliedJob>
                   Navigator.pushNamed(
                     context,
                     ERoute.jobsdetail.name,
-                    arguments: {'id': jobItems[index]['id']},
+                    arguments: {'id': '232'},
                   );
 
                   //   Navigator.push(
@@ -362,7 +362,7 @@ class _AppliedJobState extends State<AppliedJob>
                   ],
                 ));
           },
-          itemCount: jobItems.length,
+          itemCount: 5,
           padding: const EdgeInsets.only(bottom: 5, left: 5, right: 5),
           scrollDirection: Axis.vertical,
         )
@@ -453,7 +453,7 @@ class _AppliedJobState extends State<AppliedJob>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['rolename'] ?? '',
+                      'rolename',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.varela(
@@ -788,9 +788,9 @@ class _AppliedJobState extends State<AppliedJob>
 
   Widget customTab(String title, String img, int select) {
     return Container(
-        padding: EdgeInsets.symmetric(vertical: 9.5.h, horizontal: 10.w),
+        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50.r),
+            borderRadius: BorderRadius.circular(8.r),
             border: Border.all(color: Constants.borderColor, width: 1)),
         child: cutTab == select
             ? Row(
@@ -799,20 +799,11 @@ class _AppliedJobState extends State<AppliedJob>
                   SizedBox(
                     width: 5.w,
                   ),
-                  Image.asset(
-                    img,
-                    height: 12.h,
-                    //width: 15.w,
-                  )
                 ],
               )
             : Row(
                 children: [
                   Text(title),
-                  Icon(
-                    Icons.add,
-                    size: 15.h,
-                  )
                 ],
               ));
   }

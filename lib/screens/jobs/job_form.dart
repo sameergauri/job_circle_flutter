@@ -138,6 +138,7 @@ class _JobFormState extends State<JobForm> {
   }
 
   bool isRelevantExpperience = false;
+  bool above = false;
 
   void checkAgeGroup(String ageText) {
     int? age = int.tryParse(ageText);
@@ -167,6 +168,7 @@ class _JobFormState extends State<JobForm> {
       isFullTime = false,
       isContract = false,
       isIntern = false,
+      temporary = false,
       onlyMale = false,
       onlyFemale = false,
       femalePrefered = false,
@@ -388,11 +390,7 @@ class _JobFormState extends State<JobForm> {
                               "assets/images/cross.png",
                               height: 12,
                             )
-                          : const Icon(
-                              Icons.check,
-                              size: 15,
-                              color: Colors.white,
-                            )
+                          : const SizedBox()
                     ],
                   )
                 : Text(text,
@@ -457,6 +455,8 @@ class _JobFormState extends State<JobForm> {
           isContract = true;
         } else if (jobData.empType == "InternShip") {
           isIntern = true;
+        } else if (jobData.empType == "Temporary") {
+          temporary = true;
         }
         if (jobData.education == "Graduate") {
           graduate = true;
@@ -475,7 +475,14 @@ class _JobFormState extends State<JobForm> {
           _showContainer2 = false;
 
           minExp.text = jobData.minExperience;
-          maxExp.text = jobData.maxExperience;
+          if (jobData.maxExperience == "& above") {
+            above = true;
+            // maxExp.text = jobData.maxExperience;
+          } else {
+            above = false;
+            maxExp.text = jobData.maxExperience;
+          }
+
           List<dynamic> loc = jobData.workLocation;
 
           print(loc);
@@ -505,6 +512,10 @@ class _JobFormState extends State<JobForm> {
         }
         minAge.text = jobData.minAge.toString();
         maxAge.text = jobData.maxAge.toString();
+        minAge.text.isNotEmpty
+            ? agegroupContainer = true
+            : agegroupContainer = false;
+
         selectedComunication = jobData.rating;
         selectedInterViewRounds = jobData.inteviewrounds.cast<String>();
         if (jobData.eligible.contains(
@@ -609,6 +620,7 @@ class _JobFormState extends State<JobForm> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           // barrierColor: Colors.grey.shade100,
+
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
@@ -1448,6 +1460,7 @@ class _JobFormState extends State<JobForm> {
   String? selectedShiftTime1;
   String? selectedComunication;
   String? selectedWeakOff1;
+  int? lastTappedItem;
 
   List<JobTitleItem> jobTitleItems = [];
   List<JobTitleItem> jobTitleItems1 = [];
@@ -1575,7 +1588,8 @@ class _JobFormState extends State<JobForm> {
                                 if (isFullTime == false &&
                                     isPartTime == false &&
                                     isIntern == false &&
-                                    isContract == false) {
+                                    isContract == false &&
+                                    temporary == false) {
                                   showDialog(
                                     context: context,
                                     builder: (context) {
@@ -1714,7 +1728,7 @@ class _JobFormState extends State<JobForm> {
                                                 ? "Contractual"
                                                 : isIntern
                                                     ? "InternShip"
-                                                    : " ",
+                                                    : "Temporary",
                                     education: graduate
                                         ? "Graduate"
                                         : "Under-Graduate",
@@ -1731,7 +1745,8 @@ class _JobFormState extends State<JobForm> {
                                         double.parse(maxSalary.text).truncate(),
                                     isMonthly: _selectedOption,
                                     minExperience: minExp.text,
-                                    maxExperience: maxExp.text,
+                                    maxExperience:
+                                        above ? "& above" : maxExp.text,
                                     isFresher: isFresher ? "Fresher" : " ",
                                     boundry_limits: selectedKeyBoundryLimits,
                                     gender: onlyMale
@@ -1826,7 +1841,8 @@ class _JobFormState extends State<JobForm> {
                           if (isFullTime == false &&
                               isPartTime == false &&
                               isIntern == false &&
-                              isContract == false) {
+                              isContract == false &&
+                              temporary == false) {
                             showDialog(
                               context: context,
                               builder: (context) {
@@ -1962,7 +1978,7 @@ class _JobFormState extends State<JobForm> {
                                           ? "Contractual"
                                           : isIntern
                                               ? "InternShip"
-                                              : " ",
+                                              : "Temporary",
                               education:
                                   graduate ? "Graduate" : "Under-Graduate",
                               skills: fetchApiskill,
@@ -1976,7 +1992,7 @@ class _JobFormState extends State<JobForm> {
                               maxCtc: double.parse(maxSalary.text).truncate(),
                               isMonthly: _selectedOption,
                               minExperience: minExp.text,
-                              maxExperience: maxExp.text,
+                              maxExperience: above ? "& above" : maxExp.text,
                               isFresher: isFresher ? "Fresher" : " ",
                               boundry_limits: selectedKeyBoundryLimits,
                               gender: onlyMale
@@ -2486,6 +2502,7 @@ class _JobFormState extends State<JobForm> {
                                     isFullTime = true;
                                     isContract = false;
                                     isIntern = false;
+                                    temporary = false;
                                   });
                                 },
                                 isSelect: isFullTime,
@@ -2498,6 +2515,7 @@ class _JobFormState extends State<JobForm> {
                                     isFullTime = false;
                                     isContract = false;
                                     isIntern = false;
+                                    temporary = false;
                                   });
                                 },
                                 isSelect: isPartTime,
@@ -2510,6 +2528,7 @@ class _JobFormState extends State<JobForm> {
                                     isFullTime = false;
                                     isContract = true;
                                     isIntern = false;
+                                    temporary = false;
                                   });
                                 },
                                 isSelect: isContract,
@@ -2522,10 +2541,24 @@ class _JobFormState extends State<JobForm> {
                                     isFullTime = false;
                                     isContract = false;
                                     isIntern = true;
+                                    temporary = false;
                                   });
                                 },
                                 isSelect: isIntern,
                                 title: "Internship"),
+                            customContainerSelect(
+                                isAnother: true,
+                                onPressed: () {
+                                  setState(() {
+                                    isPartTime = false;
+                                    isFullTime = false;
+                                    isContract = false;
+                                    isIntern = false;
+                                    temporary = true;
+                                  });
+                                },
+                                isSelect: temporary,
+                                title: "Temporary"),
                           ],
                         ),
                         Text(
@@ -2709,8 +2742,8 @@ class _JobFormState extends State<JobForm> {
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(
                                   r'^\s')), // Disallow spaces at the beginning
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')),
+                              /*  FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
                             ],
                             // textInputAction: TextInputAction.newline,
 
@@ -2861,6 +2894,7 @@ class _JobFormState extends State<JobForm> {
                           } */
 
                                 JobTitleItem item = JobTitleItem(
+                                  isunSelect: true,
                                   getJobTitle1isSelected: null,
                                   ismulti:
                                       false, // Set ismulti to true for multi-select functionality
@@ -3084,6 +3118,7 @@ class _JobFormState extends State<JobForm> {
                                 bool isSelected =
                                     selectedJobBenefits.contains(title);
                                 JobTitleItem item = JobTitleItem(
+                                  isunSelect: true,
                                   ismulti: false,
                                   title: title,
                                   isSelected: isSelected,
@@ -3184,6 +3219,7 @@ class _JobFormState extends State<JobForm> {
                                       selectedShiftTime1 != null;
 
                               return JobTitleItem(
+                                isunSelect: false,
                                 getJobTitle1isSelected: _isSelected,
                                 onlyOneIcon: true,
                                 ismulti: false,
@@ -3312,13 +3348,16 @@ class _JobFormState extends State<JobForm> {
                               return JobTitleItem(
                                 getJobTitle1isSelected: _isSelected,
                                 onlyOneIcon: true,
+                                isunSelect: false,
                                 ismulti: false,
                                 title: jobTitle,
                                 isSelected: _isSelected,
                                 onTap: (selected) {
-                                  if (selected) {
+                                  if (lastTappedItem != index) {
                                     setState(() {
                                       selectedWeakOff1 = jobTitle;
+                                      lastTappedItem =
+                                          index; // Update the last tapped item index
                                     });
                                   }
                                 },
@@ -3527,18 +3566,35 @@ class _JobFormState extends State<JobForm> {
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              customContainerSelect1(
+                                              customContainerSelect(
+                                                  isAnother: true,
+                                                  isVacancy: true,
+                                                  isCross: true,
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      //  isEdit8 = false;
+                                                      //  location.clear();
+                                                      isCity = false;
+
+                                                      city.clear();
+                                                      //  worklocationList.clear();
+                                                    });
+                                                  },
+                                                  isSelect: true,
+                                                  title: city.text)
+                                              /*  customContainerSelect1(
                                                 true,
                                                 city.text,
                                                 true,
                                                 () {
                                                   setState(() {
                                                     isCity = false;
+                                                    // isEdit10 = false;
                                                     //roleFocusNodeFrom.requestFocus();
                                                     city.clear();
                                                   });
                                                 },
-                                              ),
+                                              ), */
                                             ],
                                           )
                                         : CustomJobFormTextFieldJobRespo(
@@ -3706,8 +3762,8 @@ class _JobFormState extends State<JobForm> {
                           child: TextField(
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')),
+                              /* FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
                             ],
                             controller: boundryLimits,
                             keyboardType: TextInputType.text,
@@ -3967,17 +4023,36 @@ class _JobFormState extends State<JobForm> {
                             child: expContainer
                                 ? Row(
                                     children: [
-                                      customContainerSelect(
-                                          isCross: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              expContainer = false;
-                                              experinceFocusNode.requestFocus();
-                                            });
-                                          },
-                                          isSelect: expContainer,
-                                          title:
-                                              "${minExp.text} - ${maxExp.text} Yrs"),
+                                      above
+                                          ? customContainerSelect(
+                                              isCross: true,
+                                              isExp: true,
+                                              isNumOfOpening: false,
+                                              onPressed: () {
+                                                setState(() {
+                                                  expContainer = false;
+                                                  experinceFocusNode
+                                                      .requestFocus();
+                                                  maxAge.clear();
+                                                });
+                                              },
+                                              isSelect: expContainer,
+                                              title:
+                                                  "${minExp.text} Yrs & above.")
+                                          : customContainerSelect(
+                                              isCross: true,
+                                              onPressed: () {
+                                                setState(() {
+                                                  //above = false;
+                                                  expContainer = false;
+                                                  experinceFocusNode
+                                                      .requestFocus();
+                                                  maxAge.clear();
+                                                });
+                                              },
+                                              isSelect: expContainer,
+                                              title:
+                                                  "${minExp.text} - ${maxExp.text} Yrs"),
                                     ],
                                   )
                                 : Padding(
@@ -4022,6 +4097,52 @@ class _JobFormState extends State<JobForm> {
                                                           .allow(RegExp(
                                                               r'^\d+\.?\d{0,2}')),
                                                     ],
+                                                    onFieldSubmitted:
+                                                        (newValue) {
+                                                      /*   maxAge.text.isNotEmpty &&
+                                                            minAge.text.isNotEmpty */
+
+                                                      if (minExp.text
+                                                              .isNotEmpty &&
+                                                          above) {
+                                                        setState(() {
+                                                          expContainer =
+                                                              newValue
+                                                                  .isNotEmpty;
+                                                        });
+                                                      }
+                                                      /* else {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        onClose:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          minExp
+                                                                              .clear();
+                                                                          // maxExp.clear();
+                                                                          setState(
+                                                                              () {
+                                                                            expContainer =
+                                                                                !newValue.isNotEmpty;
+                                                                            enableExperience =
+                                                                                enableExperience = newValue.isNotEmpty;
+                                                                            /*   _showContainer1 = !_showContainer1;
+                                                                                _showContainer2 = !_showContainer2; */
+                                                                          });
+                                                                        },
+                                                                        title:
+                                                                            "Invalid Experience Value!",
+                                                                        subtitle:
+                                                                            "Please enter min experince");
+                                                                  },
+                                                                );
+                                                              } */
+                                                    },
                                                     focusNode:
                                                         experinceFocusNode,
                                                     onChanged: (value) {
@@ -4031,6 +4152,7 @@ class _JobFormState extends State<JobForm> {
                                                           setState(() {
                                                             isCheckBox =
                                                                 !isCheckBox;
+                                                            above = false;
                                                           });
                                                         }
                                                         enableExperience =
@@ -4042,6 +4164,12 @@ class _JobFormState extends State<JobForm> {
                                                           setState(() {
                                                             isRelevantExpperience =
                                                                 false;
+                                                            _showContainer1 =
+                                                                true;
+                                                            _showContainer2 =
+                                                                true;
+                                                            enableExperience =
+                                                                true;
                                                           });
                                                           maxExp.clear();
                                                           /*  _showContainer1 =
@@ -4136,61 +4264,66 @@ class _JobFormState extends State<JobForm> {
                                         const SizedBox(
                                           width: 5,
                                         ),
-                                        const SizedBox(child: Text("-")),
+                                        if (above == false)
+                                          const SizedBox(child: Text("-")),
                                         const SizedBox(
                                           width: 5,
                                         ),
-                                        SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              5.w,
-                                          child: /* newFormFiled(
+                                        if (above == false)
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                5.w,
+                                            child: /* newFormFiled(
                                   maxExp, context, "", "Max-exp", true, true), */
-                                              SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      6.w,
-                                                  child: /* newFormFiled(
-                                  minExp, context, "", "Min-exp", true, true), */
-                                                      Container(
-                                                          child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      const SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Container(
-                                                        height: MediaQuery.of(
-                                                                    context)
+                                                SizedBox(
+                                                    width:
+                                                        MediaQuery.of(context)
                                                                 .size
-                                                                .height /
-                                                            25.h,
-                                                        color: Colors.white,
-                                                        child: TextFormField(
-                                                          validator: (value) {
-                                                            if (value == null ||
-                                                                value.isEmpty) {
-                                                              return "This Text field Cant be empty";
-                                                            }
-                                                            return null;
-                                                          },
-                                                          maxLength: 3,
-                                                          inputFormatters: [
-                                                            FilteringTextInputFormatter
-                                                                .allow(RegExp(
-                                                                    r'^\d+\.?\d{0,2}')),
-                                                          ],
-                                                          onChanged: (value) {
-                                                            setState(() {
-                                                              /* _showContainer2 =
+                                                                .width /
+                                                            6.w,
+                                                    child: /* newFormFiled(
+                                  minExp, context, "", "Min-exp", true, true), */
+                                                        Container(
+                                                            child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              25.h,
+                                                          color: Colors.white,
+                                                          child: TextFormField(
+                                                            validator: (value) {
+                                                              if (value ==
+                                                                      null ||
+                                                                  value
+                                                                      .isEmpty) {
+                                                                return "This Text field Cant be empty";
+                                                              }
+                                                              return null;
+                                                            },
+                                                            maxLength: 3,
+                                                            inputFormatters: [
+                                                              FilteringTextInputFormatter
+                                                                  .allow(RegExp(
+                                                                      r'^\d+\.?\d{0,2}')),
+                                                            ],
+                                                            onChanged: (value) {
+                                                              setState(() {
+                                                                /* _showContainer2 =
                                                                     value.isEmpty; */
-                                                            });
-                                                          },
-                                                          /*  onSubmitted:
+                                                              });
+                                                            },
+                                                            /*  onSubmitted:
                                                                 (newValue) {
                                                               maxExp.text
                                                                       .isNotEmpty
@@ -4201,75 +4334,69 @@ class _JobFormState extends State<JobForm> {
                                                                     })
                                                                   : null;
                                                             }, */
-                                                          onFieldSubmitted:
-                                                              (newValue) {
-                                                            /*   maxAge.text.isNotEmpty &&
+                                                            onFieldSubmitted:
+                                                                (newValue) {
+                                                              /*   maxAge.text.isNotEmpty &&
                                                             minAge.text.isNotEmpty */
 
-                                                            if (maxExp.text
-                                                                .isNotEmpty) {
-                                                              double? age =
-                                                                  double.tryParse(
-                                                                      maxExp
-                                                                          .text);
-                                                              double? age2 =
-                                                                  double.tryParse(
-                                                                      minExp
-                                                                          .text);
-                                                              if (age! <=
-                                                                  age2!) {
-                                                                // Clear the text field if the entered number is not above 18
-                                                                /* WidgetsBinding.instance
+                                                              if (maxExp.text
+                                                                  .isNotEmpty) {
+                                                                double? age =
+                                                                    double.tryParse(
+                                                                        maxExp
+                                                                            .text);
+                                                                double? age2 =
+                                                                    double.tryParse(
+                                                                        minExp
+                                                                            .text);
+                                                                if (age! <=
+                                                                    age2!) {
+                                                                  // Clear the text field if the entered number is not above 18
+                                                                  /* WidgetsBinding.instance
                                                             .addPostFrameCallback(
                                                                 (_) {
                                                           ageGroup.clear();
                                                           
                                                         }); */
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                        isFisrt:
-                                                                            false,
-                                                                        onClose:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-
-                                                                          setState(
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return CustomDialog(
+                                                                          isFisrt:
+                                                                              false,
+                                                                          onClose:
                                                                               () {
-                                                                            expContainer =
-                                                                                !newValue.isNotEmpty;
-                                                                            _showContainer1 =
-                                                                                true;
-                                                                            _showContainer2 =
-                                                                                true;
-                                                                            enableExperience =
-                                                                                false;
-                                                                            minExp.clear();
-                                                                            maxExp.clear();
-                                                                          });
-                                                                        },
-                                                                        title:
-                                                                            "Invalid Experience Value!",
-                                                                        subtitle:
-                                                                            "Max Experience should be greater than Min Experience");
-                                                                  },
-                                                                );
-                                                              } else if (maxExp
-                                                                      .text
-                                                                      .isNotEmpty &&
-                                                                  minExp.text
-                                                                      .isNotEmpty) {
-                                                                setState(() {
-                                                                  expContainer =
-                                                                      newValue
-                                                                          .isNotEmpty;
-                                                                });
-                                                              }
-                                                            } /* else {
+                                                                            Navigator.pop(context);
+
+                                                                            setState(() {
+                                                                              expContainer = !newValue.isNotEmpty;
+                                                                              _showContainer1 = true;
+                                                                              _showContainer2 = true;
+                                                                              enableExperience = false;
+                                                                              minExp.clear();
+                                                                              maxExp.clear();
+                                                                            });
+                                                                          },
+                                                                          title:
+                                                                              "Invalid Experience Value!",
+                                                                          subtitle:
+                                                                              "Max Experience should be greater than Min Experience");
+                                                                    },
+                                                                  );
+                                                                } else if (maxExp
+                                                                        .text
+                                                                        .isNotEmpty &&
+                                                                    minExp.text
+                                                                        .isNotEmpty) {
+                                                                  setState(() {
+                                                                    expContainer =
+                                                                        newValue
+                                                                            .isNotEmpty;
+                                                                  });
+                                                                }
+                                                              } /* else {
                                                                 showDialog(
                                                                   context:
                                                                       context,
@@ -4300,49 +4427,49 @@ class _JobFormState extends State<JobForm> {
                                                                   },
                                                                 );
                                                               } */
-                                                          },
-                                                          onEditingComplete:
-                                                              () {
-                                                            if (minExp
-                                                                .text.isEmpty) {
-                                                              showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return CustomDialog(
-                                                                      isFisrt:
-                                                                          false,
-                                                                      onClose:
-                                                                          () {
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                        minExp
-                                                                            .clear();
-                                                                        maxExp
-                                                                            .clear();
-                                                                        // maxExp.clear();
-                                                                        setState(
+                                                            },
+                                                            onEditingComplete:
+                                                                () {
+                                                              if (minExp.text
+                                                                  .isEmpty) {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        isFisrt:
+                                                                            false,
+                                                                        onClose:
                                                                             () {
-                                                                          expContainer =
-                                                                              !expContainer;
-                                                                          enableExperience =
-                                                                              false;
-                                                                          /*   enableExperience =
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          minExp
+                                                                              .clear();
+                                                                          maxExp
+                                                                              .clear();
+                                                                          // maxExp.clear();
+                                                                          setState(
+                                                                              () {
+                                                                            expContainer =
+                                                                                !expContainer;
+                                                                            enableExperience =
+                                                                                false;
+                                                                            /*   enableExperience =
                                                                                // newValue.isNotEmpty; */
-                                                                          /*   _showContainer1 = !_showContainer1;
+                                                                            /*   _showContainer1 = !_showContainer1;
                                                                                 _showContainer2 = !_showContainer2; */
-                                                                        });
-                                                                      },
-                                                                      title:
-                                                                          "Invalid Experience Value!",
-                                                                      subtitle:
-                                                                          "Please enter min experince");
-                                                                },
-                                                              );
-                                                            }
-                                                          },
-                                                          /* onTapOutside:
+                                                                          });
+                                                                        },
+                                                                        title:
+                                                                            "Invalid Experience Value!",
+                                                                        subtitle:
+                                                                            "Please enter min experince");
+                                                                  },
+                                                                );
+                                                              }
+                                                            },
+                                                            /* onTapOutside:
                                                                 (event) {
                                                               maxExp.text
                                                                       .isNotEmpty
@@ -4352,7 +4479,7 @@ class _JobFormState extends State<JobForm> {
                                                                     })
                                                                   : null;
                                                             }, */
-                                                          /* onEditingComplete:
+                                                            /* onEditingComplete:
                                                                 () {
                                                               maxExp.text
                                                                       .isNotEmpty
@@ -4362,23 +4489,25 @@ class _JobFormState extends State<JobForm> {
                                                                     })
                                                                   : null;
                                                             }, */
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                          controller: maxExp,
-                                                          /*   enabled:
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .number,
+                                                            controller: maxExp,
+                                                            /*   enabled:
                                                                 enableShortListFor, */
-                                                          enabled:
-                                                              enableExperience,
-                                                          /* validator: (value) {
+                                                            enabled: minExp.text
+                                                                    .isNotEmpty
+                                                                ? true
+                                                                : false,
+                                                            /* validator: (value) {
                                                               if (value == null ||
                                                                   value.isEmpty) {
                                                                 return 'Please select any company';
                                                               }
                                                               return null;
                                                             }, */
-                                                          onTap: (() {
-                                                            /* showDialog(
+                                                            onTap: (() {
+                                                              /* showDialog(
                                                   context: context,
                                                   builder: (BuildContext context) {
                             return DialogList(
@@ -4402,65 +4531,62 @@ class _JobFormState extends State<JobForm> {
                               itemsData: shortList,
                             );
                                                   }); */
-                                                          }),
-                                                          decoration:
-                                                              InputDecoration(
-                                                                  counterText:
-                                                                      '',
-                                                                  contentPadding:
-                                                                      const EdgeInsets
-                                                                              .only(
-                                                                          top:
-                                                                              8,
-                                                                          bottom:
-                                                                              8,
-                                                                          left:
-                                                                              10,
-                                                                          right:
-                                                                              10),
-                                                                  // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                                  // Icons.workspace_premium
-                                                                  // label: const Text("Company Name *"),
-                                                                  //border: OutlineInputBorder(),
-                                                                  border:
-                                                                      OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
-                                                                    borderSide:
-                                                                        const BorderSide(
-                                                                            color:
-                                                                                Color(0xffff0eceb)),
-                                                                  ),
-                                                                  focusColor:
-                                                                      const Color(
-                                                                          0xffff0eceb),
-                                                                  focusedBorder:
-                                                                      OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
-                                                                    borderSide: const BorderSide(
-                                                                        color: Color.fromARGB(
-                                                                            255,
-                                                                            122,
-                                                                            113,
-                                                                            111)),
-                                                                  ),
-                                                                  hintText:
-                                                                      "Max-exp",
-                                                                  hintStyle: GoogleFonts.sourceSansPro(
-                                                                      color: Constants
-                                                                          .subtitleclr,
-                                                                      fontSize:
-                                                                          15.sp)
-                                                                  //  prefixIcon: Icon(Icons.list)
-                                                                  ),
+                                                            }),
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    counterText:
+                                                                        '',
+                                                                    contentPadding: const EdgeInsets
+                                                                            .only(
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8,
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            10),
+                                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                                    // Icons.workspace_premium
+                                                                    // label: const Text("Company Name *"),
+                                                                    //border: OutlineInputBorder(),
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                      borderSide:
+                                                                          const BorderSide(
+                                                                              color: Color(0xffff0eceb)),
+                                                                    ),
+                                                                    focusColor:
+                                                                        const Color(
+                                                                            0xffff0eceb),
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                      borderSide: const BorderSide(
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              122,
+                                                                              113,
+                                                                              111)),
+                                                                    ),
+                                                                    hintText:
+                                                                        "Max-exp",
+                                                                    hintStyle: GoogleFonts.sourceSansPro(
+                                                                        color: Constants
+                                                                            .subtitleclr,
+                                                                        fontSize:
+                                                                            15.sp)
+                                                                    //  prefixIcon: Icon(Icons.list)
+                                                                    ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ))),
-                                        ),
+                                                      ],
+                                                    ))),
+                                          ),
                                         const SizedBox(
                                           width: 10,
                                         ),
@@ -4470,6 +4596,108 @@ class _JobFormState extends State<JobForm> {
                                               fontSize: 16.sp,
                                               // color: Colors.grey.shade500,
                                               fontWeight: FontWeight.w400),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 5, top: 3, left: 10),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                    right: 8),
+                                                height: 16,
+                                                width:
+                                                    20, // Adjust the width according to your requirements
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    minExp.text.isNotEmpty &&
+                                                            maxAge.text.isEmpty
+                                                        ? setState(() {
+                                                            above = !above;
+                                                          })
+                                                        : setState(() {
+                                                            above = above;
+                                                          });
+                                                  },
+                                                  child: Container(
+                                                    // margin: const EdgeInsets.only(bottom: 4),
+                                                    height: 16,
+                                                    width: 20,
+                                                    padding: EdgeInsets.zero,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      border: Border.all(
+                                                        color: above
+                                                            ? Colors.red
+                                                            : minExp.text
+                                                                        .isEmpty &&
+                                                                    maxAge.text
+                                                                        .isNotEmpty
+                                                                ? Colors.grey
+                                                                    .shade400
+                                                                : Colors.grey,
+                                                        width: 1.5,
+                                                      ),
+                                                    ),
+                                                    child: Theme(
+                                                      data: ThemeData(
+                                                        unselectedWidgetColor:
+                                                            Colors.transparent,
+                                                      ),
+                                                      child: Checkbox(
+                                                        visualDensity:
+                                                            VisualDensity
+                                                                .compact,
+                                                        materialTapTargetSize:
+                                                            MaterialTapTargetSize
+                                                                .shrinkWrap,
+                                                        activeColor:
+                                                            Colors.white,
+                                                        checkColor: Colors.red,
+                                                        value: above,
+                                                        onChanged: (value) {
+                                                          minExp.text.isNotEmpty &&
+                                                                  maxAge.text
+                                                                      .isEmpty
+                                                              ? setState(() {
+                                                                  above =
+                                                                      value!;
+                                                                  maxExp
+                                                                      .clear();
+                                                                })
+                                                              : null;
+                                                        },
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5)),
+                                                        side: above
+                                                            ? const BorderSide(
+                                                                color:
+                                                                    Colors.red)
+                                                            : null, // No border when unchecked
+
+                                                        // Remove extra padding around the checkbox
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                "& above.",
+                                                style: TextStyle(
+                                                    color: minExp.text.isEmpty
+                                                        ? Colors.grey.shade400
+                                                        : Colors.black,
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -4589,7 +4817,7 @@ class _JobFormState extends State<JobForm> {
                                 isAnother: true,
                                 onPressed: () {
                                   setState(() {
-                                    onlyMale = true;
+                                    onlyMale = !onlyMale;
                                     onlyFemale = false;
                                     femalePrefered = false;
                                   });
@@ -4602,7 +4830,7 @@ class _JobFormState extends State<JobForm> {
                                   setState(() {
                                     femalePrefered = false;
                                     onlyMale = false;
-                                    onlyFemale = true;
+                                    onlyFemale = !onlyFemale;
                                   });
                                 },
                                 isSelect: onlyFemale,
@@ -4611,7 +4839,7 @@ class _JobFormState extends State<JobForm> {
                                 isAnother: true,
                                 onPressed: () {
                                   setState(() {
-                                    femalePrefered = true;
+                                    femalePrefered = !femalePrefered;
                                     onlyMale = false;
                                     onlyFemale = false;
                                   });
@@ -4647,6 +4875,8 @@ class _JobFormState extends State<JobForm> {
                                       onPressed: () {
                                         setState(() {
                                           agegroupContainer = false;
+                                          minAge.clear();
+                                          maxAge.clear();
                                         });
                                       },
                                       isSelect: agegroupContainer,
@@ -5243,6 +5473,7 @@ class _JobFormState extends State<JobForm> {
                                       selectedComunication != null;
 
                               return JobTitleItem(
+                                isunSelect: false,
                                 getJobTitle1isSelected: _isSelected,
                                 onlyOneIcon: true,
                                 ismulti: false,
@@ -5406,8 +5637,8 @@ class _JobFormState extends State<JobForm> {
                           child: TextField(
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')),
+                              /*  FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
                             ],
                             controller: Eligibility,
                             keyboardType: TextInputType.text,
@@ -5768,8 +5999,8 @@ class _JobFormState extends State<JobForm> {
                           child: TextField(
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')),
+                              /*  FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
                             ],
                             controller: moreDetail,
                             keyboardType: TextInputType.text,
@@ -6100,6 +6331,7 @@ class _JobFormState extends State<JobForm> {
                                 bool isSelected =
                                     selectedInterViewRounds.contains(title);
                                 JobTitleItem item = JobTitleItem(
+                                  isunSelect: true,
                                   ismulti: false,
                                   title: title,
                                   isSelected: isSelected,
@@ -6235,6 +6467,7 @@ class _JobFormState extends State<JobForm> {
       bool isNumOfOpening = false,
       bool isAnother = false,
       bool isCross = false,
+      bool isExp = false,
       bool? isSalary = false}) {
     return InkWell(
         onTap: onPressed,
@@ -6242,10 +6475,12 @@ class _JobFormState extends State<JobForm> {
             width: isAnother
                 ? null
                 : isNumberOfOpenings
-                    ? MediaQuery.of(context).size.width / 4.5
+                    ? MediaQuery.of(context).size.width / 3
                     : isAnother
                         ? double.infinity
-                        : MediaQuery.of(context).size.width / 2.2,
+                        : isExp
+                            ? MediaQuery.of(context).size.width / 3
+                            : MediaQuery.of(context).size.width / 2.2,
 
             // height: MediaQuery.of(context).size.height / 26.h,
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 8),
@@ -6257,7 +6492,7 @@ class _JobFormState extends State<JobForm> {
             // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       isSalary!
@@ -6276,9 +6511,10 @@ class _JobFormState extends State<JobForm> {
                               width: 5,
                             ),
                       isCross
-                          ? Image.asset(
-                              "assets/images/cross.png",
-                              height: 12,
+                          ? Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 15.h,
                             )
                           : const Icon(
                               Icons.check,
