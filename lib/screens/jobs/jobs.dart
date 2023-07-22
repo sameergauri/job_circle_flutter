@@ -1356,11 +1356,24 @@ class _JobsState extends ConsumerState<Jobs>
                                       itemBuilder: (BuildContext, index) {
                                         return GestureDetector(
                                             onTap: () {
+                                              /*   Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          JobDetails(
+                                                            id: int.parse(
+                                                              (jobItems[index]
+                                                                  ["id"]),
+                                                            ),
+                                                            userId: profilemodel
+                                                                .id
+                                                                .toString(),
+                                                          ))); */
                                               Navigator.pushNamed(
                                                 context,
                                                 ERoute.jobsdetail.name,
                                                 arguments: {
-                                                  'id': jobItems[index]["id"]
+                                                  'id': jobItems[index]["id"],
                                                 },
                                               );
 
@@ -2416,13 +2429,17 @@ class _JobsState extends ConsumerState<Jobs>
                     const Spacer(),
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, ERoute.application.name,
+                        JobPostApiService.postJobApply(
+                            jobId: item['id'],
+                            userId: int.parse(profilemodel.id.toString()),
+                            context: context);
+                        /*  Navigator.pushNamed(context, ERoute.application.name,
                             arguments: {
                               "isnew": false,
                               "prevModel": jobDetailsModel,
                               "refer": true,
                               "cmpnyname": item['companyname'].toString()
-                            });
+                            }); */
                       },
                       child: Container(
                         margin: const EdgeInsets.only(left: 10, right: 10),

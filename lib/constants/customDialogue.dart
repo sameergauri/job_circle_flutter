@@ -540,6 +540,7 @@ class _CustomDialogState extends State<CustomDialog> {
                                             const Duration(seconds: 1), () {
                                           Navigator.pop(context);
                                         });
+
                                         widget.fetchDataFromApi!();
                                         widget.getJobtitleValue!(
                                             jobTitle.toString());
