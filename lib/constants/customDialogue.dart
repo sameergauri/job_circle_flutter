@@ -20,8 +20,9 @@ class CustomDialog extends StatefulWidget {
   final ValueSetter<String>? getNatureOfWorkId;
   final ValueSetter<String>? getCompanyId;
   final ValueSetter<String>? getJobtitleValue;
+  final ValueSetter<int>? getFunctionalAreaId;
   final Function(JobData?)? onDataReceived;
-  final Function? fetchDataFromApi;
+  final Function fetchDataFromApi;
 
   //final ValueSetter<String>? get;
 
@@ -31,11 +32,12 @@ class CustomDialog extends StatefulWidget {
   const CustomDialog({
     super.key,
     this.onDataReceived,
-    this.fetchDataFromApi,
+    required this.fetchDataFromApi,
     this.getJobtitleValue,
     this.getCompanyId,
     this.getNatureOfWorkId,
     this.getCompanyName,
+    this.getFunctionalAreaId,
     this.getJobtitile,
     this.getProcess,
     this.getNatureOFWork,
@@ -89,7 +91,7 @@ class _CustomDialogState extends State<CustomDialog> {
   TextEditingController natureOfWork = TextEditingController();
   bool isEdit4 = false, isEdit1 = false, isEdit2 = false, isEdit3 = false;
 
-  @override
+  /* @override
   void dispose() {
     shorListController.dispose();
     role.dispose();
@@ -102,7 +104,7 @@ class _CustomDialogState extends State<CustomDialog> {
       isEdit3 = false;
       isEdit4 = false;
     });
-  }
+  } */
 
   String? CompanyID, parentID, jobTitle, pId;
 
@@ -129,6 +131,8 @@ class _CustomDialogState extends State<CustomDialog> {
   }
 
   //String? companyId;
+  int? processId, roleId;
+  int functionalAreaId = 0;
 
   void handleSelectedID(String id) {
     // Process the selected ID as needed
@@ -273,6 +277,12 @@ class _CustomDialogState extends State<CustomDialog> {
 
   void onTextField1Tap4(TextEditingController tappedController) {}
 
+  void getFunctionalAreaIdCust(int id) {
+    setState(() {
+      functionalAreaId = id;
+    });
+  }
+
   // String? title,Desc;
   @override
   Widget build(BuildContext context) {
@@ -362,6 +372,11 @@ class _CustomDialogState extends State<CustomDialog> {
                                     role: role.text,
                                     hint: "Health Insurance",
                                     title: "Process",
+                                    getFunctionalAreaId: (p0) {
+                                      setState(() {
+                                        processId = p0;
+                                      });
+                                    },
                                     onChanged: (p0) {
                                       setState(() {
                                         isEdit1 = p0;
@@ -406,6 +421,11 @@ class _CustomDialogState extends State<CustomDialog> {
                                     role: role.text,
                                     hint: "Sr. Executive",
                                     title: "Job Title / Role",
+                                    getFunctionalAreaId: (p0) {
+                                      setState(() {
+                                        roleId = p0;
+                                      });
+                                    },
                                     onChanged: (p0) {
                                       setState(() {
                                         isEdit2 = p0;
@@ -447,6 +467,8 @@ class _CustomDialogState extends State<CustomDialog> {
                                     role: role.text,
                                     hint: "Sales",
                                     title: "Functional Area",
+                                    getFunctionalAreaId:
+                                        getFunctionalAreaIdCust,
                                     onChanged: (p0) {
                                       setState(() {
                                         isEdit3 = p0;
@@ -524,6 +546,8 @@ class _CustomDialogState extends State<CustomDialog> {
                                         widget.getProcess!(proces);
                                         widget.getNatureOFWork!(natureOfWork);
                                         widget.getJobtitile!(role);
+                                        widget.getFunctionalAreaId!(
+                                            functionalAreaId);
                                         widget.getNatureOfWorkId!(
                                             NatureOfWorkID.toString());
                                         widget.getCompanyId!(
@@ -535,13 +559,13 @@ class _CustomDialogState extends State<CustomDialog> {
                                             onDataReceived:
                                                 widget.onDataReceived,
                                             process: proces.text);
-
-                                        Future.delayed(
+                                        Navigator.pop(context);
+                                        /*  Future.delayed(
                                             const Duration(seconds: 1), () {
-                                          Navigator.pop(context);
+                                        
                                         });
-
-                                        widget.fetchDataFromApi!();
+ */
+                                        widget.fetchDataFromApi();
                                         widget.getJobtitleValue!(
                                             jobTitle.toString());
                                       },

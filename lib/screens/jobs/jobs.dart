@@ -335,7 +335,8 @@ class _JobsState extends ConsumerState<Jobs>
   Future<void> fetchJobs() async {
     Uri url = Uri.parse(
         'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
-    final response = await http.get(url); // replace with your API endpoint
+    final response = 
+    await http.get(url); // replace with your API endpoint
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       print(data);

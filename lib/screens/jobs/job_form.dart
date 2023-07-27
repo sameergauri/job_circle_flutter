@@ -130,13 +130,13 @@ class _JobFormState extends State<JobForm> {
   bool nextValid = true;
   bool _isSecondTextFieldEnabled = false;
 
-  @override
+  /*  @override
   void dispose() {
     minExp.dispose();
     maxExp.dispose();
     super.dispose();
   }
-
+ */
   bool isRelevantExpperience = false;
   bool above = false;
 
@@ -357,7 +357,7 @@ class _JobFormState extends State<JobForm> {
             margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              color: isSelect ? Colors.grey.shade500 : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
@@ -386,10 +386,14 @@ class _JobFormState extends State<JobForm> {
                         width: 5,
                       ),
                       isFetch
-                          ? Image.asset(
+                          ? Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 15.h,
+                            ) /* Image.asset(
                               "assets/images/cross.png",
                               height: 12,
-                            )
+                            ) */
                           : const SizedBox()
                     ],
                   )
@@ -429,6 +433,8 @@ class _JobFormState extends State<JobForm> {
           ); */
         }
         isNumberOfOpenings = true;
+        functionalAreaId = jobData.crpf_id;
+
         jobID = jobData.id;
         numberofopenings.text = jobData.noOfVacancy.toString();
         industry.text = jobData.industry.toString();
@@ -606,6 +612,7 @@ class _JobFormState extends State<JobForm> {
   }
 
   List<String> preselectedLanguages = [];
+  int? functionalAreaId;
 
   @override
   void initState() {
@@ -629,6 +636,7 @@ class _JobFormState extends State<JobForm> {
               getNatureOfWorkId: fetchData,
               onDataReceived: assignDataToController,
               // fetchDataFromApi: fetchDataFromApi,
+              fetchDataFromApi: () {},
               getCompanyId: (value) {
                 setState(() {
                   CompanyID = value;
@@ -646,6 +654,11 @@ class _JobFormState extends State<JobForm> {
                   role = value;
                 });
               },
+              getFunctionalAreaId: (value) {
+                setState(() {
+                  functionalAreaId = value;
+                });
+              },
 
               getProcess: (value) {
                 setState(() {
@@ -657,6 +670,7 @@ class _JobFormState extends State<JobForm> {
                   natureOfWork = value;
                 });
               },
+
               isFisrt: true,
               onClose: () {},
               title: "Quick & Easy Job Posting",
@@ -922,6 +936,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 moreDetail.clear();
@@ -936,6 +951,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 moreDetail.clear();
@@ -968,6 +984,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 Eligibility.clear();
@@ -982,6 +999,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 Eligibility.clear();
@@ -1012,6 +1030,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 boundryLimits.clear();
@@ -1026,6 +1045,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 boundryLimits.clear();
@@ -1594,6 +1614,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1608,6 +1629,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1622,6 +1644,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1635,6 +1658,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1648,6 +1672,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1661,6 +1686,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1674,6 +1700,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1687,6 +1714,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1701,6 +1729,7 @@ class _JobFormState extends State<JobForm> {
                                     context: context,
                                     builder: (context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                           isFisrt: false,
                                           onClose: () {
                                             Navigator.pop(context);
@@ -1713,6 +1742,7 @@ class _JobFormState extends State<JobForm> {
                                 } else {
                                   jobPostModel model = jobPostModel(
                                     active: 0,
+                                    crpf_id: functionalAreaId,
                                     id: jobID,
                                     roleName: role.text,
                                     process: proces.text,
@@ -1789,6 +1819,7 @@ class _JobFormState extends State<JobForm> {
                                   context: context,
                                   builder: (context) {
                                     return CustomDialog(
+                                        fetchDataFromApi: () {},
                                         isFisrt: false,
                                         onClose: () {
                                           Navigator.pop(context);
@@ -1847,6 +1878,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1861,6 +1893,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1874,6 +1907,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1887,6 +1921,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1900,6 +1935,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1913,6 +1949,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1926,6 +1963,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1939,6 +1977,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1952,6 +1991,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                    fetchDataFromApi: () {},
                                     isFisrt: false,
                                     onClose: () {
                                       Navigator.pop(context);
@@ -1964,6 +2004,7 @@ class _JobFormState extends State<JobForm> {
                           } else {
                             jobPostModel model = jobPostModel(
                               active: 1,
+                              crpf_id: functionalAreaId,
                               id: jobID,
                               roleName: role.text,
                               process: proces.text,
@@ -2034,6 +2075,7 @@ class _JobFormState extends State<JobForm> {
                               context: context,
                               builder: (context) {
                                 return CustomDialog(
+                                  fetchDataFromApi: () {},
                                   isFisrt: false,
                                   onClose: () {
                                     Navigator.of(context).pushAndRemoveUntil(
@@ -2056,6 +2098,7 @@ class _JobFormState extends State<JobForm> {
                             context: context,
                             builder: (context) {
                               return CustomDialog(
+                                  fetchDataFromApi: () {},
                                   isFisrt: false,
                                   onClose: () {
                                     Navigator.pop(context);
@@ -2168,26 +2211,23 @@ class _JobFormState extends State<JobForm> {
                     onIDSelected: handleSelectedID,
                   ), */
                         if (role.text.isNotEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: width / 2.2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Job Title / Role",
-                                      style: GoogleFonts.sourceSansPro(
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    customContainerSelect1(
-                                        true, role.text, false, () {}),
-                                  ],
+                          SizedBox(
+                            // width: width / 2.2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Job Title / Role",
+                                  style: GoogleFonts.sourceSansPro(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                /* CustomJobFormTextFieldRespOne(
+                                customContainerSelect1(
+                                    true, role.text, false, () {}),
+                              ],
+                            ),
+                            /* CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "job_role",
                           /* onFocusNodeRequested: (p0) {
@@ -2206,7 +2246,11 @@ class _JobFormState extends State<JobForm> {
                           onSubmit: getValueOfJobtitle,
                           //  getSuggestions: getJobTitle,
                         ), */
-                              ),
+                          ),
+                        if (natureOfWork.text.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               if (proces.text.isNotEmpty)
                                 SizedBox(
                                   width: width / 2.2,
@@ -2244,12 +2288,6 @@ class _JobFormState extends State<JobForm> {
                           onIDSelected: handleSelectedID,
                         ), */
                                 ),
-                            ],
-                          ),
-                        if (natureOfWork.text.isNotEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
                               SizedBox(
                                 width: width / 2.2,
                                 child: Column(
@@ -2288,58 +2326,6 @@ class _JobFormState extends State<JobForm> {
                           // getSuggestions: getJobTitle,
                         ), */
                               ),
-                              SizedBox(
-                                width: width / 2.2,
-                                child: isIndustry!
-                                    ? Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Industry",
-                                            style: GoogleFonts.sourceSansPro(
-                                              fontSize: 18.sp,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          customContainerSelect1(
-                                            true,
-                                            industry.text,
-                                            true,
-                                            () {
-                                              setState(() {
-                                                isIndustry = false;
-                                                industryFocus.requestFocus();
-                                                industry.clear();
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      )
-                                    : CustomJobFormTextFieldRespOne(
-                                        // isSelected: isIndustry,
-                                        focusNode: industryFocus,
-                                        role: "",
-                                        isCompany: false,
-                                        isIndustry: true,
-                                        name: "industry",
-                                        /* onFocusNodeRequested: (p0) {
-                        focusNode.requestFocus();
-                                          }, */
-                                        title: "Industry",
-                                        controller: industry,
-
-                                        // isEdit: isEdit,
-                                        //  focusNode: focusNode,
-                                        onChanged: (p0) {
-                                          isEdit5 = true;
-                                        },
-                                        contextIn: context,
-                                        hintText: "NBFC",
-                                        onIDSelected: handleSelectedID,
-                                        // getSuggestions: getJobTitle,
-                                      ),
-                              ),
                             ],
                           ),
 
@@ -2363,127 +2349,217 @@ class _JobFormState extends State<JobForm> {
                         /*  newFormFiled(shorListController, context,
                       "Number of Openings", "e.g 1", true, false, true), */
 
-                        Text(
-                          "Number of vacancies",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: width / 2.2,
+                              child: isIndustry!
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Industry",
+                                          style: GoogleFonts.sourceSansPro(
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        customContainerSelect1(
+                                          true,
+                                          industry.text,
+                                          true,
+                                          () {
+                                            setState(() {
+                                              isIndustry = false;
+                                              industryFocus.requestFocus();
+                                              industry.clear();
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  : CustomJobFormTextFieldRespOne(
+                                      // isSelected: isIndustry,
+                                      focusNode: industryFocus,
+                                      role: "",
+                                      isCompany: false,
+                                      isIndustry: true,
+                                      name: "industry",
+                                      /* onFocusNodeRequested: (p0) {
+                        focusNode.requestFocus();
+                                          }, */
+                                      title: "Industry",
+                                      controller: industry,
+
+                                      // isEdit: isEdit,
+                                      //  focusNode: focusNode,
+                                      onChanged: (p0) {
+                                        isEdit5 = true;
+                                      },
+                                      contextIn: context,
+                                      hintText: "NBFC",
+                                      onIDSelected: handleSelectedID,
+                                      // getSuggestions: getJobTitle,
+                                    ),
+                            ),
+                            SizedBox(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "No's of vacancies",
+                                    style: GoogleFonts.sourceSansPro(
+                                        fontSize: 18.sp,
+                                        // color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  isNumberOfOpenings
+                                      ? customContainerSelect(
+                                          isVacancy: true,
+                                          isCross: true,
+                                          //isNumOfOpening: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              isNumberOfOpenings = false;
+                                              // FocusScope.of(context).autofocus(focusNode);
+                                              numberofopenings.clear();
+                                              numberOfOpeneningFocus
+                                                  .requestFocus();
+                                            });
+                                          },
+                                          isSelect: true,
+                                          title: numberofopenings.text)
+                                      : Container(
+                                          width: width / 2.2,
+                                          margin:
+                                              const EdgeInsets.only(bottom: 5),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 5.h),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    25.h,
+                                                color: Colors.white,
+                                                child: TextFormField(
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return "This Text field Cant be empty";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .deny(RegExp(r'[.]')),
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly
+                                                  ],
+                                                  focusNode:
+                                                      numberOfOpeneningFocus,
+                                                  maxLength: 3,
+                                                  onFieldSubmitted: (value) {
+                                                    numberofopenings
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isNumberOfOpenings =
+                                                                true;
+                                                            // _showContainer1 = value.isEmpty;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  onChanged: (value) {
+                                                    setState(() {});
+                                                  },
+                                                  onTapOutside: (event) {
+                                                    numberofopenings
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isNumberOfOpenings =
+                                                                true;
+                                                            // _showContainer1 = value.isEmpty;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  onEditingComplete: () {
+                                                    numberofopenings
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isNumberOfOpenings =
+                                                                true;
+                                                            // _showContainer1 = value.isEmpty;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  controller: numberofopenings,
+                                                  enabled: enableShortListFor,
+                                                  onTap: (() {}),
+                                                  decoration: InputDecoration(
+                                                      counterText: '',
+                                                      contentPadding:
+                                                          const EdgeInsets.only(
+                                                              top: 8,
+                                                              bottom: 8,
+                                                              left: 10,
+                                                              right: 10),
+                                                      // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                      // Icons.workspace_premium
+                                                      // label: const Text("Company Name *"),
+                                                      //border: OutlineInputBorder(),
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Color(
+                                                                    0xffff0eceb)),
+                                                      ),
+                                                      focusColor: const Color(
+                                                          0xffff0eceb),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        122,
+                                                                        113,
+                                                                        111)),
+                                                      ),
+                                                      hintText: "e.g. 1",
+                                                      hintStyle: GoogleFonts
+                                                          .sourceSansPro(
+                                                              color: Constants
+                                                                  .subtitleclr,
+                                                              fontSize: 15.sp)
+                                                      //  prefixIcon: Icon(Icons.list)
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          )),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        isNumberOfOpenings
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                isNumOfOpening: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isNumberOfOpenings = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    numberofopenings.clear();
-                                    numberOfOpeneningFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: numberofopenings.text)
-                            : Container(
-                                width: MediaQuery.of(context).size.width / 6.w,
-                                margin: const EdgeInsets.only(bottom: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(bottom: 5.h),
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              25.h,
-                                      color: Colors.white,
-                                      child: TextFormField(
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return "This Text field Cant be empty";
-                                          }
-                                          return null;
-                                        },
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.deny(
-                                              RegExp(r'[.]')),
-                                          FilteringTextInputFormatter.digitsOnly
-                                        ],
-                                        focusNode: numberOfOpeneningFocus,
-                                        maxLength: 3,
-                                        onFieldSubmitted: (value) {
-                                          numberofopenings.text.isNotEmpty
-                                              ? setState(() {
-                                                  isNumberOfOpenings = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onChanged: (value) {
-                                          setState(() {});
-                                        },
-                                        onTapOutside: (event) {
-                                          numberofopenings.text.isNotEmpty
-                                              ? setState(() {
-                                                  isNumberOfOpenings = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onEditingComplete: () {
-                                          numberofopenings.text.isNotEmpty
-                                              ? setState(() {
-                                                  isNumberOfOpenings = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        keyboardType: TextInputType.number,
-                                        controller: numberofopenings,
-                                        enabled: enableShortListFor,
-                                        onTap: (() {}),
-                                        decoration: InputDecoration(
-                                            counterText: '',
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                    left: 10,
-                                                    right: 10),
-                                            // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                            // Icons.workspace_premium
-                                            // label: const Text("Company Name *"),
-                                            //border: OutlineInputBorder(),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb)),
-                                            ),
-                                            focusColor:
-                                                const Color(0xffff0eceb),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111)),
-                                            ),
-                                            hintText: "e.g. 1",
-                                            hintStyle:
-                                                GoogleFonts.sourceSansPro(
-                                                    color:
-                                                        Constants.subtitleclr,
-                                                    fontSize: 15.sp)
-                                            //  prefixIcon: Icon(Icons.list)
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
 
                         Text(
                           "Emp Type",
@@ -4364,6 +4440,8 @@ class _JobFormState extends State<JobForm> {
                                                                     builder:
                                                                         (context) {
                                                                       return CustomDialog(
+                                                                          fetchDataFromApi:
+                                                                              () {},
                                                                           isFisrt:
                                                                               false,
                                                                           onClose:
@@ -4438,6 +4516,8 @@ class _JobFormState extends State<JobForm> {
                                                                   builder:
                                                                       (context) {
                                                                     return CustomDialog(
+                                                                        fetchDataFromApi:
+                                                                            () {},
                                                                         isFisrt:
                                                                             false,
                                                                         onClose:
@@ -5132,6 +5212,8 @@ class _JobFormState extends State<JobForm> {
                                                               builder:
                                                                   (context) {
                                                                 return CustomDialog(
+                                                                    fetchDataFromApi:
+                                                                        () {},
                                                                     isFisrt:
                                                                         false,
                                                                     onClose:
@@ -5155,6 +5237,8 @@ class _JobFormState extends State<JobForm> {
                                                               builder:
                                                                   (context) {
                                                                 return CustomDialog(
+                                                                    fetchDataFromApi:
+                                                                        () {},
                                                                     isFisrt:
                                                                         false,
                                                                     onClose:
@@ -6475,7 +6559,7 @@ class _JobFormState extends State<JobForm> {
             width: isAnother
                 ? null
                 : isNumberOfOpenings
-                    ? MediaQuery.of(context).size.width / 3
+                    ? MediaQuery.of(context).size.width / 2.3
                     : isAnother
                         ? double.infinity
                         : isExp
@@ -6684,6 +6768,7 @@ class _JobFormState extends State<JobForm> {
                           context: context,
                           builder: (context) {
                             return CustomDialog(
+                              fetchDataFromApi: () {},
                               isFisrt: false,
                               onClose: () {
                                 Navigator.pop(context);
@@ -6727,6 +6812,7 @@ class _JobFormState extends State<JobForm> {
                         context: context,
                         builder: (context) {
                           return CustomDialog(
+                            fetchDataFromApi: () {},
                             isFisrt: false,
                             onClose: () {
                               Navigator.pop(context);
@@ -6843,6 +6929,7 @@ class _JobFormState extends State<JobForm> {
         context: context,
         builder: (BuildContext context) {
           return CustomDialog(
+              fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
                 Navigator.of(context).pop();
@@ -7014,6 +7101,7 @@ class _JobFormState extends State<JobForm> {
                           context: context,
                           builder: (context) {
                             return CustomDialog(
+                              fetchDataFromApi: () {},
                               isFisrt: false,
                               onClose: () {
                                 Navigator.pop(context);
@@ -7064,6 +7152,7 @@ class _JobFormState extends State<JobForm> {
                         context: context,
                         builder: (context) {
                           return CustomDialog(
+                            fetchDataFromApi: () {},
                             isFisrt: false,
                             onClose: () {
                               Navigator.pop(context);

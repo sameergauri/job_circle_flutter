@@ -441,7 +441,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     onTap: () {
                       if (profilemodel.id != null) {
                         JobPostApiService.postJobApply(
-                          context: context,
+                            context: context,
                             jobId: int.parse(jobDetailsModel.id.toString()),
                             userId: int.parse(profilemodel.id.toString()));
                       }

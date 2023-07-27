@@ -360,6 +360,7 @@ class _CustomFormTextFieldMultiSelectLocationState
                                     context: context,
                                     builder: (BuildContext context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                         isFisrt: false,
                                         onClose: () {
                                           Navigator.of(context).pop();
@@ -618,6 +619,7 @@ class _CustomFormTextFieldMultiSelectLocationState
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return CustomDialog(
+                                                    fetchDataFromApi: () {},
                                                   isFisrt: false,
                                                   onClose: () {
                                                     Navigator.of(context).pop();
@@ -1497,6 +1499,7 @@ class _CustomFormTextFieldMultiSelectState
                                     context: context,
                                     builder: (BuildContext context) {
                                       return CustomDialog(
+                                          fetchDataFromApi: () {},
                                         isFisrt: false,
                                         onClose: () {
                                           Navigator.of(context).pop();
@@ -1697,6 +1700,7 @@ class _CustomFormTextFieldMultiSelectState
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return CustomDialog(
+                                                    fetchDataFromApi: () {},
                                                   isFisrt: false,
                                                   onClose: () {
                                                     Navigator.of(context).pop();

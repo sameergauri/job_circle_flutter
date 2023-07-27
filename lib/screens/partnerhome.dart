@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
+import 'package:job_circle/screens/jobs/recruitz.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
-import 'package:job_circle/screens/webview/webviewd.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
@@ -127,7 +126,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
     userType = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_type.name);
 
-    var partner_request = await Utils.getCacheData('partner_request');
+    var partnerRequest = await Utils.getCacheData('partner_request');
 
     bottomTabItems.add(const BottomNavigationBarItem(
       icon: Icon(Icons.dashboard_customize_outlined),
@@ -138,7 +137,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
 
     if (userType == EUserType.employee.value ||
         (userType == EUserType.businessPartner.value &&
-            partner_request == EPartnerApproval.approved.value)) {
+            partnerRequest == EPartnerApproval.approved.value)) {
       bottomTabItems.add(const BottomNavigationBarItem(
         icon: Icon(Icons.numbers),
         activeIcon: Icon(Icons.numbers_outlined),
@@ -149,11 +148,21 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
 
     if (userType == EUserType.employee.value ||
         (userType == EUserType.businessPartner.value &&
-            partner_request == EPartnerApproval.approved.value)) {
+            partnerRequest == EPartnerApproval.approved.value)) {
       bottomTabItems.add(const BottomNavigationBarItem(
         icon: Icon(Icons.bar_chart),
         activeIcon: Icon(Icons.bar_chart_outlined),
         label: 'Performance',
+        backgroundColor: Colors.blue,
+      ));
+    }
+    if (userType == EUserType.employee.value ||
+        (userType == EUserType.businessPartner.value &&
+            partnerRequest == EPartnerApproval.approved.value)) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.bar_chart),
+        activeIcon: Icon(Icons.bar_chart_outlined),
+        label: 'Recruitz',
         backgroundColor: Colors.blue,
       ));
     }
@@ -197,6 +206,13 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         break;
       case "Performance":
         Navigator.pushNamed(context, ERoute.performance.value);
+        break;
+      case "Recruitz":
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Recruitz(),
+            ));
         break;
       case "Partner":
         Navigator.push(context,

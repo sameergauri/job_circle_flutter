@@ -15,6 +15,7 @@ class SuggestionTextField extends StatefulWidget {
   final String? companyID, process, role, hint, title;
   final int textfieldNumber;
   final Function(bool) onChanged;
+  final Function getFunctionalAreaId;
   final Function onTapCallback;
   TextEditingController controller = TextEditingController();
   SuggestionTextField(
@@ -27,6 +28,7 @@ class SuggestionTextField extends StatefulWidget {
       required this.hint,
       required this.title,
       required this.onTapCallback,
+      required this.getFunctionalAreaId,
       required this.onChanged});
 
   @override
@@ -286,6 +288,14 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
     });
     widget.onChanged(newValue);
   }
+
+  int? functionalAreaId;
+
+ /*  void getFunctionalAreaId(int id) {
+    setState(() {
+      functionalAreaId = id;
+    });
+  } */
 
   String searchKeyWord = "";
 
@@ -745,6 +755,8 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                                             .functional_area
                                             .toString();
                                         handleBoolChange(true);
+                                        widget.getFunctionalAreaId(
+                                            suggestion.id);
                                         searchKeyWord = "";
                                       });
                                     },

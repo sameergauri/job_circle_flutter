@@ -37,7 +37,7 @@ class _ReferNowState extends State<ReferNow>
             height: 30.h,
             color: Constants.borderColor,
           )),
-      appBar: AppBar(
+/*       appBar: AppBar(
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
@@ -155,7 +155,7 @@ class _ReferNowState extends State<ReferNow>
                   ),
                 ),
               ),
-              Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
+             /*  Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
               Tab(
                   child: customTab(
                       "Work from home", "assets/images/check.png", 3)),
@@ -163,11 +163,11 @@ class _ReferNowState extends State<ReferNow>
                   child: customTab(
                       "Work from office", "assets/images/check.png", 4)),
               Tab(child: customTab("Hybrid", "assets/images/check.png", 5)),
-              Tab(child: customTab("Recomended", "assets/images/check.png", 6)),
+              Tab(child: customTab("Recomended", "assets/images/check.png", 6)), */
             ],
           ),
         ),
-      ),
+      ), */
       body: Stack(
         children: [
           SingleChildScrollView(

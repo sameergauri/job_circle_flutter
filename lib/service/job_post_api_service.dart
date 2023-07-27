@@ -69,8 +69,14 @@ class JobPostApiService {
           context: context,
           builder: (context) {
             return CustomDialog(
+                fetchDataFromApi: () {},
                 onClose: () {
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeScreen(),), (route) => false);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                      (route) => false);
                 },
                 isFisrt: false,
                 title: "Job Apply succesfully",

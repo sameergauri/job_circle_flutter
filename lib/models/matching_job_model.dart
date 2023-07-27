@@ -37,6 +37,7 @@ class JobDetails {
 class JobData {
   final dynamic shiftTime;
   final int spoc;
+  final int crpf_id;
   final String? city;
   final String maxExperience;
   final dynamic rating;
@@ -83,6 +84,7 @@ class JobData {
   JobData({
     required this.shiftTime,
     required this.spoc,
+    required this.crpf_id,
     required this.gender,
     required this.maxExperience,
     required this.rating,
@@ -138,6 +140,7 @@ class JobData {
     return JobData(
         shiftTime: json['shifttime'] ?? '',
         spoc: json['spoc'] ?? '',
+        crpf_id: json['crpf_id'] ?? 0,
         maxExperience: json['maxexperience'] ?? '',
         gender: json['gender'] ?? '',
         rating: json['rating'] ?? '',
@@ -397,6 +400,7 @@ void main() {
         {
           "shifttime": null,
           "spoc": 0,
+          "crpf_id":0,
           "maxexperience": "8",
           "gender':""
           "rating": null,

@@ -1,6 +1,7 @@
 class jobPostModel {
   int? active;
   DateTime? activeDate;
+  int? crpf_id;
   String? ageGroup;
   List<String>? boundry_limits;
   String? category;
@@ -60,6 +61,7 @@ class jobPostModel {
     this.active,
     this.activeDate,
     this.ageGroup,
+    this.crpf_id,
     // ignore: non_constant_identifier_names
     this.boundry_limits,
     this.job_skills,
@@ -118,6 +120,7 @@ class jobPostModel {
 
   factory jobPostModel.fromJson(Map<String, dynamic> json) => jobPostModel(
         active: json["active"],
+        crpf_id: json['crpf_id'],
         activeDate: json["active_date"] != null
             ? DateTime.parse(json["active_date"])
             : null,
@@ -207,6 +210,7 @@ class jobPostModel {
 
   Map<String, dynamic> toJson() => {
         "active": active,
+        "crpf_id": crpf_id,
         "active_date":
             activeDate != null ? activeDate?.toIso8601String() : null,
         "age_group": ageGroup,
