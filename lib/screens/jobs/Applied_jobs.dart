@@ -240,7 +240,7 @@ class _AppliedJobState extends State<AppliedJob>
                 children: [
                   if (item.process != null)
                     Text(
-                      item.process,
+                      item.process.toString(),
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
@@ -249,9 +249,11 @@ class _AppliedJobState extends State<AppliedJob>
                     style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold, fontSize: 16.sp),
                   ),
-                  if (item.level != null)
+                  if (item.leadLevel != null)
                     Text(
-                      item.level == "" ? "Role Name**" : item.level,
+                      item.leadLevel == ""
+                          ? "Role Name**"
+                          : item.leadLevel.toString(),
                       // overflow: TextOverflow.visible,
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
@@ -265,14 +267,14 @@ class _AppliedJobState extends State<AppliedJob>
               ),
               if (item.companyName != null)
                 Text(
-                  item.companyName,
+                  item.companyName.toString(),
                   style: GoogleFonts.varela(
                       // color: Colors.black54,
                       color: Constants.subtitleclr,
                       fontWeight: FontWeight.normal,
                       fontSize: 13.sp),
                 ),
-              if (item.salary != null)
+              if (item.totalSalary != null)
                 Padding(
                   padding: EdgeInsets.only(top: 4.h, left: 4.w),
                   child: Row(
@@ -285,7 +287,7 @@ class _AppliedJobState extends State<AppliedJob>
                         width: 3,
                       ),
                       Text(
-                        convertSalaryFormat(item.salary.toString()),
+                        convertSalaryFormat(item.totalSalary.toString()),
                         style: GoogleFonts.varela(
                             // color: Colors.black54,
                             color: Constants.subtitleclr,

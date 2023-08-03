@@ -7,7 +7,8 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/home.dart';
 
 class JobPostApiService {
-  static Future<void> postDataToApi(Map<String, dynamic> jsonData) async {
+  static Future<void> postDataToApi(
+      Map<String, dynamic> jsonData, BuildContext context) async {
     String apiUrl = 'http://${GlobalConstants.API_Host_one}/jobs/v1';
 
     try {
@@ -18,9 +19,43 @@ class JobPostApiService {
       if (response.statusCode == 200) {
         // Successful request
         print('Data posted successfully');
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+              fetchDataFromApi: () {},
+              isFisrt: false,
+              onClose: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (Route<dynamic> route) => false);
+              },
+              title: "Success",
+              subtitle: "Submitted successfully!",
+            );
+          },
+        );
       } else {
         // Request failed
         print('Error: ${response.statusCode}');
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+              fetchDataFromApi: () {},
+              isFisrt: false,
+              onClose: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (Route<dynamic> route) => false);
+              },
+              title: "Failed",
+              subtitle: "Failed while posting!",
+            );
+          },
+        );
       }
     } catch (e) {
       print('Error: $e');
@@ -92,6 +127,28 @@ class JobPostApiService {
     } catch (e) {
       // Error occurred during the post request, handle the error here.
       print('Error occurred during post request: $e');
+    }
+  }
+
+  static Future<void> changeStatus(
+      Map<String, dynamic> jsonData, int id) async {
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/$id/status/sourceId';
+
+    try {
+      var response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print('Data posted successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 }

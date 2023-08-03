@@ -82,6 +82,30 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     }
   }
 
+  /* String formatSalaryRange(double minSalary, double maxSalary) {
+    String formattedMinSalary = '';
+    String formattedMaxSalary = '';
+
+    if (minSalary >= 100000) {
+      formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
+    } else if (minSalary >= 1000) {
+      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(1)}k';
+    } else {
+      formattedMinSalary = minSalary.toStringAsFixed(1);
+    }
+
+    if (maxSalary >= 100000) {
+      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
+    } else if (maxSalary >= 1000) {
+      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(1)}k';
+    } else {
+      formattedMaxSalary = maxSalary.toStringAsFixed(1);
+    }
+
+    return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
+  } */
   String formatSalaryRange(double minSalary, double maxSalary) {
     String formattedMinSalary = '';
     String formattedMaxSalary = '';
@@ -89,7 +113,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     if (minSalary >= 100000) {
       formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
     } else if (minSalary >= 1000) {
-      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(0)}k';
+      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(2)}k';
     } else {
       formattedMinSalary = minSalary.toStringAsFixed(2);
     }
@@ -97,12 +121,18 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     if (maxSalary >= 100000) {
       formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
     } else if (maxSalary >= 1000) {
-      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(0)}k';
+      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(2)}k';
     } else {
       formattedMaxSalary = maxSalary.toStringAsFixed(2);
     }
 
-    return '$formattedMinSalary - $formattedMaxSalary';
+    // Remove ".00" if present
+    formattedMinSalary = formattedMinSalary.replaceAll(RegExp(r'\.00$'), '');
+    formattedMaxSalary = formattedMaxSalary.replaceAll(RegExp(r'\.00$'), '');
+
+    return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
   }
 
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -960,11 +990,19 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                 ),
                                                 Text(separator,
                                                     style: GoogleFonts.varela(
-                                                        color: Colors.grey)),
+                                                        color: Colors
+                                                            .grey.shade700)),
                                               ],
                                             );
                                           },
                                         ),
+                                        jobDetailsModel.languageknown!.length >=
+                                                2
+                                            ? Text(" (Any one)",
+                                                style: GoogleFonts.varela(
+                                                    color:
+                                                        Colors.grey.shade700))
+                                            : const SizedBox(),
                                       ],
                                     ),
                                   ),
@@ -1172,7 +1210,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   Wrap(
                                     children: [
                                       ...jobDetailsModel.skills!
-                                          .take(5)
                                           .map(
                                               (item) => customSkill(item, true))
                                           .toList(),

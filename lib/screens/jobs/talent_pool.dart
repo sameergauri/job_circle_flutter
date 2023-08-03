@@ -1,21 +1,26 @@
 import 'dart:convert';
 
-import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
+import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
+import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
 import '../../constants/customdialogue_for_call_whatsapp.dart';
+import '../../models/application_status_model.dart';
 import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
@@ -37,12 +42,32 @@ class _TalentPoolState extends State<TalentPool>
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
   @override
   Future<List<Applicant>>? _applicantsFuture;
+  late List<Application> applicationList;
+  void fetchData() async {
+    try {
+      ApplicationAPI api = ApplicationAPI();
+      applicationList = await api.getApplicationStatusList();
+
+      // Use the applicationList as needed
+      // For example, you can print the groupName of each Application object:
+      // for (var application in applicationList) {
+      // print(applicationList.map((e) => e.value));
+      // }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     bindProfileSummary();
+    fetchData();
+
     //  _applicantsFuture = fetchApplicantsByUserId(552);
   }
+
+  Map<int, String> selectedStatusMap = {};
 
   Future<void> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
@@ -137,6 +162,24 @@ class _TalentPoolState extends State<TalentPool>
     return age;
   }
 
+  String? selectedStatusValue;
+
+  List<String> getStatuses(List<Applicant> applicants) {
+    return applicants
+        .map((e) => e.status.toString())
+        .toSet()
+        .toList()
+        .where((status) =>
+            status == 'Application' ||
+            status == 'Assign' ||
+            status == 'Screening Reject' ||
+            status == 'Reject')
+        .toList()
+      ..sort();
+  }
+
+  bool isSelect = false;
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -149,11 +192,190 @@ class _TalentPoolState extends State<TalentPool>
       return FutureBuilder<List<Applicant>>(
         future: fetchAllApplicants(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData && snapshot.data != null) {
             final data = snapshot.data!;
-            final statuses =
-                data.map((e) => e.status.toString()).toSet().toList().toList();
+            final statuses = getStatuses(data); // Get the statuses here
+
+            return DefaultTabController(
+              length: statuses.length,
+              child: Scaffold(
+                appBar: PreferredSize(
+                  preferredSize:
+                      Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                  child: AppBar(
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    bottom: TabBar(
+                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                      labelColor: Colors.black,
+                      isScrollable: true,
+                      unselectedLabelColor: Colors.black,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      splashBorderRadius: BorderRadius.circular(8),
+                      indicatorWeight: 7.h,
+                      indicatorPadding:
+                          EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
+                      indicator: BoxDecoration(
+                        color: Constants.borderColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Constants.borderColor),
+                      ),
+                      tabs: statuses
+                          .map(
+                            (status) => customTab(
+                              status, // Show status in the top-level tab bar
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(
+                        () {}); // This will trigger the rebuild of the widget tree
+                  },
+                  child: TabBarView(
+                    children: statuses.map((status) {
+                      // Filter applicants based on the current status
+                      final applicants = data
+                          .where((applicant) =>
+                              applicant.status.toString() == status)
+                          .toList();
+
+                      // Check if sub_status is null or not
+                      final subStatuses = applicants
+                          .map((applicant) => applicant.sub_status?.toString())
+                          .where((subStatus) => subStatus != null)
+                          .toSet()
+                          .toList()
+                        ..sort();
+
+                      if (subStatuses.isEmpty) {
+                        // No second tab bar needed if subStatuses is empty
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: applicants.length,
+                          itemBuilder: (context, index) {
+                            final applicant = applicants[index];
+                            return listViewItem_new(
+                              context,
+                              applicant,
+                              true,
+                              statuses,
+                              profilemodel.id!.toInt(),
+                              index,
+                            );
+                          },
+                        );
+                      } else {
+                        // Second tab bar needed for subStatuses
+                        return DefaultTabController(
+                          length: subStatuses.length,
+                          child: Scaffold(
+                            appBar: PreferredSize(
+                              preferredSize: const Size(
+                                  double.maxFinite, kTextTabBarHeight),
+                              child: AppBar(
+                                //elevation: 0,
+                                backgroundColor: Colors.white,
+                                bottom: TabBar(
+                                  isScrollable: true,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  //indicatorWeight: 2.0,
+                                  unselectedLabelStyle: GoogleFonts.varela(),
+                                  labelStyle: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w600),
+                                  unselectedLabelColor: Colors.black,
+                                  labelColor: Constants.subtitleclr,
+                                  indicatorPadding: EdgeInsets.only(
+                                      bottom: 8.h, left: 3.w, right: 3.w),
+                                  indicator: isSelect
+                                      ? BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Constants
+                                                  .borderColor) // Creates border
+                                          )
+                                      : null,
+                                  indicatorColor: Constants.borderColor,
+                                  /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                  tabs: subStatuses
+                                      .map((subStatus) => Tab(text: subStatus!))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                            body: TabBarView(
+                              children: subStatuses.map((subStatus) {
+                                // Filter applicants based on the current status and sub_status
+                                final filteredApplicants = applicants
+                                    .where((applicant) =>
+                                        applicant.sub_status.toString() ==
+                                        subStatus)
+                                    .toList();
+
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: filteredApplicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = filteredApplicants[index];
+                                    return listViewItem_new(
+                                      context,
+                                      applicant,
+                                      true,
+                                      statuses,
+                                      profilemodel.id!.toInt(),
+                                      index,
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        );
+                      }
+                    }).toList(),
+                  ),
+                ),
+              ),
+            );
+          }
+          return const SizedBox();
+        },
+      );
+
+      /* FutureBuilder<List<Applicant>>(
+        future: fetchAllApplicants(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData && snapshot.data != null) {
+            final data = snapshot.data!;
+            final statuses = data
+                .map((e) => e.status.toString())
+                .toSet()
+                .toList()
+                .where((status) =>
+                    status == 'Application' ||
+                    status == 'Assign' ||
+                    status == 'Screening Reject' ||
+                    status == 'Reject')
+                .toList();
             statuses.sort();
+
             return DefaultTabController(
               length: statuses.length,
               child: Scaffold(
@@ -169,57 +391,88 @@ class _TalentPoolState extends State<TalentPool>
                       unselectedLabelColor: Colors.black,
                       indicatorSize: TabBarIndicatorSize.tab,
                       splashBorderRadius: BorderRadius.circular(8),
-                      //indicatorSize: TabBarIndicatorSize.label,
                       indicatorWeight: 1.h,
                       indicatorPadding: EdgeInsets.only(
                           top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
-                      //indicatorSize: TabBarIndicatorSize.label,
-                      // indicatorWeight: 0,
                       indicator: BoxDecoration(
-                          color: Constants.borderColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                              color: Constants.borderColor) // Creates border
-                          ),
+                        color: Constants.borderColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Constants.borderColor),
+                      ),
                       tabs: statuses
                           .map(
                             (e) => Tab(
-                              child: customTab(
-                                e,
-                              ),
+                              child: customTab(e),
                             ),
                           )
                           .toList(),
                     ),
                   ),
                 ),
-                body: TabBarView(
-                  children: statuses
-                      .map(
-                        (e) => ListView(
-                          shrinkWrap: true,
-                          children: data
-                              .where(
-                                (applicant) => applicant.status.toString() == e,
-                              )
-                              .map(
-                                (e) => listViewItem_new(context, e, true),
-                              )
-                              .toList(),
-                        ),
-                      )
-                      .toList(),
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(
+                        () {}); // This will trigger the rebuild of the widget tree
+                  },
+                  child: TabBarView(
+                    children: statuses
+                        .map(
+                          (e) => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: data
+                                .where((applicant) =>
+                                    applicant.status.toString() == e)
+                                .length,
+                            itemBuilder: (context, index) {
+                              final applicant = data
+                                  .where((applicant) =>
+                                      applicant.status.toString() == e)
+                                  .toList()[index];
+                              return listViewItem_new(
+                                context,
+                                applicant,
+                                true,
+                                statuses,
+                                profilemodel.id!.toInt(),
+                                index, // Pass the dynamic index here
+                              );
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+
+                  /* TabBarView(
+                    children: statuses
+                        .map(
+                          (e) => ListView(
+                            shrinkWrap: true,
+                            children: data
+                                .where(
+                                  (applicant) =>
+                                      applicant.status.toString() == e,
+                                )
+                                .map(
+                                  (e) => listViewItem_new(context, e, true,
+                                      statuses, profilemodel.id!.toInt(),1),
+                                )
+                                .toList(),
+                          ),
+                        )
+                        .toList(),
+                  ), */
                 ),
               ),
             );
           }
           return const SizedBox();
         },
-      );
+      ); */
     }
   }
 
-  Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue) {
+  Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
+      List<String> status, int id, int index) {
     // List<String>? myStrings;
     //  bool stopIteration = false;
 
@@ -227,7 +480,41 @@ class _TalentPoolState extends State<TalentPool>
       children: [
         InkWell(
           onTap: () {
-            item.status == "Application"
+            if (item.status != "Application") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TalentPoolDetail(
+                            applicant: item,
+                            Status: status,
+                          )));
+            } else {
+              ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                  status: "2", sourceId: id, subStatus: "View");
+              Map<String, dynamic> jsonData = changeStatusModel.toJson();
+              try {
+                JobPostApiService.changeStatus(jsonData, item.id!.toInt());
+                /* showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return CustomDialog(
+                      fetchDataFromApi: () {},
+                      isFisrt: false,
+                      onClose: () {
+                        Navigator.pop(context);
+                      },
+                      title: "Success",
+                      subtitle: "Submitted successfully!",
+                    );
+                  },
+                ); */
+              } catch (e) {
+                print('Error: $e');
+              }
+            }
+            setState(() {});
+            /*  item.status == "Application"
                 ? null
                 : Navigator.pushNamed(
                     context,
@@ -235,7 +522,7 @@ class _TalentPoolState extends State<TalentPool>
                     arguments: {
                       'id': item.jobId,
                     },
-                  );
+                  ); */
           },
           child: SwipeTo(
             iconOnRightSwipe: Icons.call,
@@ -249,8 +536,8 @@ class _TalentPoolState extends State<TalentPool>
                       context: context,
                       builder: (context) {
                         return CustomAlertDialog(
-                          phoneNumber1: item.contactNo,
-                          phoneNumber2: item.alternateNo,
+                          phoneNumber1: item.contactNo!.toInt(),
+                          phoneNumber2: item.alternateNo!.toInt(),
                           isCall: true,
                         );
                       },
@@ -269,8 +556,8 @@ class _TalentPoolState extends State<TalentPool>
                       context: context,
                       builder: (context) {
                         return CustomAlertDialog(
-                          phoneNumber1: item.contactNo,
-                          phoneNumber2: item.alternateNo,
+                          phoneNumber1: item.contactNo!.toInt(),
+                          phoneNumber2: item.alternateNo!.toInt(),
                           isCall: false,
                         );
                       },
@@ -285,25 +572,257 @@ class _TalentPoolState extends State<TalentPool>
               elevation: 4,
 
               margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
-              child: ExpansionTileCard(
-                  //key: cardB,
-                  trailing: const Icon(null),
-                  leading: const CircleAvatar(child: Text('A')),
-                  title: Row(
-                    children: [
-                      Text(item.applicantName.toString()),
-                      Text(" (${calculateAge(item.dateofbirth)})")
-                    ],
-                  ),
-                  subtitle: Row(
-                    children: [
-                      item.qualification == ""
-                          ? Text(item.isExperienced)
-                          : Text(
-                              "${item.qualification.toString()}  |  ${item.isExperienced}")
-                    ],
-                  ),
-                  children: <Widget>[
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://media.istockphoto.com/id/503040171/photo/middle-eastern-businessman-portrait.jpg?s=612x612&w=0&k=20&c=7t6c_HQHfUZNgrVtR-G1rQpJAMaCbFsuxppDRKBnXDw="),
+                          // child: Text(item.applicantName[0].toUpperCase()),
+                          radius: 22,
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  item.applicantName.toString(),
+                                  style: GoogleFonts.varela(
+                                    // color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  " (${calculateAge(item.dateOfBirth.toString())} yr's)",
+                                  style: GoogleFonts.varela(
+                                      color: Colors.black54, fontSize: 12.sp),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                item.qualification == null
+                                    ? Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/bag.png",
+                                            height: 12.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 4,
+                                          ),
+                                          Text(
+                                            item.isExperienced.toString(),
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/graduate.png",
+                                            height: 15.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "${item.qualification.toString()}  |  ",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Image.asset(
+                                            "assets/images/bag.png",
+                                            height: 12.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            " ${item.isExperienced}",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (item.status != "Application")
+                      Container(
+                        margin:
+                            EdgeInsets.only(bottom: 10.h, left: 6.w, top: 4.h),
+                        // padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Constants.borderColor,
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Text(
+                                    item.companyName.toString(),
+                                    style: GoogleFonts.varela(
+                                      color: Colors.black54,
+                                      // fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Constants.borderColor,
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "${item.process} - ${item.leadLevel}",
+                                        style: GoogleFonts.varela(
+                                          color: Colors.black54,
+                                          // fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Column(
+                              children: [
+                                // Declare selectedStatus as a class-level variable
+
+// ...
+
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      selectedStatusValue = value;
+                                    });
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return applicationList.map((option) {
+                                      bool isOdd =
+                                          applicationList.indexOf(option) % 2 ==
+                                              1;
+                                      return customMenuItem(option, isOdd);
+                                    }).toList();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Constants.subtitleclr,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          selectedStatusValue ??
+                                              'Please Select',
+                                          style: GoogleFonts.varela(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 13,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  offset: const Offset(0, 32),
+                                  elevation: 16,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                )
+                                /* PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      int index = status.indexOf(value);
+                                      selectedStatusMap[index] = value;
+                                    });
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return applicationList.map((option) {
+                                      bool isOdd =
+                                          applicationList.indexOf(option) % 2 ==
+                                              1;
+                                      return customMenuItem(option, isOdd);
+                                    }).toList();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Constants.subtitleclr,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          selectedStatus ?? 'Please Select',
+                                          style: GoogleFonts.varela(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 13,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  offset: const Offset(0, 32),
+                                  elevation: 16,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ), */
+                              ],
+                            )
+                          ],
+                        ),
+                      )
+                  ],
+                ),
+
+                // initialPadding: EdgeInsets.zero,
+                // contentPadding: EdgeInsets.only(left: 7.w),
+                //key: cardB,
+                // trailing: const Icon(null),
+
+                /* children: <Widget>[
                     const Divider(
                       thickness: 1.0,
                       height: 1.0,
@@ -322,41 +841,63 @@ class _TalentPoolState extends State<TalentPool>
                         ],
                       ),
                     )
-                    
-                  ]),
+                  ] */
+              ),
             ),
           ),
         ),
         if (item.resume != null)
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(right: 8),
             child: Align(
               alignment: Alignment.topRight,
-              child: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PDFViewerScreen(
-                          pdfAssetPath: 'assets/images/cv.pdf',
-                          phoneNumber1: item.contactNo,
-                          phoneNumber2: item.alternateNo,
-                          // Replace with the actual asset path of your PDF file
-                        ),
-                      ),
-                    );
-                  },
-                  icon: Image.asset(
-                    "assets/images/cv.png",
-                    height: 15.h,
-                  )),
+              child: Column(
+                children: [
+                  /*  if (item.status != "Application")
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PDFViewerScreen(
+                                pdfAssetPath: 'assets/images/cv.pdf',
+                                phoneNumber1: item.contactNo!.toInt(),
+                                phoneNumber2: item.alternateNo!.toInt(),
+                                // Replace with the actual asset path of your PDF file
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          size: 15.h,
+                          color: Constants.themeBgColor,
+                        )), */
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PDFViewerScreen(
+                              pdfAssetPath: 'assets/images/cv.pdf',
+                              phoneNumber1: item.contactNo!.toInt(),
+                              phoneNumber2: item.alternateNo!.toInt(),
+                              // Replace with the actual asset path of your PDF file
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Image.asset(
+                        "assets/images/cv.png",
+                        height: 15.h,
+                      )),
+                ],
+              ),
             ),
           )
       ],
     );
   }
-
-
 
   Widget customTab(
     String title,
@@ -374,5 +915,14 @@ class _TalentPoolState extends State<TalentPool>
             ),
           ],
         ));
+  }
+
+  PopupMenuEntry<String> customMenuItem(Application application, bool isOdd) {
+    return PopupMenuItem(
+      value: application.value,
+      child: ListTile(
+        title: Text(application.value.toString()),
+      ),
+    );
   }
 }

@@ -1,4 +1,250 @@
-class ApplicantData {
+class FetchAppliedJobModel {
+  String resultKey;
+  ResultData resultData;
+  String code;
+  String errorMessage;
+
+  FetchAppliedJobModel({
+    required this.resultKey,
+    required this.resultData,
+    required this.code,
+    required this.errorMessage,
+  });
+
+  factory FetchAppliedJobModel.fromJson(Map<String, dynamic> json) {
+    return FetchAppliedJobModel(
+      resultKey: json['resultKey'] ?? '',
+      resultData: ResultData.fromJson(json['resultData'] ?? {}),
+      code: json['code'] ?? '',
+      errorMessage: json['errorMessage'] ?? '',
+    );
+  }
+}
+
+class ResultData {
+  List<Applicant> content;
+  int pageNumber;
+  int pageSize;
+  int total;
+
+  ResultData({
+    required this.content,
+    required this.pageNumber,
+    required this.pageSize,
+    required this.total,
+  });
+
+  factory ResultData.fromJson(Map<String, dynamic> json) {
+    return ResultData(
+      content: (json['content'] as List<dynamic>?)
+              ?.map((item) => Applicant.fromJson(item))
+              .toList() ??
+          [],
+      pageNumber: json['pageNumber'] ?? 0,
+      pageSize: json['pageSize'] ?? 0,
+      total: json['total'] ?? 0,
+    );
+  }
+}
+
+class Applicant {
+  int? spocContactNo;
+  String? companyName;
+  String? natureOfWork;
+  String? sub_status;
+  String? availabilityRecent;
+  String? status;
+  String? totalSalary;
+  String? jobTitlePrevious;
+  int? contactNo;
+  String? jobTitleRecent;
+  String? companyNamePrevious;
+  int? spoc;
+  List<String>? skills;
+  String? salaryPrevious;
+  String? leadLevel;
+  String? joiningDatePrevious;
+  String? salaryRecent;
+  int? id;
+  String? educationLevel;
+  String? university;
+  String? workLocation;
+  String? profilePic;
+  String? lastWorkingDatePrevious;
+  String? applicantName;
+  String? qualification;
+  String? userLocality;
+  String? resume;
+  String? joiningDateRecent;
+  int? passingYear;
+  String? companyNameRecent;
+  String? process;
+  String? isExperienced;
+  String? dateOfBirth;
+  int? jobId;
+  int? uid;
+  String? userLocation;
+  int? alternateNo;
+  int? sourceId;
+  List<String>? languages;
+  String? availabilityPrevious;
+  String? lastWorkingDateRecent;
+
+  Applicant({
+    this.spocContactNo,
+    this.companyName,
+    this.natureOfWork,
+    this.sub_status,
+    this.availabilityRecent,
+    this.status,
+    this.totalSalary,
+    this.jobTitlePrevious,
+    this.contactNo,
+    this.jobTitleRecent,
+    this.companyNamePrevious,
+    this.spoc,
+    this.skills,
+    this.salaryPrevious,
+    this.leadLevel,
+    this.joiningDatePrevious,
+    this.salaryRecent,
+    this.id,
+    this.educationLevel,
+    this.university,
+    this.workLocation,
+    this.profilePic,
+    this.lastWorkingDatePrevious,
+    this.applicantName,
+    this.qualification,
+    this.userLocality,
+    this.resume,
+    this.joiningDateRecent,
+    this.passingYear,
+    this.companyNameRecent,
+    this.process,
+    this.isExperienced,
+    this.dateOfBirth,
+    this.jobId,
+    this.uid,
+    this.userLocation,
+    this.alternateNo,
+    this.sourceId,
+    this.languages,
+    this.availabilityPrevious,
+    this.lastWorkingDateRecent,
+  });
+
+  factory Applicant.fromJson(Map<String, dynamic> json) {
+    return Applicant(
+      spocContactNo: json['spoc_contact_no'],
+      skills: _parseSkills(json['skills']),
+      companyName: json['company_name'],
+      sub_status: json['sub_status'],
+      natureOfWork: json['natur_of_work'],
+      availabilityRecent: json['availability_recent'],
+      status: json['status'],
+      totalSalary: json['total_salary'],
+      jobTitlePrevious: json['job_title_previous'],
+      contactNo: json['contact_no'],
+      jobTitleRecent: json['job_title_recent'],
+      companyNamePrevious: json['company_name_previous'],
+      spoc: json['spoc'],
+      salaryPrevious: json['salary_previous'],
+      leadLevel: json['lead_level'],
+      joiningDatePrevious: json['joining_date_previous'],
+      salaryRecent: json['salary_recent'],
+      id: json['id'],
+      educationLevel: json['education_level'],
+      university: json['university'],
+      workLocation: json['work_location'],
+      profilePic: json['profile_pic'],
+      lastWorkingDatePrevious: json['last_working_date_previous'],
+      applicantName: json['applicant_name'],
+      qualification: json['qualification'],
+      userLocality: json['user_locality'],
+      resume: json['resume'],
+      joiningDateRecent: json['joining_date_recent'],
+      passingYear: json['passing_year'],
+      companyNameRecent: json['company_name_recent'],
+      process: json['process'],
+      isExperienced: json['is_experienced'],
+      dateOfBirth: json['dateofbirth'],
+      jobId: json['jobid'],
+      uid: json['uid'],
+      userLocation: json['user_location'],
+      alternateNo: json['alternate_no'],
+      sourceId: json['source_id'],
+      languages: _parseSkills(json['languages']),
+      availabilityPrevious: json['availability_previous'],
+      lastWorkingDateRecent: json['last_working_date_recent'],
+    );
+  }
+  static List<String>? _parseSkills(dynamic jsonSkills) {
+    if (jsonSkills == null) {
+      return null; // Return null if 'skills' is null in the JSON data.
+    } else if (jsonSkills is String) {
+      // If 'skills' is a single string, wrap it in a list and return.
+      return [jsonSkills];
+    } else if (jsonSkills is List<dynamic>) {
+      // If 'skills' is already a list, cast it to List<String> and return.
+      return jsonSkills.cast<String>();
+    } else {
+      // If 'skills' has an unexpected format, return null or handle it as appropriate.
+      return null;
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'spoc_contact_no': spocContactNo,
+      'company_name': companyName,
+      'natur_of_work': natureOfWork,
+      'sub_status': sub_status,
+      'availability_recent': availabilityRecent,
+      'status': status,
+      'total_salary': totalSalary,
+      'job_title_previous': jobTitlePrevious,
+      'contact_no': contactNo,
+      'job_title_recent': jobTitleRecent,
+      'company_name_previous': companyNamePrevious,
+      'spoc': spoc,
+      'skills': skills, // Assuming skills is already a List<String>
+      'salary_previous': salaryPrevious,
+      'lead_level': leadLevel,
+      'joining_date_previous': joiningDatePrevious,
+      'salary_recent': salaryRecent,
+      'id': id,
+      'education_level': educationLevel,
+      'university': university,
+      'work_location': workLocation,
+      'profile_pic': profilePic,
+      'last_working_date_previous': lastWorkingDatePrevious,
+      'applicant_name': applicantName,
+      'qualification': qualification,
+      'user_locality': userLocality,
+      'resume': resume,
+      'joining_date_recent': joiningDateRecent,
+      'passing_year': passingYear,
+      'company_name_recent': companyNameRecent,
+      'process': process,
+      'is_experienced': isExperienced,
+      'dateofbirth': dateOfBirth,
+      'jobid': jobId,
+      'uid': uid,
+      'user_location': userLocation,
+      'alternate_no': alternateNo,
+      'source_id': sourceId,
+      'languages': languages, // Assuming languages is already a List<String>
+      'availability_previous': availabilityPrevious,
+      'last_working_date_recent': lastWorkingDateRecent,
+    };
+  }
+}
+
+
+
+
+/* class ApplicantData {
   final List<Applicant>? content;
   final int pageNumber;
   final int pageSize;
@@ -137,4 +383,4 @@ class Applicant {
     );
   }
 }
- */
+ */ */

@@ -85,6 +85,30 @@ class _JobsState extends ConsumerState<Jobs>
     });
   }
 
+  /*  String formatSalaryRange(double minSalary, double maxSalary) {
+    String formattedMinSalary = '';
+    String formattedMaxSalary = '';
+
+    if (minSalary >= 100000) {
+      formattedMinSalary = (minSalary / 100000).toStringAsFixed(1);
+    } else if (minSalary >= 1000) {
+      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(1)}k';
+    } else {
+      formattedMinSalary = minSalary.toStringAsFixed(1);
+    }
+
+    if (maxSalary >= 100000) {
+      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(1);
+    } else if (maxSalary >= 1000) {
+      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(1)}k';
+    } else {
+      formattedMaxSalary = maxSalary.toStringAsFixed(1);
+    }
+
+    return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
+  } */
   String formatSalaryRange(double minSalary, double maxSalary) {
     String formattedMinSalary = '';
     String formattedMaxSalary = '';
@@ -92,7 +116,7 @@ class _JobsState extends ConsumerState<Jobs>
     if (minSalary >= 100000) {
       formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
     } else if (minSalary >= 1000) {
-      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(0)}k';
+      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(2)}k';
     } else {
       formattedMinSalary = minSalary.toStringAsFixed(2);
     }
@@ -100,12 +124,18 @@ class _JobsState extends ConsumerState<Jobs>
     if (maxSalary >= 100000) {
       formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
     } else if (maxSalary >= 1000) {
-      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(0)}k';
+      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(2)}k';
     } else {
       formattedMaxSalary = maxSalary.toStringAsFixed(2);
     }
 
-    return '$formattedMinSalary - $formattedMaxSalary';
+    // Remove ".00" if present
+    formattedMinSalary = formattedMinSalary.replaceAll(RegExp(r'\.00$'), '');
+    formattedMaxSalary = formattedMaxSalary.replaceAll(RegExp(r'\.00$'), '');
+
+    return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
   }
 
   bool isMenuOpen = false;
@@ -335,8 +365,7 @@ class _JobsState extends ConsumerState<Jobs>
   Future<void> fetchJobs() async {
     Uri url = Uri.parse(
         'http://192.168.1.110:9090/favjob/v1/all?pageNumber=1&pageSize=100');
-    final response = 
-    await http.get(url); // replace with your API endpoint
+    final response = await http.get(url); // replace with your API endpoint
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       print(data);
@@ -2211,7 +2240,7 @@ class _JobsState extends ConsumerState<Jobs>
                                 width: 8.w,
                               ),
                               Text(
-                                "Fresher can apply",
+                                "Fresher can apply.",
                                 style: GoogleFonts.varela(
                                     // color: Colors.black54,
                                     color: Constants.subtitleclr,
@@ -2234,14 +2263,24 @@ class _JobsState extends ConsumerState<Jobs>
                                     width: 8.w,
                                   ),
                                   item["maxexperience"] == "& above"
-                                      ? Text(
-                                          "${item["minexperience"].replaceAll(".0", "")} Years & above.",
-                                          style: GoogleFonts.varela(
-                                              // color: Colors.black54,
-                                              color: Constants.subtitleclr,
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 13.sp),
-                                        )
+                                      ? item["minexperience"] == "0.6"
+                                          ? Text(
+                                              // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                              "6 Month & Above.",
+                                              style: GoogleFonts.varela(
+                                                  // color: Colors.black54,
+                                                  color: Constants.subtitleclr,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 13.sp),
+                                            )
+                                          : Text(
+                                              "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                              style: GoogleFonts.varela(
+                                                  // color: Colors.black54,
+                                                  color: Constants.subtitleclr,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 13.sp),
+                                            )
                                       : Text(
                                           "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
                                           style: GoogleFonts.varela(

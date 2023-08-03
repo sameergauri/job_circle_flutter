@@ -3,11 +3,11 @@
 class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
 
-  static const API_Host = "192.168.1.104:9090";
+  static const API_Host = "192.168.1.105:9090";
   //  "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"; //Local
   // "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090"; // AWS
 
-  static const API_Host_one = "192.168.1.104:9090";
+  static const API_Host_one = "192.168.1.105:9090";
   //  'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";

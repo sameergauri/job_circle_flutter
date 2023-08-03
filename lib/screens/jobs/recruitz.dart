@@ -18,31 +18,33 @@ class _RecruitzState extends State<Recruitz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Column(
-          children: [
-            CustomTabBar(
-              tabs: const ["Talent Pool", "My PipeLine"],
-              selectedIndex: selectedIndex,
-              onTabChanged: (index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-                pageController.jumpToPage(index);
-              },
-            ),
-            Expanded(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (index) {
+      body: SafeArea(
+        child: Container(
+          child: Column(
+            children: [
+              CustomTabBar(
+                tabs: const ["Talent Pool", "My PipeLine"],
+                selectedIndex: selectedIndex,
+                onTabChanged: (index) {
                   setState(() {
                     selectedIndex = index;
                   });
+                  pageController.jumpToPage(index);
                 },
-                children: const [TalentPool(), MyPipeLine()],
               ),
-            ),
-          ],
+              Expanded(
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                  children: const [TalentPool(), MyPipeLine()],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

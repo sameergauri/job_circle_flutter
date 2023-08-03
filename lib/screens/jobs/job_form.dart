@@ -434,6 +434,9 @@ class _JobFormState extends State<JobForm> {
         }
         isNumberOfOpenings = true;
         functionalAreaId = jobData.crpf_id;
+        if (widget.formEdit == true) {
+          CompanyID = widget.companyId;
+        }
 
         jobID = jobData.id;
         numberofopenings.text = jobData.noOfVacancy.toString();
@@ -1148,7 +1151,7 @@ class _JobFormState extends State<JobForm> {
       NatureOfWorkID = int.parse(id);
     }); */
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=${role.text}&parentId=$id'));
+        'http://${GlobalConstants.API_Host}/master/v1/getDataByParentNameAndParentIdAndGroupName?groupName=key_responsible&parentname=${role.text}&parent_name=${natureOfWork.text}'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1499,7 +1502,7 @@ class _JobFormState extends State<JobForm> {
   bool isOptionVisible = true;
   bool isWeakOfVisible = true;
   bool isCommunicationVisible = true;
-  bool isLoading = false;
+//  bool isLoading = false;
 
   bool isShitTime = false;
 
@@ -1571,304 +1574,34 @@ class _JobFormState extends State<JobForm> {
           body: Center(child: CircularProgressIndicator()));
     }
 
-    return isLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : Scaffold(
-            backgroundColor: Colors.white,
-            bottomNavigationBar: SizedBox(
-              height: kBottomNavigationBarHeight / 1.2.h,
-              //margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-              child: Container(
-                decoration: const BoxDecoration(
-                    //color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    widget.formEdit
-                        ? const SizedBox()
-                        : InkWell(
-                            onTap: () {
-                              if (selectedComunication ==
-                                  "Excellent | Versant") {
-                                selectedEligibility.add(
-                                    "Excellent English written & verbal Communication skills required.");
-                              }
-                              if (isFresher == false) {
-                                if (isRelevantExpperience == true) {
-                                  selectedEligibility.add(
-                                      "Candidate should be from relevant experience background.");
-                                }
-                              }
-                              if (_formKey.currentState!.validate()) {
-                                if (isFullTime == false &&
-                                    isPartTime == false &&
-                                    isIntern == false &&
-                                    isContract == false &&
-                                    temporary == false) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Select Emp Type");
-                                    },
-                                  );
-                                } else if (graduate == false &&
-                                    undeGraduate == false) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle:
-                                              "Select Education type Type");
-                                    },
-                                  );
-                                } else if (fetchApiskill.isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Add some skill");
-                                    },
-                                  );
-                                } else if (selectedKeyResponsible.isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Select Responsibility ");
-                                    },
-                                  );
-                                } else if (selectedShiftTime1 == null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Select shift time");
-                                    },
-                                  );
-                                } else if (selectedWeakOff1 == null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Select Weak-off");
-                                    },
-                                  );
-                                } else if (worklocationList.isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle: "Add work location ");
-                                    },
-                                  );
-                                } else if (selectedComunication == null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle:
-                                              "Select communication rating");
-                                    },
-                                  );
-                                } else if (selectedInterViewRounds.isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.pop(context);
-                                          },
-                                          title: "Error",
-                                          subtitle:
-                                              "Select atleast one interview round");
-                                    },
-                                  );
-                                } else {
-                                  jobPostModel model = jobPostModel(
-                                    active: 0,
-                                    crpf_id: functionalAreaId,
-                                    id: jobID,
-                                    roleName: role.text,
-                                    process: proces.text,
-                                    // natureOfWorkId: natureofWorkID.toString()
-                                    industry: industry.text,
-                                    noOfVacancy:
-                                        int.parse(numberofopenings.text),
-                                    empType: isFullTime
-                                        ? "Full Time"
-                                        : isPartTime
-                                            ? "Part Time"
-                                            : isContract
-                                                ? "Contractual"
-                                                : isIntern
-                                                    ? "InternShip"
-                                                    : "Temporary",
-                                    education: graduate
-                                        ? "Graduate"
-                                        : "Under-Graduate",
-                                    skills: fetchApiskill,
-                                    keyResponsible: selectedKeyResponsible,
-                                    // textResponsible: selectedTextResponsible,
-                                    languageKnown: selectedLanguages,
-                                    jobBenefits: selectedJobBenefits,
-                                    shiftTime: selectedShiftTime1,
-                                    shiftDesc: selectedWeakOff1,
-                                    minCtc:
-                                        double.parse(minSalary.text).truncate(),
-                                    maxCtc:
-                                        double.parse(maxSalary.text).truncate(),
-                                    isMonthly: _selectedOption,
-                                    minExperience: minExp.text,
-                                    maxExperience:
-                                        above ? "& above" : maxExp.text,
-                                    isFresher: isFresher ? "Fresher" : " ",
-                                    boundry_limits: selectedKeyBoundryLimits,
-                                    gender: onlyMale
-                                        ? "Male"
-                                        : onlyFemale
-                                            ? "Female"
-                                            : femalePrefered
-                                                ? "Female prefered"
-                                                : " ",
-
-                                    minAge: int.parse(minAge.text),
-                                    maxAge: int.parse(maxAge.text),
-                                    eligible: selectedKeyEligibility,
-
-                                    moredetails: selectedKeyMoreDetails,
-                                    interviewRounds: selectedInterViewRounds,
-                                    rating: selectedComunication,
-
-                                    workCity: int.parse(CityID.toString()),
-                                    companyId: int.parse(CompanyID!),
-                                    natureOfWork: natureOfWork.text,
-                                    workLocation: worklocationList
-                                        .map((e) => e.id)
-                                        .toList(),
-
-                                    //  spoc: profileSummaryModel.id
-                                    spoc: profilemodel.id,
-                                    //  workLocation: sele
-//empType:
-//minAge: minAge.text
-                                    // Populate other properties here
-                                  );
-
-                                  Map<String, dynamic> jsonData =
-                                      model.toJson();
-                                  JobPostApiService.postDataToApi(jsonData);
-                                }
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return CustomDialog(
-                                        fetchDataFromApi: () {},
-                                        isFisrt: false,
-                                        onClose: () {
-                                          Navigator.pop(context);
-                                        },
-                                        title: "Error",
-                                        subtitle:
-                                            "Please Fill All The Deatils");
-                                  },
-                                );
-                              }
-                              // if (shorListController.text.isEmpty) {}//   if(noOfVacancy.text.isEmpty||languageKnown.text.isEmpty||boundryLimits.text.isEmpty){}  these field may be empty
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 5, top: 5),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(15)),
-                              // width: MediaQuery.of(context).size.width / 2.2,
-                              alignment: Alignment.center,
-                              child: const Text("Save as draft",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                            ),
-                          ),
-                    InkWell(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      bottomNavigationBar: SizedBox(
+        height: kBottomNavigationBarHeight / 1.2.h,
+        //margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+        child: Container(
+          decoration: const BoxDecoration(
+              //color: Colors.grey.shade300,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15), topRight: Radius.circular(15))),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              widget.formEdit
+                  ? const SizedBox()
+                  : InkWell(
                       onTap: () {
-                        setState(() {
-                          isLoading = true;
-                        });
-
                         if (selectedComunication == "Excellent | Versant") {
-                          selectedKeyEligibility.add(
+                          selectedEligibility.add(
                               "Excellent English written & verbal Communication skills required.");
                         }
                         if (isFresher == false) {
                           if (isRelevantExpperience == true) {
-                            selectedKeyEligibility.add(
+                            selectedEligibility.add(
                                 "Candidate should be from relevant experience background.");
                           }
                         }
-                        if (_formKey.currentState!.validate()) {
-                          Future.delayed(const Duration(seconds: 10));
-                          setState(() {
-                            isLoading = false;
-                          });
+                        if (role.text.isNotEmpty) {
                           if (isFullTime == false &&
                               isPartTime == false &&
                               isIntern == false &&
@@ -2002,8 +1735,26 @@ class _JobFormState extends State<JobForm> {
                               },
                             );
                           } else {
+                            double minCtcValue =
+                                0.0; // Default value if parsing fails
+                            try {
+                              minCtcValue = double.parse(minSalary.text);
+                            } catch (e) {
+                              // Handle the parsing error, e.g., provide a default value, show an error message, etc.
+                              print("Error parsing maxSalary: $e");
+                              // You can choose to provide a default value or show an error message to the user.
+                            }
+                            double maxCtcValue =
+                                0.0; // Default value if parsing fails
+                            try {
+                              maxCtcValue = double.parse(maxSalary.text);
+                            } catch (e) {
+                              // Handle the parsing error, e.g., provide a default value, show an error message, etc.
+                              print("Error parsing maxSalary: $e");
+                              // You can choose to provide a default value or show an error message to the user.
+                            }
                             jobPostModel model = jobPostModel(
-                              active: 1,
+                              active: 0,
                               crpf_id: functionalAreaId,
                               id: jobID,
                               roleName: role.text,
@@ -2029,8 +1780,8 @@ class _JobFormState extends State<JobForm> {
                               jobBenefits: selectedJobBenefits,
                               shiftTime: selectedShiftTime1,
                               shiftDesc: selectedWeakOff1,
-                              minCtc: double.parse(minSalary.text).truncate(),
-                              maxCtc: double.parse(maxSalary.text).truncate(),
+                              minCtc: minCtcValue,
+                              maxCtc: maxCtcValue,
                               isMonthly: _selectedOption,
                               minExperience: minExp.text,
                               maxExperience: above ? "& above" : maxExp.text,
@@ -2044,8 +1795,12 @@ class _JobFormState extends State<JobForm> {
                                           ? "Female prefered"
                                           : " ",
 
-                              minAge: int.parse(minAge.text),
-                              maxAge: int.parse(maxAge.text),
+                              minAge: minAge.text.isNotEmpty
+                                  ? int.parse(minAge.text)
+                                  : null,
+                              maxAge: maxAge.text.isNotEmpty
+                                  ? int.parse(maxAge.text).toInt()
+                                  : null,
                               eligible: selectedKeyEligibility,
 
                               moredetails: selectedKeyMoreDetails,
@@ -2053,9 +1808,7 @@ class _JobFormState extends State<JobForm> {
                               rating: selectedComunication,
 
                               workCity: int.parse(CityID.toString()),
-
-                              companyId:
-                                  CompanyID != null ? int.parse(CompanyID!) : 1,
+                              companyId: int.parse(CompanyID!),
                               natureOfWork: natureOfWork.text,
                               workLocation:
                                   worklocationList.map((e) => e.id).toList(),
@@ -2069,8 +1822,8 @@ class _JobFormState extends State<JobForm> {
                             );
 
                             Map<String, dynamic> jsonData = model.toJson();
-                            JobPostApiService.postDataToApi(jsonData);
-                            showDialog(
+                            JobPostApiService.postDataToApi(jsonData,context);
+                            /* showDialog(
                               barrierDismissible: false,
                               context: context,
                               builder: (context) {
@@ -2085,13 +1838,10 @@ class _JobFormState extends State<JobForm> {
                                         (Route<dynamic> route) => false);
                                   },
                                   title: "Success",
-                                  subtitle: "Submitted successfully!",
+                                  subtitle: "Data added to save as draft!",
                                 );
                               },
-                            );
-                            setState(() {
-                              isLoading = false;
-                            });
+                            ); */
                           }
                         } else {
                           showDialog(
@@ -2116,33 +1866,301 @@ class _JobFormState extends State<JobForm> {
                           horizontal: 20,
                         ),
                         decoration: BoxDecoration(
-                            color: Colors.green,
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(15)),
                         // width: MediaQuery.of(context).size.width / 2.2,
                         alignment: Alignment.center,
-                        child: Text(widget.formEdit ? "Update" : "Post Job",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16)),
+                        child: const Text("Save as draft",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                     ),
-                  ],
+              InkWell(
+                onTap: () {
+                  if (selectedComunication == "Excellent | Versant") {
+                    selectedKeyEligibility.add(
+                        "Excellent English written & verbal Communication skills required.");
+                  }
+                  if (isFresher == false) {
+                    if (isRelevantExpperience == true) {
+                      selectedKeyEligibility.add(
+                          "Candidate should be from relevant experience background.");
+                    }
+                  }
+
+                  if (isFullTime == false &&
+                      isPartTime == false &&
+                      isIntern == false &&
+                      isContract == false &&
+                      temporary == false) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Emp Type");
+                      },
+                    );
+                  } else if (graduate == false && undeGraduate == false) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Education type Type");
+                      },
+                    );
+                  } else if (fetchApiskill.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Add some skill");
+                      },
+                    );
+                  } else if (selectedKeyResponsible.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Responsibility ");
+                      },
+                    );
+                  } else if (selectedShiftTime1 == null) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select shift time");
+                      },
+                    );
+                  } else if (selectedWeakOff1 == null) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Weak-off");
+                      },
+                    );
+                  } else if (worklocationList.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Add work location ");
+                      },
+                    );
+                  } else if (selectedComunication == null) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select communication rating");
+                      },
+                    );
+                  } else if (selectedInterViewRounds.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select atleast one interview round");
+                      },
+                    );
+                  } else {
+                    double minCtcValue = 0.0; // Default value if parsing fails
+                    try {
+                      minCtcValue = double.parse(minSalary.text);
+                    } catch (e) {
+                      // Handle the parsing error, e.g., provide a default value, show an error message, etc.
+                      print("Error parsing maxSalary: $e");
+                      // You can choose to provide a default value or show an error message to the user.
+                    }
+                    double maxCtcValue = 0.0; // Default value if parsing fails
+                    try {
+                      maxCtcValue = double.parse(maxSalary.text);
+                    } catch (e) {
+                      // Handle the parsing error, e.g., provide a default value, show an error message, etc.
+                      print("Error parsing maxSalary: $e");
+                      // You can choose to provide a default value or show an error message to the user.
+                    }
+                    jobPostModel model = jobPostModel(
+                      active: 1,
+                      crpf_id: functionalAreaId,
+                      id: jobID,
+                      roleName: role.text,
+                      process: proces.text,
+                      // natureOfWorkId: natureofWorkID.toString()
+                      industry: industry.text,
+                      noOfVacancy: int.parse(numberofopenings.text),
+                      empType: isFullTime
+                          ? "Full Time"
+                          : isPartTime
+                              ? "Part Time"
+                              : isContract
+                                  ? "Contractual"
+                                  : isIntern
+                                      ? "InternShip"
+                                      : "Temporary",
+                      education: graduate ? "Graduate" : "Under-Graduate",
+                      skills: fetchApiskill,
+                      keyResponsible: selectedKeyResponsible,
+                      // textResponsible: selectedTextResponsible,
+                      languageKnown: selectedLanguages,
+                      jobBenefits: selectedJobBenefits,
+
+                      shiftDesc: selectedWeakOff1,
+                      minCtc: minCtcValue,
+
+                      maxCtc: maxCtcValue,
+                      shiftTime: selectedShiftTime1,
+                      minExperience: minExp.text,
+                      maxExperience: above ? "& above" : maxExp.text,
+                      isFresher: isFresher ? "Fresher" : " ",
+                      isMonthly: _selectedOption.toString(),
+                      boundry_limits: selectedKeyBoundryLimits,
+                      gender: onlyMale
+                          ? "Male"
+                          : onlyFemale
+                              ? "Female"
+                              : femalePrefered
+                                  ? "Female prefered"
+                                  : " ",
+
+                      minAge: minAge.text.isNotEmpty
+                          ? int.parse(minAge.text)
+                          : null,
+                      maxAge: maxAge.text.isNotEmpty
+                          ? int.parse(maxAge.text).toInt()
+                          : null,
+                      eligible: selectedKeyEligibility,
+
+                      moredetails: selectedKeyMoreDetails,
+                      interviewRounds: selectedInterViewRounds,
+                      rating: selectedComunication,
+
+                      workCity: int.parse(CityID.toString()),
+
+                      companyId: CompanyID != null ? int.parse(CompanyID!) : 1,
+                      natureOfWork: natureOfWork.text,
+                      workLocation: worklocationList.map((e) => e.id).toList(),
+
+                      //  spoc: profileSummaryModel.id
+                      spoc: profilemodel.id,
+                      //  workLocation: sele
+//empType:
+//minAge: minAge.text
+                      // Populate other properties here
+                    );
+
+                    Map<String, dynamic> jsonData = model.toJson();
+                    JobPostApiService.postDataToApi(jsonData,context);
+                   
+                    /*  setState(() {
+                            isLoading = false;
+                          }); */
+                  }
+                  /* } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomDialog(
+                                  fetchDataFromApi: () {},
+                                  isFisrt: false,
+                                  onClose: () {
+                                    Navigator.pop(context);
+                                  },
+                                  title: "Error",
+                                  subtitle: "Please Fill All The Deatils");
+                            },
+                          );
+                        } */
+                  // if (shorListController.text.isEmpty) {}//   if(noOfVacancy.text.isEmpty||languageKnown.text.isEmpty||boundryLimits.text.isEmpty){}  these field may be empty
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 5, top: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(15)),
+                  // width: MediaQuery.of(context).size.width / 2.2,
+                  alignment: Alignment.center,
+                  child: Text(widget.formEdit ? "Update" : "Post Job",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
                 ),
               ),
-            ),
-            appBar: AppBar(
-              backgroundColor: const Color.fromARGB(255, 143, 172, 187),
-              title: Text(widget.formEdit ? "Edit" : "Job Posting"),
-            ),
-            body: Form(
-              key: _formKey,
-              child: GestureDetector(
-                onTap: () {
-                  if (shorListController.text.isNotEmpty) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                  /* setState(() {
+            ],
+          ),
+        ),
+      ),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 143, 172, 187),
+        title: Text(widget.formEdit ? "Edit" : "Job Posting"),
+      ),
+      body: Form(
+        key: _formKey,
+        child: GestureDetector(
+          onTap: () {
+            if (shorListController.text.isNotEmpty) {
+              FocusScope.of(context).nextFocus();
+            }
+            /* setState(() {
               {
                 if (!isEdit1) {
                   role.clear();
@@ -2167,31 +2185,30 @@ class _JobFormState extends State<JobForm> {
                 } */
               }
             }); */
-                },
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
-                    child: Column(
+          },
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (shorListController.text.isNotEmpty)
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (shorListController.text.isNotEmpty)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Company Name",
-                                style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              customContainerSelect1(
-                                  true, shorListController.text, false, () {}),
-                            ],
+                        Text(
+                          "Company Name",
+                          style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
                           ),
+                        ),
+                        customContainerSelect1(
+                            true, shorListController.text, false, () {}),
+                      ],
+                    ),
 
-                        /* CustomJobFormTextField(
+                  /* CustomJobFormTextField(
                     isCompany: true,
                     name: "company",
                     /* onFocusNodeRequested: (p0) {
@@ -2210,24 +2227,23 @@ class _JobFormState extends State<JobForm> {
                     getSuggestions: getSuggestions,
                     onIDSelected: handleSelectedID,
                   ), */
-                        if (role.text.isNotEmpty)
-                          SizedBox(
-                            // width: width / 2.2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Job Title / Role",
-                                  style: GoogleFonts.sourceSansPro(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                customContainerSelect1(
-                                    true, role.text, false, () {}),
-                              ],
+                  if (role.text.isNotEmpty)
+                    SizedBox(
+                      // width: width / 2.2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Job Title / Role",
+                            style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
                             ),
-                            /* CustomJobFormTextFieldRespOne(
+                          ),
+                          customContainerSelect1(true, role.text, false, () {}),
+                        ],
+                      ),
+                      /* CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "job_role",
                           /* onFocusNodeRequested: (p0) {
@@ -2246,30 +2262,29 @@ class _JobFormState extends State<JobForm> {
                           onSubmit: getValueOfJobtitle,
                           //  getSuggestions: getJobTitle,
                         ), */
-                          ),
-                        if (natureOfWork.text.isNotEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (proces.text.isNotEmpty)
-                                SizedBox(
-                                  width: width / 2.2,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Process",
-                                        style: GoogleFonts.sourceSansPro(
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      customContainerSelect1(
-                                          true, proces.text, false, () {}),
-                                    ],
+                    ),
+                  if (natureOfWork.text.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (proces.text.isNotEmpty)
+                          SizedBox(
+                            width: width / 2.2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Process",
+                                  style: GoogleFonts.sourceSansPro(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  /*  CustomJobFormTextFieldRespOne(
+                                ),
+                                customContainerSelect1(
+                                    true, proces.text, false, () {}),
+                              ],
+                            ),
+                            /*  CustomJobFormTextFieldRespOne(
                           isCompany: false,
                           name: "process",
                           /* onFocusNodeRequested: (p0) {
@@ -2287,24 +2302,24 @@ class _JobFormState extends State<JobForm> {
                           //   getSuggestions: getJobTit
                           onIDSelected: handleSelectedID,
                         ), */
+                          ),
+                        SizedBox(
+                          width: width / 2.2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Functional Area",
+                                style: GoogleFonts.sourceSansPro(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              SizedBox(
-                                width: width / 2.2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Functional Area",
-                                      style: GoogleFonts.sourceSansPro(
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    customContainerSelect1(
-                                        true, natureOfWork.text, false, () {}),
-                                  ],
-                                ),
-                                /* CustomJobFormTextFieldJobRespo(
+                              ),
+                              customContainerSelect1(
+                                  true, natureOfWork.text, false, () {}),
+                            ],
+                          ),
+                          /* CustomJobFormTextFieldJobRespo(
                           isCompany: false,
                           name: "now",
                           /* onFocusNodeRequested: (p0) {
@@ -2325,11 +2340,11 @@ class _JobFormState extends State<JobForm> {
                           onSubmit: fetchData,
                           // getSuggestions: getJobTitle,
                         ), */
-                              ),
-                            ],
-                          ),
+                        ),
+                      ],
+                    ),
 
-                        /*  CustomJobFormTextField(     //functional Area
+                  /*  CustomJobFormTextField(     //functional Area
                     isCompany: false,
                     name: "functional_area",
                     /* onFocusNodeRequested: (p0) {
@@ -2346,364 +2361,343 @@ class _JobFormState extends State<JobForm> {
                     hintText: "Sales",
                    getSuggestions: getJobTitle,
                   ), */
-                        /*  newFormFiled(shorListController, context,
+                  /*  newFormFiled(shorListController, context,
                       "Number of Openings", "e.g 1", true, false, true), */
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              width: width / 2.2,
-                              child: isIndustry!
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Industry",
-                                          style: GoogleFonts.sourceSansPro(
-                                            fontSize: 18.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        customContainerSelect1(
-                                          true,
-                                          industry.text,
-                                          true,
-                                          () {
-                                            setState(() {
-                                              isIndustry = false;
-                                              industryFocus.requestFocus();
-                                              industry.clear();
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    )
-                                  : CustomJobFormTextFieldRespOne(
-                                      // isSelected: isIndustry,
-                                      focusNode: industryFocus,
-                                      role: "",
-                                      isCompany: false,
-                                      isIndustry: true,
-                                      name: "industry",
-                                      /* onFocusNodeRequested: (p0) {
-                        focusNode.requestFocus();
-                                          }, */
-                                      title: "Industry",
-                                      controller: industry,
-
-                                      // isEdit: isEdit,
-                                      //  focusNode: focusNode,
-                                      onChanged: (p0) {
-                                        isEdit5 = true;
-                                      },
-                                      contextIn: context,
-                                      hintText: "NBFC",
-                                      onIDSelected: handleSelectedID,
-                                      // getSuggestions: getJobTitle,
-                                    ),
-                            ),
-                            SizedBox(
-                              child: Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: width / 2.2,
+                        child: isIndustry!
+                            ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "No's of vacancies",
+                                    "Industry",
                                     style: GoogleFonts.sourceSansPro(
-                                        fontSize: 18.sp,
-                                        // color: Colors.grey.shade500,
-                                        fontWeight: FontWeight.w600),
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  isNumberOfOpenings
-                                      ? customContainerSelect(
-                                          isVacancy: true,
-                                          isCross: true,
-                                          //isNumOfOpening: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              isNumberOfOpenings = false;
-                                              // FocusScope.of(context).autofocus(focusNode);
-                                              numberofopenings.clear();
-                                              numberOfOpeneningFocus
-                                                  .requestFocus();
-                                            });
-                                          },
-                                          isSelect: true,
-                                          title: numberofopenings.text)
-                                      : Container(
-                                          width: width / 2.2,
-                                          margin:
-                                              const EdgeInsets.only(bottom: 5),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(
-                                                height: 5,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.only(
-                                                    bottom: 5.h),
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    25.h,
-                                                color: Colors.white,
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return "This Text field Cant be empty";
-                                                    }
-                                                    return null;
-                                                  },
-                                                  inputFormatters: [
-                                                    FilteringTextInputFormatter
-                                                        .deny(RegExp(r'[.]')),
-                                                    FilteringTextInputFormatter
-                                                        .digitsOnly
-                                                  ],
-                                                  focusNode:
-                                                      numberOfOpeneningFocus,
-                                                  maxLength: 3,
-                                                  onFieldSubmitted: (value) {
-                                                    numberofopenings
-                                                            .text.isNotEmpty
-                                                        ? setState(() {
-                                                            isNumberOfOpenings =
-                                                                true;
-                                                            // _showContainer1 = value.isEmpty;
-                                                          })
-                                                        : null;
-                                                  },
-                                                  onChanged: (value) {
-                                                    setState(() {});
-                                                  },
-                                                  onTapOutside: (event) {
-                                                    numberofopenings
-                                                            .text.isNotEmpty
-                                                        ? setState(() {
-                                                            isNumberOfOpenings =
-                                                                true;
-                                                            // _showContainer1 = value.isEmpty;
-                                                          })
-                                                        : null;
-                                                  },
-                                                  onEditingComplete: () {
-                                                    numberofopenings
-                                                            .text.isNotEmpty
-                                                        ? setState(() {
-                                                            isNumberOfOpenings =
-                                                                true;
-                                                            // _showContainer1 = value.isEmpty;
-                                                          })
-                                                        : null;
-                                                  },
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  controller: numberofopenings,
-                                                  enabled: enableShortListFor,
-                                                  onTap: (() {}),
-                                                  decoration: InputDecoration(
-                                                      counterText: '',
-                                                      contentPadding:
-                                                          const EdgeInsets.only(
-                                                              top: 8,
-                                                              bottom: 8,
-                                                              left: 10,
-                                                              right: 10),
-                                                      // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                      // Icons.workspace_premium
-                                                      // label: const Text("Company Name *"),
-                                                      //border: OutlineInputBorder(),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Color(
-                                                                    0xffff0eceb)),
-                                                      ),
-                                                      focusColor: const Color(
-                                                          0xffff0eceb),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        122,
-                                                                        113,
-                                                                        111)),
-                                                      ),
-                                                      hintText: "e.g. 1",
-                                                      hintStyle: GoogleFonts
-                                                          .sourceSansPro(
-                                                              color: Constants
-                                                                  .subtitleclr,
-                                                              fontSize: 15.sp)
-                                                      //  prefixIcon: Icon(Icons.list)
-                                                      ),
-                                                ),
-                                              ),
-                                            ],
-                                          )),
+                                  customContainerSelect1(
+                                    true,
+                                    industry.text,
+                                    true,
+                                    () {
+                                      setState(() {
+                                        isIndustry = false;
+                                        industryFocus.requestFocus();
+                                        industry.clear();
+                                      });
+                                    },
+                                  ),
                                 ],
-                              ),
-                            ),
-                          ],
-                        ),
+                              )
+                            : CustomJobFormTextFieldRespOne(
+                                // isSelected: isIndustry,
+                                // focusNode: industryFocus,
+                                role: "",
+                                isCompany: false,
+                                isIndustry: true,
+                                name: "industry",
+                                /* onFocusNodeRequested: (p0) {
+                        focusNode.requestFocus();
+                                          }, */
+                                title: "Industry",
+                                controller: industry,
 
-                        Text(
-                          "Emp Type",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Wrap(
+                                // isEdit: isEdit,
+                                //  focusNode: focusNode,
+                                onChanged: (p0) {
+                                  isEdit5 = true;
+                                },
+                                contextIn: context,
+                                hintText: "NBFC",
+                                onIDSelected: handleSelectedID,
+                                // getSuggestions: getJobTitle,
+                              ),
+                      ),
+                      SizedBox(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isPartTime = false;
-                                    isFullTime = true;
-                                    isContract = false;
-                                    isIntern = false;
-                                    temporary = false;
-                                  });
-                                },
-                                isSelect: isFullTime,
-                                title: "Full Time"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isPartTime = true;
-                                    isFullTime = false;
-                                    isContract = false;
-                                    isIntern = false;
-                                    temporary = false;
-                                  });
-                                },
-                                isSelect: isPartTime,
-                                title: "Part Time"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isPartTime = false;
-                                    isFullTime = false;
-                                    isContract = true;
-                                    isIntern = false;
-                                    temporary = false;
-                                  });
-                                },
-                                isSelect: isContract,
-                                title: "Contractual"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isPartTime = false;
-                                    isFullTime = false;
-                                    isContract = false;
-                                    isIntern = true;
-                                    temporary = false;
-                                  });
-                                },
-                                isSelect: isIntern,
-                                title: "Internship"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isPartTime = false;
-                                    isFullTime = false;
-                                    isContract = false;
-                                    isIntern = false;
-                                    temporary = true;
-                                  });
-                                },
-                                isSelect: temporary,
-                                title: "Temporary"),
+                            Text(
+                              "No's of vacancies",
+                              style: GoogleFonts.sourceSansPro(
+                                  fontSize: 18.sp,
+                                  // color: Colors.grey.shade500,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            isNumberOfOpenings
+                                ? customContainerSelect(
+                                    isVacancy: true,
+                                    isCross: true,
+                                    //isNumOfOpening: true,
+                                    onPressed: () {
+                                      setState(() {
+                                        isNumberOfOpenings = false;
+                                        // FocusScope.of(context).autofocus(focusNode);
+                                        numberofopenings.clear();
+                                        numberOfOpeneningFocus.requestFocus();
+                                      });
+                                    },
+                                    isSelect: true,
+                                    title: numberofopenings.text)
+                                : Container(
+                                    width: width / 2.2,
+                                    margin: const EdgeInsets.only(bottom: 5),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 5.h),
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              25.h,
+                                          color: Colors.white,
+                                          child: TextFormField(
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return "This Text field Cant be empty";
+                                              }
+                                              return null;
+                                            },
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.deny(
+                                                  RegExp(r'[.]')),
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly
+                                            ],
+                                            focusNode: numberOfOpeneningFocus,
+                                            maxLength: 3,
+                                            onFieldSubmitted: (value) {
+                                              numberofopenings.text.isNotEmpty
+                                                  ? setState(() {
+                                                      isNumberOfOpenings = true;
+                                                      // _showContainer1 = value.isEmpty;
+                                                    })
+                                                  : null;
+                                            },
+                                            onChanged: (value) {
+                                              setState(() {});
+                                            },
+                                            onTapOutside: (event) {
+                                              numberofopenings.text.isNotEmpty
+                                                  ? setState(() {
+                                                      isNumberOfOpenings = true;
+                                                      // _showContainer1 = value.isEmpty;
+                                                    })
+                                                  : null;
+                                            },
+                                            onEditingComplete: () {
+                                              numberofopenings.text.isNotEmpty
+                                                  ? setState(() {
+                                                      isNumberOfOpenings = true;
+                                                      // _showContainer1 = value.isEmpty;
+                                                    })
+                                                  : null;
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            controller: numberofopenings,
+                                            enabled: enableShortListFor,
+                                            onTap: (() {}),
+                                            decoration: InputDecoration(
+                                                counterText: '',
+                                                contentPadding:
+                                                    const EdgeInsets.only(
+                                                        top: 8,
+                                                        bottom: 8,
+                                                        left: 10,
+                                                        right: 10),
+                                                // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                // Icons.workspace_premium
+                                                // label: const Text("Company Name *"),
+                                                //border: OutlineInputBorder(),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: const BorderSide(
+                                                      color:
+                                                          Color(0xffff0eceb)),
+                                                ),
+                                                focusColor:
+                                                    const Color(0xffff0eceb),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255, 122, 113, 111)),
+                                                ),
+                                                hintText: "e.g. 1",
+                                                hintStyle:
+                                                    GoogleFonts.sourceSansPro(
+                                                        color: Constants
+                                                            .subtitleclr,
+                                                        fontSize: 15.sp)
+                                                //  prefixIcon: Icon(Icons.list)
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
                           ],
                         ),
-                        Text(
-                          "Education",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Wrap(
-                          children: [
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    undeGraduate = true;
-                                    graduate = false;
-                                  });
-                                },
-                                isSelect: undeGraduate,
-                                title: "Under-Graduate"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    graduate = true;
-                                    undeGraduate = false;
-                                  });
-                                },
-                                isSelect: graduate,
-                                title: "Graduate"),
-                          ],
-                        ),
-                        CustomFormTextFieldMultiSelect(
-                          // isCompany: false,
-                          name: "skills",
-                          isSkill: true,
-                          fetchApiskill: fetchApiskill,
-                          /* onFocusNodeRequested: (p0) {
+                      ),
+                    ],
+                  ),
+
+                  Text(
+                    "Emp Type",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Wrap(
+                    children: [
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = true;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                            });
+                          },
+                          isSelect: isFullTime,
+                          title: "Full Time"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = true;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                            });
+                          },
+                          isSelect: isPartTime,
+                          title: "Part Time"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = true;
+                              isIntern = false;
+                              temporary = false;
+                            });
+                          },
+                          isSelect: isContract,
+                          title: "Contractual"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = true;
+                              temporary = false;
+                            });
+                          },
+                          isSelect: isIntern,
+                          title: "Internship"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = true;
+                            });
+                          },
+                          isSelect: temporary,
+                          title: "Temporary"),
+                    ],
+                  ),
+                  Text(
+                    "Education",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Wrap(
+                    children: [
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              undeGraduate = true;
+                              graduate = false;
+                            });
+                          },
+                          isSelect: undeGraduate,
+                          title: "Under-Graduate"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              graduate = true;
+                              undeGraduate = false;
+                            });
+                          },
+                          isSelect: graduate,
+                          title: "Graduate"),
+                    ],
+                  ),
+                  CustomFormTextFieldMultiSelect(
+                    // isCompany: false,
+                    name: "skills",
+                    isSkill: true,
+                    fetchApiskill: fetchApiskill,
+                    /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
-                          title: "Skills Required",
-                          controller: skills,
-                          selectedValuesList: selectedValuesList,
-                          callback: updateSelectedValues,
-                          // isEdit: isEdit,
-                          //  focusNode: focusNode,
-                          /*  onChanged: (p0) {
+                    title: "Skills Required",
+                    controller: skills,
+                    selectedValuesList: selectedValuesList,
+                    callback: updateSelectedValues,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    /*  onChanged: (p0) {
                       isEdit7 = p0;
                     }, */
-                          contextIn: context,
-                          hintText: "Advance Excel",
-                          // getSuggestions: getJobTitle,
-                        ),
-                        /* newFormFiled(shorListController, context, "Skills Required",
+                    contextIn: context,
+                    hintText: "Advance Excel",
+                    // getSuggestions: getJobTitle,
+                  ),
+                  /* newFormFiled(shorListController, context, "Skills Required",
                       "Advance Excel", false, false, false), */
 
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Job Responsibility",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        //  if (checkboxData.isNotEmpty)
-                        /*  ListView.builder(
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Job Responsibility",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  //  if (checkboxData.isNotEmpty)
+                  /*  ListView.builder(
                     shrinkWrap: true,
                     itemCount: checkboxData.length,
                     itemBuilder: (context, index) {
@@ -2716,7 +2710,7 @@ class _JobFormState extends State<JobForm> {
                       return Text(checkboxData[index]);
                     },
                   ), */
-                        /* ListView.builder(
+                  /* ListView.builder(
                       shrinkWrap: true,
                       itemCount: checkboxData.length,
                       itemBuilder: (context, index) {
@@ -2729,276 +2723,267 @@ class _JobFormState extends State<JobForm> {
                           },
                         );
                       }), */
-                        checkboxData.isNotEmpty
-                            ? const SizedBox()
-                            : const SizedBox(
-                                height: 5,
-                              ),
-                        ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: checkboxData.length,
-                          itemBuilder: (context, index) {
-                            final item = checkboxData[index];
-                            //  fetchData();
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, right: 5),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    height: 16,
-                                    width: 20,
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color:
-                                                // selectedKeyResponsible.contains(item)
-                                                Colors.grey,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        height: 16,
-                                        width: 20,
-                                        child: Theme(
-                                          data: ThemeData(
-                                            unselectedWidgetColor:
-                                                Colors.transparent,
-                                          ),
-                                          child: Checkbox(
-                                            activeColor: Colors.white,
-                                            checkColor: Colors.red,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            value: selectedKeyResponsible
-                                                .contains(item),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                if (newValue!) {
-                                                  // Add the item to the list
-                                                  selectedKeyResponsible
-                                                      .add(item);
-                                                } else {
-                                                  // Remove the item from the list
-                                                  selectedKeyResponsible
-                                                      .remove(item);
-                                                }
-                                              });
-                                              print(
-                                                  selectedKeyResponsible); // Notify Flutter that the state has changed
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 2,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      softWrap:
-                                          true, // Allow text to wrap into the next line
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                  checkboxData.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
                         ),
-                        SizedBox(
-                          height: height / 25,
-                          child: TextField(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(
-                                  r'^\s')), // Disallow spaces at the beginning
-                              /*  FilteringTextInputFormatter.allow(
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: checkboxData.length,
+                    itemBuilder: (context, index) {
+                      final item = checkboxData[index];
+                      //  fetchData();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color:
+                                          // selectedKeyResponsible.contains(item)
+                                          Colors.grey,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value:
+                                          selectedKeyResponsible.contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            // Add the item to the list
+                                            selectedKeyResponsible.add(item);
+                                          } else {
+                                            // Remove the item from the list
+                                            selectedKeyResponsible.remove(item);
+                                          }
+                                        });
+                                        print(
+                                            selectedKeyResponsible); // Notify Flutter that the state has changed
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap:
+                                    true, // Allow text to wrap into the next line
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(
+                            RegExp(r'^\s')), // Disallow spaces at the beginning
+                        /*  FilteringTextInputFormatter.allow(
                                   RegExp(r'[a-zA-Z\s]')), */
-                            ],
-                            // textInputAction: TextInputAction.newline,
+                      ],
+                      // textInputAction: TextInputAction.newline,
 
-                            // onFieldSubmitted: (_) => _handleTextSubmitted(),
-                            controller: responsibility,
-                            //  textInputAction: TextInputAction.newline,
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.sentences,
+                      // onFieldSubmitted: (_) => _handleTextSubmitted(),
+                      controller: responsibility,
+                      //  textInputAction: TextInputAction.newline,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
 
-                            /*  onSubmitted: (value) {
+                      /*  onSubmitted: (value) {
                         setState(() {
                           checkboxData.add(responsibility.text);
                           selectedKeyResponsible.add(responsibility.text);
                           responsibility.clear();
                         });
                       }, */
-                            onEditingComplete: () {
-                              final newResponsibility =
-                                  responsibility.text.trim();
-                              if (newResponsibility.isNotEmpty &&
-                                  !checkboxData.contains(newResponsibility)) {
-                                setState(() {
-                                  checkboxData.add(newResponsibility);
-                                  selectedKeyResponsible.add(newResponsibility);
-                                  responsibility.clear();
-                                });
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Error'),
-                                      content: const Text(
-                                          'Responsibility already exists.'),
-                                      actions: [
-                                        ElevatedButton(
-                                          child: const Text('OK'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
+                      onEditingComplete: () {
+                        final newResponsibility = responsibility.text.trim();
+                        if (newResponsibility.isNotEmpty &&
+                            !checkboxData.contains(newResponsibility)) {
+                          setState(() {
+                            checkboxData.add(newResponsibility);
+                            selectedKeyResponsible.add(newResponsibility);
+                            responsibility.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content: const Text(
+                                    'Responsibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
                             },
+                          );
+                        }
+                      },
 
-                            /*  onTapOutside: (event) {
+                      /*  onTapOutside: (event) {
                         
                         setState(() {
                           
                           checkboxData.add(responsibility.text);
                         });
                       }, */
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                                /*  errorText: checkboxData
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                          /*  errorText: checkboxData
                                   .contains(responsibility.text.trim())
                               ? 'Responsibility already exists.'
                               : null, */
-                                contentPadding: const EdgeInsets.only(
-                                    top: 5, left: 10, right: 10),
-                                prefix: Column(
-                                  children: _getBulletPointWidgetsrespo(),
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                ),
-                                // Icons.workspace_premium
-                                // label: const Text("Company Name *"),
-                                //border: OutlineInputBorder(),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: checkboxData
-                                          .contains(responsibility.text.trim())
-                                      ? const BorderSide(color: Colors.red)
-                                      : BorderSide(color: Colors.grey.shade400),
-                                ),
-                                focusColor: const Color(0xffff0eceb),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: checkboxData
-                                          .contains(responsibility.text.trim())
-                                      ? const BorderSide(color: Colors.red)
-                                      : BorderSide(color: Colors.grey.shade400),
-                                ),
-                                hintText:
-                                    "Any other responsibility that you want to add",
-                                hintStyle: GoogleFonts.sourceSansPro(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 14.sp)
-                                //  prefixIcon: Icon(Icons.list)
-
-                                ),
+                          contentPadding: const EdgeInsets.only(
+                              top: 5, left: 10, right: 10),
+                          prefix: Column(
+                            children: _getBulletPointWidgetsrespo(),
+                            mainAxisAlignment: MainAxisAlignment.start,
                           ),
-                        ),
-                        Container(
-                          margin:
-                              checkboxData.contains(responsibility.text.trim())
-                                  ? const EdgeInsets.only(bottom: 15, left: 10)
-                                  : null,
-                          child: Text(
-                            checkboxData.contains(responsibility.text.trim())
-                                ? "This Responsibility is already added."
-                                : "",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12.sp,
-                              fontStyle: FontStyle.italic,
-                            ),
+                          // Icons.workspace_premium
+                          // label: const Text("Company Name *"),
+                          //border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: checkboxData
+                                    .contains(responsibility.text.trim())
+                                ? const BorderSide(color: Colors.red)
+                                : BorderSide(color: Colors.grey.shade400),
                           ),
-                        ),
+                          focusColor: const Color(0xffff0eceb),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: checkboxData
+                                    .contains(responsibility.text.trim())
+                                ? const BorderSide(color: Colors.red)
+                                : BorderSide(color: Colors.grey.shade400),
+                          ),
+                          hintText:
+                              "Any other responsibility that you want to add",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.subtitleclr, fontSize: 14.sp)
+                          //  prefixIcon: Icon(Icons.list)
 
-                        Row(
-                          children: [
-                            Text(
-                              "Language Required",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                          ),
+                    ),
+                  ),
+                  Container(
+                    margin: checkboxData.contains(responsibility.text.trim())
+                        ? const EdgeInsets.only(bottom: 15, left: 10)
+                        : null,
+                    child: Text(
+                      checkboxData.contains(responsibility.text.trim())
+                          ? "This Responsibility is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    children: [
+                      Text(
+                        "Language Required",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
                             ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
-                            )
-                          ],
-                        ),
-                        Container(
-                          width: double.maxFinite,
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            direction: Axis.horizontal,
-                            spacing: 5,
-                            runSpacing: 5,
-                            children: List.generate(
-                              jobTitleSuggestion.length,
-                              (index) {
-                                String title = jobTitleSuggestion[index];
-                                bool isSelected =
-                                    selectedLanguages.contains(title);
+                      )
+                    ],
+                  ),
+                  Container(
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion.length,
+                        (index) {
+                          String title = jobTitleSuggestion[index];
+                          bool isSelected = selectedLanguages.contains(title);
 
-                                /*  if (isPreselected && !isSelected) {
+                          /*  if (isPreselected && !isSelected) {
                             isSelected =
                                 true; // Mark the preselected item as selected
                           } */
 
-                                JobTitleItem item = JobTitleItem(
-                                  isunSelect: true,
-                                  getJobTitle1isSelected: null,
-                                  ismulti:
-                                      false, // Set ismulti to true for multi-select functionality
-                                  title: title,
-                                  isSelected: isSelected,
-                                  onTap: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        // Select the item
-                                        selectedLanguages.add(title);
-                                      } else {
-                                        // Unselect the item
-                                        selectedLanguages.remove(title);
-                                      }
-                                    });
-                                  },
-                                  isVisible: true,
-                                  onlyOneIcon: false,
-                                );
+                          JobTitleItem item = JobTitleItem(
+                            isunSelect: true,
+                            getJobTitle1isSelected: null,
+                            ismulti:
+                                false, // Set ismulti to true for multi-select functionality
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  // Select the item
+                                  selectedLanguages.add(title);
+                                } else {
+                                  // Unselect the item
+                                  selectedLanguages.remove(title);
+                                }
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                          );
 
-                                jobTitleItems.add(item);
-                                return item;
-                              },
-                            ),
-                          ),
-                        ),
+                          jobTitleItems.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ),
 
-                        /*  Container( // preselected item getting unselect but not multiselect
+                  /*  Container( // preselected item getting unselect but not multiselect
                     width: double.maxFinite,
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
@@ -3057,7 +3042,7 @@ class _JobFormState extends State<JobForm> {
                     ),
                   ), */
 
-                        /* Container( // Selected data fetch hua but unselectd is remaining
+                  /* Container( // Selected data fetch hua but unselectd is remaining
                     width: double.maxFinite,
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
@@ -3102,7 +3087,7 @@ class _JobFormState extends State<JobForm> {
                     ),
                   ), */
 
-                        /*  Container(
+                  /*  Container(
                       width: double.maxFinite,
                       margin: const EdgeInsets.only(top: 10, bottom: 12),
                       child: Wrap(
@@ -3139,25 +3124,25 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ), */
 
-                        Row(
-                          children: [
-                            Text(
-                              "Job Benefits",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                  Row(
+                    children: [
+                      Text(
+                        "Job Benefits",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
                             ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
-                            )
-                          ],
-                        ),
-                        /* Container(
+                      )
+                    ],
+                  ),
+                  /* Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: 5,
@@ -3180,45 +3165,44 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Container(
-                          width: double.maxFinite,
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            direction: Axis.horizontal,
-                            spacing: 5,
-                            runSpacing: 5,
-                            children: List.generate(
-                              jobTitleSuggestion1.length,
-                              (index) {
-                                String title = jobTitleSuggestion1[index];
-                                bool isSelected =
-                                    selectedJobBenefits.contains(title);
-                                JobTitleItem item = JobTitleItem(
-                                  isunSelect: true,
-                                  ismulti: false,
-                                  title: title,
-                                  isSelected: isSelected,
-                                  onTap: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        selectedJobBenefits.add(title);
-                                      } else {
-                                        selectedJobBenefits.remove(title);
-                                      }
-                                    });
-                                  },
-                                  isVisible: true,
-                                  onlyOneIcon: false,
-                                  getJobTitle1isSelected: null,
-                                );
+                  Container(
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion1.length,
+                        (index) {
+                          String title = jobTitleSuggestion1[index];
+                          bool isSelected = selectedJobBenefits.contains(title);
+                          JobTitleItem item = JobTitleItem(
+                            isunSelect: true,
+                            ismulti: false,
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  selectedJobBenefits.add(title);
+                                } else {
+                                  selectedJobBenefits.remove(title);
+                                }
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                            getJobTitle1isSelected: null,
+                          );
 
-                                jobTitleItems1.add(item);
-                                return item;
-                              },
-                            ),
-                          ),
-                        ),
-                        /* Container(
+                          jobTitleItems1.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ),
+                  /* Container(
                       margin: const EdgeInsets.only(top: 10),
                       child: Wrap(
                         spacing: 8,
@@ -3265,56 +3249,55 @@ class _JobFormState extends State<JobForm> {
                         ),
                       )), */
 
-                        /*  newFormFiled(shorListController, context, "Language Required",
+                  /*  newFormFiled(shorListController, context, "Language Required",
                       "Tamil, Kannada, Punjabi", false, false, true), */
 
-                        /*  newFormFiled(shorListController, context, "Job Benefits",
+                  /*  newFormFiled(shorListController, context, "Job Benefits",
                       "PF", false, false, false), */
 
-                        Text(
-                          "Shift Time",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            spacing: isOptionVisible ? 5 : 0,
-                            runSpacing: 5,
-                            children: List.generate(jobTitleSuggestion2.length,
-                                (index) {
-                              final jobTitle = jobTitleSuggestion2[index];
-                              String modifiedString1 =
-                                  jobTitle.replaceAll(" ", "");
-                              String? modifiedString2 =
-                                  selectedShiftTime1?.replaceAll(" ", "");
-                              final bool _isSelected =
-                                  modifiedString1 == modifiedString2 &&
-                                      selectedShiftTime1 != null;
+                  Text(
+                    "Shift Time",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion2.length, (index) {
+                        final jobTitle = jobTitleSuggestion2[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedShiftTime1?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedShiftTime1 != null;
 
-                              return JobTitleItem(
-                                isunSelect: false,
-                                getJobTitle1isSelected: _isSelected,
-                                onlyOneIcon: true,
-                                ismulti: false,
-                                title: jobTitle,
-                                isSelected: _isSelected,
-                                onTap: (selected) {
-                                  if (selected) {
-                                    setState(() {
-                                      selectedShiftTime1 = jobTitle;
-                                    });
-                                  }
-                                },
-                                isVisible: true,
-                              );
-                            }),
-                          ),
-                        ),
+                        return JobTitleItem(
+                          isunSelect: false,
+                          getJobTitle1isSelected: _isSelected,
+                          onlyOneIcon: true,
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (selected) {
+                              setState(() {
+                                selectedShiftTime1 = jobTitle;
+                              });
+                            }
+                          },
+                          isVisible: true,
+                        );
+                      }),
+                    ),
+                  ),
 
-                        /* Container(// previous code of shift time before 8/06/23
+                  /* Container(// previous code of shift time before 8/06/23
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isOptionVisible ? 5 : 0,
@@ -3343,7 +3326,7 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        /* Container(                 //shift time multi select and all visible
+                  /* Container(                 //shift time multi select and all visible
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isOptionVisible ? 5 : 0,
@@ -3365,14 +3348,14 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Text(
-                          "Weak Off",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        /* Container(  // Before Fetching From Api 
+                  Text(
+                    "Weak Off",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  /* Container(  // Before Fetching From Api 
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isOptionVisible ? 5 : 0,
@@ -3405,44 +3388,43 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            spacing: isOptionVisible ? 5 : 0,
-                            runSpacing: 5,
-                            children: List.generate(jobTitleSuggestion3.length,
-                                (index) {
-                              final jobTitle = jobTitleSuggestion3[index];
-                              String modifiedString1 =
-                                  jobTitle.replaceAll(" ", "");
-                              String? modifiedString2 =
-                                  selectedWeakOff1?.replaceAll(" ", "");
-                              final bool _isSelected =
-                                  modifiedString1 == modifiedString2 &&
-                                      selectedWeakOff1 != null;
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion3.length, (index) {
+                        final jobTitle = jobTitleSuggestion3[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedWeakOff1?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedWeakOff1 != null;
 
-                              return JobTitleItem(
-                                getJobTitle1isSelected: _isSelected,
-                                onlyOneIcon: true,
-                                isunSelect: false,
-                                ismulti: false,
-                                title: jobTitle,
-                                isSelected: _isSelected,
-                                onTap: (selected) {
-                                  if (lastTappedItem != index) {
-                                    setState(() {
-                                      selectedWeakOff1 = jobTitle;
-                                      lastTappedItem =
-                                          index; // Update the last tapped item index
-                                    });
-                                  }
-                                },
-                                isVisible: true,
-                              );
-                            }),
-                          ),
-                        ),
-                        /*  Container(  // old selected weak off 
+                        return JobTitleItem(
+                          getJobTitle1isSelected: _isSelected,
+                          onlyOneIcon: true,
+                          isunSelect: false,
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (lastTappedItem != index) {
+                              setState(() {
+                                selectedWeakOff1 = jobTitle;
+                                lastTappedItem =
+                                    index; // Update the last tapped item index
+                              });
+                            }
+                          },
+                          isVisible: true,
+                        );
+                      }),
+                    ),
+                  ),
+                  /*  Container(  // old selected weak off 
                     margin: const EdgeInsets.only(
                       top: 10,
                       bottom: 12,
@@ -3473,141 +3455,163 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Text(
-                          "Salary",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        // if (minSalary.text.length >= 4 && _selectedOption.isNotEmpty)
+                  Text(
+                    "Salary",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  // if (minSalary.text.length >= 4 && _selectedOption.isNotEmpty)
 
-                        isValueValid && minSalaryk.isNotEmpty
-                            ? customContainerSelect(
-                                isCross: true,
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isValueValid = false;
-                                  });
-                                },
-                                isSelect: true,
-                                isSalary: true,
-                                title:
-                                    "$minSalaryk ${maxSalary.text.isEmpty ? "" : "- $maxSalaryk"} $_selectedOption")
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  SizedBox(
+                  isValueValid && minSalaryk.isNotEmpty
+                      ? customContainerSelect(
+                          isCross: true,
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isValueValid = false;
+                            });
+                          },
+                          isSelect: true,
+                          isSalary: true,
+                          title:
+                              "$minSalaryk ${maxSalary.text.isEmpty ? "" : "- $maxSalaryk"} $_selectedOption")
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 5.w,
+                              child: newFormFiled(
+                                  controller: minSalary,
+                                  context: context,
+                                  title: "",
+                                  subTitle: "Min-salary",
+                                  isNum: true,
+                                  isVisible: false,
+                                  nonEdit: false,
+                                  sioptonal: false),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height / 35.h,
+                                child: const Text("-")),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            minSalary.text.length <= 3
+                                ? SizedBox(
                                     width:
                                         MediaQuery.of(context).size.width / 5.w,
-                                    child: newFormFiled(
-                                        controller: minSalary,
+                                    child: newFormFiled1(
+                                        controller: maxSalary,
                                         context: context,
                                         title: "",
-                                        subTitle: "Min-salary",
+                                        subTitle: "Max-salary",
                                         isNum: true,
                                         isVisible: false,
                                         nonEdit: false,
                                         sioptonal: false),
+                                  )
+                                : SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 5.w,
+                                    child: newFormFiled1(
+                                        controller: maxSalary,
+                                        context: context,
+                                        title: "",
+                                        subTitle: "Max-salary",
+                                        isNum: true,
+                                        isVisible: false,
+                                        nonEdit: true,
+                                        sioptonal: false),
                                   ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              35.h,
-                                      child: const Text("-")),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  minSalary.text.length <= 3
-                                      ? SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              5.w,
-                                          child: newFormFiled1(
-                                              controller: maxSalary,
-                                              context: context,
-                                              title: "",
-                                              subTitle: "Max-salary",
-                                              isNum: true,
-                                              isVisible: false,
-                                              nonEdit: false,
-                                              sioptonal: false),
-                                        )
-                                      : SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              5.w,
-                                          child: newFormFiled1(
-                                              controller: maxSalary,
-                                              context: context,
-                                              title: "",
-                                              subTitle: "Max-salary",
-                                              isNum: true,
-                                              isVisible: false,
-                                              nonEdit: true,
-                                              sioptonal: false),
-                                        ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  /* Text(
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            /* Text(
                         "Years",
                         style: GoogleFonts.sourceSansPro(
                             fontSize: 14.sp,
                             // color: Colors.grey.shade500,
                             fontWeight: FontWeight.w400),
                       ), */
-                                  SizedBox(
-                                      child: Radio(
-                                    // contentPadding: EdgeInsets.zero,
-                                    // title: const Text('Monthly'),
-                                    value: 'Per Month',
-                                    groupValue: _selectedOption,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedOption = value.toString();
-                                      });
-                                    },
-                                  )),
-                                  const Text("P.M"),
-                                  SizedBox(
-                                      child: Radio(
-                                    value: "Lac's P.A",
-                                    groupValue: _selectedOption,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedOption = value.toString();
-                                      });
-                                    },
-                                  )),
-                                  const Text("P.A")
+                            SizedBox(
+                                child: Radio(
+                              // contentPadding: EdgeInsets.zero,
+                              // title: const Text('Monthly'),
+                              value: 'Per Month',
+                              groupValue: _selectedOption,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedOption = value.toString();
+                                });
+                              },
+                            )),
+                            const Text("P.M"),
+                            SizedBox(
+                                child: Radio(
+                              value: "Lac's P.A",
+                              groupValue: _selectedOption,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedOption = value.toString();
+                                });
+                              },
+                            )),
+                            const Text("P.A")
+                          ],
+                        ),
+                  isEdit8
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.2.w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Work Location",
+                                    style: GoogleFonts.sourceSansPro(
+                                        fontSize: 18.sp,
+                                        // color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  customContainerSelect(
+                                      isAnother: true,
+                                      isVacancy: true,
+                                      isCross: true,
+                                      onPressed: () {
+                                        setState(() {
+                                          isEdit8 = false;
+                                          location.clear();
+                                          city.clear();
+                                          worklocationList.clear();
+                                        });
+                                      },
+                                      isSelect: true,
+                                      title: workFromHome.toString())
                                 ],
                               ),
-                        isEdit8
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.2.w,
-                                    child: Column(
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.2.w,
+                              child: isCity!
+                                  ? Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Work Location",
+                                          "City",
                                           style: GoogleFonts.sourceSansPro(
-                                              fontSize: 18.sp,
-                                              // color: Colors.grey.shade500,
-                                              fontWeight: FontWeight.w600),
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         customContainerSelect(
                                             isAnother: true,
@@ -3615,50 +3619,17 @@ class _JobFormState extends State<JobForm> {
                                             isCross: true,
                                             onPressed: () {
                                               setState(() {
-                                                isEdit8 = false;
-                                                location.clear();
+                                                //  isEdit8 = false;
+                                                //  location.clear();
+                                                isCity = false;
+
                                                 city.clear();
-                                                worklocationList.clear();
+                                                //  worklocationList.clear();
                                               });
                                             },
                                             isSelect: true,
-                                            title: workFromHome.toString())
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.2.w,
-                                    child: isCity!
-                                        ? Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "City",
-                                                style:
-                                                    GoogleFonts.sourceSansPro(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              customContainerSelect(
-                                                  isAnother: true,
-                                                  isVacancy: true,
-                                                  isCross: true,
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      //  isEdit8 = false;
-                                                      //  location.clear();
-                                                      isCity = false;
-
-                                                      city.clear();
-                                                      //  worklocationList.clear();
-                                                    });
-                                                  },
-                                                  isSelect: true,
-                                                  title: city.text)
-                                              /*  customContainerSelect1(
+                                            title: city.text)
+                                        /*  customContainerSelect1(
                                                 true,
                                                 city.text,
                                                 true,
@@ -3671,264 +3642,256 @@ class _JobFormState extends State<JobForm> {
                                                   });
                                                 },
                                               ), */
-                                            ],
-                                          )
-                                        : CustomJobFormTextFieldJobRespo(
-                                            isCompany: false,
-                                            name: "city",
-                                            isCity: true,
-                                            /* onFocusNodeRequested: (p0) {
+                                      ],
+                                    )
+                                  : CustomJobFormTextFieldJobRespo(
+                                      isCompany: false,
+                                      name: "city",
+                                      isCity: true,
+                                      /* onFocusNodeRequested: (p0) {
                                                       focusNode.requestFocus();
                                                     }, */
-                                            title: "City",
-                                            role: "",
-                                            controller: city,
-                                            // isEdit: isEdit,
-                                            //  focusNode: focusNode,
-                                            onChanged: (p0) {
-                                              isEdit10 = p0;
-                                            },
-                                            contextIn: context,
-                                            onSubmit: getCityId,
-                                            hintText: "Thane",
-                                            //  onIDSelected: handleSelectedID,
-                                            //   getSuggestions: getJobTitle,
-                                          ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                ],
-                              )
-                            : CustomFormTextFieldMultiSelectLocation(
-                                // isCompany: false,
-                                name: "location",
-                                isSkill: false,
-                                fetchApiskill1: fetchApilocation,
+                                      title: "City",
+                                      role: "",
+                                      controller: city,
+                                      // isEdit: isEdit,
+                                      //  focusNode: focusNode,
+                                      onChanged: (p0) {
+                                        isEdit10 = p0;
+                                      },
+                                      contextIn: context,
+                                      onSubmit: getCityId,
+                                      hintText: "Thane",
+                                      //  onIDSelected: handleSelectedID,
+                                      //   getSuggestions: getJobTitle,
+                                    ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        )
+                      : CustomFormTextFieldMultiSelectLocation(
+                          // isCompany: false,
+                          name: "location",
+                          isSkill: false,
+                          fetchApiskill1: fetchApilocation,
 
-                                /* onFocusNodeRequested: (p0) {
+                          /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
                     }, */
-                                title: "Work Location",
-                                controller: location,
-                                // isEdit: isEdit,
-                                //  focusNode: focusNode,
-                                onChanged: (p0) {
-                                  isEdit8 = p0;
-                                },
-                                workType1: getWorkValue,
-                                submit1: getWorkLocation,
-                                selectedValuesList1: selectedWorkLocation,
-                                callback1: updateSelectedValues1,
-                                contextIn: context,
-                                hintText: "Thane",
-                                //  onIDSelected: handleSelectedID,
-                                //   getSuggestions: getJobTitle,
-                              ),
-                        const SizedBox(
-                          height: 10,
+                          title: "Work Location",
+                          controller: location,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit8 = p0;
+                          },
+                          workType1: getWorkValue,
+                          submit1: getWorkLocation,
+                          selectedValuesList1: selectedWorkLocation,
+                          callback1: updateSelectedValues1,
+                          contextIn: context,
+                          hintText: "Thane",
+                          //  onIDSelected: handleSelectedID,
+                          //   getSuggestions: getJobTitle,
                         ),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
-                        /* newFormFiled(shorListController, context, "Locality", "Thane",
+                  /* newFormFiled(shorListController, context, "Locality", "Thane",
                       false, false, false), */
-                        Row(
-                          children: [
-                            Text(
-                              "Boundry Limits",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                  Row(
+                    children: [
+                      Text(
+                        "Boundry Limits",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
                             ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
+                      )
+                    ],
+                  ),
+                  fetchApiBoundryLimit.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
+                        ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApiBoundryLimit.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApiBoundryLimit[index];
+                      //  fetchData();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: selectedKeyBoundryLimits
+                                              .contains(item)
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      width: 1.5,
+                                    ),
                                   ),
-                            )
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value: selectedKeyBoundryLimits
+                                          .contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            // Add the item to the list
+                                            selectedKeyBoundryLimits.add(item);
+                                          } else {
+                                            // Remove the item from the list
+                                            selectedKeyBoundryLimits
+                                                .remove(item);
+                                          }
+                                        });
+                                        print(
+                                            selectedKeyBoundryLimits); // Notify Flutter that the state has changed
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap:
+                                    true, // Allow text to wrap into the next line
+                              ),
+                            ),
                           ],
                         ),
-                        fetchApiBoundryLimit.isNotEmpty
-                            ? const SizedBox()
-                            : const SizedBox(
-                                height: 5,
-                              ),
-                        ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: fetchApiBoundryLimit.length,
-                          itemBuilder: (context, index) {
-                            final item = fetchApiBoundryLimit[index];
-                            //  fetchData();
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, right: 5),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    height: 16,
-                                    width: 20,
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: selectedKeyBoundryLimits
-                                                    .contains(item)
-                                                ? Colors.red
-                                                : Colors.grey,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        height: 16,
-                                        width: 20,
-                                        child: Theme(
-                                          data: ThemeData(
-                                            unselectedWidgetColor:
-                                                Colors.transparent,
-                                          ),
-                                          child: Checkbox(
-                                            activeColor: Colors.white,
-                                            checkColor: Colors.red,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            value: selectedKeyBoundryLimits
-                                                .contains(item),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                if (newValue!) {
-                                                  // Add the item to the list
-                                                  selectedKeyBoundryLimits
-                                                      .add(item);
-                                                } else {
-                                                  // Remove the item from the list
-                                                  selectedKeyBoundryLimits
-                                                      .remove(item);
-                                                }
-                                              });
-                                              print(
-                                                  selectedKeyBoundryLimits); // Notify Flutter that the state has changed
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 2,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      softWrap:
-                                          true, // Allow text to wrap into the next line
-                                    ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        /* FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
+                      ],
+                      controller: boundryLimits,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newBoundaryLimit = boundryLimits.text.trim();
+                        if (newBoundaryLimit.isNotEmpty &&
+                            !fetchApiBoundryLimit.contains(newBoundaryLimit)) {
+                          setState(() {
+                            fetchApiBoundryLimit.add(newBoundaryLimit);
+                            selectedKeyBoundryLimits.add(newBoundaryLimit);
+                            boundryLimits.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content: const Text(
+                                    'Boundary limit already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
                                   ),
                                 ],
-                              ),
-                            );
-                          },
-                        ),
-                        SizedBox(
-                          height: height / 25,
-                          child: TextField(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              /* FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')), */
-                            ],
-                            controller: boundryLimits,
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.sentences,
-                            onEditingComplete: () {
-                              final newBoundaryLimit =
-                                  boundryLimits.text.trim();
-                              if (newBoundaryLimit.isNotEmpty &&
-                                  !fetchApiBoundryLimit
-                                      .contains(newBoundaryLimit)) {
-                                setState(() {
-                                  fetchApiBoundryLimit.add(newBoundaryLimit);
-                                  selectedKeyBoundryLimits
-                                      .add(newBoundaryLimit);
-                                  boundryLimits.clear();
-                                });
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Error'),
-                                      content: const Text(
-                                          'Boundary limit already exists.'),
-                                      actions: [
-                                        ElevatedButton(
-                                          child: const Text('OK'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
+                              );
                             },
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.only(
-                                  top: 5, left: 10, right: 10),
-                              prefix: Column(
-                                children: _getBulletPointWidgetsrespo(),
-                                mainAxisAlignment: MainAxisAlignment.start,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyBoundryLimits
-                                        .contains(boundryLimits.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              focusColor: const Color(0xffff0eceb),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyBoundryLimits
-                                        .contains(boundryLimits.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              hintText:
-                                  "Any other Boundary Limit that you want to add",
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.subtitleclr,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ),
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
                         ),
-                        Container(
-                          margin: fetchApiBoundryLimit
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyBoundryLimits
                                   .contains(boundryLimits.text.trim())
-                              ? const EdgeInsets.only(bottom: 15, left: 10)
-                              : null,
-                          child: Text(
-                            fetchApiBoundryLimit
-                                    .contains(boundryLimits.text.trim())
-                                ? "This Boundary Limit is already added."
-                                : "",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12.sp,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
                         ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyBoundryLimits
+                                  .contains(boundryLimits.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText:
+                            "Any other Boundary Limit that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin:
+                        fetchApiBoundryLimit.contains(boundryLimits.text.trim())
+                            ? const EdgeInsets.only(bottom: 15, left: 10)
+                            : null,
+                    child: Text(
+                      fetchApiBoundryLimit.contains(boundryLimits.text.trim())
+                          ? "This Boundary Limit is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
 
-                        //old code of boundry limits down
-                        /* const SizedBox(
+                  //old code of boundry limits down
+                  /* const SizedBox(
                     height: 5,
                   ),
                   ListView.builder(
@@ -4057,28 +4020,28 @@ class _JobFormState extends State<JobForm> {
                           ),
                     ),
                   ), */
-                        //old code of boundry limits
+                  //old code of boundry limits
 
-                        Text(
-                          "Experience",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Visibility(
-                            visible: _showContainer1 && _showContainer2,
-                            child: customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isFresher = !isFresher;
-                                  });
-                                },
-                                isSelect: isFresher,
-                                title: "Fresher can also apply.")
+                  Text(
+                    "Experience",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Visibility(
+                      visible: _showContainer1 && _showContainer2,
+                      child: customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              isFresher = !isFresher;
+                            });
+                          },
+                          isSelect: isFresher,
+                          title: "Fresher can also apply.")
 
-                            /* Row(
+                      /* Row(
                       children: [
                         Checkbox(
                           value: isFresher,
@@ -4091,897 +4054,257 @@ class _JobFormState extends State<JobForm> {
                         const Text("Fresher can also apply."),
                       ],
                     ), */
-                            ),
+                      ),
 
-                        if (isFresher == false)
-                          Container(
-                            //  margin: const EdgeInsets.only(left: 15),
-                            child: expContainer
-                                ? Row(
-                                    children: [
-                                      above
-                                          ? customContainerSelect(
-                                              isCross: true,
-                                              isExp: true,
-                                              isNumOfOpening: false,
-                                              onPressed: () {
-                                                setState(() {
-                                                  expContainer = false;
-                                                  experinceFocusNode
-                                                      .requestFocus();
-                                                  maxAge.clear();
-                                                });
-                                              },
-                                              isSelect: expContainer,
-                                              title:
-                                                  "${minExp.text} Yrs & above.")
-                                          : customContainerSelect(
-                                              isCross: true,
-                                              onPressed: () {
-                                                setState(() {
-                                                  //above = false;
-                                                  expContainer = false;
-                                                  experinceFocusNode
-                                                      .requestFocus();
-                                                  maxAge.clear();
-                                                });
-                                              },
-                                              isSelect: expContainer,
-                                              title:
-                                                  "${minExp.text} - ${maxExp.text} Yrs"),
-                                    ],
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.only(bottom: 5),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5.w,
-                                            child: /* newFormFiled(
-                                  minExp, context, "", "Min-exp", true, true), */
-                                                Container(
-                                                    child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Container(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      25.h,
-                                                  color: Colors.white,
-                                                  child: TextFormField(
-                                                    validator: (value) {
-                                                      if (value == null ||
-                                                          value.isEmpty) {
-                                                        return "This Text field Cant be empty";
-                                                      }
-                                                      return null;
-                                                    },
-                                                    maxLength: 3,
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter
-                                                          .allow(RegExp(
-                                                              r'^\d+\.?\d{0,2}')),
-                                                    ],
-                                                    onFieldSubmitted:
-                                                        (newValue) {
-                                                      /*   maxAge.text.isNotEmpty &&
-                                                            minAge.text.isNotEmpty */
-
-                                                      if (minExp.text
-                                                              .isNotEmpty &&
-                                                          above) {
-                                                        setState(() {
-                                                          expContainer =
-                                                              newValue
-                                                                  .isNotEmpty;
-                                                        });
-                                                      }
-                                                      /* else {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                        onClose:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          minExp
-                                                                              .clear();
-                                                                          // maxExp.clear();
-                                                                          setState(
-                                                                              () {
-                                                                            expContainer =
-                                                                                !newValue.isNotEmpty;
-                                                                            enableExperience =
-                                                                                enableExperience = newValue.isNotEmpty;
-                                                                            /*   _showContainer1 = !_showContainer1;
-                                                                                _showContainer2 = !_showContainer2; */
-                                                                          });
-                                                                        },
-                                                                        title:
-                                                                            "Invalid Experience Value!",
-                                                                        subtitle:
-                                                                            "Please enter min experince");
-                                                                  },
-                                                                );
-                                                              } */
-                                                    },
-                                                    focusNode:
-                                                        experinceFocusNode,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        if (minExp
-                                                            .text.isNotEmpty) {
-                                                          setState(() {
-                                                            isCheckBox =
-                                                                !isCheckBox;
-                                                            above = false;
-                                                          });
-                                                        }
-                                                        enableExperience =
-                                                            value.isNotEmpty;
-                                                        _showContainer1 =
-                                                            value.isEmpty;
-                                                        if (minExp
-                                                            .text.isEmpty) {
-                                                          setState(() {
-                                                            isRelevantExpperience =
-                                                                false;
-                                                            _showContainer1 =
-                                                                true;
-                                                            _showContainer2 =
-                                                                true;
-                                                            enableExperience =
-                                                                true;
-                                                          });
-                                                          maxExp.clear();
-                                                          /*  _showContainer1 =
-                                                                !_showContainer1; */
-                                                          _showContainer2 !=
-                                                              _showContainer2;
-                                                          expContainer = false;
-                                                        }
-                                                      });
-                                                    },
-                                                    keyboardType:
-                                                        TextInputType.number,
-                                                    controller: minExp,
-                                                    enabled: enableShortListFor,
-                                                    onTap: (() {
-                                                      /* showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                            return DialogList(
-                              dialogTitle: "Company Details",
-                              onSelected: (AutoCompleteModel model) => {
-                                shorListController.text = model.label,
-                                selectedshort = model,
-                                Navigator.pop(context),
-                                if (userType == EUserType.businessPartner.value ||
-                                    userType == EUserType.employee.value)
-                                  {openCompanyJobsDetails()}
-                                else
-                                  {
-                                    if (selectedshort.value != model.value)
-                                      {bindProccessLevelList(model.value)},
-                                    proccessList = [],
-                                    levelList = [],
-                                  },
-                                resetProcessLevel(),
-                              },
-                              itemsData: shortList,
-                            );
-                                                  }); */
-                                                    }),
-                                                    decoration: InputDecoration(
-                                                        counterText: '',
-                                                        contentPadding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 8,
-                                                                bottom: 8,
-                                                                left: 10,
-                                                                right: 10),
-                                                        // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                        // Icons.workspace_premium
-                                                        // label: const Text("Company Name *"),
-                                                        //border: OutlineInputBorder(),
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          borderSide:
-                                                              const BorderSide(
-                                                                  color: Color(
-                                                                      0xffff0eceb)),
-                                                        ),
-                                                        focusColor: const Color(
-                                                            0xffff0eceb),
-                                                        focusedBorder:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          borderSide:
-                                                              const BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          122,
-                                                                          113,
-                                                                          111)),
-                                                        ),
-                                                        hintText: "Min-exp",
-                                                        hintStyle: GoogleFonts
-                                                            .sourceSansPro(
-                                                                color: Constants
-                                                                    .subtitleclr,
-                                                                fontSize: 15.sp)
-                                                        //  prefixIcon: Icon(Icons.list)
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ))),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        if (above == false)
-                                          const SizedBox(child: Text("-")),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        if (above == false)
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5.w,
-                                            child: /* newFormFiled(
-                                  maxExp, context, "", "Max-exp", true, true), */
-                                                SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            6.w,
-                                                    child: /* newFormFiled(
-                                  minExp, context, "", "Min-exp", true, true), */
-                                                        Container(
-                                                            child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        const SizedBox(
-                                                          height: 5,
-                                                        ),
-                                                        Container(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height /
-                                                              25.h,
-                                                          color: Colors.white,
-                                                          child: TextFormField(
-                                                            validator: (value) {
-                                                              if (value ==
-                                                                      null ||
-                                                                  value
-                                                                      .isEmpty) {
-                                                                return "This Text field Cant be empty";
-                                                              }
-                                                              return null;
-                                                            },
-                                                            maxLength: 3,
-                                                            inputFormatters: [
-                                                              FilteringTextInputFormatter
-                                                                  .allow(RegExp(
-                                                                      r'^\d+\.?\d{0,2}')),
-                                                            ],
-                                                            onChanged: (value) {
-                                                              setState(() {
-                                                                /* _showContainer2 =
-                                                                    value.isEmpty; */
-                                                              });
-                                                            },
-                                                            /*  onSubmitted:
-                                                                (newValue) {
-                                                              maxExp.text
-                                                                      .isNotEmpty
-                                                                  ? setState(() {
-                                                                      expContainer =
-                                                                          newValue
-                                                                              .isNotEmpty;
-                                                                    })
-                                                                  : null;
-                                                            }, */
-                                                            onFieldSubmitted:
-                                                                (newValue) {
-                                                              /*   maxAge.text.isNotEmpty &&
-                                                            minAge.text.isNotEmpty */
-
-                                                              if (maxExp.text
-                                                                  .isNotEmpty) {
-                                                                double? age =
-                                                                    double.tryParse(
-                                                                        maxExp
-                                                                            .text);
-                                                                double? age2 =
-                                                                    double.tryParse(
-                                                                        minExp
-                                                                            .text);
-                                                                if (age! <=
-                                                                    age2!) {
-                                                                  // Clear the text field if the entered number is not above 18
-                                                                  /* WidgetsBinding.instance
-                                                            .addPostFrameCallback(
-                                                                (_) {
-                                                          ageGroup.clear();
-                                                          
-                                                        }); */
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return CustomDialog(
-                                                                          fetchDataFromApi:
-                                                                              () {},
-                                                                          isFisrt:
-                                                                              false,
-                                                                          onClose:
-                                                                              () {
-                                                                            Navigator.pop(context);
-
-                                                                            setState(() {
-                                                                              expContainer = !newValue.isNotEmpty;
-                                                                              _showContainer1 = true;
-                                                                              _showContainer2 = true;
-                                                                              enableExperience = false;
-                                                                              minExp.clear();
-                                                                              maxExp.clear();
-                                                                            });
-                                                                          },
-                                                                          title:
-                                                                              "Invalid Experience Value!",
-                                                                          subtitle:
-                                                                              "Max Experience should be greater than Min Experience");
-                                                                    },
-                                                                  );
-                                                                } else if (maxExp
-                                                                        .text
-                                                                        .isNotEmpty &&
-                                                                    minExp.text
-                                                                        .isNotEmpty) {
-                                                                  setState(() {
-                                                                    expContainer =
-                                                                        newValue
-                                                                            .isNotEmpty;
-                                                                  });
-                                                                }
-                                                              } /* else {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                        onClose:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          minExp
-                                                                              .clear();
-                                                                          // maxExp.clear();
-                                                                          setState(
-                                                                              () {
-                                                                            expContainer =
-                                                                                !newValue.isNotEmpty;
-                                                                            enableExperience =
-                                                                                enableExperience = newValue.isNotEmpty;
-                                                                            /*   _showContainer1 = !_showContainer1;
-                                                                                _showContainer2 = !_showContainer2; */
-                                                                          });
-                                                                        },
-                                                                        title:
-                                                                            "Invalid Experience Value!",
-                                                                        subtitle:
-                                                                            "Please enter min experince");
-                                                                  },
-                                                                );
-                                                              } */
-                                                            },
-                                                            onEditingComplete:
-                                                                () {
-                                                              if (minExp.text
-                                                                  .isEmpty) {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                        fetchDataFromApi:
-                                                                            () {},
-                                                                        isFisrt:
-                                                                            false,
-                                                                        onClose:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          minExp
-                                                                              .clear();
-                                                                          maxExp
-                                                                              .clear();
-                                                                          // maxExp.clear();
-                                                                          setState(
-                                                                              () {
-                                                                            expContainer =
-                                                                                !expContainer;
-                                                                            enableExperience =
-                                                                                false;
-                                                                            /*   enableExperience =
-                                                                               // newValue.isNotEmpty; */
-                                                                            /*   _showContainer1 = !_showContainer1;
-                                                                                _showContainer2 = !_showContainer2; */
-                                                                          });
-                                                                        },
-                                                                        title:
-                                                                            "Invalid Experience Value!",
-                                                                        subtitle:
-                                                                            "Please enter min experince");
-                                                                  },
-                                                                );
-                                                              }
-                                                            },
-                                                            /* onTapOutside:
-                                                                (event) {
-                                                              maxExp.text
-                                                                      .isNotEmpty
-                                                                  ? setState(() {
-                                                                      expContainer =
-                                                                          !expContainer;
-                                                                    })
-                                                                  : null;
-                                                            }, */
-                                                            /* onEditingComplete:
-                                                                () {
-                                                              maxExp.text
-                                                                      .isNotEmpty
-                                                                  ? setState(() {
-                                                                      expContainer =
-                                                                          !expContainer;
-                                                                    })
-                                                                  : null;
-                                                            }, */
-                                                            keyboardType:
-                                                                TextInputType
-                                                                    .number,
-                                                            controller: maxExp,
-                                                            /*   enabled:
-                                                                enableShortListFor, */
-                                                            enabled: minExp.text
-                                                                    .isNotEmpty
-                                                                ? true
-                                                                : false,
-                                                            /* validator: (value) {
-                                                              if (value == null ||
-                                                                  value.isEmpty) {
-                                                                return 'Please select any company';
-                                                              }
-                                                              return null;
-                                                            }, */
-                                                            onTap: (() {
-                                                              /* showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                            return DialogList(
-                              dialogTitle: "Company Details",
-                              onSelected: (AutoCompleteModel model) => {
-                                shorListController.text = model.label,
-                                selectedshort = model,
-                                Navigator.pop(context),
-                                if (userType == EUserType.businessPartner.value ||
-                                    userType == EUserType.employee.value)
-                                  {openCompanyJobsDetails()}
-                                else
-                                  {
-                                    if (selectedshort.value != model.value)
-                                      {bindProccessLevelList(model.value)},
-                                    proccessList = [],
-                                    levelList = [],
-                                  },
-                                resetProcessLevel(),
-                              },
-                              itemsData: shortList,
-                            );
-                                                  }); */
-                                                            }),
-                                                            decoration:
-                                                                InputDecoration(
-                                                                    counterText:
-                                                                        '',
-                                                                    contentPadding: const EdgeInsets
-                                                                            .only(
-                                                                        top: 8,
-                                                                        bottom:
-                                                                            8,
-                                                                        left:
-                                                                            10,
-                                                                        right:
-                                                                            10),
-                                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                                    // Icons.workspace_premium
-                                                                    // label: const Text("Company Name *"),
-                                                                    //border: OutlineInputBorder(),
-                                                                    border:
-                                                                        OutlineInputBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                      borderSide:
-                                                                          const BorderSide(
-                                                                              color: Color(0xffff0eceb)),
-                                                                    ),
-                                                                    focusColor:
-                                                                        const Color(
-                                                                            0xffff0eceb),
-                                                                    focusedBorder:
-                                                                        OutlineInputBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                      borderSide: const BorderSide(
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              122,
-                                                                              113,
-                                                                              111)),
-                                                                    ),
-                                                                    hintText:
-                                                                        "Max-exp",
-                                                                    hintStyle: GoogleFonts.sourceSansPro(
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                        fontSize:
-                                                                            15.sp)
-                                                                    //  prefixIcon: Icon(Icons.list)
-                                                                    ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ))),
-                                          ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          "Yrs",
-                                          style: GoogleFonts.sourceSansPro(
-                                              fontSize: 16.sp,
-                                              // color: Colors.grey.shade500,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 5, top: 3, left: 10),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                margin: const EdgeInsets.only(
-                                                    right: 8),
-                                                height: 16,
-                                                width:
-                                                    20, // Adjust the width according to your requirements
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    minExp.text.isNotEmpty &&
-                                                            maxAge.text.isEmpty
-                                                        ? setState(() {
-                                                            above = !above;
-                                                          })
-                                                        : setState(() {
-                                                            above = above;
-                                                          });
-                                                  },
-                                                  child: Container(
-                                                    // margin: const EdgeInsets.only(bottom: 4),
-                                                    height: 16,
-                                                    width: 20,
-                                                    padding: EdgeInsets.zero,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      border: Border.all(
-                                                        color: above
-                                                            ? Colors.red
-                                                            : minExp.text
-                                                                        .isEmpty &&
-                                                                    maxAge.text
-                                                                        .isNotEmpty
-                                                                ? Colors.grey
-                                                                    .shade400
-                                                                : Colors.grey,
-                                                        width: 1.5,
-                                                      ),
-                                                    ),
-                                                    child: Theme(
-                                                      data: ThemeData(
-                                                        unselectedWidgetColor:
-                                                            Colors.transparent,
-                                                      ),
-                                                      child: Checkbox(
-                                                        visualDensity:
-                                                            VisualDensity
-                                                                .compact,
-                                                        materialTapTargetSize:
-                                                            MaterialTapTargetSize
-                                                                .shrinkWrap,
-                                                        activeColor:
-                                                            Colors.white,
-                                                        checkColor: Colors.red,
-                                                        value: above,
-                                                        onChanged: (value) {
-                                                          minExp.text.isNotEmpty &&
-                                                                  maxAge.text
-                                                                      .isEmpty
-                                                              ? setState(() {
-                                                                  above =
-                                                                      value!;
-                                                                  maxExp
-                                                                      .clear();
-                                                                })
-                                                              : null;
-                                                        },
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
-                                                        side: above
-                                                            ? const BorderSide(
-                                                                color:
-                                                                    Colors.red)
-                                                            : null, // No border when unchecked
-
-                                                        // Remove extra padding around the checkbox
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                "& above.",
-                                                style: TextStyle(
-                                                    color: minExp.text.isEmpty
-                                                        ? Colors.grey.shade400
-                                                        : Colors.black,
-                                                    fontStyle:
-                                                        FontStyle.italic),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                          ),
-
-                        if (minExp.text.isNotEmpty)
-                          /*  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Checkbox(
-                          //   shape: const OutlineInputBorder(),
-                          value: isRelevantExpperience,
-                          onChanged: (value) {
-                            setState(() {
-                              isRelevantExpperience = value!;
-                            });
-                          },
-                        ),
-                        const Text(
-                          "Candidate should be from relevant experience background.",
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      ],
-                    ), */
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 5, top: 3),
-                            child: Row(
+                  if (isFresher == false)
+                    Container(
+                      //  margin: const EdgeInsets.only(left: 15),
+                      child: expContainer
+                          ? Row(
                               children: [
-                                Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  height: 16,
-                                  width:
-                                      20, // Adjust the width according to your requirements
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isRelevantExpperience =
-                                            !isRelevantExpperience;
-                                      });
-                                    },
-                                    child: Container(
-                                      // margin: const EdgeInsets.only(bottom: 4),
-                                      height: 16,
-                                      width: 20,
-                                      padding: EdgeInsets.zero,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: isRelevantExpperience
-                                              ? Colors.red
-                                              : Colors.grey,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      child: Theme(
-                                        data: ThemeData(
-                                          unselectedWidgetColor:
-                                              Colors.transparent,
-                                        ),
-                                        child: Checkbox(
-                                          visualDensity: VisualDensity.compact,
-                                          materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          activeColor: Colors.white,
-                                          checkColor: Colors.red,
-                                          value: isRelevantExpperience,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              isRelevantExpperience = value!;
-                                            });
-                                          },
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5)),
-                                          side: isRelevantExpperience
-                                              ? const BorderSide(
-                                                  color: Colors.red)
-                                              : null, // No border when unchecked
-
-                                          // Remove extra padding around the checkbox
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const Text(
-                                  "Candidate should be from relevant experience background.",
-                                  style: TextStyle(fontStyle: FontStyle.italic),
-                                ),
+                                above
+                                    ? customContainerSelect(
+                                        isCross: true,
+                                        isExp: true,
+                                        isNumOfOpening: false,
+                                        onPressed: () {
+                                          setState(() {
+                                            expContainer = false;
+                                            experinceFocusNode.requestFocus();
+                                            maxAge.clear();
+                                          });
+                                        },
+                                        isSelect: expContainer,
+                                        title: "${minExp.text} Yrs & above.")
+                                    : customContainerSelect(
+                                        isCross: true,
+                                        onPressed: () {
+                                          setState(() {
+                                            //above = false;
+                                            expContainer = false;
+                                            experinceFocusNode.requestFocus();
+                                            maxAge.clear();
+                                          });
+                                        },
+                                        isSelect: expContainer,
+                                        title:
+                                            "${minExp.text} - ${maxExp.text} Yrs"),
                               ],
-                            ),
-                          ),
-
-                        Row(
-                          children: [
-                            Text(
-                              "Gender",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
                             )
-                          ],
-                        ),
-                        Wrap(
-                          children: [
-                            customContainerSelect(
-                                //isCross: true,
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    onlyMale = !onlyMale;
-                                    onlyFemale = false;
-                                    femalePrefered = false;
-                                  });
-                                },
-                                isSelect: onlyMale,
-                                title: "Only Male"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    femalePrefered = false;
-                                    onlyMale = false;
-                                    onlyFemale = !onlyFemale;
-                                  });
-                                },
-                                isSelect: onlyFemale,
-                                title: "Only Female"),
-                            customContainerSelect(
-                                isAnother: true,
-                                onPressed: () {
-                                  setState(() {
-                                    femalePrefered = !femalePrefered;
-                                    onlyMale = false;
-                                    onlyFemale = false;
-                                  });
-                                },
-                                isSelect: femalePrefered,
-                                title: "Female Prefered")
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "Age Group",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
-                            )
-                          ],
-                        ),
-                        agegroupContainer
-                            ? Row(
-                                children: [
-                                  customContainerSelect(
-                                      isCross: true,
-                                      isAnother: true,
-                                      onPressed: () {
-                                        setState(() {
-                                          agegroupContainer = false;
-                                          minAge.clear();
-                                          maxAge.clear();
-                                        });
-                                      },
-                                      isSelect: agegroupContainer,
-                                      title:
-                                          "${minAge.text} - ${maxAge.text} Yrs"),
-                                ],
-                              )
-                            : Row(
+                          : Padding(
+                              padding: const EdgeInsets.only(bottom: 5),
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  /*  SizedBox(
-                        width: MediaQuery.of(context).size.width / 6.w,
-                        child: newFormFiled(shorListController, context, "",
-                            "Min-age", true, false),
-                      ), */
                                   SizedBox(
                                       width: MediaQuery.of(context).size.width /
                                           5.w,
                                       child: /* newFormFiled(
-                                minExp, context, "", "Min-exp", true, true), */
+                                  minExp, context, "", "Min-exp", true, true), */
                                           Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 15),
                                               child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                25.h,
+                                            color: Colors.white,
+                                            child: TextFormField(
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return "This Text field Cant be empty";
+                                                }
+                                                return null;
+                                              },
+                                              maxLength: 3,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(
+                                                        r'^\d+\.?\d{0,2}')),
+                                              ],
+                                              onFieldSubmitted: (newValue) {
+                                                /*   maxAge.text.isNotEmpty &&
+                                                            minAge.text.isNotEmpty */
+
+                                                if (minExp.text.isNotEmpty &&
+                                                    above) {
+                                                  setState(() {
+                                                    expContainer =
+                                                        newValue.isNotEmpty;
+                                                  });
+                                                }
+                                                /* else {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        onClose:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          minExp
+                                                                              .clear();
+                                                                          // maxExp.clear();
+                                                                          setState(
+                                                                              () {
+                                                                            expContainer =
+                                                                                !newValue.isNotEmpty;
+                                                                            enableExperience =
+                                                                                enableExperience = newValue.isNotEmpty;
+                                                                            /*   _showContainer1 = !_showContainer1;
+                                                                                _showContainer2 = !_showContainer2; */
+                                                                          });
+                                                                        },
+                                                                        title:
+                                                                            "Invalid Experience Value!",
+                                                                        subtitle:
+                                                                            "Please enter min experince");
+                                                                  },
+                                                                );
+                                                              } */
+                                              },
+                                              focusNode: experinceFocusNode,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  if (minExp.text.isNotEmpty) {
+                                                    setState(() {
+                                                      isCheckBox = !isCheckBox;
+                                                      above = false;
+                                                    });
+                                                  }
+                                                  enableExperience =
+                                                      value.isNotEmpty;
+                                                  _showContainer1 =
+                                                      value.isEmpty;
+                                                  if (minExp.text.isEmpty) {
+                                                    setState(() {
+                                                      isRelevantExpperience =
+                                                          false;
+                                                      _showContainer1 = true;
+                                                      _showContainer2 = true;
+                                                      enableExperience = true;
+                                                    });
+                                                    maxExp.clear();
+                                                    /*  _showContainer1 =
+                                                                !_showContainer1; */
+                                                    _showContainer2 !=
+                                                        _showContainer2;
+                                                    expContainer = false;
+                                                  }
+                                                });
+                                              },
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              controller: minExp,
+                                              enabled: enableShortListFor,
+                                              onTap: (() {
+                                                /* showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                            return DialogList(
+                              dialogTitle: "Company Details",
+                              onSelected: (AutoCompleteModel model) => {
+                                shorListController.text = model.label,
+                                selectedshort = model,
+                                Navigator.pop(context),
+                                if (userType == EUserType.businessPartner.value ||
+                                    userType == EUserType.employee.value)
+                                  {openCompanyJobsDetails()}
+                                else
+                                  {
+                                    if (selectedshort.value != model.value)
+                                      {bindProccessLevelList(model.value)},
+                                    proccessList = [],
+                                    levelList = [],
+                                  },
+                                resetProcessLevel(),
+                              },
+                              itemsData: shortList,
+                            );
+                                                  }); */
+                                              }),
+                                              decoration: InputDecoration(
+                                                  counterText: '',
+                                                  contentPadding:
+                                                      const EdgeInsets.only(
+                                                          top: 8,
+                                                          bottom: 8,
+                                                          left: 10,
+                                                          right: 10),
+                                                  // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                  // Icons.workspace_premium
+                                                  // label: const Text("Company Name *"),
+                                                  //border: OutlineInputBorder(),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: Color(
+                                                                0xffff0eceb)),
+                                                  ),
+                                                  focusColor:
+                                                      const Color(0xffff0eceb),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    122,
+                                                                    113,
+                                                                    111)),
+                                                  ),
+                                                  hintText: "Min-exp",
+                                                  hintStyle:
+                                                      GoogleFonts.sourceSansPro(
+                                                          color: Constants
+                                                              .subtitleclr,
+                                                          fontSize: 15.sp)
+                                                  //  prefixIcon: Icon(Icons.list)
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ))),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  if (above == false)
+                                    const SizedBox(child: Text("-")),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  if (above == false)
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width /
+                                          5.w,
+                                      child: /* newFormFiled(
+                                  maxExp, context, "", "Max-exp", true, true), */
+                                          SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  6.w,
+                                              child: /* newFormFiled(
+                                  minExp, context, "", "Min-exp", true, true), */
+                                                  Container(
+                                                      child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
@@ -5003,68 +4326,237 @@ class _JobFormState extends State<JobForm> {
                                                         }
                                                         return null;
                                                       },
-                                                      maxLength: 2,
+                                                      maxLength: 3,
                                                       inputFormatters: [
                                                         FilteringTextInputFormatter
-                                                            .deny(
-                                                                RegExp(r'[.]')),
-                                                        FilteringTextInputFormatter
-                                                            .digitsOnly
+                                                            .allow(RegExp(
+                                                                r'^\d+\.?\d{0,2}')),
                                                       ],
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          /* _showContainer2 =
+                                                                    value.isEmpty; */
+                                                        });
+                                                      },
+                                                      /*  onSubmitted:
+                                                                (newValue) {
+                                                              maxExp.text
+                                                                      .isNotEmpty
+                                                                  ? setState(() {
+                                                                      expContainer =
+                                                                          newValue
+                                                                              .isNotEmpty;
+                                                                    })
+                                                                  : null;
+                                                            }, */
                                                       onFieldSubmitted:
-                                                          (value) {
-                                                        checkAge();
+                                                          (newValue) {
+                                                        /*   maxAge.text.isNotEmpty &&
+                                                            minAge.text.isNotEmpty */
+
+                                                        if (maxExp
+                                                            .text.isNotEmpty) {
+                                                          double? age =
+                                                              double.tryParse(
+                                                                  maxExp.text);
+                                                          double? age2 =
+                                                              double.tryParse(
+                                                                  minExp.text);
+                                                          if (age! <= age2!) {
+                                                            // Clear the text field if the entered number is not above 18
+                                                            /* WidgetsBinding.instance
+                                                            .addPostFrameCallback(
+                                                                (_) {
+                                                          ageGroup.clear();
+                                                          
+                                                        }); */
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return CustomDialog(
+                                                                    fetchDataFromApi:
+                                                                        () {},
+                                                                    isFisrt:
+                                                                        false,
+                                                                    onClose:
+                                                                        () {
+                                                                      Navigator.pop(
+                                                                          context);
+
+                                                                      setState(
+                                                                          () {
+                                                                        expContainer =
+                                                                            !newValue.isNotEmpty;
+                                                                        _showContainer1 =
+                                                                            true;
+                                                                        _showContainer2 =
+                                                                            true;
+                                                                        enableExperience =
+                                                                            false;
+                                                                        minExp
+                                                                            .clear();
+                                                                        maxExp
+                                                                            .clear();
+                                                                      });
+                                                                    },
+                                                                    title:
+                                                                        "Invalid Experience Value!",
+                                                                    subtitle:
+                                                                        "Max Experience should be greater than Min Experience");
+                                                              },
+                                                            );
+                                                          } else if (maxExp.text
+                                                                  .isNotEmpty &&
+                                                              minExp.text
+                                                                  .isNotEmpty) {
+                                                            setState(() {
+                                                              expContainer =
+                                                                  newValue
+                                                                      .isNotEmpty;
+                                                            });
+                                                          }
+                                                        } /* else {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        onClose:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          minExp
+                                                                              .clear();
+                                                                          // maxExp.clear();
+                                                                          setState(
+                                                                              () {
+                                                                            expContainer =
+                                                                                !newValue.isNotEmpty;
+                                                                            enableExperience =
+                                                                                enableExperience = newValue.isNotEmpty;
+                                                                            /*   _showContainer1 = !_showContainer1;
+                                                                                _showContainer2 = !_showContainer2; */
+                                                                          });
+                                                                        },
+                                                                        title:
+                                                                            "Invalid Experience Value!",
+                                                                        subtitle:
+                                                                            "Please enter min experince");
+                                                                  },
+                                                                );
+                                                              } */
                                                       },
                                                       onEditingComplete: () {
-                                                        checkAge();
+                                                        if (minExp
+                                                            .text.isEmpty) {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return CustomDialog(
+                                                                  fetchDataFromApi:
+                                                                      () {},
+                                                                  isFisrt:
+                                                                      false,
+                                                                  onClose: () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                    minExp
+                                                                        .clear();
+                                                                    maxExp
+                                                                        .clear();
+                                                                    // maxExp.clear();
+                                                                    setState(
+                                                                        () {
+                                                                      expContainer =
+                                                                          !expContainer;
+                                                                      enableExperience =
+                                                                          false;
+                                                                      /*   enableExperience =
+                                                                               // newValue.isNotEmpty; */
+                                                                      /*   _showContainer1 = !_showContainer1;
+                                                                                _showContainer2 = !_showContainer2; */
+                                                                    });
+                                                                  },
+                                                                  title:
+                                                                      "Invalid Experience Value!",
+                                                                  subtitle:
+                                                                      "Please enter min experince");
+                                                            },
+                                                          );
+                                                        }
                                                       },
-                                                      /*  onTapOutside: (event) {
-                                                  checkAge();
-                                                }, */
-                                                      onChanged: (value) {
-                                                        checkAgeGroup(
-                                                            minAge.text);
-                                                      },
+                                                      /* onTapOutside:
+                                                                (event) {
+                                                              maxExp.text
+                                                                      .isNotEmpty
+                                                                  ? setState(() {
+                                                                      expContainer =
+                                                                          !expContainer;
+                                                                    })
+                                                                  : null;
+                                                            }, */
+                                                      /* onEditingComplete:
+                                                                () {
+                                                              maxExp.text
+                                                                      .isNotEmpty
+                                                                  ? setState(() {
+                                                                      expContainer =
+                                                                          !expContainer;
+                                                                    })
+                                                                  : null;
+                                                            }, */
                                                       keyboardType:
                                                           TextInputType.number,
-                                                      controller: minAge,
+                                                      controller: maxExp,
+                                                      /*   enabled:
+                                                                enableShortListFor, */
                                                       enabled:
-                                                          enableShortListFor,
+                                                          minExp.text.isNotEmpty
+                                                              ? true
+                                                              : false,
+                                                      /* validator: (value) {
+                                                              if (value == null ||
+                                                                  value.isEmpty) {
+                                                                return 'Please select any company';
+                                                              }
+                                                              return null;
+                                                            }, */
                                                       onTap: (() {
                                                         /* showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return DialogList(
-                            dialogTitle: "Company Details",
-                            onSelected: (AutoCompleteModel model) => {
-                              shorListController.text = model.label,
-                              selectedshort = model,
-                              Navigator.pop(context),
-                              if (userType == EUserType.businessPartner.value ||
-                                  userType == EUserType.employee.value)
-                                {openCompanyJobsDetails()}
-                              else
-                                {
-                                  if (selectedshort.value != model.value)
-                                    {bindProccessLevelList(model.value)},
-                                  proccessList = [],
-                                  levelList = [],
-                                },
-                              resetProcessLevel(),
-                            },
-                            itemsData: shortList,
-                          );
-                        }); */
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                            return DialogList(
+                              dialogTitle: "Company Details",
+                              onSelected: (AutoCompleteModel model) => {
+                                shorListController.text = model.label,
+                                selectedshort = model,
+                                Navigator.pop(context),
+                                if (userType == EUserType.businessPartner.value ||
+                                    userType == EUserType.employee.value)
+                                  {openCompanyJobsDetails()}
+                                else
+                                  {
+                                    if (selectedshort.value != model.value)
+                                      {bindProccessLevelList(model.value)},
+                                    proccessList = [],
+                                    levelList = [],
+                                  },
+                                resetProcessLevel(),
+                              },
+                              itemsData: shortList,
+                            );
+                                                  }); */
                                                       }),
                                                       decoration:
                                                           InputDecoration(
-                                                              counterText: "",
+                                                              counterText: '',
                                                               contentPadding:
                                                                   const EdgeInsets
                                                                           .only(
                                                                       top: 8,
-                                                                      bottom:
-                                                                          15,
+                                                                      bottom: 8,
                                                                       left: 10,
                                                                       right:
                                                                           10),
@@ -5100,7 +4592,7 @@ class _JobFormState extends State<JobForm> {
                                                                             111)),
                                                               ),
                                                               hintText:
-                                                                  "Min-age",
+                                                                  "Max-exp",
                                                               hintStyle: GoogleFonts
                                                                   .sourceSansPro(
                                                                       color: Constants
@@ -5113,158 +4605,554 @@ class _JobFormState extends State<JobForm> {
                                                   ),
                                                 ],
                                               ))),
+                                    ),
                                   const SizedBox(
-                                    width: 5,
+                                    width: 10,
                                   ),
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              35,
-                                      child: const Text("-")),
-                                  const SizedBox(
-                                    width: 5,
+                                  Text(
+                                    "Yrs",
+                                    style: GoogleFonts.sourceSansPro(
+                                        fontSize: 16.sp,
+                                        // color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w400),
                                   ),
-                                  /* SizedBox(
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: 5, top: 3, left: 10),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          margin:
+                                              const EdgeInsets.only(right: 8),
+                                          height: 16,
+                                          width:
+                                              20, // Adjust the width according to your requirements
+                                          child: InkWell(
+                                            onTap: () {
+                                              minExp.text.isNotEmpty &&
+                                                      maxAge.text.isEmpty
+                                                  ? setState(() {
+                                                      above = !above;
+                                                    })
+                                                  : setState(() {
+                                                      above = above;
+                                                    });
+                                            },
+                                            child: Container(
+                                              // margin: const EdgeInsets.only(bottom: 4),
+                                              height: 16,
+                                              width: 20,
+                                              padding: EdgeInsets.zero,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: above
+                                                      ? Colors.red
+                                                      : minExp.text.isEmpty &&
+                                                              maxAge.text
+                                                                  .isNotEmpty
+                                                          ? Colors.grey.shade400
+                                                          : Colors.grey,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: Theme(
+                                                data: ThemeData(
+                                                  unselectedWidgetColor:
+                                                      Colors.transparent,
+                                                ),
+                                                child: Checkbox(
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  activeColor: Colors.white,
+                                                  checkColor: Colors.red,
+                                                  value: above,
+                                                  onChanged: (value) {
+                                                    minExp.text.isNotEmpty &&
+                                                            maxAge.text.isEmpty
+                                                        ? setState(() {
+                                                            above = value!;
+                                                            maxExp.clear();
+                                                          })
+                                                        : null;
+                                                  },
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5)),
+                                                  side: above
+                                                      ? const BorderSide(
+                                                          color: Colors.red)
+                                                      : null, // No border when unchecked
+
+                                                  // Remove extra padding around the checkbox
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          "& above.",
+                                          style: TextStyle(
+                                              color: minExp.text.isEmpty
+                                                  ? Colors.grey.shade400
+                                                  : Colors.black,
+                                              fontStyle: FontStyle.italic),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+
+                  if (minExp.text.isNotEmpty)
+                    /*  Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          //   shape: const OutlineInputBorder(),
+                          value: isRelevantExpperience,
+                          onChanged: (value) {
+                            setState(() {
+                              isRelevantExpperience = value!;
+                            });
+                          },
+                        ),
+                        const Text(
+                          "Candidate should be from relevant experience background.",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ), */
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5, top: 3),
+                      child: Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            height: 16,
+                            width:
+                                20, // Adjust the width according to your requirements
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isRelevantExpperience =
+                                      !isRelevantExpperience;
+                                });
+                              },
+                              child: Container(
+                                // margin: const EdgeInsets.only(bottom: 4),
+                                height: 16,
+                                width: 20,
+                                padding: EdgeInsets.zero,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isRelevantExpperience
+                                        ? Colors.red
+                                        : Colors.grey,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.transparent,
+                                  ),
+                                  child: Checkbox(
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    activeColor: Colors.white,
+                                    checkColor: Colors.red,
+                                    value: isRelevantExpperience,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isRelevantExpperience = value!;
+                                      });
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    side: isRelevantExpperience
+                                        ? const BorderSide(color: Colors.red)
+                                        : null, // No border when unchecked
+
+                                    // Remove extra padding around the checkbox
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Text(
+                            "Candidate should be from relevant experience background.",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  Row(
+                    children: [
+                      Text(
+                        "Gender",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
+                      )
+                    ],
+                  ),
+                  Wrap(
+                    children: [
+                      customContainerSelect(
+                          //isCross: true,
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              onlyMale = !onlyMale;
+                              onlyFemale = false;
+                              femalePrefered = false;
+                            });
+                          },
+                          isSelect: onlyMale,
+                          title: "Only Male"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              femalePrefered = false;
+                              onlyMale = false;
+                              onlyFemale = !onlyFemale;
+                            });
+                          },
+                          isSelect: onlyFemale,
+                          title: "Only Female"),
+                      customContainerSelect(
+                          isAnother: true,
+                          onPressed: () {
+                            setState(() {
+                              femalePrefered = !femalePrefered;
+                              onlyMale = false;
+                              onlyFemale = false;
+                            });
+                          },
+                          isSelect: femalePrefered,
+                          title: "Female Prefered")
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Age Group",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
+                            ),
+                      )
+                    ],
+                  ),
+                  agegroupContainer
+                      ? Row(
+                          children: [
+                            customContainerSelect(
+                                isCross: true,
+                                isAnother: true,
+                                onPressed: () {
+                                  setState(() {
+                                    agegroupContainer = false;
+                                    minAge.clear();
+                                    maxAge.clear();
+                                  });
+                                },
+                                isSelect: agegroupContainer,
+                                title: "${minAge.text} - ${maxAge.text} Yrs"),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            /*  SizedBox(
+                        width: MediaQuery.of(context).size.width / 6.w,
+                        child: newFormFiled(shorListController, context, "",
+                            "Min-age", true, false),
+                      ), */
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width / 5.w,
+                                child: /* newFormFiled(
+                                minExp, context, "", "Min-exp", true, true), */
+                                    Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 15),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  25.h,
+                                              color: Colors.white,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
+                                                maxLength: 2,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .deny(RegExp(r'[.]')),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                onFieldSubmitted: (value) {
+                                                  checkAge();
+                                                },
+                                                onEditingComplete: () {
+                                                  checkAge();
+                                                },
+                                                /*  onTapOutside: (event) {
+                                                  checkAge();
+                                                }, */
+                                                onChanged: (value) {
+                                                  checkAgeGroup(minAge.text);
+                                                },
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                controller: minAge,
+                                                enabled: enableShortListFor,
+                                                onTap: (() {
+                                                  /* showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DialogList(
+                            dialogTitle: "Company Details",
+                            onSelected: (AutoCompleteModel model) => {
+                              shorListController.text = model.label,
+                              selectedshort = model,
+                              Navigator.pop(context),
+                              if (userType == EUserType.businessPartner.value ||
+                                  userType == EUserType.employee.value)
+                                {openCompanyJobsDetails()}
+                              else
+                                {
+                                  if (selectedshort.value != model.value)
+                                    {bindProccessLevelList(model.value)},
+                                  proccessList = [],
+                                  levelList = [],
+                                },
+                              resetProcessLevel(),
+                            },
+                            itemsData: shortList,
+                          );
+                        }); */
+                                                }),
+                                                decoration: InputDecoration(
+                                                    counterText: "",
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 15,
+                                                            left: 10,
+                                                            right: 10),
+                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                    // Icons.workspace_premium
+                                                    // label: const Text("Company Name *"),
+                                                    //border: OutlineInputBorder(),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color(
+                                                                  0xffff0eceb)),
+                                                    ),
+                                                    focusColor: const Color(
+                                                        0xffff0eceb),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      122,
+                                                                      113,
+                                                                      111)),
+                                                    ),
+                                                    hintText: "Min-age",
+                                                    hintStyle: GoogleFonts
+                                                        .sourceSansPro(
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                            fontSize: 15.sp)
+                                                    //  prefixIcon: Icon(Icons.list)
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ))),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height / 35,
+                                child: const Text("-")),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            /* SizedBox(
                         width: MediaQuery.of(context).size.width / 6.w,
                         child: newFormFiled(shorListController, context, "",
                             "Max-age", true, false),
                       ), */ //if (maxAge.text.isNotEmpty&&ma)
 
-                                  SizedBox(
-                                      width: MediaQuery.of(context).size.width /
-                                          5.w,
-                                      child: /* newFormFiled(
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width / 5.w,
+                                child: /* newFormFiled(
                                 minExp, context, "", "Min-exp", true, true), */
-                                          Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 15),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Container(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            25.h,
-                                                    color: Colors.white,
-                                                    child: TextFormField(
-                                                      validator: (value) {
-                                                        if (value == null ||
-                                                            value.isEmpty) {
-                                                          return "This Text field Cant be empty";
-                                                        }
-                                                        return null;
-                                                      },
-                                                      maxLength: 2,
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .deny(
-                                                                RegExp(r'[.]')),
-                                                        FilteringTextInputFormatter
-                                                            .digitsOnly
-                                                      ],
-                                                      enabled:
-                                                          _isSecondTextFieldEnabled,
-                                                      onChanged: (value) {
-                                                        if (value.isNotEmpty) {
-                                                          int? age =
-                                                              int.tryParse(
-                                                                  value);
-                                                          if (age! <= 18) {
-                                                            // Clear the text field if the entered number is not above 18
-                                                            WidgetsBinding
-                                                                .instance
-                                                                .addPostFrameCallback(
-                                                                    (_) {
-                                                              ageGroup.clear();
-                                                            });
-                                                          }
-                                                        }
-                                                      },
-                                                      onFieldSubmitted:
-                                                          (newValue) {
-                                                        /*   maxAge.text.isNotEmpty &&
+                                    Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 15),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  25.h,
+                                              color: Colors.white,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
+                                                maxLength: 2,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .deny(RegExp(r'[.]')),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                enabled:
+                                                    _isSecondTextFieldEnabled,
+                                                onChanged: (value) {
+                                                  if (value.isNotEmpty) {
+                                                    int? age =
+                                                        int.tryParse(value);
+                                                    if (age! <= 18) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        ageGroup.clear();
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                onFieldSubmitted: (newValue) {
+                                                  /*   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty */
 
-                                                        if (maxAge
-                                                            .text.isNotEmpty) {
-                                                          int? age =
-                                                              int.tryParse(
-                                                                  maxAge.text);
-                                                          int? age2 =
-                                                              int.tryParse(
-                                                                  minAge.text);
-                                                          if (age! <= age2!) {
-                                                            // Clear the text field if the entered number is not above 18
-                                                            /* WidgetsBinding.instance
+                                                  if (maxAge.text.isNotEmpty) {
+                                                    int? age = int.tryParse(
+                                                        maxAge.text);
+                                                    int? age2 = int.tryParse(
+                                                        minAge.text);
+                                                    if (age! <= age2!) {
+                                                      // Clear the text field if the entered number is not above 18
+                                                      /* WidgetsBinding.instance
                                                           .addPostFrameCallback(
                                                               (_) {
                                                         ageGroup.clear();
                                                         
                                                       }); */
-                                                            showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return CustomDialog(
-                                                                    fetchDataFromApi:
-                                                                        () {},
-                                                                    isFisrt:
-                                                                        false,
-                                                                    onClose:
-                                                                        () {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      minAge
-                                                                          .clear();
-                                                                      maxAge
-                                                                          .clear();
-                                                                    },
-                                                                    title:
-                                                                        "Invalid Age Group",
-                                                                    subtitle:
-                                                                        "Max age should be greater than Min age");
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              fetchDataFromApi:
+                                                                  () {},
+                                                              isFisrt: false,
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
                                                               },
-                                                            );
-                                                          } else if (age > 55) {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return CustomDialog(
-                                                                    fetchDataFromApi:
-                                                                        () {},
-                                                                    isFisrt:
-                                                                        false,
-                                                                    onClose:
-                                                                        () {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      minAge
-                                                                          .clear();
-                                                                      maxAge
-                                                                          .clear();
-                                                                    },
-                                                                    title:
-                                                                        "Invalid Age Group",
-                                                                    subtitle:
-                                                                        "Max age should not be greater than 55 years");
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should be greater than Min age");
+                                                        },
+                                                      );
+                                                    } else if (age > 55) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return CustomDialog(
+                                                              fetchDataFromApi:
+                                                                  () {},
+                                                              isFisrt: false,
+                                                              onClose: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                minAge.clear();
+                                                                maxAge.clear();
                                                               },
-                                                            );
-                                                          } else {
-                                                            setState(() {
-                                                              agegroupContainer =
-                                                                  !agegroupContainer;
-                                                            });
-                                                          }
-                                                        }
-                                                      },
-                                                      /* {
+                                                              title:
+                                                                  "Invalid Age Group",
+                                                              subtitle:
+                                                                  "Max age should not be greater than 55 years");
+                                                        },
+                                                      );
+                                                    } else {
+                                                      setState(() {
+                                                        agegroupContainer =
+                                                            !agegroupContainer;
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                /* {
                                                   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty
                                                       ? setState(() {
@@ -5300,7 +5188,7 @@ class _JobFormState extends State<JobForm> {
                                                     }
                                                   }
                                                 }, */
-                                                      /*  onTapOutside: (event) {
+                                                /*  onTapOutside: (event) {
                                                         /*   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty */
 
@@ -5373,7 +5261,7 @@ class _JobFormState extends State<JobForm> {
                                                           }
                                                         }
                                                       }, */
-                                                      /* onEditingComplete: () {
+                                                /* onEditingComplete: () {
                                                   maxAge.text.isNotEmpty &&
                                                           minAge.text.isNotEmpty
                                                       ? setState(() {
@@ -5395,18 +5283,18 @@ class _JobFormState extends State<JobForm> {
                                                           },
                                                         );
                                                 }, */
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      controller: maxAge,
-                                                      //   enabled: enableShortListFor,
-                                                      /*  validator: (value) {
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                controller: maxAge,
+                                                //   enabled: enableShortListFor,
+                                                /*  validator: (value) {
                                             if (value == null || value.isEmpty) {
                                               return 'Please select any company';
                                             }
                                             return null;
                                           }, */
-                                                      onTap: (() {
-                                                        /* showDialog(
+                                                onTap: (() {
+                                                  /* showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return DialogList(
@@ -5430,84 +5318,76 @@ class _JobFormState extends State<JobForm> {
                             itemsData: shortList,
                           );
                         }); */
-                                                      }),
-                                                      decoration:
-                                                          InputDecoration(
-                                                              counterText: "",
-                                                              contentPadding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      top: 8,
-                                                                      bottom:
-                                                                          15,
-                                                                      left: 10,
-                                                                      right:
-                                                                          10),
-                                                              // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                              // Icons.workspace_premium
-                                                              // label: const Text("Company Name *"),
-                                                              //border: OutlineInputBorder(),
-                                                              border:
-                                                                  OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                                borderSide: const BorderSide(
-                                                                    color: Color(
-                                                                        0xffff0eceb)),
-                                                              ),
-                                                              focusColor:
-                                                                  const Color(
-                                                                      0xffff0eceb),
-                                                              focusedBorder:
-                                                                  OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                                borderSide: const BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            122,
-                                                                            113,
-                                                                            111)),
-                                                              ),
-                                                              hintText:
-                                                                  "Max-age",
-                                                              hintStyle: GoogleFonts
-                                                                  .sourceSansPro(
-                                                                      color: Constants
-                                                                          .subtitleclr,
-                                                                      fontSize:
-                                                                          15.sp)
-                                                              //  prefixIcon: Icon(Icons.list)
-                                                              ),
+                                                }),
+                                                decoration: InputDecoration(
+                                                    counterText: "",
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 15,
+                                                            left: 10,
+                                                            right: 10),
+                                                    // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                                    // Icons.workspace_premium
+                                                    // label: const Text("Company Name *"),
+                                                    //border: OutlineInputBorder(),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color(
+                                                                  0xffff0eceb)),
                                                     ),
-                                                  ),
-                                                ],
-                                              ))),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Yrs",
-                                    style: GoogleFonts.sourceSansPro(
-                                        fontSize: 16.sp,
-                                        // color: Colors.grey.shade500,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                        Text(
-                          "Communication Rating",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
+                                                    focusColor: const Color(
+                                                        0xffff0eceb),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      122,
+                                                                      113,
+                                                                      111)),
+                                                    ),
+                                                    hintText: "Max-age",
+                                                    hintStyle: GoogleFonts
+                                                        .sourceSansPro(
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                            fontSize: 15.sp)
+                                                    //  prefixIcon: Icon(Icons.list)
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ))),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Yrs",
+                              style: GoogleFonts.sourceSansPro(
+                                  fontSize: 16.sp,
+                                  // color: Colors.grey.shade500,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ],
                         ),
-                        /* Container(
+                  Text(
+                    "Communication Rating",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  /* Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isCommunicationVisible ? 5 : 0,
@@ -5540,42 +5420,41 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Container(
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            spacing: isOptionVisible ? 5 : 0,
-                            runSpacing: 5,
-                            children: List.generate(jobTitleSuggestion5.length,
-                                (index) {
-                              final jobTitle = jobTitleSuggestion5[index];
-                              String modifiedString1 =
-                                  jobTitle.replaceAll(" ", "");
-                              String? modifiedString2 =
-                                  selectedComunication?.replaceAll(" ", "");
-                              final bool _isSelected =
-                                  modifiedString1 == modifiedString2 &&
-                                      selectedComunication != null;
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      spacing: isOptionVisible ? 5 : 0,
+                      runSpacing: 5,
+                      children:
+                          List.generate(jobTitleSuggestion5.length, (index) {
+                        final jobTitle = jobTitleSuggestion5[index];
+                        String modifiedString1 = jobTitle.replaceAll(" ", "");
+                        String? modifiedString2 =
+                            selectedComunication?.replaceAll(" ", "");
+                        final bool _isSelected =
+                            modifiedString1 == modifiedString2 &&
+                                selectedComunication != null;
 
-                              return JobTitleItem(
-                                isunSelect: false,
-                                getJobTitle1isSelected: _isSelected,
-                                onlyOneIcon: true,
-                                ismulti: false,
-                                title: jobTitle,
-                                isSelected: _isSelected,
-                                onTap: (selected) {
-                                  if (selected) {
-                                    setState(() {
-                                      selectedComunication = jobTitle;
-                                    });
-                                  }
-                                },
-                                isVisible: true,
-                              );
-                            }),
-                          ),
-                        ),
-                        /* Container(
+                        return JobTitleItem(
+                          isunSelect: false,
+                          getJobTitle1isSelected: _isSelected,
+                          onlyOneIcon: true,
+                          ismulti: false,
+                          title: jobTitle,
+                          isSelected: _isSelected,
+                          onTap: (selected) {
+                            if (selected) {
+                              setState(() {
+                                selectedComunication = jobTitle;
+                              });
+                            }
+                          },
+                          isVisible: true,
+                        );
+                      }),
+                    ),
+                  ),
+                  /* Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
                       spacing: isCommunicationVisible ? 5 : 5,
@@ -5603,28 +5482,28 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        Row(
-                          children: [
-                            Text(
-                              "Eligibility",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                  Row(
+                    children: [
+                      Text(
+                        "Eligibility",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
                             ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        /*  ListView.builder(      //Old check box code for Eligibility
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  /*  ListView.builder(      //Old check box code for Eligibility
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _eligibilityList.length,
@@ -5642,174 +5521,166 @@ class _JobFormState extends State<JobForm> {
                       );
                     },
                   ), */
-                        fetchApieligibility.isNotEmpty
-                            ? const SizedBox()
-                            : const SizedBox(height: 5),
-                        ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: fetchApieligibility.length,
-                          itemBuilder: (context, index) {
-                            final item = fetchApieligibility[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, right: 5),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    height: 16,
-                                    width: 20,
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: Colors.grey,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        height: 16,
-                                        width: 20,
-                                        child: Theme(
-                                          data: ThemeData(
-                                            unselectedWidgetColor:
-                                                Colors.transparent,
-                                          ),
-                                          child: Checkbox(
-                                            activeColor: Colors.white,
-                                            checkColor: Colors.red,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            value: selectedKeyEligibility
-                                                .contains(item),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                if (newValue!) {
-                                                  selectedKeyEligibility
-                                                      .add(item);
-                                                } else {
-                                                  selectedKeyEligibility
-                                                      .remove(item);
-                                                }
-                                              });
-                                              print(selectedKeyEligibility);
-                                            },
-                                          ),
-                                        ),
-                                      ),
+                  fetchApieligibility.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(height: 5),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApieligibility.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApieligibility[index];
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      width: 1.5,
                                     ),
                                   ),
-                                  const SizedBox(width: 2),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      softWrap: true,
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value:
+                                          selectedKeyEligibility.contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            selectedKeyEligibility.add(item);
+                                          } else {
+                                            selectedKeyEligibility.remove(item);
+                                          }
+                                        });
+                                        print(selectedKeyEligibility);
+                                      },
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            );
-                          },
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap: true,
+                              ),
+                            ),
+                          ],
                         ),
+                      );
+                    },
+                  ),
 // Rest of the code...
 
-                        SizedBox(
-                          height: height / 25,
-                          child: TextField(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              /*  FilteringTextInputFormatter.allow(
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        /*  FilteringTextInputFormatter.allow(
                                   RegExp(r'[a-zA-Z\s]')), */
-                            ],
-                            controller: Eligibility,
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.sentences,
-                            onEditingComplete: () {
-                              final newEligibility = Eligibility.text.trim();
-                              if (newEligibility.isNotEmpty &&
-                                  !fetchApieligibility
-                                      .contains(newEligibility)) {
-                                setState(() {
-                                  fetchApieligibility.add(newEligibility);
-                                  selectedKeyEligibility.add(newEligibility);
-                                  Eligibility.clear();
-                                });
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Error'),
-                                      content: const Text(
-                                          'Eligibility already exists.'),
-                                      actions: [
-                                        ElevatedButton(
-                                          child: const Text('OK'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
+                      ],
+                      controller: Eligibility,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newEligibility = Eligibility.text.trim();
+                        if (newEligibility.isNotEmpty &&
+                            !fetchApieligibility.contains(newEligibility)) {
+                          setState(() {
+                            fetchApieligibility.add(newEligibility);
+                            selectedKeyEligibility.add(newEligibility);
+                            Eligibility.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content:
+                                    const Text('Eligibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
                             },
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.only(
-                                  top: 5, left: 10, right: 10),
-                              prefix: Column(
-                                children: _getBulletPointWidgetsrespo(),
-                                mainAxisAlignment: MainAxisAlignment.start,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyEligibility
-                                        .contains(Eligibility.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              focusColor: const Color(0xffff0eceb),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyEligibility
-                                        .contains(Eligibility.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              hintText:
-                                  "Any other eligibility that you want to add",
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.subtitleclr,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ),
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
                         ),
-                        Container(
-                          margin: fetchApieligibility
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyEligibility
                                   .contains(Eligibility.text.trim())
-                              ? const EdgeInsets.only(bottom: 15, left: 10)
-                              : null,
-                          child: Text(
-                            fetchApieligibility
-                                    .contains(Eligibility.text.trim())
-                                ? "This Eligibility is already added."
-                                : "",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12.sp,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
                         ),
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyEligibility
+                                  .contains(Eligibility.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText: "Any other eligibility that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin:
+                        fetchApieligibility.contains(Eligibility.text.trim())
+                            ? const EdgeInsets.only(bottom: 15, left: 10)
+                            : null,
+                    child: Text(
+                      fetchApieligibility.contains(Eligibility.text.trim())
+                          ? "This Eligibility is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
 
-                        //old eligibility down
-                        /* ListView.builder(
+                  //old eligibility down
+                  /* ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _eligibilityList.length,
@@ -5949,33 +5820,33 @@ class _JobFormState extends State<JobForm> {
                           ),
                     ),
                   ), */
-                        //old eligibility
+                  //old eligibility
 
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "More Details",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "More Details",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "  (Optional)",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 15.sp, fontStyle: FontStyle.italic
+                            // color: Colors.grey.shade500,
                             ),
-                            Text(
-                              "  (Optional)",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 15.sp, fontStyle: FontStyle.italic
-                                  // color: Colors.grey.shade500,
-                                  ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        /* ListView.builder(        //old check box for more detail
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  /* ListView.builder(        //old check box for more detail
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _moreDetailsList.length,
@@ -5994,181 +5865,174 @@ class _JobFormState extends State<JobForm> {
                     },
                   ), */
 
-                        fetchApiMoreDEtail.isNotEmpty
-                            ? const SizedBox()
-                            : const SizedBox(
-                                height: 5,
+                  fetchApiMoreDEtail.isNotEmpty
+                      ? const SizedBox()
+                      : const SizedBox(
+                          height: 5,
+                        ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: fetchApiMoreDEtail.length,
+                    itemBuilder: (context, index) {
+                      final item = fetchApiMoreDEtail[index];
+                      //  fetchData();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 20,
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color:
+                                          selectedKeyMoreDetails.contains(item)
+                                              ? Colors.red
+                                              : Colors.grey,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  height: 16,
+                                  width: 20,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.transparent,
+                                    ),
+                                    child: Checkbox(
+                                      activeColor: Colors.white,
+                                      checkColor: Colors.red,
+                                      visualDensity: VisualDensity.compact,
+                                      value:
+                                          selectedKeyMoreDetails.contains(item),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          if (newValue!) {
+                                            // Add the item to the list
+                                            selectedKeyMoreDetails.add(item);
+                                          } else {
+                                            // Remove the item from the list
+                                            selectedKeyMoreDetails.remove(item);
+                                          }
+                                        });
+                                        print(
+                                            selectedKeyMoreDetails); // Notify Flutter that the state has changed
+                                      },
+                                    ),
+                                  ),
+                                ),
                               ),
-                        ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: fetchApiMoreDEtail.length,
-                          itemBuilder: (context, index) {
-                            final item = fetchApiMoreDEtail[index];
-                            //  fetchData();
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, right: 5),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    height: 16,
-                                    width: 20,
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: selectedKeyMoreDetails
-                                                    .contains(item)
-                                                ? Colors.red
-                                                : Colors.grey,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        height: 16,
-                                        width: 20,
-                                        child: Theme(
-                                          data: ThemeData(
-                                            unselectedWidgetColor:
-                                                Colors.transparent,
-                                          ),
-                                          child: Checkbox(
-                                            activeColor: Colors.white,
-                                            checkColor: Colors.red,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            value: selectedKeyMoreDetails
-                                                .contains(item),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                if (newValue!) {
-                                                  // Add the item to the list
-                                                  selectedKeyMoreDetails
-                                                      .add(item);
-                                                } else {
-                                                  // Remove the item from the list
-                                                  selectedKeyMoreDetails
-                                                      .remove(item);
-                                                }
-                                              });
-                                              print(
-                                                  selectedKeyMoreDetails); // Notify Flutter that the state has changed
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 2,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      softWrap:
-                                          true, // Allow text to wrap into the next line
-                                    ),
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Text(
+                                item,
+                                softWrap:
+                                    true, // Allow text to wrap into the next line
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 25,
+                    child: TextField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                        /*  FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')), */
+                      ],
+                      controller: moreDetail,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                      onEditingComplete: () {
+                        final newMoreDetail = moreDetail.text.trim();
+                        if (newMoreDetail.isNotEmpty &&
+                            !fetchApiMoreDEtail.contains(newMoreDetail)) {
+                          setState(() {
+                            fetchApiMoreDEtail.add(newMoreDetail);
+                            selectedKeyMoreDetails.add(newMoreDetail);
+                            moreDetail.clear();
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content:
+                                    const Text('Eligibility already exists.'),
+                                actions: [
+                                  ElevatedButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
                                   ),
                                 ],
-                              ),
-                            );
-                          },
-                        ),
-                        SizedBox(
-                          height: height / 25,
-                          child: TextField(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(r'^\s')),
-                              /*  FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z\s]')), */
-                            ],
-                            controller: moreDetail,
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.sentences,
-                            onEditingComplete: () {
-                              final newMoreDetail = moreDetail.text.trim();
-                              if (newMoreDetail.isNotEmpty &&
-                                  !fetchApiMoreDEtail.contains(newMoreDetail)) {
-                                setState(() {
-                                  fetchApiMoreDEtail.add(newMoreDetail);
-                                  selectedKeyMoreDetails.add(newMoreDetail);
-                                  moreDetail.clear();
-                                });
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Error'),
-                                      content: const Text(
-                                          'Eligibility already exists.'),
-                                      actions: [
-                                        ElevatedButton(
-                                          child: const Text('OK'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
+                              );
                             },
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.only(
-                                  top: 5, left: 10, right: 10),
-                              prefix: Column(
-                                children: _getBulletPointWidgetsrespo(),
-                                mainAxisAlignment: MainAxisAlignment.start,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyMoreDetails
-                                        .contains(moreDetail.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              focusColor: const Color(0xffff0eceb),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: selectedKeyMoreDetails
-                                        .contains(moreDetail.text.trim())
-                                    ? const BorderSide(color: Colors.red)
-                                    : BorderSide(color: Colors.grey.shade400),
-                              ),
-                              hintText:
-                                  "Any other More Detail that you want to add",
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.subtitleclr,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ),
+                          );
+                        }
+                      },
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 5, left: 10, right: 10),
+                        prefix: Column(
+                          children: _getBulletPointWidgetsrespo(),
+                          mainAxisAlignment: MainAxisAlignment.start,
                         ),
-                        Container(
-                          margin: fetchApiMoreDEtail
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyMoreDetails
                                   .contains(moreDetail.text.trim())
-                              ? const EdgeInsets.only(bottom: 15, left: 10)
-                              : null,
-                          child: Text(
-                            fetchApiMoreDEtail.contains(moreDetail.text.trim())
-                                ? "This More Detail is already added."
-                                : "",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12.sp,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
                         ),
-                        // old more detail down
-                        /* ListView.builder(
+                        focusColor: const Color(0xffff0eceb),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: selectedKeyMoreDetails
+                                  .contains(moreDetail.text.trim())
+                              ? const BorderSide(color: Colors.red)
+                              : BorderSide(color: Colors.grey.shade400),
+                        ),
+                        hintText: "Any other More Detail that you want to add",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.subtitleclr,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: fetchApiMoreDEtail.contains(moreDetail.text.trim())
+                        ? const EdgeInsets.only(bottom: 15, left: 10)
+                        : null,
+                    child: Text(
+                      fetchApiMoreDEtail.contains(moreDetail.text.trim())
+                          ? "This More Detail is already added."
+                          : "",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  // old more detail down
+                  /* ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _moreDetailsList.length,
@@ -6328,18 +6192,18 @@ class _JobFormState extends State<JobForm> {
                     height: 5,
                   ), */
 
-                        /*  newFormFiled(shorListController, context, "More Details",
+                  /*  newFormFiled(shorListController, context, "More Details",
                       "Optional", false, false), */
-                        /*  newFormFiled(shorListController, context, "Interview Rounds",
+                  /*  newFormFiled(shorListController, context, "Interview Rounds",
                       "Graduate", false, false, false) */
-                        Text(
-                          "Interview Rounds",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        /* Container(  old one
+                  Text(
+                    "Interview Rounds",
+                    style: GoogleFonts.sourceSansPro(
+                        fontSize: 18.sp,
+                        // color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  /* Container(  old one
                     margin: const EdgeInsets.only(top: 10),
                     child: Wrap(
                       spacing: 8,
@@ -6362,7 +6226,7 @@ class _JobFormState extends State<JobForm> {
                       }),
                     ),
                   ), */
-                        /* Container(   Before Fetching data from api Related to matching jobs.
+                  /* Container(   Before Fetching data from api Related to matching jobs.
                     width: double.maxFinite,
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
                     child: Wrap(
@@ -6401,46 +6265,46 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ),
                   ), */
-                        Container(
-                          width: double.maxFinite,
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
-                          child: Wrap(
-                            direction: Axis.horizontal,
-                            spacing: 5,
-                            runSpacing: 5,
-                            children: List.generate(
-                              jobTitleSuggestion4.length,
-                              (index) {
-                                String title = jobTitleSuggestion4[index];
-                                bool isSelected =
-                                    selectedInterViewRounds.contains(title);
-                                JobTitleItem item = JobTitleItem(
-                                  isunSelect: true,
-                                  ismulti: false,
-                                  title: title,
-                                  isSelected: isSelected,
-                                  onTap: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        selectedInterViewRounds.add(title);
-                                      } else {
-                                        selectedInterViewRounds.remove(title);
-                                      }
-                                    });
-                                  },
-                                  isVisible: true,
-                                  onlyOneIcon: false,
-                                  getJobTitle1isSelected: null,
-                                );
+                  Container(
+                    width: double.maxFinite,
+                    margin: const EdgeInsets.only(top: 10, bottom: 12),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: List.generate(
+                        jobTitleSuggestion4.length,
+                        (index) {
+                          String title = jobTitleSuggestion4[index];
+                          bool isSelected =
+                              selectedInterViewRounds.contains(title);
+                          JobTitleItem item = JobTitleItem(
+                            isunSelect: true,
+                            ismulti: false,
+                            title: title,
+                            isSelected: isSelected,
+                            onTap: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  selectedInterViewRounds.add(title);
+                                } else {
+                                  selectedInterViewRounds.remove(title);
+                                }
+                              });
+                            },
+                            isVisible: true,
+                            onlyOneIcon: false,
+                            getJobTitle1isSelected: null,
+                          );
 
-                                jobTitleItems2.add(item);
-                                return item;
-                              },
-                            ),
-                          ),
-                        ),
+                          jobTitleItems2.add(item);
+                          return item;
+                        },
+                      ),
+                    ),
+                  ),
 
-                        /* TextFormField(                                           //show dialogue for process//
+                  /* TextFormField(                                           //show dialogue for process//
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select any process';
@@ -6474,14 +6338,14 @@ class _JobFormState extends State<JobForm> {
                         hintText: "Select proccess",
                         prefixIcon: Icon(Icons.circle_outlined)),
                   ), */
-                        //  suggestTextfield("Company", 1, _typeAheadController, shortList),
-                      ],
-                    ),
-                  ),
-                ),
+                  //  suggestTextfield("Company", 1, _typeAheadController, shortList),
+                ],
               ),
             ),
-          );
+          ),
+        ),
+      ),
+    );
   }
 
   void checkAge() {
@@ -6787,8 +6651,7 @@ class _JobFormState extends State<JobForm> {
                         if (value >= 100000) {
                           double formattedValue = value / 100000;
                           return ismax
-                              ? NumberFormat("0.00' Lacs'")
-                                  .format(formattedValue)
+                              ? NumberFormat("0.00' '").format(formattedValue)
                               : NumberFormat("0.00' '").format(formattedValue);
                         } else {
                           return value.toString();
@@ -7120,8 +6983,7 @@ class _JobFormState extends State<JobForm> {
                         if (value >= 100000) {
                           double formattedValue = value / 100000;
                           return ismax
-                              ? NumberFormat("0.00' Lacs'")
-                                  .format(formattedValue)
+                              ? NumberFormat("0.00' '").format(formattedValue)
                               : NumberFormat("0.00' '").format(formattedValue);
                         } else {
                           return value.toString();

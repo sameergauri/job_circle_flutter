@@ -28,10 +28,10 @@ class jobPostModel {
   List<String>? languageKnown;
   int? locationId;
   int? maxAge;
-  int? maxCtc;
+  double? maxCtc;
   String? maxExperience;
   int? minAge;
-  int? minCtc;
+  double? minCtc;
   String? minExperience;
   List<String>? moredetails;
   String? natureOfWork;
