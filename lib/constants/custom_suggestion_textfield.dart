@@ -62,7 +62,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
       required String process}) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"));
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -291,7 +291,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
 
   int? functionalAreaId;
 
- /*  void getFunctionalAreaId(int id) {
+  /*  void getFunctionalAreaId(int id) {
     setState(() {
       functionalAreaId = id;
     });
@@ -755,8 +755,8 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                                             .functional_area
                                             .toString();
                                         handleBoolChange(true);
-                                        widget.getFunctionalAreaId(
-                                            suggestion.id);
+                                        widget
+                                            .getFunctionalAreaId(suggestion.id);
                                         searchKeyWord = "";
                                       });
                                     },

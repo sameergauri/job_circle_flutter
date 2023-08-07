@@ -29,16 +29,16 @@ import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
 
-class TalentPool extends StatefulWidget {
-  const TalentPool({
+class TalentPipLine extends StatefulWidget {
+  const TalentPipLine({
     super.key,
   });
 
   @override
-  State<TalentPool> createState() => _TalentPoolState();
+  State<TalentPipLine> createState() => _TalentPipLineState();
 }
 
-class _TalentPoolState extends State<TalentPool>
+class _TalentPipLineState extends State<TalentPipLine>
     with SingleTickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -168,7 +168,7 @@ class _TalentPoolState extends State<TalentPool>
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
-        .where((e) => e.status_code!.contains('T'))
+        .where((e) => e.status_code!.contains('MP'))
         .map((e) => e.status.toString())
         .toSet()
         .toList()
@@ -192,8 +192,8 @@ class _TalentPoolState extends State<TalentPool>
   bool isSelect = false;
 
   Map<int, SelectedOption> selectedValueMap = {};
-  final GlobalKey<_TalentPoolState> _talentPollKey =
-      GlobalKey<_TalentPoolState>();
+  final GlobalKey<_TalentPipLineState> _talentPollKey =
+      GlobalKey<_TalentPipLineState>();
 
   @override
   Widget build(BuildContext context) {
@@ -263,15 +263,8 @@ class _TalentPoolState extends State<TalentPool>
                           .toList();
 
                       // Check if sub_status is null or not
-                      final subStatuses = applicants
-                          .map((applicant) => applicant.sub_status?.toString())
-                          .where((subStatus) => subStatus != null)
-                          .toSet()
-                          .toList()
-                        ..sort();
-
-                      if (subStatuses.isEmpty) {
-                        // No second tab bar needed if subStatuses is empty
+                      if (status == 'New') {
+                        // Display applicants directly without sub_status tabs
                         return ListView.builder(
                           shrinkWrap: true,
                           itemCount: applicants.length,
@@ -290,6 +283,15 @@ class _TalentPoolState extends State<TalentPool>
                           },
                         );
                       } else {
+                        // Proceed with sub_status tabs for other statuses
+                        final subStatuses = applicants
+                            .map(
+                                (applicant) => applicant.sub_status?.toString())
+                            .where((subStatus) => subStatus != null)
+                            .toSet()
+                            .toList()
+                          ..sort();
+
                         // Second tab bar needed for subStatuses
                         return DefaultTabController(
                           length: subStatuses.length,
@@ -888,10 +890,43 @@ class _TalentPoolState extends State<TalentPool>
                                       borderRadius: BorderRadius.circular(8)),
                                 ), */
                               ],
-                            )
+                            ),
                           ],
                         ),
-                      )
+                      ),
+                    Row(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 5, bottom: 3),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 6, horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.green[900],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                  color: Constants.borderColor, width: 2)),
+                          child: Text("Select",
+                              style: GoogleFonts.varela(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(
+                              top: 5, bottom: 3, left: 10),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                  color: Constants.themeBgColor, width: 2)),
+                          child: Text("Reject",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    )
                   ],
                 ),
 

@@ -22,7 +22,6 @@ import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/company.dart';
@@ -1822,7 +1821,7 @@ class _JobFormState extends State<JobForm> {
                             );
 
                             Map<String, dynamic> jsonData = model.toJson();
-                            JobPostApiService.postDataToApi(jsonData,context);
+                            JobPostApiService.postDataToApi(jsonData, context);
                             /* showDialog(
                               barrierDismissible: false,
                               context: context,
@@ -2105,8 +2104,8 @@ class _JobFormState extends State<JobForm> {
                     );
 
                     Map<String, dynamic> jsonData = model.toJson();
-                    JobPostApiService.postDataToApi(jsonData,context);
-                   
+                    JobPostApiService.postDataToApi(jsonData, context);
+
                     /*  setState(() {
                             isLoading = false;
                           }); */

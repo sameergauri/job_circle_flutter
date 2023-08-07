@@ -550,8 +550,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding:
-              EdgeInsets.only(left: 20, right: 20, top: kToolbarHeight * 1.7.h),
+          padding: const EdgeInsets.only(
+              left: 20, right: 20, top: kToolbarHeight * 2),
           child: jobDetailsModel.id == null
               ? const Center(
                   child: CircularProgressIndicator(),
@@ -1322,7 +1322,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Add the static value based on the condition
-                                if (jobDetailsModel.age_group!.isNotEmpty)
+                                if (jobDetailsModel.age_group != null)
                                   Padding(
                                     padding:
                                         const EdgeInsets.symmetric(vertical: 2),

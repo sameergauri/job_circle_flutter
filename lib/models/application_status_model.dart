@@ -61,7 +61,7 @@ class Application {
   final int? orderno;
   final dynamic? extra;
   final String? icon;
-  final int? sub_value;
+  final String? sub_value;
 
   Application({
     this.id,
@@ -97,7 +97,7 @@ class Application {
       orderno: json['orderno'] as int?,
       extra: json['extra'],
       icon: json['icon'] as String?,
-      sub_value: json['sub_value'] as int?,
+      sub_value: json['sub_value'] as String?,
     );
   }
 }

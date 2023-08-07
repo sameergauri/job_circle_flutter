@@ -55,6 +55,7 @@ class Applicant {
   String? availabilityRecent;
   String? status;
   String? totalSalary;
+  String? status_code;
   String? jobTitlePrevious;
   int? contactNo;
   String? jobTitleRecent;
@@ -95,6 +96,7 @@ class Applicant {
     this.companyName,
     this.natureOfWork,
     this.sub_status,
+    this.status_code,
     this.availabilityRecent,
     this.status,
     this.totalSalary,
@@ -138,6 +140,7 @@ class Applicant {
     return Applicant(
       spocContactNo: json['spoc_contact_no'],
       skills: _parseSkills(json['skills']),
+      status_code: json['status_code'],
       companyName: json['company_name'],
       sub_status: json['sub_status'],
       natureOfWork: json['natur_of_work'],
@@ -202,6 +205,7 @@ class Applicant {
       'sub_status': sub_status,
       'availability_recent': availabilityRecent,
       'status': status,
+      'status_code':status_code,
       'total_salary': totalSalary,
       'job_title_previous': jobTitlePrevious,
       'contact_no': contactNo,

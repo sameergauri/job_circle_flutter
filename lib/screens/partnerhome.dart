@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/jobs/recruitz.dart';
 import 'package:job_circle/screens/profile/businesspartner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'jobs/recruitz.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
