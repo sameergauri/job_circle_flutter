@@ -36,6 +36,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/job_details_model.dart';
 import '../../service/masterService.dart';
+import 'add_resume.dart';
 
 class Jobs extends ConsumerStatefulWidget {
   const Jobs({Key? key}) : super(key: key);
@@ -316,10 +317,8 @@ class _JobsState extends ConsumerState<Jobs>
             prefs, ESharedPreferences.user_id.name));
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromMap(dataResult);
-      profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
-      profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
-      profile_cv_file = Utils.getFileName(profile_cv_link);
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
+
       // user_selected_lcoation = user_selected_lcoation;
     }
     setState(() {});
@@ -517,15 +516,16 @@ class _JobsState extends ConsumerState<Jobs>
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-        floatingActionButton: Visibility(
-            //visible: usertype == EUserType.employee.value, // && role != "4", old
-            child: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () {
-            /*       Navigator.push(
+        floatingActionButton: usertype == 3
+            ? Visibility(
+                visible: role != "1" && role != "2",
+                child: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
+                    /*       Navigator.push(
                 context, // second
                 MaterialPageRoute(builder: (context) => const JobListPage())); */
-            /* Navigator.push(
+                    /* Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const WebviewData(
@@ -537,13 +537,14 @@ class _JobsState extends ConsumerState<Jobs>
     
             setState(() {}); */
 
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const JobForm(formEdit: false),
-                ));
-          },
-        )),
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const JobForm(formEdit: false),
+                        ));
+                  },
+                ))
+            : const SizedBox(),
         appBar: AppBar(
           leading: Builder(
             builder: (context) => Padding(
@@ -2050,7 +2051,7 @@ class _JobsState extends ConsumerState<Jobs>
           // elevation: 0.1,
           child: Padding(
             padding:
-                const EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 5),
+                EdgeInsets.only(left: 5.w, right: 5.w, bottom: 5.h, top: 5.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2063,71 +2064,75 @@ class _JobsState extends ConsumerState<Jobs>
                       color: Color.fromARGB(255, 118, 118, 118),
                     ), */
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['rolename'] ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, fontSize: 16.sp),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            if (item['process'] != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['rolename'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.varela(
+                                fontWeight: FontWeight.bold, fontSize: 16.sp),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              if (item['process'] != null)
+                                Text(
+                                  item['process'].toString(),
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.sp),
+                                ),
+                              const SizedBox(
+                                width: 2,
+                              ),
                               Text(
-                                item['process'].toString(),
+                                "||",
+                                style: GoogleFonts.varela(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              // if (item["0"] != null)
+                              Text(
+                                item['naturofwork'].toString(),
                                 style: GoogleFonts.varela(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14.sp),
-                              ),
-                            const SizedBox(
-                              width: 2,
-                            ),
-                            Text(
-                              "||",
-                              style: GoogleFonts.varela(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 2,
-                            ),
-                            // if (item["0"] != null)
-                            Text(
-                              item['naturofwork'].toString(),
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.w500, fontSize: 14.sp),
-                            )
-                            // item['process']
-                            /*  Image.asset(
-                        "assets/images/compny.png",
-                        height: 17.h,
-                        // color: Colors.black,
-                        ), */
+                              )
+                              // item['process']
+                              /*  Image.asset(
+                          "assets/images/compny.png",
+                          height: 17.h,
+                          // color: Colors.black,
+                          ), */
 
-                            // if (item['process'] != null)
-                            //   Text(
-                            //     item['process'],
-                            //     style: const GoogleFonts.varela(
-                            //         color: Colors.black54,
-                            //         fontWeight: FontWeight.normal,
-                            //         fontSize: 13),
-                            //   ),
-                            // if (item['rolename'] != null)
-                            //   const Text(
-                            //     " | ",
-                            //     style: GoogleFonts.varela(
-                            //         color: Colors.black54,
-                            //         fontWeight: FontWeight.normal,
-                            //         fontSize: 13),
-                            //   ),
-                            // if (item['rolename'] != null)
-                          ],
-                        ),
-                      ],
+                              // if (item['process'] != null)
+                              //   Text(
+                              //     item['process'],
+                              //     style: const GoogleFonts.varela(
+                              //         color: Colors.black54,
+                              //         fontWeight: FontWeight.normal,
+                              //         fontSize: 13),
+                              //   ),
+                              // if (item['rolename'] != null)
+                              //   const Text(
+                              //     " | ",
+                              //     style: GoogleFonts.varela(
+                              //         color: Colors.black54,
+                              //         fontWeight: FontWeight.normal,
+                              //         fontSize: 13),
+                              //   ),
+                              // if (item['rolename'] != null)
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     /* Container(
                         child: Row(
@@ -2189,181 +2194,188 @@ class _JobsState extends ConsumerState<Jobs>
                 SizedBox(
                   height: 5.h,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //  if (item['companyname'] != null) //&&
-                    // item['process'] != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 1),
-                          child: Image.asset(
-                            "assets/images/cmpny.png",
-                            height: 12.h,
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //  if (item['companyname'] != null) //&&
+                      // item['process'] != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Image.asset(
+                              "assets/images/cmpny.png",
+                              height: 12.h,
+                            ),
                           ),
-                        ),
-                        /* SizedBox(
-                          child: Icon(
-                            Icons.business_outlined,
-                            size: 12.h,
-                            color: Constants.subtitleclr,
-                          ),
-                        ), */
-                        SizedBox(
-                          width: 8.w,
-                        ),
-                        Text(
-                          item['companyname'],
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.varela(
-                              // color: Colors.black54,
+                          /* SizedBox(
+                            child: Icon(
+                              Icons.business_outlined,
+                              size: 12.h,
                               color: Constants.subtitleclr,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 13.sp),
-                        ),
-                      ],
-                    ),
-                    item["isfresher"] == "Fresher"
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/images/bag.png",
-                                height: 12.h,
-                                //  color: Constants.subtitleclr,
-                              ),
-                              SizedBox(
-                                width: 8.w,
-                              ),
-                              Text(
-                                "Fresher can apply.",
-                                style: GoogleFonts.varela(
-                                    // color: Colors.black54,
-                                    color: Constants.subtitleclr,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 13.sp),
-                              )
-                            ],
-                          )
-                        : (item["total_experience"] != null)
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/bag.png",
-                                    height: 12.h,
-                                    //  color: Constants.subtitleclr,
-                                  ),
-                                  SizedBox(
-                                    width: 8.w,
-                                  ),
-                                  item["maxexperience"] == "& above"
-                                      ? item["minexperience"] == "0.6"
-                                          ? Text(
-                                              // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
-                                              "6 Month & Above.",
-                                              style: GoogleFonts.varela(
-                                                  // color: Colors.black54,
-                                                  color: Constants.subtitleclr,
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 13.sp),
-                                            )
-                                          : Text(
-                                              "${item["minexperience"].replaceAll(".0", "")} Years & above.",
-                                              style: GoogleFonts.varela(
-                                                  // color: Colors.black54,
-                                                  color: Constants.subtitleclr,
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 13.sp),
-                                            )
-                                      : Text(
-                                          "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
-                                          style: GoogleFonts.varela(
-                                              // color: Colors.black54,
-                                              color: Constants.subtitleclr,
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 13.sp),
-                                        )
-                                ],
-                              )
-                            : const SizedBox(),
+                            ),
+                          ), */
+                          SizedBox(
+                            width: 8.w,
+                          ),
+                          Text(
+                            item['companyname'],
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          ),
+                        ],
+                      ),
+                      item["isfresher"] == "Fresher"
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  "assets/images/bag.png",
+                                  height: 12.h,
+                                  //  color: Constants.subtitleclr,
+                                ),
+                                SizedBox(
+                                  width: 8.w,
+                                ),
+                                Text(
+                                  "Fresher can apply.",
+                                  style: GoogleFonts.varela(
+                                      // color: Colors.black54,
+                                      color: Constants.subtitleclr,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 13.sp),
+                                )
+                              ],
+                            )
+                          : (item["total_experience"] != null)
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/bag.png",
+                                      height: 12.h,
+                                      //  color: Constants.subtitleclr,
+                                    ),
+                                    SizedBox(
+                                      width: 8.w,
+                                    ),
+                                    item["maxexperience"] == "& above"
+                                        ? item["minexperience"] == "0.6"
+                                            ? Text(
+                                                // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                                "6 Month & Above.",
+                                                style: GoogleFonts.varela(
+                                                    // color: Colors.black54,
+                                                    color:
+                                                        Constants.subtitleclr,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 13.sp),
+                                              )
+                                            : Text(
+                                                "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                                style: GoogleFonts.varela(
+                                                    // color: Colors.black54,
+                                                    color:
+                                                        Constants.subtitleclr,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 13.sp),
+                                              )
+                                        : Text(
+                                            "${item["minexperience"].replaceAll(".0", "")} - ${item["maxexperience"].replaceAll(".0", "")} Years",
+                                            style: GoogleFonts.varela(
+                                                // color: Colors.black54,
+                                                color: Constants.subtitleclr,
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 13.sp),
+                                          )
+                                  ],
+                                )
+                              : const SizedBox(),
 
-                    if (item['minctc'] != null)
+                      if (item['minctc'] != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/wallet.png",
+                              height: 14.h,
+                            ),
+                            /* Icon(
+                              Icons.currency_rupee,
+                              size: 13.h,
+                              color: Constants.subtitleclr,
+                            ), */
+                            SizedBox(
+                              width: 6.w,
+                            ),
+                            Text(
+                              formatSalaryRange(item['minctc'], item['maxctc']),
+                              style: GoogleFonts.varela(
+                                fontSize: 13.sp,
+                                color: Constants.subtitleclr,
+                              ),
+                            ),
+                            if (item['ismonthly'] != "")
+                              Text(
+                                " ${item['ismonthly']}",
+                                style: GoogleFonts.varela(
+                                  fontSize: 13.sp,
+                                  color: Constants.subtitleclr,
+                                ),
+                              )
+
+                            /* Text(
+                              item['total_salary'],
+                              style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            ) */
+                          ],
+                        ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(
-                            "assets/images/wallet.png",
-                            height: 14.h,
+                            "assets/images/loc.png",
+                            height: 14.sp,
                           ),
                           /* Icon(
-                            Icons.currency_rupee,
-                            size: 13.h,
+                            Icons.pin_drop_outlined,
+                            size: 13.sp,
                             color: Constants.subtitleclr,
                           ), */
                           SizedBox(
                             width: 6.w,
                           ),
                           Text(
-                            formatSalaryRange(item['minctc'], item['maxctc']),
+                            item['location'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.varela(
                               fontSize: 13.sp,
                               color: Constants.subtitleclr,
                             ),
                           ),
-                          if (item['ismonthly'] != "")
-                            Text(
-                              " ${item['ismonthly']}",
-                              style: GoogleFonts.varela(
-                                fontSize: 13.sp,
-                                color: Constants.subtitleclr,
-                              ),
-                            )
-
-                          /* Text(
-                            item['total_salary'],
-                            style: GoogleFonts.varela(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13.sp),
-                          ) */
                         ],
                       ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/loc.png",
-                          height: 14.sp,
-                        ),
-                        /* Icon(
-                          Icons.pin_drop_outlined,
-                          size: 13.sp,
-                          color: Constants.subtitleclr,
-                        ), */
-                        SizedBox(
-                          width: 6.w,
-                        ),
-                        Text(
-                          item['location'] ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.varela(
-                            fontSize: 13.sp,
-                            color: Constants.subtitleclr,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 3.h,
@@ -2443,56 +2455,136 @@ class _JobsState extends ConsumerState<Jobs>
                   children: [
                     Column(
                       children: [
-                        SizedBox(
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/images/verified.png",
-                                height: 16.h,
-                                color: Constants.themeBgColor,
+                        usertype == 3
+                            ? SizedBox(
+                                child: Text(
+                                  //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
+                                  "Asking payment strictly prohibited",
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr),
+                                  softWrap: true,
+                                ),
+                              )
+                            : SizedBox(
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/verified.png",
+                                      height: 16.h,
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Text(
+                                      //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
+                                      "100% free and verified Job",
+                                      style: GoogleFonts.varela(
+                                          fontWeight: FontWeight.w500,
+                                          color: Constants.subtitleclr),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(
-                                width: 2,
+                      ],
+                    ),
+                    const Spacer(),
+                    Visibility(
+                      visible: usertype == 3,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddResume(
+                                      company_name: item['companyname'],
+                                      role: item['rolename'],
+                                      process: item['process'],
+                                      nature_of_work: item['naturofwork'],
+                                      company_id: item['compnayid'],
+                                      jobId: item['id'],
+                                      sourceId: profilemodel.id.toString(),
+                                      sourceName: profilemodel.first_name
+                                              .toString() +
+                                        
+                                          profilemodel.last_name.toString(),
+                                          isRefer: false,
+                                          spocId: item['spoc'],
+                                          )
+                                          ));
+                          /* JobPostApiService.postJobApply(
+                              jobId: item['id'],
+                              userId: int.parse(profilemodel.id.toString()),
+                              context: context);
+                          /*  Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": false,
+                                "prevModel": jobDetailsModel,
+                                "refer": true,
+                                "cmpnyname": item['companyname'].toString()
+                              }); */ */
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 8.w),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Constants.themeBgColor),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: Constants.themeBgColor,
+                                size: 15.h,
                               ),
                               Text(
-                                //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
-                                "100% free and verified Job",
-                                style: GoogleFonts.varela(
-                                    fontWeight: FontWeight.w500,
-                                    color: Constants.subtitleclr),
+                                "Resume",
+                                style: TextStyle(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15.h,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () {
-                        JobPostApiService.postJobApply(
-                            jobId: item['id'],
-                            userId: int.parse(profilemodel.id.toString()),
-                            context: context);
-                        /*  Navigator.pushNamed(context, ERoute.application.name,
-                            arguments: {
-                              "isnew": false,
-                              "prevModel": jobDetailsModel,
-                              "refer": true,
-                              "cmpnyname": item['companyname'].toString()
-                            }); */
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 10, right: 10),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Constants.themeBgColor),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Text(
-                          "Apply Now",
-                          style: GoogleFonts.varela(
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.bold),
+                    Visibility(
+                      visible: usertype == 1,
+                      child: InkWell(
+                        onTap: () {
+                          JobPostApiService.postJobApply(
+                              jobId: item['id'],
+                              userId: int.parse(profilemodel.id.toString()),
+                              context: context);
+                          /*  Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": false,
+                                "prevModel": jobDetailsModel,
+                                "refer": true,
+                                "cmpnyname": item['companyname'].toString()
+                              }); */
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                            left: 10,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 16.w),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Constants.themeBgColor),
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Text(
+                            "Apply",
+                            style: GoogleFonts.varela(
+                                color: Constants.themeBgColor,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     )

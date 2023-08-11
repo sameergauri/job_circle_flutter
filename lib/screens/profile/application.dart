@@ -200,18 +200,18 @@ class ApplicationFormState extends State<ApplicationForm> {
             prefs, ESharedPreferences.user_id.name));
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
       applicationname.text = profilemodel.first_name.toString().toTitleCase();
       lastname.text = profilemodel.last_name.toString().toTitleCase();
       contactno.text = profilemodel.mobile.toString();
 
-      if (profilemodel.has_experience == 1) {
+     /*  if (profilemodel.has_experience == 1) {
         exprinceActive = 1;
         fresherActive = 0;
       } else {
         exprinceActive = 0;
         fresherActive = 1;
-      }
+      } */
       if (profilemodel.education != null) {
         if (profilemodel.education?.toLowerCase() == 'under graduate') {
           underGradActive = 1;

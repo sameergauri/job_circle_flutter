@@ -9,8 +9,9 @@ import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/constants/custom_suggestion_textfield.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/matching_job_model.dart';
-import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/themes/colors.dart';
+
+import '../screens/partnerhome.dart';
 
 class CustomDialog extends StatefulWidget {
   final ValueSetter<TextEditingController>? getCompanyName;
@@ -518,14 +519,11 @@ class _CustomDialogState extends State<CustomDialog> {
                                 children: [
                                   InkWell(
                                       onTap: () {
-                                        Navigator.of(context)
-                                            .pushAndRemoveUntil(
-                                                MaterialPageRoute(
-                                                    builder:
-                                                        (context) =>
-                                                            const HomeScreen()),
-                                                (Route<dynamic> route) =>
-                                                    false);
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const PartnerHomeScreen()),
+                                            (Route<dynamic> route) => false);
                                       },
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(

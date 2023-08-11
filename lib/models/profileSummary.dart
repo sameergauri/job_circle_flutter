@@ -1,122 +1,504 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'dart:convert';
 
-import 'package:intl/intl.dart';
+import 'package:job_circle/models/serachable.dart';
 
-class ProfileSummaryModel {
+class ProfileSummaryModel with Searchable {
   int? id;
   String? first_name;
+  String? middle_name;
   String? last_name;
-  String? job_location;
-  int? mobile;
-  String? job_title;
-  String? univercity;
-  String? experience;
   String? gender;
-  String? work_experience;
-  String? degree_spc;
   String? email;
-  String? education;
-  int? job_location_id;
-  int? education_id;
-  int? degree_spc_id;
-  int? univercity_id;
-  int? experience_id;
-  int? job_title_id;
-  int? work_experience_id;
+  String? martial_status;
   String? dateofbirth;
-  String? companyName;
-  List? languages;
-  int? passing_year;
-  String? job_location_city;
-  int? has_experience;
-  String? profile_pic;
+  String? user_location;
+  List<dynamic>? languages;
+  List<String>? skills;
   String? cv_link;
+  String? profile_pic;
   String? cv_upladted_date;
   int? partner_request;
-  String? salary;
-  int? salaryid;
+  int? mobile;
+  int? alternate_no;
+  String? user_zone;
+  String? vaccination_certificate;
+  String? blood_group;
+  bool? vaccination;
+  String? user_locality;
+  String? education;
+  String? experience;
+  String? updated_date;
+  String? createdon;
+  // bool? isActive; // Add this field to represent active status
+  // DateTime? lastActiveDate;
+  bool isVisible; // Add this field to store last active date
+  String? cover_pic;
+  String? bio;
 
-  ProfileSummaryModel(
-      {this.id,
-      this.first_name,
-      this.last_name,
-      this.job_location,
-      this.mobile,
-      this.job_title,
-      this.univercity,
-      this.experience,
-      this.gender,
-      this.work_experience,
-      this.degree_spc,
-      this.email,
-      this.education,
-      this.job_location_id,
-      this.education_id,
-      this.degree_spc_id,
-      this.univercity_id,
-      this.experience_id,
-      this.job_title_id,
-      this.work_experience_id,
-      this.dateofbirth,
-      this.companyName,
-      this.languages,
-      this.passing_year,
-      this.job_location_city,
-      this.has_experience,
-      this.profile_pic,
-      this.cv_link,
-      this.cv_upladted_date,
-      this.partner_request, 
-      this.salary,
-      this.salaryid});
+  ProfileSummaryModel({
+    this.id,
+    this.first_name,
+    this.middle_name,
+    this.last_name,
+    this.gender,
+    this.email,
+    this.martial_status,
+    this.dateofbirth,
+    this.user_location,
+    this.languages,
+    this.skills,
+    this.cv_link,
+    this.profile_pic,
+    this.cv_upladted_date,
+    this.partner_request,
+    this.mobile,
+    this.alternate_no,
+    this.user_zone,
+    this.vaccination_certificate,
+    this.blood_group,
+    this.vaccination,
+    this.user_locality,
+    this.education,
+    this.experience,
+    this.updated_date,
+    this.createdon,
+    // this.isActive,
+    // this.lastActiveDate,
+    this.isVisible = true,
+    this.cover_pic,
+    this.bio,
+  });
 
-  factory ProfileSummaryModel.fromMap(Map<String, dynamic> map) {
-    List languages = [];
-    DateTime cv_updated_date = new DateTime.now();
-    String FormatedDate = "";
-    if (map['languages'] != null && map['languages'] != 'null') {
-      languages = jsonDecode(map['languages']);
+  factory ProfileSummaryModel.fromJson(Map<String, dynamic> json) {
+    try {
+      List<String>? languagesList;
+      if (json['languages'] is String) {
+        try {
+          languagesList = List<String>.from(jsonDecode(json['languages']));
+        } catch (e) {
+          // Handle JSON decoding error if needed
+        }
+      }
+      return ProfileSummaryModel(
+          id: json['id'],
+          first_name: json['first_name'],
+          middle_name: json['middle_name'],
+          last_name: json['last_name'],
+          gender: json['gender'],
+          email: json['email'],
+          martial_status: json['martial_status'],
+          dateofbirth: json['dateofbirth'],
+          user_location: json['user_location'],
+          languages: languagesList,
+          /*  languages: List<String>.from(
+              json['languages'] != null ? jsonDecode(json['languages']) : []), */
+          skills: List<String>.from(json['skills'] ?? []),
+          cv_link: json['cv_link'],
+          profile_pic: json['profile_pic'],
+          cv_upladted_date: json['cv_upladted_date'],
+          partner_request: json['partner_request'],
+          mobile: json['mobile'],
+          alternate_no: json['alternate_no'],
+          user_zone: json['user_zone'],
+          vaccination_certificate: json['vaccination_certificate'],
+          blood_group: json['blood_group'],
+          vaccination: json['vaccination'],
+          user_locality: json['user_locality'],
+          education: json['education'],
+          experience: json['experience'],
+          updated_date: json['updated_date'],
+          createdon: json['createdon'],
+          // isActive: json['active'],
+          // lastActiveDate: json["lastActive"]
+          cover_pic: json['cover_pic'],
+          bio: json['bio']);
+    } catch (e) {
+      print("Error parsing JSON: $e");
+      return ProfileSummaryModel(); // Return a default instance or handle the error accordingly
     }
-
-    if (map['cv_upladted_date'] != null) {
-      DateFormat format = new DateFormat("yyyy-MM-ddThh:mm:ss.zzz");
-      cv_updated_date = format
-          .parse(map['cv_upladted_date'].toString().replaceAll("+00:00", ""));
-      FormatedDate = DateFormat('MMM dd, yyyy').format(cv_updated_date);
-    }
-
+  }
+  /*  factory ProfileSummaryModel.fromJson(Map<String, dynamic> json) {
     return ProfileSummaryModel(
-        id: map['id']?.toInt(),
-        first_name: map['first_name'],
-        last_name: map['last_name'],
-        job_location: map['job_location'],
-        mobile: map['mobile']?.toInt(),
-        job_title: map['job_title'],
-        univercity: map['univercity'],
-        experience: map['experience'],
-        gender: map['gender'],
-        work_experience: map['work_experience'],
-        degree_spc: map['degree_spc'],
-        email: map['email'],
-        education: map['education'],
-        job_location_id: map['job_location_id'],
-        education_id: map['education_id'],
-        degree_spc_id: map['degree_spc_id'],
-        univercity_id: map['univercity_id'],
-        experience_id: map['experience_id'],
-        job_title_id: map['job_title_id'],
-        work_experience_id: map['work_experience_id'],
-        dateofbirth: map['dateofbirth'] ?? '2000-01-01',
-        companyName: map['company_name'],
-        passing_year: map['passing_year'],
-        languages: languages,
-        job_location_city: map['job_location'],
-        has_experience: map['has_experience'],
-        profile_pic: map['profile_pic'],
-        cv_link: map['cv_link'],
-        cv_upladted_date: FormatedDate,
-        partner_request: map['partner_request'] ?? 0,
-        salary: map['salary'],
-        salaryid: map['salaryid'] ?? 0);
+        id: json['id'],
+        first_name: json['first_name'],
+        middle_name: json['middle_name'],
+        last_name: json['last_name'],
+        gender: json['gender'],
+        email: json['email'],
+        martial_status: json['martial_status'],
+        dateofbirth: json['dateofbirth'],
+        user_location: json['user_location'],
+        languages: List<String>.from(json['languages'] ?? []),
+        skills: List<String>.from(json['skills'] ?? []),
+        cv_link: json['cv_link'],
+        profile_pic: json['profile_pic'],
+        cv_upladted_date: json['cv_upladted_date'],
+        partner_request: json['partner_request'],
+        mobile: json['mobile'],
+        alternate_no: json['alternate_no'],
+        user_zone: json['user_zone'],
+        vaccination_certificate: json['vaccination_certificate'],
+        blood_group: json['blood_group'],
+        vaccination: json['vaccination'],
+        user_locality: json['user_locality'],
+        education: json['education'],
+        experience: json['experience'],
+        updated_date: json['updated_date'],
+        createdon: json['createdon'],
+        // isActive: json['active'],
+        // lastActiveDate: json["lastActive"]
+        cover_pic: json['cover_pic'],
+        bio: json['bio']);
+  } */
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'first_name': first_name,
+      'middle_name': middle_name,
+      'last_name': last_name,
+      'gender': gender,
+      'email': email,
+      'martial_status': martial_status,
+      'dateofbirth': dateofbirth,
+      'user_location': user_location,
+      'languages': languages,
+      'skills': skills,
+      'cv_link': cv_link,
+      'profile_pic': profile_pic,
+      'cv_upladted_date': cv_upladted_date,
+      'partner_request': partner_request,
+      'mobile': mobile,
+      'alternate_no': alternate_no,
+      'user_zone': user_zone,
+      'vaccination_certificate': vaccination_certificate,
+      'blood_group': blood_group,
+      'vaccination': vaccination,
+      'user_locality': user_locality,
+      'education': education,
+      'experience': experience,
+      'updated_date': updated_date,
+      'createdon': createdon,
+      // 'active': isActive,
+      // 'lastActive': lastActiveDate
+      'cover_pic': cover_pic,
+      'bio': bio
+    };
+  }
+
+  @override
+  bool containsQuery(String query) {
+    return first_name!.toLowerCase().contains(query) ||
+        last_name!.toLowerCase().contains(query) ||
+        user_location!.toLowerCase().contains(query) ||
+        skills!.any((skill) => skill.toLowerCase().contains(query));
+    // Add more relevant fields as necessary.
+  }
+
+  @override
+  Map<String, dynamic> getSearchData() {
+    return {
+      'profile': toJson(),
+      'education': education,
+      'experience': experience,
+      // Include other relevant data related to the profile
+      // For example, additional fields from the education and experience models
+    };
+  }
+}
+
+class Education with Searchable {
+  final int? id;
+  String? level;
+  final String? board;
+  final String? university;
+  final String? fieldOfStudy;
+  final int? firstYear;
+  final String? marksheet;
+  final int? passingYear;
+  final int? userId;
+  final String? degree_spc;
+
+  Education({
+    this.id,
+    this.level,
+    this.board,
+    this.university,
+    this.fieldOfStudy,
+    this.firstYear,
+    this.marksheet,
+    this.passingYear,
+    this.userId,
+    this.degree_spc,
+  });
+
+  factory Education.fromMap(Map<String, dynamic> map) {
+    return Education(
+      id: map['id'] as int?,
+      level: map['level'] as String?,
+      board: map['board'] as String?,
+      university: map['university'] as String?,
+      fieldOfStudy: map['fieldOfStudy'] as String?,
+      firstYear: map['firstYear'] as int?,
+      marksheet: map['marksheet'] as String?,
+      passingYear: map['passingYear'] as int?,
+      userId: map['userId'] as int?,
+      degree_spc: map['degree_spc'] as String?,
+    );
+  }
+
+  static List<Education> fromList(List<dynamic> list) {
+    List<Education> educationList = [];
+    for (var item in list) {
+      educationList.add(Education.fromMap(item));
+    }
+    return educationList;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'level': level,
+      'board': board,
+      'university': university,
+      'fieldOfStudy': fieldOfStudy,
+      'firstYear': firstYear,
+      'marksheet': marksheet,
+      'passingYear': passingYear,
+      'userId': userId,
+      'degree_spc': degree_spc,
+    };
+  }
+
+  factory Education.fromJson(Map<String, dynamic> json) {
+    return Education(
+      id: json['id'],
+      level: json['level'],
+      board: json['board'],
+      university: json['university'],
+      fieldOfStudy: json['fieldOfStudy'],
+      firstYear: json['firstYear'],
+      marksheet: json['marksheet'],
+      passingYear: json['passingYear'],
+      userId: json['userId'],
+      degree_spc: json['degree_spc'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'level': level,
+      'board': board,
+      'university': university,
+      'fieldOfStudy': fieldOfStudy,
+      'firstYear': firstYear,
+      'marksheet': marksheet,
+      'passingYear': passingYear,
+      'userId': userId,
+      'degree_spc': degree_spc,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Education(id: $id, level: $level, board: $board, university: $university, fieldOfStudy: $fieldOfStudy, firstYear: $firstYear, marksheet: $marksheet, passingYear: $passingYear, userId: $userId, degree_spc: $degree_spc)';
+  }
+
+  @override
+  bool containsQuery(String query) {
+    return level != null && level!.toLowerCase().contains(query) ||
+        university != null && university!.toLowerCase().contains(query) ||
+        // Add other relevant fields for the search
+        false;
+  }
+
+  @override
+  Map<String, dynamic> getSearchData() {
+    return {
+      'education': toMap(),
+      // Include other relevant data related to education
+      // For example, profile data, experience data, etc.
+    };
+  }
+}
+
+class Experience with Searchable {
+  final int? id;
+  final dynamic userId;
+  String? job_title;
+  String? company_name;
+  String? company_location;
+  String? company_website;
+  String? work_type;
+  bool? ismonthly;
+  bool? isworking;
+  String? salary;
+  DateTime? joining_date;
+  DateTime? last_working_date;
+  String? availability;
+  String? appointment_letter;
+  String? salary_slip;
+  String? bank_statement;
+  String? experience_letter;
+  List<String>? skills_exp;
+  String? working;
+
+  Experience({
+    this.id,
+    this.userId,
+    this.job_title,
+    this.company_name,
+    this.company_location,
+    this.company_website,
+    this.work_type,
+    this.ismonthly,
+    this.isworking,
+    this.salary,
+    this.joining_date,
+    this.last_working_date,
+    this.availability,
+    this.appointment_letter,
+    this.salary_slip,
+    this.bank_statement,
+    this.experience_letter,
+    this.skills_exp,
+    this.working,
+  });
+
+  static Experience fromMap(Map<String, dynamic> map) {
+    return Experience(
+      id: map['id'] as int?,
+      userId: map['userId'],
+      job_title: map['job_title'] as String?,
+      company_name: map['company_name'] as String?,
+      company_location: map['company_location'] as String?,
+      company_website: map['company_website'] as String?,
+      work_type: map['work_type'] as String?,
+      ismonthly: map['ismonthly'] as bool?,
+      isworking: map['isworking'] as bool?,
+      salary: map['salary'] as String?,
+      joining_date: map['joining_date'] != null
+          ? DateTime.parse(map['joining_date'] as String)
+          : null,
+      last_working_date: map['last_working_date'] != null
+          ? DateTime.parse(map['last_working_date'] as String)
+          : null,
+      availability: map['availability'],
+      appointment_letter: map['appointment_letter'] as String?,
+      salary_slip: map['salary_slip'] as String?,
+      bank_statement: map['bank_statement'] as String?,
+      experience_letter: map['experience_letter'] as String?,
+      skills_exp: List<String>.from(map['skills_exp'] ?? []),
+      working: map['working'] as String?,
+    );
+  }
+
+  static List<Experience> fromList(List<dynamic> list) {
+    List<Experience> experienceList = [];
+    for (var item in list) {
+      experienceList.add(Experience.fromMap(item));
+    }
+    return experienceList;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'job_title': job_title,
+      'company_name': company_name,
+      'company_location': company_location,
+      'company_website': company_website,
+      'work_type': work_type,
+      'ismonthly': ismonthly,
+      'isworking': isworking,
+      'salary': salary,
+      'joining_date': joining_date?.toIso8601String(),
+      'last_working_date': last_working_date?.toIso8601String(),
+      'availability': availability,
+      'appointment_letter': appointment_letter,
+      'salary_slip': salary_slip,
+      'bank_statement': bank_statement,
+      'experience_letter': experience_letter,
+      'skills_exp': skills_exp,
+      'working': working,
+    };
+  }
+
+  factory Experience.fromJson(Map<String, dynamic> json) {
+    return Experience(
+      id: json['id'],
+      userId: json['userId'],
+      job_title: json['job_title'],
+      company_name: json['company_name'],
+      company_location: json['company_location'],
+      company_website: json['company_website'],
+      work_type: json['work_type'],
+      ismonthly: json['ismonthly'],
+      isworking: json['isworking'],
+      salary: json['salary'],
+      joining_date: json['joining_date'] != null
+          ? DateTime.parse(json['joining_date'])
+          : null,
+      last_working_date: json['last_working_date'] != null
+          ? DateTime.parse(json['last_working_date'])
+          : null,
+      availability: json['availability'],
+      appointment_letter: json['appointment_letter'],
+      salary_slip: json['salary_slip'],
+      bank_statement: json['bank_statement'],
+      experience_letter: json['experience_letter'],
+      skills_exp: List<String>.from(json['skills_exp'] ?? []),
+      working: json['working'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'job_title': job_title,
+      'company_name': company_name,
+      'company_location': company_location,
+      'company_website': company_website,
+      'work_type': work_type,
+      'ismonthly': ismonthly,
+      'isworking': isworking,
+      'salary': salary,
+      'joining_date': joining_date?.toIso8601String(),
+      'last_working_date': last_working_date?.toIso8601String(),
+      'availability': availability,
+      'appointment_letter': appointment_letter,
+      'salary_slip': salary_slip,
+      'bank_statement': bank_statement,
+      'experience_letter': experience_letter,
+      'skills_exp': skills_exp,
+      'working': working,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location, company_website: $company_website, work_type: $work_type, ismonthly: $ismonthly, isworking: $isworking, salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip, bank_statement: $bank_statement, experience_letter: $experience_letter, skills_exp: $skills_exp, working: $working)';
+  }
+
+  @override
+  bool containsQuery(String query) {
+    return job_title != null && job_title!.toLowerCase().contains(query) ||
+        company_name != null && company_name!.toLowerCase().contains(query) ||
+        // Add other relevant fields for the search
+        false;
+  }
+
+  @override
+  Map<String, dynamic> getSearchData() {
+    return {
+      'experience': toMap(),
+      // Include other relevant data related to experience
+      // For example, profile data, education data, etc.
+    };
   }
 }

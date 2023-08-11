@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/profile/businesspartner.dart';
+import 'package:job_circle/screens/jobs/recruitz.dart';
+import 'package:job_circle/screens/profile/user_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'jobs/recruitz.dart';
+import 'jobs/cc.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
@@ -17,6 +19,129 @@ class PartnerHomeScreen extends StatefulWidget {
 }
 
 class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
+  final PageController pageController = PageController();
+  int selectedIndex = 0;
+  dynamic userType;
+  String userName = "";
+  String userEmail = "";
+  String role = "";
+  List<BottomNavigationBarItem> bottomTabItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences pref = await Utils.getSharedPreferences();
+      userType = await Utils.getPreferencesValue(
+          pref, ESharedPreferences.user_type.name);
+
+      String userRaw = await Utils.getPreferencesValue(
+          pref, ESharedPreferences.user_rawData.name);
+      dynamic userRawData = jsonDecode(userRaw);
+      userName = userRawData['firstName'] + " " + userRawData['lastName'];
+      userEmail = userRawData['email'];
+      role = userRawData['role'];
+      setState(() {});
+    });
+    bindBottomTabs();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: selectedIndex,
+        children: [
+          const Jobs(),
+          const UserDetailsPage(),
+          if (role == "3") const CC() else const Recruitz(),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Color.fromARGB(255, 124, 124, 124),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          items: bottomTabItems,
+          type: BottomNavigationBarType.fixed,
+          currentIndex: selectedIndex,
+          unselectedItemColor: Colors.black45,
+          selectedItemColor: Theme.of(context).primaryColor,
+          selectedFontSize: 14,
+          onTap: (value) {
+            setState(() {
+              selectedIndex = value;
+            });
+          },
+          backgroundColor: Colors.white,
+          selectedIconTheme: const IconThemeData(size: 36),
+          unselectedIconTheme: const IconThemeData(size: 30),
+        ),
+      ),
+    );
+  }
+
+  void bindBottomTabs() async {
+    /* userType = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name); */
+
+    //var partnerRequest = await Utils.getCacheData('partner_request');
+
+    bottomTabItems.clear(); // Clear existing items before adding new ones
+
+    bottomTabItems.add(BottomNavigationBarItem(
+      icon: Image.asset(
+        "assets/images/jobs.png",
+        height: 15.h,
+      ),
+      activeIcon: Image.asset(
+        "assets/images/jobs.png",
+        height: 25.h,
+      ),
+      label: 'Hiring',
+      backgroundColor: Colors.blue,
+    ));
+
+    bottomTabItems.add(
+      BottomNavigationBarItem(
+        icon: Image.asset(
+          "assets/images/user-group.png",
+          height: 20.h,
+        ),
+        activeIcon: Image.asset(
+          "assets/images/user-group.png",
+          height: 25.h,
+        ),
+        label: "All Users",
+        backgroundColor: Colors.blue,
+      ),
+    );
+
+    bottomTabItems.add(BottomNavigationBarItem(
+      icon: Image.asset(
+        "assets/images/recruitz.png",
+        height: 20.h,
+      ),
+      activeIcon: Image.asset(
+        "assets/images/recruitz.png",
+        height: 25.h,
+      ),
+      label: 'Recruitz',
+      backgroundColor: Colors.blue,
+    ));
+
+    setState(() {});
+  }
+}
+
+
+
+/* class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   final PageController pageController = PageController();
   int selectedIndex = 0;
   dynamic userType;
@@ -140,6 +265,41 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         (userType == EUserType.businessPartner.value &&
             partnerRequest == EPartnerApproval.approved.value)) {
       bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.bar_chart),
+        activeIcon: Icon(Icons.bar_chart_outlined),
+        label: 'Recruitz',
+        backgroundColor: Colors.blue,
+      ));
+    }
+
+    if (userType == EUserType.employee.value.toString()) {
+      bottomTabItems.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.admin_panel_settings),
+        activeIcon: Icon(Icons.admin_panel_settings_rounded),
+        label: 'Admin',
+        backgroundColor: Colors.blue,
+      ));
+    }
+    setState(() {});
+  }
+
+/*   void bindBottomTabs() async {
+    userType = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+
+    var partnerRequest = await Utils.getCacheData('partner_request');
+
+    bottomTabItems.add(const BottomNavigationBarItem(
+      icon: Icon(Icons.dashboard_customize_outlined),
+      activeIcon: Icon(Icons.dashboard_customize_rounded),
+      label: 'Jobs',
+      backgroundColor: Colors.blue,
+    ));
+
+    if (userType == EUserType.employee.value ||
+        (userType == EUserType.businessPartner.value &&
+            partnerRequest == EPartnerApproval.approved.value)) {
+      bottomTabItems.add(const BottomNavigationBarItem(
         icon: Icon(Icons.numbers),
         activeIcon: Icon(Icons.numbers_outlined),
         label: 'Dashboard',
@@ -183,9 +343,29 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       ));
     }
     setState(() {});
+  } */
+  void onNavigationChange(int value) {
+    BottomNavigationBarItem item =
+        bottomTabItems.getRange(value, value + 1).first;
+    switch (item.label) {
+      case "Jobs":
+        // Navigator.pushNamed(context, ERoute.jobs.name);
+        break;
+      case "Recruitz":
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CC(),
+            ));
+        break;
+      case "Admin":
+        // Handle admin navigation
+        break;
+      default:
+    }
   }
 
-  void onNavigationChange(int value) {
+  /* void onNavigationChange(int value) {
     BottomNavigationBarItem item =
         bottomTabItems.getRange(value, value + 1).first;
     switch (item.label) {
@@ -212,7 +392,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const Recruitz(),
+              builder: (context) => const CC(),
             ));
         break;
       case "Partner":
@@ -220,26 +400,26 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
             MaterialPageRoute(builder: (context) => const BusinessPartner()));
         break;
       default:
-    }
+    } */
 
-    // setState(() {
-    //   selectedIndex = value;
-    // });
-    // pageController.jumpToPage(value);
-    // if (value == 2) {
-    //   Navigator.pushNamed(context, ERoute.profile_summary.name);
-    //   return;
-    // }
+  // setState(() {
+  //   selectedIndex = value;
+  // });
+  // pageController.jumpToPage(value);
+  // if (value == 2) {
+  //   Navigator.pushNamed(context, ERoute.profile_summary.name);
+  //   return;
+  // }
 
-    // if (value == 3) {
-    //   Navigator.pushNamed(context, AdminERoute.admin_leads.name);
-    //   return;
-    // }
+  // if (value == 3) {
+  //   Navigator.pushNamed(context, AdminERoute.admin_leads.name);
+  //   return;
+  // }
 
-    // if (value == 1) {
-    //   Navigator.push(context,
-    //       MaterialPageRoute(builder: (context) => const BusinessPartner()));
-    //   return;
-    // }
-  }
+  // if (value == 1) {
+  //   Navigator.push(context,
+  //       MaterialPageRoute(builder: (context) => const BusinessPartner()));
+  //   return;
+  // }
 }
+ */

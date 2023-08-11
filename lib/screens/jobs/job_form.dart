@@ -808,7 +808,7 @@ class _JobFormState extends State<JobForm> {
             prefs, ESharedPreferences.user_id.name));
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
     }
     setState(() {});
   }

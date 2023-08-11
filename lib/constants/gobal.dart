@@ -3,12 +3,13 @@
 class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
 
-  static const API_Host = "192.168.1.107:9090";
-  //  "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"; //Local
+  static const API_Host = "192.168.1.102:9090";
+
+  // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"; //Local
   // "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090"; // AWS
 
-  static const API_Host_one = "192.168.1.107:9090";
-  //  'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
+  static const API_Host_one = "192.168.1.102:9090";
+  // 'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   //static const API_Host = "192.168.1.9:9090";
@@ -22,14 +23,22 @@ class GlobalConstants {
   //     "ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   static const API_Users_v1_saveStages = "/users/v1/saveStages";
+  static const API_Users_v1 = "/users/v1";
 
   static const API_Users_v1_profileSummary = "/users/v1/profileSummary/";
+  static const API_Users_v1_userDetails = "/users/v1/details/";
+  static const API_Users_v1_allUserDetails = "/users/v1/allUserDeails";
+
   static const API_files_v1_multiUpload = "/files/v1/multiUpload";
 
   static const API_Users_v1_authenticate = "/users/v1/authenticate";
   static const API_Users_v1_verifySession = "/users/v1/verifySession";
+  static const API_Users_v1_activity = "/users/v1/userId/activity";
 
   static const API_Users_v1_validateOTP = "/users/v1/validateOtp";
+  static const API_Exp_v1 = "/exp/v1";
+
+  static const API_Edu_v1 = "/edu/v1";
 
   static const API_master_group = "/master/v1/getByGroup";
   static const API_master_groups = "/master/v1/getByGroups";

@@ -82,7 +82,7 @@ class _TalentPoolState extends State<TalentPool>
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       setState(() {
-        profilemodel = ProfileSummaryModel.fromMap(dataResult);
+        profilemodel = ProfileSummaryModel.fromJson(dataResult);
       });
     } else {
       // Handle the case when the API call fails

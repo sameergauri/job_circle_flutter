@@ -2309,7 +2309,9 @@ class _CustomJobFormTextFieldRespoOneState
                         var selectedId = suggestion.id;
                         // onIDSelected(suggestion.id.toString());
                         // widget.onJobTitle!(firstText.toString());
-                        widget.onSubmit!(firstText.toString());
+                        if (widget.onSubmit != null) {
+                          widget.onSubmit!(firstText.toString());
+                        }
 
                         //FocusScope.of(context).nextFocus();
                       });

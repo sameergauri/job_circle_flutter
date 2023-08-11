@@ -23,6 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
 import '../../models/fav_job_model.dart';
+import 'add_resume.dart';
 
 final favJobProvider = FutureProvider.family<FavJobModel?, int>(
     (ref, id) => JobSearchService().getFavoriteJob(id));
@@ -144,7 +145,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
             prefs, ESharedPreferences.user_id.name));
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
       /* profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
       profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
       profile_cv_file = Utils.getFileName(profile_cv_link); */
@@ -153,11 +154,18 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     setState(() {});
   }
 
+  void benefit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    usertype = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+  }
+
   @override
   void initState() {
     super.initState();
     bindProfileSummary();
     fillCacheData();
+    benefit();
     //   const RestrictedButton();
     fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -2139,86 +2147,117 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 ),
               ), */
 
-                    Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        left: 20,
-                        right: 20,
-                      ),
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Constants.borderColor),
-                          color: Constants.themeBgColor,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.shade300,
-                                offset: const Offset(0, 0),
-                                blurRadius: 2)
-                          ]),
-                      child: Stack(
-                        children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Refer your friend for above Job and get \npaid upto Rs. 1000/-",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, ERoute.application.name,
-                                          arguments: {
-                                            "isnew": false,
-                                            "prevModel": jobDetailsModel,
-                                            "refer": false
-                                          });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20),
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 20),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(15)),
-                                      child: Text(
-                                        "Refer Now",
-                                        style: GoogleFonts.varela(
-                                            fontSize: 14.sp,
-                                            letterSpacing: 1,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Column(
+                    Visibility(
+                      visible: usertype != 3,
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(
+                          top: 10,
+                          left: 20,
+                          right: 20,
+                        ),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Constants.borderColor),
+                            color: Constants.themeBgColor,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.shade300,
+                                  offset: const Offset(0, 0),
+                                  blurRadius: 2)
+                            ]),
+                        child: Stack(
+                          children: [
+                            Row(
                               children: [
-                                CircleAvatar(
-                                  radius: 35,
-                                  backgroundColor: Colors.white,
-                                  child: Image.asset(
-                                    "assets/images/moneybag.png",
-                                    height: 40,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Refer your friend for above Job and get \npaid upto Rs. 1000/-",
+                                      style: GoogleFonts.varela(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => AddResume(
+                                                      company_name:
+                                                          jobDetailsModel.name
+                                                              .toString(),
+                                                      role: jobDetailsModel
+                                                          .rolename
+                                                          .toString(),
+                                                      process: jobDetailsModel
+                                                          .process
+                                                          .toString(),
+                                                      nature_of_work:
+                                                          jobDetailsModel
+                                                              .naturofwork
+                                                              .toString(),
+                                                      company_id:
+                                                          jobDetailsModel
+                                                              .compnayid!
+                                                              .toInt(),
+                                                      jobId: jobDetailsModel.id!
+                                                          .toInt(),
+                                                      sourceId: profilemodel.id
+                                                          .toString(),
+                                                      sourceName: profilemodel
+                                                              .first_name
+                                                              .toString() +
+                                                          profilemodel.last_name
+                                                              .toString(),
+                                                      isRefer: true,
+                                                      spocId: jobDetailsModel
+                                                          .spoc!
+                                                          .toInt(),
+                                                    )));
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10, horizontal: 20),
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 20),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(15)),
+                                        child: Text(
+                                          "Refer Now",
+                                          style: GoogleFonts.varela(
+                                              fontSize: 14.sp,
+                                              letterSpacing: 1,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                // const Text("T & C apply")
                               ],
                             ),
-                          )
-                        ],
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 35,
+                                    backgroundColor: Colors.white,
+                                    child: Image.asset(
+                                      "assets/images/moneybag.png",
+                                      height: 40,
+                                    ),
+                                  ),
+                                  // const Text("T & C apply")
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],

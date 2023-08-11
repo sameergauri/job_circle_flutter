@@ -38,6 +38,9 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
   var usertype = 0;
   String gendor = "";
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  late Education educationmodel = Education();
+  late Experience expmodel = Experience();
+
   final basicForm = GlobalKey<FormState>();
   final spinkit = const SpinKitRotatingCircle(
     color: Colors.white,
@@ -63,7 +66,9 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
             prefs, ESharedPreferences.user_id.name));
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromMap(dataResult);
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
+      educationmodel = Education.fromJson(dataResult);
+      expmodel = Experience.fromJson(dataResult);
       profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
       profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
       profile_cv_file = Utils.getFileName(profile_cv_link);
@@ -104,7 +109,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
               //   child: SmartCard(model: model),
               // )),
 
-              Expanded(
+              /*   Expanded(
                 child: SingleChildScrollView(
                   child: profilemodel.first_name == null
                       ? const Center(
@@ -239,7 +244,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                           )
                         ]),
                 ),
-              ),
+              ), */
             ],
           ),
         ));
@@ -283,7 +288,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                               fontSize: 15, fontWeight: FontWeight.w300),
                         ),
                         Text(
-                          profilemodel.job_location_city.toString(),
+                          profilemodel.user_location.toString(),
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w400),
                         )
@@ -362,7 +367,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
             width: double.infinity,
             child: cardCustom(
               onPress: (() {
-                sendToEducation();
+                // sendToEducation();
               }),
               icon: Icons.school_outlined,
               title: "Education",
@@ -379,7 +384,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        profilemodel.education.toString(),
+                        educationmodel.level.toString(),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
@@ -395,7 +400,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        profilemodel.univercity.toString(),
+                        educationmodel.university.toString(),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
@@ -411,7 +416,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        profilemodel.degree_spc.toString(),
+                        educationmodel.degree_spc.toString(),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
@@ -427,7 +432,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
                             fontSize: 15, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        profilemodel.passing_year.toString(),
+                        educationmodel.passingYear.toString(),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w400),
                       )
@@ -442,92 +447,92 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
     );
   }
 
-  Widget experience() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, right: 3),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: cardCustom(
-              onPress: (() {
-                sendToExperience();
-              }),
-              icon: Icons.business_center_outlined,
-              title: "Experience",
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (profilemodel.has_experience == 1)
-                        const Text(
-                          "Years of Experience",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                      if (profilemodel.has_experience == 1)
-                        Text(
-                          profilemodel.experience.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        ),
-                      if (profilemodel.has_experience == 0)
-                        const Text(
-                          "No Experience",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: profilemodel.has_experience == 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Company Name",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          profilemodel.companyName.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: profilemodel.has_experience == 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Job Title",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          profilemodel.job_title.toString(),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+  // Widget experience() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 3, right: 3),
+  //     child: Column(
+  //       children: [
+  //         SizedBox(
+  //           width: double.infinity,
+  //           child: cardCustom(
+  //             onPress: (() {
+  //               sendToExperience();
+  //             }),
+  //             icon: Icons.business_center_outlined,
+  //             title: "Experience",
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.start,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     if (profilemodel.has_experience == 1)
+  //                       const Text(
+  //                         "Years of Experience",
+  //                         style: TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w300),
+  //                       ),
+  //                     if (profilemodel.has_experience == 1)
+  //                       Text(
+  //                         profilemodel.experience.toString(),
+  //                         style: const TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w400),
+  //                       ),
+  //                     if (profilemodel.has_experience == 0)
+  //                       const Text(
+  //                         "No Experience",
+  //                         style: TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w300),
+  //                       ),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(height: 10),
+  //                 Visibility(
+  //                   visible: profilemodel.has_experience == 1,
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       const Text(
+  //                         "Company Name",
+  //                         style: TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w300),
+  //                       ),
+  //                       Text(
+  //                         profilemodel.companyName.toString(),
+  //                         style: const TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w400),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 10),
+  //                 Visibility(
+  //                   visible: profilemodel.has_experience == 1,
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       const Text(
+  //                         "Job Title",
+  //                         style: TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w300),
+  //                       ),
+  //                       Text(
+  //                         profilemodel.job_title.toString(),
+  //                         style: const TextStyle(
+  //                             fontSize: 15, fontWeight: FontWeight.w400),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget contactDetails() {
     return Padding(
@@ -670,43 +675,43 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
     if (result != null) {
       profilemodel.first_name = result.first_name;
       profilemodel.last_name = result.last_name;
-      profilemodel.job_location_city = result.job_location_city;
+      profilemodel.user_location = result.job_location_city;
       profilemodel.gender = result.gender;
       profilemodel.languages = result.languages;
       setState(() {});
     }
   }
 
-  sendToEducation() async {
-    var result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Screen2(
-          prevPageModel: profilemodel,
-        ),
-      ),
-    );
-    if (result != null) {
-      profilemodel.education = result.education;
-      setState(() {});
-    }
-  }
+  // sendToEducation() async {
+  //   var result = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => Screen2(
+  //         prevPageModel: education,
+  //       ),
+  //     ),
+  //   );
+  //   if (result != null) {
+  //     educationmodel.level = result.education;
+  //     setState(() {});
+  //   }
+  // }
 
-  sendToExperience() async {
-    var result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Screen3(
-          prevPageModel: profilemodel,
-          expirieanceFlag: false,
-        ),
-      ),
-    );
-    if (result != null) {
-      profilemodel.experience = result.experience;
-      setState(() {});
-    }
-  }
+  // sendToExperience() async {
+  //   var result = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => Screen3(
+  //         prevPageModel: profilemodel,
+  //         expirieanceFlag: false,
+  //       ),
+  //     ),
+  //   );
+  //   if (result != null) {
+  //     expmodel.job_title = result.experience;
+  //     setState(() {});
+  //   }
+  // }
 
   uploadFile(allowExt) async {
     Utils.showLoaderDialog(context, "Uploading...");

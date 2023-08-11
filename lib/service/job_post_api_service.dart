@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/partnerhome.dart';
 
 class JobPostApiService {
   static Future<void> postDataToApi(
@@ -28,7 +30,8 @@ class JobPostApiService {
               isFisrt: false,
               onClose: () {
                 Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PartnerHomeScreen()),
                     (Route<dynamic> route) => false);
               },
               title: "Success",
@@ -48,7 +51,8 @@ class JobPostApiService {
               isFisrt: false,
               onClose: () {
                 Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PartnerHomeScreen()),
                     (Route<dynamic> route) => false);
               },
               title: "Failed",
@@ -92,7 +96,7 @@ class JobPostApiService {
       'jobId': jobId.toString(),
       'userId': userId.toString(),
       'status':
-          '1', // Assuming 'status' is always '1' based on the provided URL.
+          'T1', // Assuming 'status' is always '1' based on the provided URL.
     };
 
     try {
@@ -149,6 +153,89 @@ class JobPostApiService {
       }
     } catch (e) {
       print('Error: $e');
+    }
+  }
+
+  static Future<void> addResume(
+      Map<String, dynamic> jsonData, BuildContext context) async {
+    final apiUrl = Uri.parse('http://${GlobalConstants.API_Host}/leads/v1');
+
+    try {
+      final response = await http.post(
+        apiUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
+
+        final resultKey = responseData['resultKey'] as String?;
+        if (resultKey == 'SUCCESS') {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return CustomDialogueForAddResume(
+                onClose: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => const PartnerHomeScreen()),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+                subtitle: "Submitted successfully!",
+              );
+            },
+          );
+        } else {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return CustomDialogueForAddResume(
+                onClose: () {
+                  Navigator.pop(context);
+                },
+                subtitle: "Failed while posting!",
+              );
+            },
+          );
+        }
+      } else {
+        print('Error: ${response.statusCode}');
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+              },
+              subtitle: "Failed while posting!",
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            onClose: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => const PartnerHomeScreen()),
+                (Route<dynamic> route) => false,
+              );
+            },
+            subtitle: "An error occurred!",
+          );
+        },
+      );
     }
   }
 }

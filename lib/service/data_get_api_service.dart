@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
 
 import '../models/application_status_model.dart';
+import '../models/get_user_for_add_Resume.dart';
 
 class ApplicationAPI {
   Future<List<Application>> getApplicationStatusList() async {
@@ -27,6 +28,26 @@ class ApplicationAPI {
       }
     } else {
       // If the request fails, throw an exception or handle the error as needed
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<List<UserDataForAddResumeModelResultData>> getUserForAddResume(
+      int number) async {
+    final url =
+        Uri.parse("http://${GlobalConstants.API_Host}/users/v1/user/$number");
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
+      final userDataModel = UserDataForAddResumeModel.fromJson(jsonBody);
+
+      if (userDataModel.resultData != null) {
+        return [userDataModel.resultData];
+      } else {
+        return [];
+      }
+    } else {
       throw Exception('Failed to load data');
     }
   }
