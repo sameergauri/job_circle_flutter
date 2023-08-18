@@ -48,6 +48,7 @@ class jobPostModel {
   String? shiftTime;
   List<dynamic>? skills;
   int? spoc;
+  int? is_graduate;
   int? spocInactive;
   List<String>? textResponsible;
   String? totalExperience;
@@ -108,6 +109,7 @@ class jobPostModel {
     this.shiftTime,
     this.skills,
     this.spoc,
+    this.is_graduate,
     this.spocInactive,
     this.textResponsible,
     this.totalExperience,
@@ -192,6 +194,7 @@ class jobPostModel {
             ? List<String>.from(json["skills"].map((x) => x))
             : null,
         spoc: json["spoc"],
+        is_graduate: json['is_graduate'],
         spocInactive: json["spoc_inactive"],
         textResponsible: json["text_responsible"] != null
             ? List<String>.from(json["text_responsible"].map((x) => x))
@@ -278,6 +281,7 @@ class jobPostModel {
         "skills":
             skills != null ? List<dynamic>.from(skills!.map((x) => x)) : null,
         "spoc": spoc,
+        "is_graduate": is_graduate,
         "spoc_inactive": spocInactive,
         "text_responsible": textResponsible,
         "total_experience": totalExperience,

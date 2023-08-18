@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/add_resume_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,13 +21,8 @@ import '../../service/job_post_api_service.dart';
 import '../../themes/colors.dart';
 
 class AddResume extends StatefulWidget {
-  final String company_name,
-      role,
-      process,
-      nature_of_work,
-      sourceId,
-      sourceName;
-  final int company_id, jobId, spocId;
+  final String company_name, role, process, nature_of_work, sourceName;
+  final int company_id, jobId, spocId, sourceId;
   final bool isRefer;
 
   const AddResume(
@@ -612,34 +612,39 @@ class _AddResumeState extends State<AddResume> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        margin: const EdgeInsets.only(top: 20),
-                        // width: double.maxFinite,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xfff729995)),
-                          borderRadius: BorderRadius.circular(8.r),
-                          color: Colors.white,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 10),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              "assets/images/cv.png",
-                              height: 15.h,
-                              color: const Color(0xfff729995),
-                            ),
-                            const SizedBox(
-                              width: 6,
-                            ),
-                            Text(
-                              "Add Resume",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  color: const Color(0xfff729995),
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
+                      InkWell(
+                        onTap: () {
+                          pickAndUploadPdf();
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 20),
+                          // width: double.maxFinite,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: const Color(0xfff729995)),
+                            borderRadius: BorderRadius.circular(8.r),
+                            color: Colors.white,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 10),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/images/cv.png",
+                                height: 15.h,
+                                color: const Color(0xfff729995),
+                              ),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              Text(
+                                "Add Resume",
+                                style: GoogleFonts.sourceSansPro(
+                                    fontSize: 18.sp,
+                                    color: const Color(0xfff729995),
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Text(
@@ -689,12 +694,165 @@ class _AddResumeState extends State<AddResume> {
     );
   }
 
+  String? _filePath;
+
+  Future<void> pickAndUploadPdf() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        String? _filePath = result.files.single.path;
+
+        if (_filePath != null) {
+          var apiUrl = Uri.parse(
+              'http://${GlobalConstants.API_Host}/files/v1/multiUpload');
+
+          var request = http.MultipartRequest('POST', apiUrl);
+
+          // Add custom headers here
+          request.headers['Authorization'] = 'Bearer your_access_token';
+          // Add more headers if needed
+
+          request.files
+              .add(await http.MultipartFile.fromPath('file', _filePath));
+
+          final response = await request.send();
+
+          if (response.statusCode == 200) {
+            final responseJson =
+                jsonDecode(await response.stream.bytesToString());
+            // Handle the response data here
+            print('Response: $responseJson');
+          } else {
+            print('Upload failed with status ${response.statusCode}');
+          }
+        } else {
+          print('File path is null.');
+        }
+      } else {
+        print('User canceled the file picking or selected a non-PDF file');
+      }
+    } catch (e) {
+      print('Error during file upload: $e');
+    }
+  }
+
   List<UserDataForAddResumeModelResultData>? applicationList = [];
   void fetchData() async {
     try {
       ApplicationAPI api = ApplicationAPI();
       applicationList =
           await api.getUserForAddResume(int.parse(primary_number.text));
+      if (widget.isRefer) {
+        if (applicationList![0].id == 0) {
+          // Call the `addResume` function with the specific data
+          final addResumeModel = JobApplicationModel(
+              isRef: 1,
+              uid: 0,
+              id: 0,
+              applicantName: firt_name.text,
+              lastName: last_name.text,
+              contactNo: int.parse(primary_number.text.trim()),
+              qualification: graduate == true ? "Graduate" : "Under Graduate",
+              isExperienced: fresher ? 0 : 1,
+              companyName: widget.company_name,
+              process: widget.process,
+              level: widget.role,
+              naturofwork: widget.nature_of_work,
+              shortListFor: widget.company_id,
+              status: "T1",
+              // subStatus: "Shortlist",
+              sourceId: widget.sourceId,
+              sourceName: widget.sourceName,
+              jobid: widget.jobId,
+              spoc: widget.spocId
+              // ... fill in other properties as needed
+              );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context);
+        } else {
+          // Call the `addResume` function with a different set of data
+          final addResumeModel = JobApplicationModel(
+              isRef: 1,
+              uid: applicationList![0].id,
+              id: 0,
+              applicantName: applicationList![0].firstName,
+              lastName: applicationList![0].lastName,
+              contactNo: int.parse(primary_number.text.trim()),
+              qualification: graduate == true ? "Graduate" : "Under Graduate",
+              isExperienced: fresher ? 0 : 1,
+              companyName: widget.company_name,
+              process: widget.process,
+              level: widget.role,
+              naturofwork: widget.nature_of_work,
+              shortListFor: widget.company_id,
+              status: "T1",
+              // subStatus: "Shortlist",
+              sourceId: widget.sourceId,
+              sourceName: widget.sourceName,
+              jobid: widget.jobId,
+              alternateNo: int.parse(secondry.text.trim()),
+              spoc: widget.spocId);
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context);
+        }
+      } else {
+        if (applicationList![0].id == 0) {
+          // Call the `addResume` function with the specific data
+          final addResumeModel = JobApplicationModel(
+              isRef: 1,
+              uid: 0,
+              id: 0,
+              applicantName: firt_name.text,
+              lastName: last_name.text,
+              contactNo: int.parse(primary_number.text.trim()),
+              qualification: graduate == true ? "Graduate" : "Under Graduate",
+              isExperienced: fresher ? 0 : 1,
+              companyName: widget.company_name,
+              process: widget.process,
+              level: widget.role,
+              naturofwork: widget.nature_of_work,
+              shortListFor: widget.company_id,
+              status: "MP4",
+              subStatus: "Shortlist",
+              sourceId: widget.sourceId,
+              sourceName: widget.sourceName,
+              jobid: widget.jobId,
+              spoc: widget.spocId
+              // ... fill in other properties as needed
+              );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context);
+        } else {
+          // Call the `addResume` function with a different set of data
+          final addResumeModel = JobApplicationModel(
+              isRef: 1,
+              uid: applicationList![0].id,
+              id: 0,
+              applicantName: applicationList![0].firstName.toString(),
+              lastName: applicationList![0].lastName.toString(),
+              contactNo: int.parse(primary_number.text.trim()),
+              qualification: graduate == true ? "Graduate" : "Under Graduate",
+              isExperienced: fresher ? 0 : 1,
+              companyName: widget.company_name.toString(),
+              process: widget.process.toString(),
+              level: widget.role.toString(),
+              naturofwork: widget.nature_of_work.toString(),
+              shortListFor: widget.company_id.toInt(),
+              status: "MP4",
+              subStatus: "Shortlist",
+              sourceId: widget.sourceId.toInt(),
+              sourceName: widget.sourceName.toString(),
+              jobid: widget.jobId.toInt(),
+              //alternateNo: int.parse(secondry.text),
+              spoc: widget.spocId.toInt());
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context);
+        }
+      }
 
       // Use the applicationList as needed
       // For example, you can print the groupName of each Application object:
@@ -805,64 +963,6 @@ class _AddResumeState extends State<AddResume> {
       );
       Map<String, dynamic> jsonData = addResumeModel.toJson();
       JobPostApiService.addResume(jsonData, context); */
-
-      if (applicationList!.isEmpty) {
-        if (widget.isRefer) {
-          JobApplicationModel addResumeModel = JobApplicationModel(
-              isRef: 1,
-              uid: 0,
-              id: 0,
-              applicantName: firt_name.text,
-              lastName: last_name.text,
-              contactNo: int.parse(primary_number.text),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "T1",
-              sourceId: int.parse(widget.sourceId),
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              spoc: widget.spocId
-              // spoc:
-              // ... fill in other properties as needed
-              );
-          Map<String, dynamic> jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context);
-        } else {
-          JobApplicationModel addResumeModel = JobApplicationModel(
-              isRef: 1,
-              uid: 0,
-              id: 0,
-              applicantName: firt_name.text,
-              lastName: last_name.text,
-              contactNo: int.parse(primary_number.text),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "MP4",
-              subStatus: "Shortlist",
-              sourceId: int.parse(widget.sourceId),
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              spoc: widget.spocId
-              // ... fill in other properties as needed
-              );
-          Map<String, dynamic> jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context);
-        }
-      } else {
-        JobApplicationModel addResumeModel = JobApplicationModel();
-        Map<String, dynamic> jsonData = addResumeModel.toJson();
-        JobPostApiService.addResume(jsonData, context);
-      }
     }
   }
 

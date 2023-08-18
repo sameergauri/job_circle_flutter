@@ -77,6 +77,7 @@ class JobData {
   final dynamic functionalArea;
   final List<dynamic> moredetails;
   final int spocInactive;
+  final int is_graduate;
   final String isMonthly;
   final double maxctc;
   final String gender;
@@ -124,6 +125,7 @@ class JobData {
     required this.functionalArea,
     required this.moredetails,
     required this.spocInactive,
+    required this.is_graduate,
     required this.isMonthly,
     required this.maxctc,
   });
@@ -207,6 +209,7 @@ class JobData {
         functionalArea: json['functional_area'] != null && json['functional_area'] != '' ? List<String>.from(jsonDecode(json['functional_area']).map((area) => area)) : [],
         moredetails: json['moredetails'] != null && json['moredetails'] != '' ? List<String>.from(jsonDecode(json['moredetails']).map((detail) => detail)) : [],
         spocInactive: json['spoc_inactive'] != null ? json['spoc_inactive'].toInt() : 0,
+        is_graduate: json['is_graduate'] != null ? json['is_graduate'].toInt() : 0,
         isMonthly: json['ismonthly'] ?? '',
         maxctc: (json['maxctc'] ?? 0.0));
     // maxCtc: json['maxctc'] ?? 0.0);
@@ -440,6 +443,7 @@ void main() {
           "functional_area": null,
           "moredetails": "[]",
           "spoc_inactive": 0,
+          "is_graduate":0,
           "ismonthly": "Per Month",
           "maxctc": 968665
         }

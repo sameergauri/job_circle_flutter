@@ -14,8 +14,9 @@ class UserDataForAddResumeModel {
   factory UserDataForAddResumeModel.fromJson(Map<String, dynamic> json) {
     return UserDataForAddResumeModel(
       resultKey: json['resultKey'],
-      resultData:
-          UserDataForAddResumeModelResultData.fromJson(json['resultData']),
+      resultData: json['resultData'] != null
+          ? UserDataForAddResumeModelResultData.fromJson(json['resultData'])
+          : UserDataForAddResumeModelResultData.empty(),
       code: json['code'],
       errorMessage: json['errorMessage'],
     );
@@ -131,6 +132,58 @@ class UserDataForAddResumeModelResultData {
     this.lastActive,
     this.active,
   });
+  factory UserDataForAddResumeModelResultData.empty() {
+    return UserDataForAddResumeModelResultData(
+      id: 0,
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      martialStatus: '',
+      userType: 0,
+      reportTo: 0,
+      role: 0,
+      mobile: 0,
+      alternateNo: 0,
+      languages: [],
+      gender: '',
+      education: 0,
+      degreeSpc: 0,
+      univercity: 0,
+      passingYear: 0,
+      experience: 0,
+      jobTitle: 0,
+      companyName: '',
+      hasExperience: 0,
+      workExperience: 0,
+      ctc: 0.0,
+      profilePic: '',
+      coverPic: '',
+      bio: '',
+      otp: 0,
+      altOtp: 0,
+      createdOn: '',
+      otpTimestamp: '',
+      block: 0,
+      dateOfBirth: '',
+      email: '',
+      flag: '',
+      cvLink: '',
+      cvUpladtedDate: '',
+      partnerRequest: 0,
+      skills: [],
+      userLocation: '',
+      officialEmail: '',
+      officialNo: 0,
+      userZone: '',
+      vaccinationCertificate: '',
+      bloodGroup: '',
+      vaccination: false,
+      userLocality: '',
+      updatedDate: '',
+      lastActive: '',
+      active: false,
+    );
+  }
 
   factory UserDataForAddResumeModelResultData.fromJson(
       Map<String, dynamic> json) {

@@ -50,10 +50,7 @@ class JobPostApiService {
               fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => const PartnerHomeScreen()),
-                    (Route<dynamic> route) => false);
+                Navigator.pop(context);
               },
               title: "Failed",
               subtitle: "Failed while posting!",

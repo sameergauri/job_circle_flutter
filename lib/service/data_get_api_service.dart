@@ -40,17 +40,48 @@ class ApplicationAPI {
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
+
+      if (jsonBody != null) {
+        final userDataModel = UserDataForAddResumeModel.fromJson(jsonBody);
+
+        return [userDataModel.resultData];
+      }
+
+      // If jsonBody is null or resultData is null, return an empty list
+      final userDataModel = UserDataForAddResumeModel.fromJson(jsonBody);
+      return [];
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  /* Future<List<UserDataForAddResumeModelResultData>> getUserForAddResume(
+      int number) async {
+    final url =
+        Uri.parse("http://${GlobalConstants.API_Host}/users/v1/user/$number");
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
       final userDataModel = UserDataForAddResumeModel.fromJson(jsonBody);
 
       if (userDataModel.resultData != null) {
         return [userDataModel.resultData];
       } else {
-        return [];
+        final staticData = UserDataForAddResumeModelResultData(
+          // Fill in properties with static data
+          // For example:
+          id: 0,
+          firstName: "Static",
+          lastName: "Data",
+          // ...
+        );
+        return [staticData];
       }
     } else {
       throw Exception('Failed to load data');
     }
-  }
+  } */
 }
 
 

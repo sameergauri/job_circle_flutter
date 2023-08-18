@@ -93,9 +93,9 @@ class _TalentPoolState extends State<TalentPool>
     }
   }
 
-  Future<List<Applicant>> fetchAllApplicants() async {
+  Future<List<Applicant>> fetchAllApplicants(int userId) async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?page=1&size=10');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -205,7 +205,9 @@ class _TalentPoolState extends State<TalentPool>
       // Build your widget's UI with the 'profilemodel' data
       // For example:
       return FutureBuilder<List<Applicant>>(
-        future: fetchAllApplicants(),
+        future: profilemodel.id != null
+            ? fetchAllApplicants(profilemodel.id!.toInt())
+            : Future.error("Profile model is null"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(

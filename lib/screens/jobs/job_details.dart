@@ -8,7 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_details_model.dart';
@@ -24,6 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../common/utils.dart';
 import '../../models/fav_job_model.dart';
 import 'add_resume.dart';
+import 'matching_jobs.dart';
 
 final favJobProvider = FutureProvider.family<FavJobModel?, int>(
     (ref, id) => JobSearchService().getFavoriteJob(id));
@@ -107,7 +107,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
         ? formattedMinSalary
         : '$formattedMinSalary - $formattedMaxSalary';
   } */
-  String formatSalaryRange(double minSalary, double maxSalary) {
+  /*  String formatSalaryRange(double minSalary, double maxSalary) {
     String formattedMinSalary = '';
     String formattedMaxSalary = '';
 
@@ -132,6 +132,40 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     formattedMaxSalary = formattedMaxSalary.replaceAll(RegExp(r'\.00$'), '');
 
     return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
+  } */
+  String formatSalaryRange(int minSalary, int maxSalary) {
+    String formattedMinSalary = '';
+    String formattedMaxSalary = '';
+
+    if (minSalary >= 100000) {
+      formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
+    } else if (minSalary >= 1000) {
+      formattedMinSalary =
+          '${(minSalary / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0*$'), '')}k';
+    } else {
+      formattedMinSalary = minSalary
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r'(?<=\.\d*?)0*$'), '');
+    }
+
+    if (maxSalary >= 100000) {
+      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
+    } else if (maxSalary >= 1000) {
+      formattedMaxSalary =
+          '${(maxSalary / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0*$'), '')}k';
+    } else {
+      formattedMaxSalary = maxSalary
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r'(?<=\.\d*?)0*$'), '');
+    }
+
+    // Remove ".00" if present
+    formattedMinSalary = formattedMinSalary.replaceAll(RegExp(r'\.00$'), '');
+    formattedMaxSalary = formattedMaxSalary.replaceAll(RegExp(r'\.00$'), '');
+
+    return maxSalary == 0
         ? formattedMinSalary
         : '$formattedMinSalary - $formattedMaxSalary';
   }
@@ -345,6 +379,48 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
             // mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              if (profilemodel.id == jobDetailsModel.spoc)
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MatchingJobs()));
+                    /* JobPostApiService.postJobApply(
+                            jobId: item['id'],
+                            userId: int.parse(profilemodel.id.toString()),
+                            context: context);
+                        /*  Navigator.pushNamed(context, ERoute.application.name,
+                            arguments: {
+                              "isnew": false,
+                              "prevModel": jobDetailsModel,
+                              "refer": true,
+                              "cmpnyname": item['companyname'].toString()
+                            }); */ */
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(right: 10, left: 20.w),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Constants.subtitleclr),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Matching CV",
+                          style: TextStyle(
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.h,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               usertype == EUserType.jobSeeker.value ||
                       usertype == EUserType.businessPartner.value
                   ? const SizedBox(
@@ -522,11 +598,72 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 width: 10.w,
               ),
               Visibility(
+                visible: usertype == 3,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddResume(
+                                  company_name: jobDetailsModel.name.toString(),
+                                  role: jobDetailsModel.rolename.toString(),
+                                  process: jobDetailsModel.process.toString(),
+                                  nature_of_work:
+                                      jobDetailsModel.naturofwork.toString(),
+                                  company_id:
+                                      jobDetailsModel.compnayid!.toInt(),
+                                  jobId: jobDetailsModel.id!.toInt(),
+                                  sourceId: profilemodel.id!.toInt(),
+                                  sourceName:
+                                      profilemodel.first_name.toString() +
+                                          profilemodel.last_name.toString(),
+                                  isRefer: false,
+                                  spocId: jobDetailsModel.spoc!.toInt(),
+                                )));
+                    /* JobPostApiService.postJobApply(
+                              jobId: item['id'],
+                              userId: int.parse(profilemodel.id.toString()),
+                              context: context);
+                          /*  Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": false,
+                                "prevModel": jobDetailsModel,
+                                "refer": true,
+                                "cmpnyname": item['companyname'].toString()
+                              }); */ */
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Constants.themeBgColor),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Constants.themeBgColor,
+                          size: 15.h,
+                        ),
+                        Text(
+                          "Resume",
+                          style: TextStyle(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.h,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              /*  Visibility(
                 child: Row(
                   children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
                     ThemeButton(
                       width: 100,
                       radious: 20,
@@ -546,7 +683,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 visible: (usertype == EUserType.employee.value ||
                     (usertype == EUserType.businessPartner.value &&
                         partner_request == EPartnerApproval.approved.value)),
-              ),
+              ), */
               usertype == EUserType.businessPartner.value
                   ? const SizedBox(
                       width: 10,
@@ -730,7 +867,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             width: 5.5.w,
                           ),
                           Text(
-                            "${formatSalaryRange(jobDetailsModel.minctc!.toDouble(), jobDetailsModel.maxctc!.toDouble())} ${jobDetailsModel.ismonthly ?? ""}",
+                            "${formatSalaryRange(jobDetailsModel.minctc!.toInt(), jobDetailsModel.maxctc!.toInt())} ${jobDetailsModel.ismonthly ?? ""}",
                             style: GoogleFonts.varela(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.normal,
@@ -936,7 +1073,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               color: Constants.borderColor, width: 2),
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.only(
-                          left: 10, right: 20, top: 6, bottom: 6),
+                          left: 10, right: 8, top: 6, bottom: 6),
                       margin: const EdgeInsets.only(
                         top: 10,
                       ),
@@ -1020,7 +1157,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 
                           //  if (jobDetailsModel.gender != null)
                           if (jobDetailsModel.gender != null &&
-                              jobDetailsModel.gender!.isEmpty)
+                              jobDetailsModel.gender != " ")
                             Padding(
                               padding: EdgeInsets.only(bottom: 3.h),
                               child: Row(
@@ -1031,7 +1168,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         : jobDetailsModel.gender.toString() ==
                                                 "Female"
                                             ? "assets/images/female1.png"
-                                            : "assets/images/female1.png",
+                                            : jobDetailsModel.gender
+                                                        .toString() ==
+                                                    "Female prefered"
+                                                ? "assets/images/female1.png"
+                                                : "",
                                     height: 17.h,
                                   ),
                                   const SizedBox(
@@ -1086,15 +1227,34 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   const Icon(Icons.error),
                             ), */
                                   const SizedBox(
-                                    width: 7,
+                                    width: 5,
                                   ),
-                                  Text(
-                                    extractText(
-                                        jobDetailsModel.shifttime.toString()),
-                                    style: GoogleFonts.varela(
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  )
+                                  jobDetailsModel.shifttime ==
+                                          "👨Rotational (24/7) | 👩Rotational Day"
+                                      ? Text(
+                                          "Male: Rotational | Female: Day Rotational",
+                                          style: GoogleFonts.varela(
+                                            color: Colors.grey.shade700,
+                                          ))
+                                      : jobDetailsModel.shifttime == "🌄Day"
+                                          ? Text("Day Shift",
+                                              style: GoogleFonts.varela(
+                                                color: Colors.grey.shade700,
+                                              ))
+                                          : jobDetailsModel.shifttime ==
+                                                  "🌙 Night"
+                                              ? Text("Night Shift",
+                                                  style: GoogleFonts.varela(
+                                                    color: Colors.grey.shade700,
+                                                  ))
+                                              : Text(
+                                                  extractText(jobDetailsModel
+                                                      .shifttime
+                                                      .toString()),
+                                                  style: GoogleFonts.varela(
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                )
                                 ],
                               ),
                             ),
@@ -1566,6 +1726,49 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ],
                   ),
                 ), */
+                    if (jobDetailsModel.is_graduate == 1)
+                      Container(
+                        width: double.maxFinite,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.shade300,
+                                  offset: const Offset(0, 0),
+                                  blurRadius: 2)
+                            ],
+                            color: Colors.white,
+                            // border: Border.all(color: Colors.blue.shade200),
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 5, top: 10, bottom: 10),
+                        margin:
+                            const EdgeInsets.only(top: 10, left: 1, right: 1),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Note's : ",
+                                style: GoogleFonts.varela(
+                                  fontWeight:
+                                      FontWeight.bold, // Set bold for this part
+                                  fontSize: 15,
+                                  color: Colors.black, // Adjust color as needed
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    "Undergraduates with Relevant Experience can Apply.",
+                                style: GoogleFonts.varela(
+                                  fontWeight: FontWeight
+                                      .normal, // Set normal for this part
+                                  fontSize: 14,
+                                  color: Colors.black, // Adjust color as needed
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                     Stack(
                       children: [
@@ -2205,8 +2408,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                               .toInt(),
                                                       jobId: jobDetailsModel.id!
                                                           .toInt(),
-                                                      sourceId: profilemodel.id
-                                                          .toString(),
+                                                      sourceId: profilemodel.id!
+                                                          .toInt(),
                                                       sourceName: profilemodel
                                                               .first_name
                                                               .toString() +

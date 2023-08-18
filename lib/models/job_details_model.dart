@@ -1,5 +1,6 @@
 class JobDetailsModel {
   int? id;
+  int? is_graduate;
   int? compnayid;
   String? rolename;
   String? isfresher;
@@ -48,6 +49,7 @@ class JobDetailsModel {
 
   JobDetailsModel({
     this.id,
+    this.is_graduate,
     this.compnayid,
     this.age_group,
     this.no_of_vacancy,
@@ -132,6 +134,7 @@ class JobDetailsModel {
 
     return JobDetailsModel(
       id: map['id'],
+      is_graduate: map['is_graduate'],
       isfresher: map['isfresher'],
       compnayid: map['compnayid'],
       ismonthly: map['ismonthly'],

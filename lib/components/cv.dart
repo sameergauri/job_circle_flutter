@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/service/FileUploadService.dart';
@@ -62,7 +63,7 @@ class _CVWidgetState extends State<CVWidget> {
                         if (widget.profileCv.cv_upladted_date != null &&
                             widget.profileCv.cv_upladted_date != "")
                           Text(
-                              "Last Updated On ${widget.profileCv.cv_upladted_date}",
+                              "Last Updated On ${DateFormat('dd MMMM yyyy').format(DateTime.parse(widget.profileCv.cv_upladted_date.toString()))}",
                               style: const TextStyle(
                                   fontWeight: FontWeight.w500, fontSize: 14))
                       ],

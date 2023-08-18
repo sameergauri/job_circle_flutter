@@ -25,6 +25,7 @@ import 'package:job_circle/screens/jobs/filter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
+import 'package:job_circle/screens/jobs/matching_jobs.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -86,31 +87,7 @@ class _JobsState extends ConsumerState<Jobs>
     });
   }
 
-  /*  String formatSalaryRange(double minSalary, double maxSalary) {
-    String formattedMinSalary = '';
-    String formattedMaxSalary = '';
-
-    if (minSalary >= 100000) {
-      formattedMinSalary = (minSalary / 100000).toStringAsFixed(1);
-    } else if (minSalary >= 1000) {
-      formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(1)}k';
-    } else {
-      formattedMinSalary = minSalary.toStringAsFixed(1);
-    }
-
-    if (maxSalary >= 100000) {
-      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(1);
-    } else if (maxSalary >= 1000) {
-      formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(1)}k';
-    } else {
-      formattedMaxSalary = maxSalary.toStringAsFixed(1);
-    }
-
-    return maxSalary == 0.0
-        ? formattedMinSalary
-        : '$formattedMinSalary - $formattedMaxSalary';
-  } */
-  String formatSalaryRange(double minSalary, double maxSalary) {
+  /* String formatSalaryRange(int minSalary, int maxSalary) {
     String formattedMinSalary = '';
     String formattedMaxSalary = '';
 
@@ -119,7 +96,7 @@ class _JobsState extends ConsumerState<Jobs>
     } else if (minSalary >= 1000) {
       formattedMinSalary = '${(minSalary / 1000).toStringAsFixed(2)}k';
     } else {
-      formattedMinSalary = minSalary.toStringAsFixed(2);
+      formattedMinSalary = minSalary.toStringAsFixed(1);
     }
 
     if (maxSalary >= 100000) {
@@ -127,14 +104,44 @@ class _JobsState extends ConsumerState<Jobs>
     } else if (maxSalary >= 1000) {
       formattedMaxSalary = '${(maxSalary / 1000).toStringAsFixed(2)}k';
     } else {
-      formattedMaxSalary = maxSalary.toStringAsFixed(2);
+      formattedMaxSalary = maxSalary.toStringAsFixed(1);
+    }
+
+    return maxSalary == 0.0
+        ? formattedMinSalary
+        : '$formattedMinSalary - $formattedMaxSalary';
+  } */
+  String formatSalaryRange(int minSalary, int maxSalary) {
+    String formattedMinSalary = '';
+    String formattedMaxSalary = '';
+
+    if (minSalary >= 100000) {
+      formattedMinSalary = (minSalary / 100000).toStringAsFixed(2);
+    } else if (minSalary >= 1000) {
+      formattedMinSalary =
+          '${(minSalary / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0*$'), '')}k';
+    } else {
+      formattedMinSalary = minSalary
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r'(?<=\.\d*?)0*$'), '');
+    }
+
+    if (maxSalary >= 100000) {
+      formattedMaxSalary = (maxSalary / 100000).toStringAsFixed(2);
+    } else if (maxSalary >= 1000) {
+      formattedMaxSalary =
+          '${(maxSalary / 1000).toStringAsFixed(1).replaceAll(RegExp(r'\.0*$'), '')}k';
+    } else {
+      formattedMaxSalary = maxSalary
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r'(?<=\.\d*?)0*$'), '');
     }
 
     // Remove ".00" if present
     formattedMinSalary = formattedMinSalary.replaceAll(RegExp(r'\.00$'), '');
     formattedMaxSalary = formattedMaxSalary.replaceAll(RegExp(r'\.00$'), '');
 
-    return maxSalary == 0.0
+    return maxSalary == 0
         ? formattedMinSalary
         : '$formattedMinSalary - $formattedMaxSalary';
   }
@@ -2322,7 +2329,8 @@ class _JobsState extends ConsumerState<Jobs>
                               width: 6.w,
                             ),
                             Text(
-                              formatSalaryRange(item['minctc'], item['maxctc']),
+                              formatSalaryRange(item['minctc'].toInt(),
+                                  item['maxctc'].toInt()),
                               style: GoogleFonts.varela(
                                 fontSize: 13.sp,
                                 color: Constants.subtitleclr,
@@ -2456,16 +2464,65 @@ class _JobsState extends ConsumerState<Jobs>
                     Column(
                       children: [
                         usertype == 3
-                            ? SizedBox(
-                                child: Text(
-                                  //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
-                                  "Asking payment strictly prohibited",
-                                  style: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w500,
-                                      color: Constants.subtitleclr),
-                                  softWrap: true,
-                                ),
-                              )
+                            ? profilemodel.id == item['spoc']
+                                ? Visibility(
+                                    visible: usertype == 3,
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MatchingJobs()));
+                                        /* JobPostApiService.postJobApply(
+                              jobId: item['id'],
+                              userId: int.parse(profilemodel.id.toString()),
+                              context: context);
+                          /*  Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": false,
+                                "prevModel": jobDetailsModel,
+                                "refer": true,
+                                "cmpnyname": item['companyname'].toString()
+                              }); */ */
+                                      },
+                                      child: Container(
+                                        margin:
+                                            const EdgeInsets.only(right: 10),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 4.h, horizontal: 8.w),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Constants.subtitleclr),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Matching CV",
+                                              style: TextStyle(
+                                                color: Constants.subtitleclr,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15.h,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(
+                                    child: Text(
+                                      //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
+                                      "Asking payment strictly prohibited",
+                                      style: GoogleFonts.varela(
+                                          fontWeight: FontWeight.w500,
+                                          color: Constants.subtitleclr),
+                                      softWrap: true,
+                                    ),
+                                  )
                             : SizedBox(
                                 child: Row(
                                   children: [
@@ -2486,7 +2543,7 @@ class _JobsState extends ConsumerState<Jobs>
                                     ),
                                   ],
                                 ),
-                              ),
+                              )
                       ],
                     ),
                     const Spacer(),
@@ -2498,21 +2555,21 @@ class _JobsState extends ConsumerState<Jobs>
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddResume(
-                                      company_name: item['companyname'],
-                                      role: item['rolename'],
-                                      process: item['process'],
-                                      nature_of_work: item['naturofwork'],
-                                      company_id: item['compnayid'],
-                                      jobId: item['id'],
-                                      sourceId: profilemodel.id.toString(),
-                                      sourceName: profilemodel.first_name
-                                              .toString() +
-                                        
-                                          profilemodel.last_name.toString(),
-                                          isRefer: false,
-                                          spocId: item['spoc'],
-                                          )
-                                          ));
+                                        company_name: item['companyname'],
+                                        role: item['rolename'],
+                                        process: item['process'],
+                                        nature_of_work: item['naturofwork'],
+                                        company_id: item['compnayid'],
+                                        jobId: item['id'],
+                                        sourceId: profilemodel.id != null
+                                            ? profilemodel.id!.toInt()
+                                            : 0,
+                                        sourceName: profilemodel.first_name
+                                                .toString() +
+                                            profilemodel.last_name.toString(),
+                                        isRefer: false,
+                                        spocId: item['spoc'],
+                                      )));
                           /* JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),

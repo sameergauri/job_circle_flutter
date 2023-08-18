@@ -113,6 +113,7 @@ class _JobFormState extends State<JobForm> {
   late List<AutoCompleteModel> levelList = [];
   late List<AutoCompleteModel> statusList = [];
   late List<AutoCompleteModel> interviewList = [];
+  FocusNode responsibilityFocus = FocusNode();
   bool enableShortListFor = true;
   bool enableProcess = true;
   late int userType = -1;
@@ -137,6 +138,7 @@ class _JobFormState extends State<JobForm> {
   }
  */
   bool isRelevantExpperience = false;
+  bool isGraduateCheckBox = false;
   bool above = false;
 
   void checkAgeGroup(String ageText) {
@@ -495,6 +497,7 @@ class _JobFormState extends State<JobForm> {
 
           print(loc);
         }
+        isGraduateCheckBox = jobData.is_graduate == 1 ? true : false;
         fetchApiLanguages = jobData.languageKnown.cast<String>();
         fetchApiskill = jobData.skills;
         selectedLanguages = fetchApiLanguages;
@@ -534,6 +537,13 @@ class _JobFormState extends State<JobForm> {
           isRelevantExpperience = true;
         }
         selectedValuesList = jobData.skills;
+        String allSkills = fetchApiskill.join(",");
+
+        fetchData(allSkills).then((checkboxData) {
+          setState(() {
+            checkboxDataState = checkboxData; // Update the state variable
+          });
+        });
         //selectedKeyResponsible = jobData.keyResponsible;
         print(selectedKeyResponsible);
         fetchApilocation = jobData.location;
@@ -572,6 +582,32 @@ class _JobFormState extends State<JobForm> {
           } else if (item == "Candidate should be from relevant experience.") {
           } else if (item ==
               "Excellent English written & verbal Communication skills required.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "A basic level of English proficiency is expected for communication in this job.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "Good English communication skills are required for effective interaction with customers.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "Candidates should be comfortable working in a 24/7 rotational shift.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "Proficiency in English, Hindi, and Any one Regional Language ${fetchApiLanguages.map((e) => e)} Required.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "Compulsory Proficiency in English, Hindi, and ${fetchApiLanguages.map((e) => e.replaceAll("()", ""))} (Regional Language).") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "Candidates should be flexible with Night / US shifts.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "While all candidates are welcome, female candidates are preferred.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item == "This role is exclusively for male candidates.") {
+            // _eligibilityList.add(CheckItem(item.toString(), true));
+          } else if (item ==
+              "This position is exclusively open to female candidates.") {
             // _eligibilityList.add(CheckItem(item.toString(), true));
           } else {
             fetchApieligibility.add(item);
@@ -1108,6 +1144,12 @@ class _JobFormState extends State<JobForm> {
   String? CityID = "0";
   List<Location> worklocationList = [];
 
+  bool showAllItems = false;
+
+  int visibleItemCount = 5;
+
+  final ScrollController _scrollController = ScrollController();
+
   void getWorkLocation(List<String> data) {
     // Store the received data in the list
     setState(() {
@@ -1145,7 +1187,48 @@ class _JobFormState extends State<JobForm> {
     });
   } */
 
-  Future<List<String>> fetchData(String id) async {
+  Future<List<String>> fetchData(String skills) async {
+    String combineSkills = '';
+    if (skills == "") {
+      setState(() {
+        combineSkills = "xyzzzzzzz";
+      });
+    } else {
+      setState(() {
+        combineSkills = skills.replaceAll(" ", " ");
+      });
+    }
+
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host}/master/v1/key_responsible/$combineSkills'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and extract the desired value from each map
+      final content = data['resultData'];
+      if (content is! List) {
+        print('Invalid data format');
+        return []; // or any other appropriate default value
+      } else {
+        Set<String> uniqueValues = <String>{}; // Use Set to store unique values
+        for (var map in content) {
+          uniqueValues.add(map['value'].toString());
+        }
+        // Convert Set back to List and update the state
+        checkboxData = uniqueValues.toList();
+        setState(() {
+          checkboxDataState = checkboxData; // Update the state variable
+        });
+        print(checkboxData);
+        return checkboxData;
+      }
+    } else {
+      print('Failed to fetch data');
+      return []; // or any other appropriate default value
+    }
+  }
+
+  /* Future<List<String>> fetchData(String id) async {
     /* setState(() {
       NatureOfWorkID = int.parse(id);
     }); */
@@ -1171,7 +1254,7 @@ class _JobFormState extends State<JobForm> {
       print('Failed to fetch data');
       return []; // or any other appropriate default value
     }
-  }
+  } */
 
   Future<List> getSuggestions(String pattern) async {
     final response = await http.get(Uri.parse(
@@ -1458,9 +1541,22 @@ class _JobFormState extends State<JobForm> {
     });
   }
 
-  void updateSelectedValues(String value) {
+  /*  void updateSelectedValues(String value) {
     setState(() {
       selectedValues.add(value);
+    });
+  } */
+  void handleSelectedSkillsChange(List<dynamic> selectedSkills) {
+    // Update the selected skills and trigger fetchData
+    setState(() {
+      selectedValuesList = selectedSkills;
+    });
+
+    String skills = selectedSkills.join(",");
+    fetchData(skills).then((updatedData) {
+      setState(() {
+        checkboxDataState = updatedData;
+      });
     });
   }
 
@@ -1591,12 +1687,25 @@ class _JobFormState extends State<JobForm> {
                   : InkWell(
                       onTap: () {
                         if (selectedComunication == "Excellent | Versant") {
-                          selectedEligibility.add(
+                          selectedKeyEligibility.add(
                               "Excellent English written & verbal Communication skills required.");
+                        }
+                        if (selectedCommunication == "Average") {
+                          selectedKeyEligibility.add(
+                              "A basic level of English proficiency is expected for communication in this job.");
+                        }
+                        if (selectedCommunication ==
+                            "Very Good | Non Versant") {
+                          selectedKeyEligibility.add(
+                              "Good English communication skills are required for effective interaction with customers.");
+                        }
+                        if (selectedShiftTime1 == "🕒Rotational (24/7)") {
+                          selectedKeyEligibility.add(
+                              "Candidates should be comfortable working in a 24/7 rotational shift.");
                         }
                         if (isFresher == false) {
                           if (isRelevantExpperience == true) {
-                            selectedEligibility.add(
+                            selectedKeyEligibility.add(
                                 "Candidate should be from relevant experience background.");
                           }
                         }
@@ -1793,6 +1902,7 @@ class _JobFormState extends State<JobForm> {
                                       : femalePrefered
                                           ? "Female prefered"
                                           : " ",
+                              is_graduate: isGraduateCheckBox ? 1 : 0,
 
                               minAge: minAge.text.isNotEmpty
                                   ? int.parse(minAge.text)
@@ -1876,9 +1986,46 @@ class _JobFormState extends State<JobForm> {
                     ),
               InkWell(
                 onTap: () {
+                  if (selectedComunication == "Average") {
+                    selectedKeyEligibility.add(
+                        "A basic level of English proficiency is expected for communication in this job.");
+                  }
                   if (selectedComunication == "Excellent | Versant") {
                     selectedKeyEligibility.add(
                         "Excellent English written & verbal Communication skills required.");
+                  }
+
+                  if (selectedComunication == "Very Good | Non Versant") {
+                    selectedKeyEligibility.add(
+                        "Good English communication skills are required for effective interaction with customers.");
+                  }
+                  if (selectedShiftTime1 == "🕒Rotational (24/7)") {
+                    selectedKeyEligibility.add(
+                        "Candidates should be comfortable working in a 24/7 rotational shift.");
+                  }
+                  if (selectedShiftTime1 == "🌙 Night") {
+                    selectedKeyEligibility.add(
+                        "Candidates should be flexible with Night / US shifts.");
+                  }
+                  if (selectedLanguages.length > 1) {
+                    selectedKeyEligibility.add(
+                        "Proficiency in English, Hindi, and Any one Regional Language ${selectedLanguages.map((e) => e)} Required.");
+                  }
+                  if (selectedLanguages.length == 1) {
+                    selectedKeyEligibility.add(
+                        "Compulsory Proficiency in English, Hindi, and ${selectedLanguages.map((e) => e.replaceAll("()", ""))} (Regional Language).");
+                  }
+                  if (onlyFemale) {
+                    selectedKeyEligibility.add(
+                        "This position is exclusively open to female candidates.");
+                  }
+                  if (femalePrefered) {
+                    selectedKeyEligibility.add(
+                        " While all candidates are welcome, female candidates are preferred.");
+                  }
+                  if (onlyMale) {
+                    selectedKeyEligibility
+                        .add("This role is exclusively for male candidates.");
                   }
                   if (isFresher == false) {
                     if (isRelevantExpperience == true) {
@@ -2034,6 +2181,15 @@ class _JobFormState extends State<JobForm> {
                       print("Error parsing maxSalary: $e");
                       // You can choose to provide a default value or show an error message to the user.
                     }
+
+// Convert the list to a set to remove duplicates
+                    Set<String> uniqueSelectedKeyEligibility =
+                        Set<String>.from(selectedKeyEligibility);
+
+// Convert the set back to a list
+                    List<String> finalList =
+                        uniqueSelectedKeyEligibility.toList();
+
                     jobPostModel model = jobPostModel(
                       active: 1,
                       crpf_id: functionalAreaId,
@@ -2076,6 +2232,7 @@ class _JobFormState extends State<JobForm> {
                               : femalePrefered
                                   ? "Female prefered"
                                   : " ",
+                      is_graduate: isGraduateCheckBox == true ? 1 : 0,
 
                       minAge: minAge.text.isNotEmpty
                           ? int.parse(minAge.text)
@@ -2083,7 +2240,7 @@ class _JobFormState extends State<JobForm> {
                       maxAge: maxAge.text.isNotEmpty
                           ? int.parse(maxAge.text).toInt()
                           : null,
-                      eligible: selectedKeyEligibility,
+                      eligible: finalList,
 
                       moredetails: selectedKeyMoreDetails,
                       interviewRounds: selectedInterViewRounds,
@@ -2093,7 +2250,8 @@ class _JobFormState extends State<JobForm> {
 
                       companyId: CompanyID != null ? int.parse(CompanyID!) : 1,
                       natureOfWork: natureOfWork.text,
-                      workLocation: worklocationList.map((e) => e.id).toList(),
+                      // workLocation: worklocationList.map((e) => e.id).toList(),
+                      workLocation: fetchApilocation.map((e) => e.id).toList(),
 
                       //  spoc: profileSummaryModel.id
                       spoc: profilemodel.id,
@@ -2661,7 +2819,84 @@ class _JobFormState extends State<JobForm> {
                           title: "Graduate"),
                     ],
                   ),
+                  graduate == true
+                      ? Container(
+                          margin: EdgeInsets.only(top: 6.h, bottom: 6.h),
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 4.w),
+                                height: 16,
+                                width: 20,
+                                padding: EdgeInsets.zero,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isGraduateCheckBox
+                                        ? Colors.red
+                                        : Colors.grey,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.transparent,
+                                  ),
+                                  child: Checkbox(
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    activeColor: Colors.white,
+                                    checkColor: Colors.red,
+                                    value: isGraduateCheckBox,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isGraduateCheckBox = value!;
+                                      });
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    side: isGraduateCheckBox
+                                        ? const BorderSide(color: Colors.red)
+                                        : null, // No border when unchecked
+
+                                    // Remove extra padding around the checkbox
+                                  ),
+                                ),
+                              ),
+                              const Text(
+                                "Undergraduates with Relevant Experience can Apply.",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox(),
+
                   CustomFormTextFieldMultiSelect(
+                    // isCompany: false,
+                    name: "skills",
+                    isSkill: true,
+                    fetchApiskill: fetchApiskill,
+                    selectedSkillsChangeCallback: handleSelectedSkillsChange,
+                    /* onFocusNodeRequested: (p0) {
+                      focusNode.requestFocus();
+                    }, */
+                    title: "Skills Required",
+                    controller: skills,
+                    selectedValuesList: selectedValuesList,
+                    //callback:handleSelectedSkillsChange,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    /*  onChanged: (p0) {
+                      isEdit7 = p0;
+                    }, */
+                    contextIn: context,
+                    hintText: "Advance Excel",
+                    // getSuggestions: getJobTitle,
+                  ),
+
+                  /* CustomFormTextFieldMultiSelect(
                     // isCompany: false,
                     name: "skills",
                     isSkill: true,
@@ -2681,7 +2916,7 @@ class _JobFormState extends State<JobForm> {
                     contextIn: context,
                     hintText: "Advance Excel",
                     // getSuggestions: getJobTitle,
-                  ),
+                  ), */
                   /* newFormFiled(shorListController, context, "Skills Required",
                       "Advance Excel", false, false, false), */
 
@@ -2730,9 +2965,9 @@ class _JobFormState extends State<JobForm> {
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: checkboxData.length,
+                    itemCount: selectedKeyResponsible.length,
                     itemBuilder: (context, index) {
-                      final item = checkboxData[index];
+                      final item = selectedKeyResponsible[index];
                       //  fetchData();
                       return Padding(
                         padding:
@@ -2763,7 +2998,7 @@ class _JobFormState extends State<JobForm> {
                                     ),
                                     child: Checkbox(
                                       activeColor: Colors.white,
-                                      checkColor: Colors.red,
+                                      checkColor: Constants.themeBgColor,
                                       visualDensity: VisualDensity.compact,
                                       value:
                                           selectedKeyResponsible.contains(item),
@@ -2803,6 +3038,7 @@ class _JobFormState extends State<JobForm> {
                   SizedBox(
                     height: height / 25,
                     child: TextField(
+                      focusNode: responsibilityFocus,
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(
                             RegExp(r'^\s')), // Disallow spaces at the beginning
@@ -2916,6 +3152,524 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ),
                   ),
+                  /* ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: checkboxData.length,
+                    itemBuilder: (context, index) {
+                      final item = checkboxData[index];
+                      //  fetchData();
+                      if (!selectedKeyResponsible.contains(item)) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                              top: 5, bottom: 5, right: 5),
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                height: 16,
+                                width: 20,
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color:
+                                            // selectedKeyResponsible.contains(item)
+                                            Colors.grey,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    height: 16,
+                                    width: 20,
+                                    child: Theme(
+                                      data: ThemeData(
+                                        unselectedWidgetColor:
+                                            Colors.transparent,
+                                      ),
+                                      child: Checkbox(
+                                        activeColor: Colors.white,
+                                        checkColor: Constants.themeBgColor,
+                                        visualDensity: VisualDensity.compact,
+                                        value: selectedKeyResponsible
+                                            .contains(item),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            if (newValue!) {
+                                              // Add the item to the list
+                                              selectedKeyResponsible.add(item);
+                                            } else {
+                                              // Remove the item from the list
+                                              selectedKeyResponsible
+                                                  .remove(item);
+                                            }
+                                          });
+                                          print(
+                                              selectedKeyResponsible); // Notify Flutter that the state has changed
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  item,
+                                  softWrap:
+                                      true, // Allow text to wrap into the next line
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ), */
+                  /* checkboxData.isEmpty
+                      ? const SizedBox()
+                      : ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: showAllItems
+                              ? checkboxData.length
+                              : selectedKeyResponsible.isEmpty
+                                  ? 4
+                                  : 1 + selectedKeyResponsible.length,
+                          itemBuilder: (context, index) {
+                            final item = checkboxData[index];
+
+                            // Check if the item is not selected
+                            if (!selectedKeyResponsible.contains(item)) {
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 5, bottom: 5, right: 5),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      height: 16,
+                                      width: 20,
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color:
+                                                  // selectedKeyResponsible.contains(item)
+                                                  Colors.grey,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          height: 16,
+                                          width: 20,
+                                          child: Theme(
+                                            data: ThemeData(
+                                              unselectedWidgetColor:
+                                                  Colors.transparent,
+                                            ),
+                                            child: Checkbox(
+                                              activeColor: Colors.white,
+                                              checkColor:
+                                                  Constants.themeBgColor,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              value: selectedKeyResponsible
+                                                  .contains(item),
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  if (newValue!) {
+                                                    // Add the item to the list
+                                                    selectedKeyResponsible
+                                                        .add(item);
+                                                  } else {
+                                                    // Remove the item from the list
+                                                    selectedKeyResponsible
+                                                        .remove(item);
+                                                  }
+                                                });
+                                                print(
+                                                    selectedKeyResponsible); // Notify Flutter that the state has changed
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        item,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              // Return an empty container if the item is already selected
+                              return Container();
+                            }
+                          },
+                        ),
+                  if (checkboxData.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              showAllItems = !showAllItems;
+                              responsibilityFocus.requestFocus();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: Colors
+                                .white, // Change this color to your desired color
+                          ),
+                          child: Text(
+                            showAllItems ? "Show Less" : "Show More",
+                            style:
+                                const TextStyle(color: Constants.themeBgColor),
+                          ),
+                        )
+                      ],
+                    ), */
+
+                  /*  checkboxData.isEmpty
+                      ? const SizedBox()
+                      : ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: showAllItems
+                              ? checkboxData.length
+                              : selectedKeyResponsible.isEmpty
+                                  ? 5
+                                  : 5,
+                          itemBuilder: (context, index) {
+                            final nonSelectedItems = checkboxData
+                                .where(
+                                  (item) =>
+                                      !selectedKeyResponsible.contains(item),
+                                )
+                                .toList();
+
+                            if (!showAllItems &&
+                                index == 4 &&
+                                nonSelectedItems.length > 5) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        showAllItems = true;
+                                      });
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Show More",
+                                        style: TextStyle(
+                                            color: Constants.themeBgColor),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            if (index < nonSelectedItems.length) {
+                              final item = nonSelectedItems[index];
+
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 5, bottom: 5, right: 5),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      height: 16,
+                                      width: 20,
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color:
+                                                  // selectedKeyResponsible.contains(item)
+                                                  Colors.grey,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          height: 16,
+                                          width: 20,
+                                          child: Theme(
+                                            data: ThemeData(
+                                              unselectedWidgetColor:
+                                                  Colors.transparent,
+                                            ),
+                                            child: Checkbox(
+                                              activeColor: Colors.white,
+                                              checkColor:
+                                                  Constants.themeBgColor,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              value: selectedKeyResponsible
+                                                  .contains(item),
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  if (newValue!) {
+                                                    // Add the item to the list
+                                                    selectedKeyResponsible
+                                                        .add(item);
+                                                  } else {
+                                                    // Remove the item from the list
+                                                    selectedKeyResponsible
+                                                        .remove(item);
+                                                  }
+                                                });
+                                                print(
+                                                    selectedKeyResponsible); // Notify Flutter that the state has changed
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        item,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else if (showAllItems &&
+                                index == nonSelectedItems.length) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        showAllItems = false;
+                                        responsibilityFocus.requestFocus();
+                                      });
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Show Less",
+                                        style: TextStyle(
+                                            color: Constants.themeBgColor),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return Container();
+                            }
+                          },
+                        ), */
+
+                  checkboxData.isEmpty
+                      ? const SizedBox()
+                      : ListView.builder(
+                          controller: _scrollController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: showAllItems
+                              ? checkboxData.length
+                              : selectedKeyResponsible.isEmpty
+                                  ? visibleItemCount
+                                  : visibleItemCount,
+                          itemBuilder: (context, index) {
+                            final nonSelectedItems = checkboxData
+                                .where(
+                                  (item) =>
+                                      !selectedKeyResponsible.contains(item),
+                                )
+                                .toList();
+
+                            if (!showAllItems &&
+                                index == visibleItemCount - 1 &&
+                                nonSelectedItems.length >= visibleItemCount) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  if (!showAllItems &&
+                                      index == visibleItemCount - 1 &&
+                                      nonSelectedItems.length >
+                                          visibleItemCount)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          visibleItemCount += 4;
+                                          if (visibleItemCount >
+                                              nonSelectedItems.length) {
+                                            visibleItemCount =
+                                                nonSelectedItems.length;
+                                          }
+                                        });
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          "View More",
+                                          style: TextStyle(
+                                              color: Constants.themeBgColor),
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(
+                                    width: 6,
+                                  ),
+                                  if (visibleItemCount > 4)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          visibleItemCount -= 4;
+                                          if (visibleItemCount < 4) {
+                                            visibleItemCount = 4;
+                                          }
+                                          _scrollController.animateTo(
+                                            0.0,
+                                            duration: const Duration(
+                                                milliseconds: 500),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        });
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          "View less",
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }
+
+                            if (index < nonSelectedItems.length) {
+                              final item = nonSelectedItems[index];
+
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 5, bottom: 5, right: 5),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      height: 16,
+                                      width: 20,
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color:
+                                                  // selectedKeyResponsible.contains(item)
+                                                  Colors.grey,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          height: 16,
+                                          width: 20,
+                                          child: Theme(
+                                            data: ThemeData(
+                                              unselectedWidgetColor:
+                                                  Colors.transparent,
+                                            ),
+                                            child: Checkbox(
+                                              activeColor: Colors.white,
+                                              checkColor:
+                                                  Constants.themeBgColor,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              value: selectedKeyResponsible
+                                                  .contains(item),
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  if (newValue!) {
+                                                    // Add the item to the list
+                                                    selectedKeyResponsible
+                                                        .add(item);
+                                                  } else {
+                                                    // Remove the item from the list
+                                                    selectedKeyResponsible
+                                                        .remove(item);
+                                                  }
+                                                });
+                                                print(
+                                                    selectedKeyResponsible); // Notify Flutter that the state has changed
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        item,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else if (showAllItems &&
+                                index == nonSelectedItems.length) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        showAllItems = false;
+                                        visibleItemCount = 4;
+                                      });
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Show Less",
+                                        style: TextStyle(
+                                            color: Constants.themeBgColor),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return Container();
+                            }
+                          },
+                        ),
 
                   Row(
                     children: [
@@ -3674,7 +4428,7 @@ class _JobFormState extends State<JobForm> {
                           // isCompany: false,
                           name: "location",
                           isSkill: false,
-                          fetchApiskill1: fetchApilocation,
+                          fetchApiskill1: fetchApilocation, //
 
                           /* onFocusNodeRequested: (p0) {
                       focusNode.requestFocus();
@@ -3688,7 +4442,7 @@ class _JobFormState extends State<JobForm> {
                           },
                           workType1: getWorkValue,
                           submit1: getWorkLocation,
-                          selectedValuesList1: selectedWorkLocation,
+                          selectedValuesList1: selectedWorkLocation, //
                           callback1: updateSelectedValues1,
                           contextIn: context,
                           hintText: "Thane",

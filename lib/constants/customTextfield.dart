@@ -413,7 +413,7 @@ class _CustomFormTextFieldMultiSelectLocationState
                                     // Perform additional operations for "wfh" or "Hybrid" values
                                     // ...
                                     handleBoolChange(true);
-                                    //widget.workType1!(suggestion.value);
+                                    widget.workType1!(suggestion.value);
                                     controller!.text =
                                         suggestion.value.toString();
                                     widget
@@ -1166,7 +1166,7 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   List<dynamic>? selectedValuesList = [];
   //yfinal Function(String)? se;
   BuildContext contextIn;
-  final Function(String) callback;
+  final Function(String)? callback;
   final String title;
   final Function(String)? getSuggestions;
   final String? firstText;
@@ -1176,10 +1176,12 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
   final Function(String)? workType;
   final Function(List<String>)? submit;
   List<dynamic>? fetchApiskill = [];
+  final Function(List<dynamic>)? selectedSkillsChangeCallback;
 
   CustomFormTextFieldMultiSelect({
-    required this.callback,
+    this.callback,
     this.fetchApiskill,
+    this.selectedSkillsChangeCallback,
     this.submit,
     Key? key,
     this.controller,
@@ -1231,7 +1233,7 @@ class _CustomFormTextFieldMultiSelectState
       isEdit = newValue;
 //selectedValuesList = widget.fetchApiskill;
     });
-    widget.onChanged!(newValue);
+    // widget.onChanged!(newValue);
   }
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
@@ -1352,8 +1354,20 @@ class _CustomFormTextFieldMultiSelectState
                             widget.fetchApiskill!.remove(e);
                             textFieldFocusNode.requestFocus();
                             handleBoolChange(false);
+                            widget.selectedSkillsChangeCallback!(
+                                selectedValuesList!);
                           });
+
+                          // Call the callback function to update selected skills
                         },
+                        /*  onDeleted: () {
+                          setState(() {
+                            selectedValuesList!.remove(e);
+                            widget.fetchApiskill!.remove(e);
+                            textFieldFocusNode.requestFocus();
+                            handleBoolChange(false);
+                          });
+                        }, */
                       );
                     }).toList()),
 
@@ -1521,8 +1535,10 @@ class _CustomFormTextFieldMultiSelectState
                                     controller!.text =
                                         suggestion.value.toString();
                                     controller!.clear();
-                                    widget
-                                        .callback(suggestion.value.toString());
+                                    widget.selectedSkillsChangeCallback!(
+                                        selectedValuesList!);
+                                    /*  widget
+                                        .callback(suggestion.value.toString()); */
                                     selectedDataList
                                         .add(suggestion.id.toString());
                                     widget.submit!(selectedDataList);
@@ -1544,8 +1560,8 @@ class _CustomFormTextFieldMultiSelectState
                                     widget.workType!(suggestion.value);
                                     controller!.text =
                                         suggestion.value.toString();
-                                    widget
-                                        .callback(suggestion.value.toString());
+                                    /*  widget
+                                        .callback(suggestion.value.toString()); */
                                     selectedDataList
                                         .add(suggestion.id.toString());
                                     widget.submit!(selectedDataList);
