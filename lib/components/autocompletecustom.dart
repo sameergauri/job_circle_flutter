@@ -4,6 +4,7 @@ import 'package:job_circle/models/autocompleteModel.dart';
 class CustomControls {
   static bool get kDebugMode => false;
 
+  // ignore: non_constant_identifier_names
   static Autocomplete<AutoCompleteModel> AutoCompleteCustom(
       BuildContext context,
       String label,
@@ -46,7 +47,7 @@ class CustomControls {
         },
         onSelected: (AutoCompleteModel _selectedItem) {
           if (kDebugMode) {
-            print(selectedItem.extra);
+          //  print(selectedItem.extra);
           }
           onSelected(_selectedItem);
           selectedItem = _selectedItem;

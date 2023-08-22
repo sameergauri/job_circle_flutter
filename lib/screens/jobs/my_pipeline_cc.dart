@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 
 class MyPipeLineCC extends StatefulWidget {
   const MyPipeLineCC({super.key});
@@ -12,6 +10,10 @@ class MyPipeLineCC extends StatefulWidget {
 class _MyPipeLineCCState extends State<MyPipeLineCC> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return const Scaffold(
+      body: Center(
+        child: Text("No Data"),
+      ),
+    );
   }
 }

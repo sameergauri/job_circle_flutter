@@ -5,14 +5,14 @@ import 'package:job_circle/screens/refer_now.dart';
 import '../../themes/colors.dart';
 
 
-class InterviewBay extends StatefulWidget {
-  const InterviewBay({Key? key}) : super(key: key);
+class TrackApplication extends StatefulWidget {
+  const TrackApplication({Key? key}) : super(key: key);
 
   @override
-  State<InterviewBay> createState() => _InterviewBayState();
+  State<TrackApplication> createState() => _TrackApplicationState();
 }
 
-class _InterviewBayState extends State<InterviewBay> {
+class _TrackApplicationState extends State<TrackApplication> {
   final PageController pageController = PageController();
   int selectedIndex = 0;
 

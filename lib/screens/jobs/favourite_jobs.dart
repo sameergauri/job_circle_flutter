@@ -35,16 +35,16 @@ class _JobListPageState extends State<JobListPage> {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      print(response.body);
+    //  print(response.body);
       final data = jsonDecode(response.body);
       final jobModel = JobModel.fromJson(data);
 
       setState(() {
         jobs.addAll(jobModel.resultData);
-        print(jobs);
+       // print(jobs);
       });
     } else {
-      print('Something went wrong');
+     // print('Something went wrong');
       // handle error
     }
   }
@@ -77,10 +77,11 @@ class _JobListPageState extends State<JobListPage> {
         .delete(Uri.parse(url), headers: {"Content-Type": "application/json"});
 
     if (response.statusCode == 200) {
-      print('Resource deleted successfully');
+   //   print('Resource deleted successfully');
     } else {
+      // ignore: unused_local_variable
       final error = jsonDecode(response.body)['error'];
-      print('Failed to delete resource: $error');
+   //   print('Failed to delete resource: $error');
     }
   }
 
@@ -145,6 +146,7 @@ class _JobListPageState extends State<JobListPage> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Widget listViewItem_new(BuildContext context, int index, item, bool isTrue) {
     List<String>? myStrings;
     bool stopIteration = false;
@@ -218,6 +220,7 @@ class _JobListPageState extends State<JobListPage> {
                     ),
                   ],
                 ),
+                // ignore: avoid_unnecessary_containers
                 Container(
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,

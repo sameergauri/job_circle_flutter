@@ -8,8 +8,11 @@ import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class ProfileCv {
+  // ignore: non_constant_identifier_names
   String? cv_link;
+  // ignore: non_constant_identifier_names
   String? cv_upladted_date;
+  // ignore: non_constant_identifier_names
   String? profile_cv_file;
   String? profile_cv_link;
   ProfileCv(
@@ -44,7 +47,9 @@ class _CVWidgetState extends State<CVWidget> {
                   widget.profileCv.cv_link != "")
                 Row(
                   children: [
-                    Image.asset('./assets/images/cv_doc.png', height: 50),
+                    Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
+                        height: 50),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

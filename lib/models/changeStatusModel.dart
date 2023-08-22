@@ -2,6 +2,7 @@ class ChangeStatusModel {
   int? alternateNo;
   String? applicantName;
   String? attrStatus;
+  String? interview_rounds;
   int? clientAmount;
   String? clientBillingStatus;
   String? clientInvoiceNo;
@@ -59,6 +60,7 @@ class ChangeStatusModel {
     this.alternateNo,
     this.applicantName,
     this.attrStatus,
+    this.interview_rounds,
     this.clientAmount,
     this.clientBillingStatus,
     this.clientInvoiceNo,
@@ -118,6 +120,7 @@ class ChangeStatusModel {
         alternateNo: json['alternate_no'],
         applicantName: json['applicant_name'],
         attrStatus: json['attr_status'],
+        interview_rounds: json['interview_rounds'],
         clientAmount: json['clientAmount'],
         clientBillingStatus: json['clientBillingStatus'],
         clientInvoiceNo: json['clientInvoiceNo'],
@@ -180,6 +183,7 @@ class ChangeStatusModel {
         'alternate_no': alternateNo,
         'applicant_name': applicantName,
         'attr_status': attrStatus,
+        'interview_rounds': interview_rounds,
         'clientAmount': clientAmount,
         'clientBillingStatus': clientBillingStatus,
         'clientInvoiceNo': clientInvoiceNo,

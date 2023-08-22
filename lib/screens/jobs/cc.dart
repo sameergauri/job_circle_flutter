@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/screens/jobs/my_pipeline_cc.dart';
-import 'package:job_circle/screens/jobs/talent_pipeline.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 
 import '../../themes/colors.dart';
@@ -24,7 +24,7 @@ class _CCState extends State<CC> {
           child: Column(
             children: [
               CustomTabBar(
-                tabs: const ["Talent PipeLine", "Talent Pool", "My PipeLine"],
+                tabs: const ["Interview Bay", "Talent Pool", "My PipeLine"],
                 selectedIndex: selectedIndex,
                 onTabChanged: (index) {
                   setState(() {
@@ -42,7 +42,7 @@ class _CCState extends State<CC> {
                     });
                   },
                   children: const [
-                    TalentPipLine(),
+                    InterViewBay(),
                     TalentPool(),
                     MyPipeLineCC()
                   ],

@@ -93,7 +93,7 @@ class JobPostApiService {
       'jobId': jobId.toString(),
       'userId': userId.toString(),
       'status':
-          'T1', // Assuming 'status' is always '1' based on the provided URL.
+          'TP1', // Assuming 'status' is always '1' based on the provided URL.
     };
 
     try {

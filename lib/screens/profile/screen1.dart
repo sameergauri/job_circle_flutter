@@ -101,8 +101,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   List<dynamic> fetchApiskill = [];
   List<dynamic> jobTitleSuggestion = [];
   List<bool> isSelected = [];
-  List<dynamic> fetchApiLanguages = [];
-  List<dynamic> selectedLanguages = [];
+  List<String> fetchApiLanguages = [];
+  List<String> selectedLanguages = [];
   List<JobTitleItem> jobTitleItems = [];
 
   late bool vrifyButtonDisabled = true;
@@ -186,8 +186,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      primaryNumber = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_mobile.name);
+      // primaryNumber = await Utils.getPreferencesValue(
+      //     null, ESharedPreferences.user_mobile.name);
       setState(() {});
     });
 
@@ -303,7 +303,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         dateOfBirth.text = DateFormat("dd-MM-yyyy").format(dataOfBirthValue);
         fetchApiskill = widget.prevPageModel!.skills!;
         selectedValuesList = widget.prevPageModel!.skills!;
-        fetchApiLanguages = widget.prevPageModel!.languages!.cast<String>();
+        // fetchApiLanguages = widget.prevPageModel!.languages!.cast<String>();
         selectedLanguages = fetchApiLanguages;
       });
     }
@@ -1683,7 +1683,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                                 ],
                               )
                             : CustomJobFormTextFieldRespOne(
-                              onIDSelected: (){},
+                                onIDSelected: () {},
                                 // isSelected: isIndustry,
                                 focusNode: localityFocus,
                                 role: "",
@@ -1729,7 +1729,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                                 ],
                               )
                             : CustomJobFormTextFieldRespOne(
-                              onIDSelected: (){},
+                                onIDSelected: () {},
                                 // isSelected: isIndustry,
                                 focusNode: cityFocus,
                                 role: "",

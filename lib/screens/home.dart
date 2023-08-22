@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:job_circle/screens/jobs/interview_bay.dart';
+import 'package:job_circle/screens/jobs/track_application.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import 'jobs/jobs.dart';
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: PageView(
           controller: pageController,
-          children: const [Jobs(), InterviewBay()],
+          children: const [Jobs(), TrackApplication()],
           onPageChanged: (index) {
             setState(() {
               selectedIndex = index;
@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 "assets/images/interview_bay.png",
                 height: 20.h,
               ),
-              label: "Interview Bay",
+              label: "Track Application",
               backgroundColor: Colors.blue,
             ),
           ],

@@ -80,6 +80,8 @@ class ProfileSummaryModel with Searchable {
         } catch (e) {
           // Handle JSON decoding error if needed
         }
+      } else if (json['languages'] is List) {
+        languagesList = List<String>.from(json['languages']);
       }
       return ProfileSummaryModel(
           id: json['id'],

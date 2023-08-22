@@ -9,12 +9,17 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../common/utils.dart';
 import '../../constants/customdialogue_for_call_whatsapp.dart';
 import '../../constants/drop_down_class.dart';
+import '../../enums/enums.dart';
 import '../../models/application_status_model.dart';
+import '../../models/profileSummary.dart';
+import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
@@ -47,13 +52,37 @@ class _MyPipeLineState extends State<MyPipeLine>
     super.initState();
     // bindProfileSummary();
     fetchData();
+    bindProfileSummary();
 
     //  _applicantsFuture = fetchApplicantsByUserId(552);
   }
 
-  Future<List<Applicant>> fetchAllApplicants() async {
+  ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  Future<void> bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().getUserProfileSummary(
+      await Utils.getPreferencesValue(
+        prefs,
+        ESharedPreferences.user_id.name,
+      ),
+    );
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      var dataResult = Utils.parseResponse(result).resultData;
+      setState(() {
+        profilemodel = ProfileSummaryModel.fromJson(dataResult);
+      });
+    } else {
+      // Handle the case when the API call fails
+      setState(() {
+        profilemodel =
+            ProfileSummaryModel(); // or set it to an appropriate default value
+      });
+    }
+  }
+
+  Future<List<Applicant>> fetchAllApplicants(int userId) async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?page=1&size=10');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -146,7 +175,9 @@ class _MyPipeLineState extends State<MyPipeLine>
     // Build your widget's UI with the 'profilemodel' data
     // For example:
     return FutureBuilder<List<Applicant>>(
-      future: fetchAllApplicants(),
+      future: profilemodel.id != null
+          ? fetchAllApplicants(profilemodel.id!.toInt())
+          : Future.error("Profile model is null"),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -518,31 +549,32 @@ class _MyPipeLineState extends State<MyPipeLine>
                               // Declare selectedStatus as a class-level variable
 
 // ...
-                              item.status != "Selected"
-                                  ? item.status == "Reject"
+                              item.status == "Selected"
+                                  ? Image.asset(
+                                      "assets/images/selected.jpg",
+                                      height: 40.h,
+                                    )
+                                  : item.status == "Reject"
                                       ? Image.asset(
-                                          "assets/images/selected.jpg",
-                                          height: 40.h,
-                                        )
-                                      : Image.asset(
                                           "assets/images/reject.jpg",
                                           height: 25.h,
                                         )
-                                  : Container(
-                                      margin: EdgeInsets.only(right: 10.w),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          border: Border.all(
-                                              color: Constants.borderColor)),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 6),
-                                      child: Text(
-                                        item.sub_status.toString(),
-                                        style: GoogleFonts.varela(
-                                            fontWeight: FontWeight.w600),
-                                      ))
+                                      : Container(
+                                          margin: EdgeInsets.only(right: 10.w),
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 6),
+                                          child: Text(
+                                            item.sub_status.toString(),
+                                            style: GoogleFonts.varela(
+                                                fontWeight: FontWeight.w600),
+                                          ))
                             ],
                           )
                         ],

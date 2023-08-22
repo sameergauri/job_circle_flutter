@@ -5,6 +5,7 @@ import 'package:job_circle/constants/gobal.dart';
 
 import '../models/application_status_model.dart';
 import '../models/get_user_for_add_Resume.dart';
+import '../models/interview_rounds_model.dart';
 
 class ApplicationAPI {
   Future<List<Application>> getApplicationStatusList() async {
@@ -52,6 +53,18 @@ class ApplicationAPI {
       return [];
     } else {
       throw Exception('Failed to load data');
+    }
+  }
+
+  Future<InterviewResult> fetchInterviewResult(int jobId, int leadId) async {
+    final response = await http.get(Uri.parse(
+        'http://192.168.1.104:9090/leads/v1/getInterviewRounds?jobId=$jobId&leadId=$leadId'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      return InterviewResult.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to load interview result');
     }
   }
 

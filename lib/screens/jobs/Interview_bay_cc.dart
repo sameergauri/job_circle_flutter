@@ -1,0 +1,1858 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/changeStatusModel.dart';
+import 'package:job_circle/models/fetch_applied_job_model.dart';
+import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/screens/jobs/pdf.dart';
+import 'package:job_circle/screens/jobs/recruitz.dart';
+import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
+import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swipe_to/swipe_to.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../common/utils.dart';
+import '../../constants/customdialogue_for_call_whatsapp.dart';
+import '../../constants/drop_down_class.dart';
+import '../../models/application_status_model.dart';
+import '../../models/interview_rounds_model.dart';
+import '../../models/profileSummary.dart';
+import '../../service/UserDataService.dart';
+import '../../themes/colors.dart';
+
+//enum Issue { no, incorrect, recruiter, other }
+
+class InterViewBay extends StatefulWidget {
+  const InterViewBay({
+    super.key,
+  });
+
+  @override
+  State<InterViewBay> createState() => _InterViewBayState();
+}
+
+class _InterViewBayState extends State<InterViewBay>
+    with SingleTickerProviderStateMixin {
+  JobDetailsModel jobDetailsModel = JobDetailsModel();
+  ProfileSummaryModel profilemodel = ProfileSummaryModel();
+  @override
+  Future<List<Applicant>>? _applicantsFuture;
+  List<Application>? applicationList = [];
+
+  Future<List<Application>> getApplicationStatusList() async {
+    final url = Uri.parse(
+        "http://${GlobalConstants.API_Host}/master/v1/getByGroups?groupName=appl_status&pageNumber=1&pageSize=100");
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
+      final applicationModel = ApplicationStatusModel.fromJson(jsonBody);
+
+      if (applicationModel.resultData?.content != null) {
+        // Filter the list based on the condition for application status text
+        final filteredList = applicationModel.resultData!.content!
+            .where((element) =>
+                element.code!.contains(":") || element.code!.contains(";"))
+            .toList();
+        return filteredList;
+      } else {
+        // If the content is null, return an empty list
+        return [];
+      }
+    } else {
+      // If the request fails, throw an exception or handle the error as needed
+      throw Exception('Failed to load data');
+    }
+  }
+
+  void fetchData() async {
+    try {
+      ApplicationAPI api = ApplicationAPI();
+      applicationList = await getApplicationStatusList();
+
+      // Use the applicationList as needed
+      // For example, you can print the groupName of each Application object:
+      // for (var application in applicationList) {
+      // print(applicationList.map((e) => e.value));
+      // }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bindProfileSummary();
+    fetchData();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    //  _applicantsFuture = fetchApplicantsByUserId(552);
+  }
+
+  @override
+  void dispose() {
+    // Don't forget to dispose of the animation controller
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Map<int, String> selectedStatusMap = {};
+
+  Future<void> bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var result = await UserDataService().getUserProfileSummary(
+      await Utils.getPreferencesValue(
+        prefs,
+        ESharedPreferences.user_id.name,
+      ),
+    );
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      var dataResult = Utils.parseResponse(result).resultData;
+      setState(() {
+        profilemodel = ProfileSummaryModel.fromJson(dataResult);
+      });
+    } else {
+      // Handle the case when the API call fails
+      setState(() {
+        profilemodel =
+            ProfileSummaryModel(); // or set it to an appropriate default value
+      });
+    }
+  }
+
+  Future<List<Applicant>> fetchAllApplicants(int userId) async {
+    final url = Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final List<dynamic> contentList = jsonData['resultData']['content'];
+
+        // Convert the list of Map to a list of Applicant objects
+        List<Applicant> applicants =
+            contentList.map((json) => Applicant.fromJson(json)).toList();
+        return applicants;
+      } else {
+        print('Failed to fetch data. Status Code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error while fetching data: $e');
+      return [];
+    }
+  }
+
+  String convertSalaryFormat(String input) {
+    // Extract numeric values from the input string
+    List<int> salaryValues = [
+      for (var value in input.split('-'))
+        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
+          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
+    ];
+
+    if (salaryValues.length == 2) {
+      int startValue = salaryValues[0];
+      int endValue = salaryValues[1];
+
+      if (input.contains('Per Month')) {
+        if (startValue >= 1000) {
+          double shortStartValue = startValue / 100000.0;
+          double shortEndValue = endValue / 100000.0;
+          return '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k Per Month';
+        } else {
+          return '$startValue - $endValue Per Month';
+        }
+      } else if (input.contains("Lac's P.A")) {
+        if (startValue >= 100000) {
+          double shortStartValue = startValue / 1000000.0;
+          double shortEndValue = endValue / 10000000.0;
+          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)} Lac's P.A";
+        } else {
+          return '$startValue - $endValue Per Year';
+        }
+      }
+    }
+
+    // Handle other cases, or return the input as it is if it doesn't match any pattern
+    return input;
+  }
+
+  int calculateAge(String dateOfBirth) {
+    DateTime now = DateTime.now();
+    DateTime dob = DateTime.parse(dateOfBirth);
+
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+
+    return age;
+  }
+
+  String? selectedStatusValue;
+
+  List<String> getStatuses(List<Applicant> applicants) {
+    return applicants
+        .where((e) => e.status_code!.contains('IB'))
+        .map((e) => e.status.toString())
+        .toSet()
+        .toList()
+      ..sort();
+  }
+
+/*   List<String> getStatuses(List<Applicant> applicants) {
+    return applicants
+        .map((e) => e.status.toString())
+        .toSet()
+        .toList()
+        .where((status) =>
+            status == 'Application' ||
+            status == 'Assign' ||
+            status == 'Screening Reject' ||
+            status == 'S-Reject')
+        .toList()
+      ..sort();
+  } */
+
+  bool isSelect = false;
+  bool isSearchVisible = false;
+  final FocusNode _searchFocusNode = FocusNode();
+
+  bool _showRejectTextField = false;
+
+  void toggleSearchVisibility() {
+    setState(() {
+      isSearchVisible = !isSearchVisible;
+    });
+  }
+
+  late AnimationController _animationController;
+
+  Map<int, SelectedOption> selectedValueMap = {};
+  final GlobalKey<_InterViewBayState> _talentPollKey =
+      GlobalKey<_InterViewBayState>();
+
+  Map<int, String> selectedRoundsMap = {};
+
+  void updateSelectedRoundForJob(int jobId, String selectedRound) {
+    setState(() {
+      selectedRoundsMap[jobId] = selectedRound;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    if (profilemodel == null) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      // Build your widget's UI with the 'profilemodel' data
+      // For example:
+      return FutureBuilder<List<Applicant>>(
+        future: profilemodel.id != null
+            ? fetchAllApplicants(profilemodel.id!.toInt())
+            : Future.error("Profile model is null"),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData && snapshot.data != null) {
+            final data = snapshot.data!;
+            final statuses = getStatuses(data); // Get the statuses here
+
+            return DefaultTabController(
+              length: statuses.length,
+              child: Scaffold(
+                appBar: PreferredSize(
+                  preferredSize:
+                      Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                  child: AppBar(
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    bottom: TabBar(
+                      key: const ValueKey("ccTab2"),
+                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                      labelColor: Colors.black,
+                      isScrollable: true,
+                      unselectedLabelColor: Colors.black,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      splashBorderRadius: BorderRadius.circular(8),
+                      indicatorWeight: 7.h,
+                      indicatorPadding:
+                          EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
+                      indicator: BoxDecoration(
+                        color: Constants.borderColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Constants.borderColor),
+                      ),
+                      tabs: statuses
+                          .map(
+                            (status) => customTab(
+                              status, // Show status in the top-level tab bar
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(
+                        () {}); // This will trigger the rebuild of the widget tree
+                  },
+                  child: TabBarView(
+                    key: const ValueKey("ccTabView2"),
+                    children: statuses.map<Widget>((status) {
+                      // Filter applicants based on the current status
+                      final applicants = data
+                          .where((applicant) =>
+                              applicant.status.toString() == status)
+                          .toList();
+
+                      // Check if sub_status is null or not
+                      if (status == 'New' ||
+                          status == "Reject" ||
+                          status == "Select") {
+                        // Display applicants directly without sub_status tabs
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: applicants.length,
+                          itemBuilder: (context, index) {
+                            final applicant = applicants[index];
+                            return listViewItem_new(
+                              context,
+                              applicant,
+                              true,
+                              statuses,
+                              profilemodel.id != null
+                                  ? profilemodel.id!.toInt()
+                                  : 467,
+                              index,
+                            );
+                          },
+                        );
+                      } else if (status == "In-Process") {
+                        List<String> companyTab = applicants
+                            .where(
+                                (applicant) => applicant.status_code == "IB5")
+                            .map(
+                                (applicant) => applicant.companyName.toString())
+                            .toSet()
+                            .toList()
+                          ..sort();
+
+                        return DefaultTabController(
+                          length: companyTab.length,
+                          child: Scaffold(
+                            appBar: PreferredSize(
+                              preferredSize: const Size(
+                                  double.maxFinite, kTextTabBarHeight),
+                              child: AppBar(
+                                backgroundColor: Colors.white,
+                                bottom: TabBar(
+                                  key: const ValueKey("ccTab3"),
+                                  isScrollable: true,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  unselectedLabelStyle: GoogleFonts.varela(),
+                                  labelStyle: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w600),
+                                  unselectedLabelColor: Colors.black,
+                                  labelColor: Constants.subtitleclr,
+                                  indicatorPadding: EdgeInsets.only(
+                                      bottom: 8.h, left: 3.w, right: 3.w),
+                                  indicator: isSelect
+                                      ? BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Constants.borderColor))
+                                      : null,
+                                  indicatorColor: Constants.borderColor,
+                                  tabs: companyTab
+                                      .map((companyName) =>
+                                          Tab(text: companyName))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                            body: TabBarView(
+                              key: const ValueKey("ccTabView3"),
+                              children: companyTab.map((companyName) {
+                                // Filter applicants based on the current company name and status
+                                final filteredApplicants = applicants
+                                    .where((applicant) =>
+                                        applicant.status_code == "IB5" &&
+                                        applicant.companyName.toString() ==
+                                            companyName)
+                                    .toList();
+
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: filteredApplicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = filteredApplicants[index];
+
+                                    return InkWell(
+                                      onTap: () {
+                                        // Handle tap on the parent widget (outside the Row)
+                                        FocusManager.instance.primaryFocus
+                                            ?.unfocus(); // Unfocus the keyboard
+                                        if (isSearchVisible) {
+                                          setState(() {
+                                            isSearchVisible = false;
+                                            _animationController
+                                                .reverse(); // Reverse the animation
+                                            _searchFocusNode
+                                                .unfocus(); // Clear focus when it becomes invisible
+                                          });
+                                        }
+                                      },
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          listViewItem_new(
+                                            context,
+                                            applicant,
+                                            true,
+                                            statuses,
+                                            profilemodel.id != null
+                                                ? profilemodel.id!.toInt()
+                                                : 467,
+                                            index,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Proceed with sub_status tabs for other statuses
+                        final subStatuses = applicants
+                            .map(
+                                (applicant) => applicant.sub_status?.toString())
+                            .where((subStatus) => subStatus != null)
+                            .toSet()
+                            .toList()
+                          ..sort();
+
+                        // Second tab bar needed for subStatuses
+
+                        return DefaultTabController(
+                          length: subStatuses.length,
+                          child: Scaffold(
+                            appBar: PreferredSize(
+                              preferredSize: const Size(
+                                  double.maxFinite, kTextTabBarHeight),
+                              child: AppBar(
+                                //elevation: 0,
+                                backgroundColor: Colors.white,
+                                bottom: TabBar(
+                                  key: const ValueKey("ccTab3"),
+                                  isScrollable: true,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  //indicatorWeight: 2.0,
+                                  unselectedLabelStyle: GoogleFonts.varela(),
+                                  labelStyle: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w600),
+                                  unselectedLabelColor: Colors.black,
+                                  labelColor: Constants.subtitleclr,
+                                  indicatorPadding: EdgeInsets.only(
+                                      bottom: 8.h, left: 3.w, right: 3.w),
+                                  indicator: isSelect
+                                      ? BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Constants
+                                                  .borderColor) // Creates border
+                                          )
+                                      : null,
+                                  indicatorColor: Constants.borderColor,
+                                  /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                  tabs: subStatuses
+                                      .map((subStatus) => Tab(text: subStatus!))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                            body: TabBarView(
+                              key: const ValueKey("ccTabView3"),
+                              children: subStatuses.map((subStatus) {
+                                // Filter applicants based on the current status and sub_status
+                                final filteredApplicants = applicants
+                                    .where((applicant) =>
+                                        applicant.sub_status.toString() ==
+                                        subStatus)
+                                    .toList();
+
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: filteredApplicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = filteredApplicants[index];
+
+                                    return InkWell(
+                                      onTap: () {
+                                        // Handle tap on the parent widget (outside the Row)
+                                        FocusManager.instance.primaryFocus
+                                            ?.unfocus(); // Unfocus the keyboard
+                                        if (isSearchVisible) {
+                                          setState(() {
+                                            isSearchVisible = false;
+                                            _animationController
+                                                .reverse(); // Reverse the animation
+                                            _searchFocusNode
+                                                .unfocus(); // Clear focus when it becomes invisible
+                                          });
+                                        }
+                                      },
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          listViewItem_new(
+                                            context,
+                                            applicant,
+                                            true,
+                                            statuses,
+                                            profilemodel.id != null
+                                                ? profilemodel.id!.toInt()
+                                                : 467,
+                                            index,
+                                          ),
+                                          /*  GestureDetector(
+                                            onTap: () {
+                                              // Handle tap on the parent widget (outside the Row)
+                                              if (isSearchVisible) {
+                                                setState(() {
+                                                  isSearchVisible = false;
+                                                  _animationController
+                                                      .reverse(); // Reverse the animation
+                                                  _searchFocusNode
+                                                      .unfocus(); // Clear focus when it becomes invisible
+                                                });
+                                              }
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Expanded(
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      // Handle tap inside the search container (Expanded)
+                                                      _searchFocusNode
+                                                          .requestFocus();
+                                                      /*  if (!isSearchVisible) {
+                                                        setState(() {
+                                                          isSearchVisible =
+                                                              true;
+                                                          _animationController
+                                                              .forward(); // Start the animation
+                                                          _searchFocusNode
+                                                              .requestFocus(); // Request focus on the search field when it becomes visible
+                                                        });
+                                                      } */
+                                                    },
+                                                    child: AnimatedOpacity(
+                                                      duration: const Duration(
+                                                          milliseconds: 500),
+                                                      opacity: isSearchVisible
+                                                          ? 1.0
+                                                          : 0.0, // Fade in/out the search container
+                                                      child: SlideTransition(
+                                                        position: Tween<Offset>(
+                                                          begin: const Offset(
+                                                              -1,
+                                                              0), // Start from the left side of the screen
+                                                          end: const Offset(0,
+                                                              0), // Slide to the center of the screen
+                                                        ).animate(
+                                                            CurvedAnimation(
+                                                          parent:
+                                                              _animationController, // Use the same animation controller from your code
+                                                          curve: Curves
+                                                              .easeInOut, // Set the desired animation curve
+                                                        )),
+                                                        child: Container(
+                                                          height: 50.h,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8,
+                                                                  right: 12,
+                                                                  top: 10),
+                                                          child: TextField(
+                                                            focusNode:
+                                                                _searchFocusNode,
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                            decoration:
+                                                                InputDecoration(
+                                                              fillColor:
+                                                                  Colors.white,
+                                                              focusedBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide:
+                                                                    const BorderSide(),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                              filled: true,
+                                                              contentPadding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                bottom: 10,
+                                                                left: 5,
+                                                                top: 10,
+                                                              ),
+                                                              border:
+                                                                  OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                              hintText: "Rahul",
+                                                              suffixIcon:
+                                                                  GestureDetector(
+                                                                onTap: () {
+                                                                  // Handle tap on the search icon inside the search container
+                                                                  setState(() {
+                                                                    isSearchVisible =
+                                                                        false;
+                                                                    _animationController
+                                                                        .reverse(); // Reverse the animation
+                                                                    _searchFocusNode
+                                                                        .requestFocus(); // Clear focus on the search field when it becomes invisible
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    const Icon(
+                                                                  Icons.search,
+                                                                  size: 24,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    // Handle tap on the search icon outside the search container
+                                                    if (!isSearchVisible) {
+                                                      setState(() {
+                                                        isSearchVisible = true;
+                                                        _animationController
+                                                            .forward(); // Start the animation
+                                                        _searchFocusNode
+                                                            .requestFocus(); // Request focus on the search field when it becomes visible
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Visibility(
+                                                    visible: !isSearchVisible,
+                                                    child: const Padding(
+                                                      padding: EdgeInsets.only(
+                                                          right: 20, top: 10),
+                                                      child: Icon(
+                                                        Icons.search,
+                                                        size: 24,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ) */
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    }).toList(),
+                  ),
+                ),
+              ),
+            );
+          }
+          return const Center(
+            child: Text("No Data"),
+          );
+        },
+      );
+
+      /* FutureBuilder<List<Applicant>>(
+        future: fetchAllApplicants(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasData && snapshot.data != null) {
+            final data = snapshot.data!;
+            final statuses = data
+                .map((e) => e.status.toString())
+                .toSet()
+                .toList()
+                .where((status) =>
+                    status == 'Application' ||
+                    status == 'Assign' ||
+                    status == 'Screening Reject' ||
+                    status == 'Reject')
+                .toList();
+            statuses.sort();
+
+            return DefaultTabController(
+              length: statuses.length,
+              child: Scaffold(
+                appBar: PreferredSize(
+                  preferredSize:
+                      const Size(double.maxFinite, kTextTabBarHeight),
+                  child: AppBar(
+                    backgroundColor: Colors.white,
+                    bottom: TabBar(
+                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                      labelColor: Colors.black,
+                      isScrollable: true,
+                      unselectedLabelColor: Colors.black,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      splashBorderRadius: BorderRadius.circular(8),
+                      indicatorWeight: 1.h,
+                      indicatorPadding: EdgeInsets.only(
+                          top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
+                      indicator: BoxDecoration(
+                        color: Constants.borderColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Constants.borderColor),
+                      ),
+                      tabs: statuses
+                          .map(
+                            (e) => Tab(
+                              child: customTab(e),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(
+                        () {}); // This will trigger the rebuild of the widget tree
+                  },
+                  child: TabBarView(
+                    children: statuses
+                        .map(
+                          (e) => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: data
+                                .where((applicant) =>
+                                    applicant.status.toString() == e)
+                                .length,
+                            itemBuilder: (context, index) {
+                              final applicant = data
+                                  .where((applicant) =>
+                                      applicant.status.toString() == e)
+                                  .toList()[index];
+                              return listViewItem_new(
+                                context,
+                                applicant,
+                                true,
+                                statuses,
+                                profilemodel.id!.toInt(),
+                                index, // Pass the dynamic index here
+                              );
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+
+                  /* TabBarView(
+                    children: statuses
+                        .map(
+                          (e) => ListView(
+                            shrinkWrap: true,
+                            children: data
+                                .where(
+                                  (applicant) =>
+                                      applicant.status.toString() == e,
+                                )
+                                .map(
+                                  (e) => listViewItem_new(context, e, true,
+                                      statuses, profilemodel.id!.toInt(),1),
+                                )
+                                .toList(),
+                          ),
+                        )
+                        .toList(),
+                  ), */
+                ),
+              ),
+            );
+          }
+          return const SizedBox();
+        },
+      ); */
+    }
+  }
+
+  TextEditingController showrejectTextFileld = TextEditingController();
+  Map<int, bool> selectedJobs = {};
+
+  Future<InterviewResult>? interviewResultFuture;
+  List<String> interviewRounds = []; // Initialize as an empty list
+
+  Future<InterviewResult> fetchDataAndUpdateDropdown(
+      int jobId, int leadId) async {
+    ApplicationAPI app = ApplicationAPI();
+
+    return interviewResultFuture = app.fetchInterviewResult(jobId, leadId);
+  }
+
+  String selectedInterviewRound = 'Select';
+
+  Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
+      List<String> status, int id, int index) {
+    final isSelected = selectedJobs[item.id] ?? false;
+    // List<String>? myStrings;
+    //  bool stopIteration = false;
+
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () {
+            if (item.status != "Application") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TalentPoolDetail(
+                            applicant: item,
+                            Status: status,
+                          )));
+            } else {
+              ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                  status: "TP2", sourceId: id, subStatus: "View");
+              Map<String, dynamic> jsonData = changeStatusModel.toJson();
+              try {
+                JobPostApiService.changeStatus(jsonData, item.id!.toInt());
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const Recruitz()));
+                setState(() {});
+                /* showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return CustomDialog(
+                      fetchDataFromApi: () {},
+                      isFisrt: false,
+                      onClose: () {
+                        Navigator.pop(context);
+                      },
+                      title: "Success",
+                      subtitle: "Submitted successfully!",
+                    );
+                  },
+                ); */
+              } catch (e) {
+                print('Error: $e');
+              }
+            }
+            setState(() {});
+            setState(() {});
+            /*  item.status == "Application"
+                ? null
+                : Navigator.pushNamed(
+                    context,
+                    ERoute.jobsdetail.name,
+                    arguments: {
+                      'id': item.jobId,
+                    },
+                  ); */
+          },
+          child: SwipeTo(
+            iconOnRightSwipe: Icons.call,
+            iconOnLeftSwipe: Icons.sms_outlined,
+            onRightSwipe: item.alternateNo == 0
+                ? () async {
+                    FlutterPhoneDirectCaller.callNumber("+91${item.contactNo}");
+                  }
+                : () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomAlertDialog(
+                          phoneNumber1: item.contactNo!.toInt(),
+                          phoneNumber2: item.alternateNo!.toInt(),
+                          isCall: true,
+                        );
+                      },
+                    );
+                  },
+            onLeftSwipe: item.alternateNo == 0
+                ? () async {
+                    Uri url =
+                        Uri.parse("whatsapp://send?phone=91${item.contactNo}");
+                    await canLaunchUrl(url)
+                        ? await launchUrl(url)
+                        : throw "could not launch $url";
+                  }
+                : () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomAlertDialog(
+                          phoneNumber1: item.contactNo!.toInt(),
+                          phoneNumber2: item.alternateNo!.toInt(),
+                          isCall: false,
+                        );
+                      },
+                    );
+                  },
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                //set border radius more than 50% of height and width to make circle
+              ),
+              // shadowColor: Constants.themeBgColor,
+              elevation: 4,
+
+              margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://media.istockphoto.com/id/503040171/photo/middle-eastern-businessman-portrait.jpg?s=612x612&w=0&k=20&c=7t6c_HQHfUZNgrVtR-G1rQpJAMaCbFsuxppDRKBnXDw="),
+                          // child: Text(item.applicantName[0].toUpperCase()),
+                          radius: 22,
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  item.applicantName.toString(),
+                                  style: GoogleFonts.varela(
+                                    // color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  " (${calculateAge(item.dateOfBirth.toString())} yr's)",
+                                  style: GoogleFonts.varela(
+                                      color: Colors.black54, fontSize: 12.sp),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                item.qualification == null
+                                    ? Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/bag.png",
+                                            height: 12.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 4,
+                                          ),
+                                          Text(
+                                            item.isExperienced.toString(),
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/graduate.png",
+                                            height: 15.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "${item.qualification.toString()}  |  ",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Image.asset(
+                                            "assets/images/bag.png",
+                                            height: 12.h,
+                                            //  color: Constants.subtitleclr,
+                                          ),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            " ${item.isExperienced}",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.black54,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (item.status != "Application")
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Constants.borderColor,
+                            /* border: Border.all(color: Constants.borderColor
+                  ), */
+                            // color: Constants.borderColor,
+                            borderRadius: BorderRadius.circular(8)),
+                        margin: EdgeInsets.only(bottom: 2, top: 6.h),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        // padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                /* Container(
+                                  margin: const EdgeInsets.only(bottom: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Constants.borderColor,
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Text(
+                                    item.companyName.toString(),
+                                    style: GoogleFonts.varela(
+                                      color: Colors.black54,
+                                      // fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ), */
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: Constants.borderColor,
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "${item.process} - ${item.leadLevel}",
+                                        style: GoogleFonts.varela(
+                                          color: Colors.black54,
+                                          // fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Column(
+                              children: [
+                                // Declare selectedStatus as a class-level variable
+
+// ...
+                                item.status_code!.contains("IB5")
+                                    ? FutureBuilder<InterviewResult>(
+                                        future: fetchDataAndUpdateDropdown(
+                                            item.jobId!.toInt(),
+                                            item.id!.toInt()),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          } else if (snapshot.hasError) {
+                                            return Center(
+                                                child: Text(
+                                                    'Error: ${snapshot.error}'));
+                                          } else if (snapshot.hasData) {
+                                            InterviewResult interviewResult =
+                                                snapshot.data!;
+                                            interviewRounds = interviewResult
+                                                .resultData.interviewRounds;
+
+                                            return Column(
+                                              children: [
+                                                DropdownButton<String>(
+                                                  value: selectedRoundsMap[
+                                                      item.id],
+                                                  onChanged: (newValue) {
+                                                    updateSelectedRoundForJob(
+                                                        item.id!.toInt(),
+                                                        newValue!);
+                                                    ChangeStatusModel
+                                                        changeStatusModel =
+                                                        ChangeStatusModel(
+                                                            status: "IB5"
+                                                                .toString(),
+                                                            sourceId: id,
+                                                            interview_rounds:
+                                                                newValue,
+                                                            subStatus: item
+                                                                .sub_status);
+                                                    Map<String, dynamic>
+                                                        jsonData =
+                                                        changeStatusModel
+                                                            .toJson();
+                                                    try {
+                                                      JobPostApiService
+                                                          .changeStatus(
+                                                              jsonData,
+                                                              item.id!.toInt());
+                                                      setState(() {});
+                                                    } catch (e) {
+                                                      print('Error: $e');
+                                                      // Handle error...
+                                                    }
+                                                  },
+                                                  items: [
+                                                    DropdownMenuItem<String>(
+                                                        /* value:
+                                                          item.interview_rounds, */
+                                                        child:
+                                                            item.interview_rounds ==
+                                                                    null
+                                                                ? Text(
+                                                                    'InterView rounds',
+                                                                    style: GoogleFonts.varela(
+                                                                        fontSize:
+                                                                            12.sp),
+                                                                  )
+                                                                : Text(
+                                                                    item.interview_rounds
+                                                                        .toString(),
+                                                                    style: GoogleFonts.varela(
+                                                                        fontSize:
+                                                                            12.sp),
+                                                                  )),
+                                                    for (String round
+                                                        in interviewRounds)
+                                                      DropdownMenuItem<String>(
+                                                        value: round,
+                                                        child: Text(
+                                                          round,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                                  fontSize:
+                                                                      12.sp),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                  underline:
+                                                      Container(), // This removes the underline
+                                                )
+
+                                                // Rest of your UI...
+                                              ],
+                                            );
+                                          } else {
+                                            return const Center(
+                                                child:
+                                                    Text('No data available'));
+                                          }
+                                        },
+                                      )
+
+                                    /* PopupMenuButton<String>(
+                                        onSelected: (value) {
+                                          setState(() {
+                                            String subValue = "0";
+                                            for (var app in applicationList!) {
+                                              if (app.value.toString() ==
+                                                      value &&
+                                                  app.sub_value != null) {
+                                                subValue =
+                                                    app.sub_value.toString();
+                                                break;
+                                              }
+                                            }
+
+                                            selectedValueMap[item.id!] =
+                                                SelectedOption(
+                                                    value, subValue.toString());
+
+                                            // Now you can use both value and subValue for further operations
+                                            ChangeStatusModel
+                                                changeStatusModel =
+                                                ChangeStatusModel(
+                                                    status: subValue.toString(),
+                                                    sourceId: id,
+                                                    subStatus: value);
+                                            Map<String, dynamic> jsonData =
+                                                changeStatusModel.toJson();
+                                            try {
+                                              JobPostApiService.changeStatus(
+                                                  jsonData, item.id!.toInt());
+                                              setState(() {});
+                                            } catch (e) {
+                                              print('Error: $e');
+                                              // Handle error...
+                                            }
+                                            /*  Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((context) => CC(
+                                                    key: _talentPollKey,
+                                                  )))); */
+                                          });
+                                          // setState(() {});
+                                        },
+                                        itemBuilder: (BuildContext context) {
+                                          return applicationList!
+                                              .where((element) =>
+                                                  element.code!.contains(";"))
+                                              .map((option) {
+                                            bool isOdd = applicationList!
+                                                        .indexOf(option) %
+                                                    2 ==
+                                                1;
+                                            // Retrieve the corresponding sub_value from the option
+                                            String subValue = option.sub_value
+                                                .toString(); // Replace with the actual property name
+                                            // setState(() {});
+                                            return customMenuItem(
+                                                option, isOdd);
+                                          }).toList();
+                                        },
+                                        child: Container(
+                                          // height: 32,
+                                          /*   margin: const EdgeInsets.only(
+                                        bottom: 10, top: 10), */
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              // color: Constants.subtitleclr,
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.all(12),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                selectedValueMap[item.id!]
+                                                        ?.selectedValue ??
+                                                    item.sub_status.toString(),
+                                                style: GoogleFonts.varela(
+                                                  color: Colors.black,
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_drop_down,
+                                                size: 13,
+                                                color: Colors.black,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        offset: const Offset(0, 32),
+                                        elevation: 16,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ) */
+                                    : PopupMenuButton<String>(
+                                        onSelected: (value) {
+                                          setState(() {
+                                            String subValue = "0";
+                                            for (var app in applicationList!) {
+                                              if (app.value.toString() ==
+                                                      value &&
+                                                  app.sub_value != null) {
+                                                subValue =
+                                                    app.sub_value.toString();
+                                                break;
+                                              }
+                                            }
+
+                                            selectedValueMap[item.id!] =
+                                                SelectedOption(
+                                                    value, subValue.toString());
+
+                                            // Now you can use both value and subValue for further operations
+                                            ChangeStatusModel
+                                                changeStatusModel =
+                                                ChangeStatusModel(
+                                                    status: subValue.toString(),
+                                                    sourceId: id,
+                                                    subStatus: value);
+                                            Map<String, dynamic> jsonData =
+                                                changeStatusModel.toJson();
+                                            try {
+                                              JobPostApiService.changeStatus(
+                                                  jsonData, item.id!.toInt());
+                                              setState(() {});
+                                            } catch (e) {
+                                              print('Error: $e');
+                                              // Handle error...
+                                            }
+                                            /*  Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((context) => CC(
+                                                    key: _talentPollKey,
+                                                  )))); */
+                                          });
+                                          // setState(() {});
+                                        },
+                                        itemBuilder: (BuildContext context) {
+                                          return applicationList!
+                                              .where((element) =>
+                                                  element.code!.contains(":"))
+                                              .map((option) {
+                                            bool isOdd = applicationList!
+                                                        .indexOf(option) %
+                                                    2 ==
+                                                1;
+                                            // Retrieve the corresponding sub_value from the option
+                                            String subValue = option.sub_value
+                                                .toString(); // Replace with the actual property name
+                                            // setState(() {});
+                                            return customMenuItem(
+                                                option, isOdd);
+                                          }).toList();
+                                        },
+                                        child: Container(
+                                          // height: 32,
+                                          /*   margin: const EdgeInsets.only(
+                                        bottom: 10, top: 10), */
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              // color: Constants.subtitleclr,
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.all(12),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                selectedValueMap[item.id!]
+                                                        ?.selectedValue ??
+                                                    item.sub_status.toString(),
+                                                style: GoogleFonts.varela(
+                                                  color: Colors.black,
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_drop_down,
+                                                size: 13,
+                                                color: Colors.black,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        offset: const Offset(0, 32),
+                                        elevation: 16,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      )
+                                /* PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      int index = status.indexOf(value);
+                                      selectedStatusMap[index] = value;
+                                    });
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return applicationList.map((option) {
+                                      bool isOdd =
+                                          applicationList.indexOf(option) % 2 ==
+                                              1;
+                                      return customMenuItem(option, isOdd);
+                                    }).toList();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Constants.subtitleclr,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          selectedStatus ?? 'Please Select',
+                                          style: GoogleFonts.varela(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 13,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  offset: const Offset(0, 32),
+                                  elevation: 16,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ), */
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (item.status_code == "IB5" && !isSelected)
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 24,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: applicationList!
+                                  .where((option) => option.code!.contains(';'))
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final option = applicationList!
+                                    .where(
+                                        (option) => option.code!.contains(';'))
+                                    .toList()[index];
+                                return InkWell(
+                                  onTap: () {
+                                    ChangeStatusModel changeStatusModel =
+                                        ChangeStatusModel(
+                                            status: option.sub_value.toString(),
+                                            sourceId: id,
+                                            subStatus: option.value);
+                                    Map<String, dynamic> jsonData =
+                                        changeStatusModel.toJson();
+                                    try {
+                                      JobPostApiService.changeStatus(
+                                          jsonData, item.id!.toInt());
+                                      setState(() {});
+                                    } catch (e) {
+                                      print('Error: $e');
+                                      // Handle error...
+                                    }
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(
+                                        top: 6, bottom: 6, right: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 2),
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        color: Colors.grey.shade100,
+                                        border: Border.all(
+                                            color: Constants.borderColor)),
+                                    child: Text(option.value.toString(),
+                                        style: GoogleFonts.varela(
+                                            color: Colors.blue)),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    if (item.status_code == "IB5" && !isSelected)
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              ChangeStatusModel changeStatusModel =
+                                  ChangeStatusModel(
+                                status: "IB7",
+                                sourceId: id,
+                              );
+                              Map<String, dynamic> jsonData =
+                                  changeStatusModel.toJson();
+                              try {
+                                JobPostApiService.changeStatus(
+                                    jsonData, item.id!.toInt());
+                                setState(() {});
+                              } catch (e) {
+                                print('Error: $e');
+                                // Handle error...
+                              }
+                              /*    Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 5, bottom: 3),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.green[900],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: Constants.borderColor, width: 2)),
+                              child: Text("Select",
+                                  style: GoogleFonts.varela(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          if (!isSelected)
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedJobs[item.id!.toInt()] = !isSelected;
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    top: 5, bottom: 3, left: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Constants.themeBgColor,
+                                        width: 2)),
+                                child: Text("Reject",
+                                    style: GoogleFonts.varela(
+                                        color: Constants.themeBgColor,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              item.sub_code == "IB5:1"
+                                  ? setState(() {
+                                      {
+                                        ChangeStatusModel changeStatusModel =
+                                            ChangeStatusModel(
+                                                status: item.status_code,
+                                                sourceId: id,
+                                                subStatus: "On-Site Interview");
+                                        Map<String, dynamic> jsonData =
+                                            changeStatusModel.toJson();
+                                        try {
+                                          JobPostApiService.changeStatus(
+                                              jsonData, item.id!.toInt());
+                                          setState(() {});
+                                        } catch (e) {
+                                          print('Error: $e');
+                                          // Handle error...
+                                        }
+                                      }
+                                    })
+                                  : setState(() {
+                                      ChangeStatusModel changeStatusModel =
+                                          ChangeStatusModel(
+                                              status: item.status_code,
+                                              sourceId: id,
+                                              subStatus: "Virtual Interview");
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+                                      try {
+                                        JobPostApiService.changeStatus(
+                                            jsonData, item.id!.toInt());
+                                        setState(() {});
+                                      } catch (e) {
+                                        print('Error: $e');
+                                        // Handle error...
+                                      }
+                                    });
+                            },
+                            child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6, horizontal: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    item.sub_code == "IB5:1"
+                                        ? Row(
+                                            children: [
+                                              Image.asset(
+                                                "assets/images/leftfinger.png",
+                                                height: 17.h,
+                                              ),
+                                              const SizedBox(
+                                                width: 6,
+                                              ),
+                                              Text(
+                                                "On-Site",
+                                                style: GoogleFonts.varela(
+                                                    color: Colors.blue),
+                                              ),
+                                            ],
+                                          )
+                                        : Row(
+                                            children: [
+                                              Text(
+                                                "Virtual",
+                                                style: GoogleFonts.varela(
+                                                    color: Colors.blue),
+                                              ),
+                                              const SizedBox(
+                                                width: 6,
+                                              ),
+                                              Image.asset(
+                                                "assets/images/rightfinger.png",
+                                                height: 17.h,
+                                              ),
+                                            ],
+                                          ),
+                                    Text(
+                                      "Mode of interview",
+                                      style: GoogleFonts.varela(
+                                          fontSize: 8.sp,
+                                          fontStyle: FontStyle.italic),
+                                    )
+                                  ],
+                                )),
+                          )
+                        ],
+                      ),
+                    if (item.status_code == "IB5" && isSelected)
+                      SizedBox(
+                        height: 40,
+                        child: TextField(
+                          controller: showrejectTextFileld,
+                          decoration: const InputDecoration(
+                            labelText: "Reason for rejection",
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    if (item.status_code == "IB5" && isSelected)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          //    if (showrejectTextFileld.text.isNotEmpty)
+                          ElevatedButton(
+                            onPressed: () {
+                              ChangeStatusModel changeStatusModel =
+                                  ChangeStatusModel(
+                                      status: "IB6",
+                                      sourceId: id,
+                                      remark: showrejectTextFileld.text);
+                              Map<String, dynamic> jsonData =
+                                  changeStatusModel.toJson();
+                              try {
+                                JobPostApiService.changeStatus(
+                                    jsonData, item.id!.toInt());
+                                setState(() {});
+                              } catch (e) {
+                                print('Error: $e');
+                                // Handle error...
+                              }
+                              /*  Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                              // Perform actions on submission
+                              // For example, save the reason and update status
+                              // ...
+
+                              // Reset _showRejectTextField to hide the text field
+                              setState(() {
+                                _showRejectTextField = false;
+                              });
+                            },
+                            child: const Text("Submit"),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+
+                // initialPadding: EdgeInsets.zero,
+                // contentPadding: EdgeInsets.only(left: 7.w),
+                //key: cardB,
+                // trailing: const Icon(null),
+
+                /* children: <Widget>[
+                    const Divider(
+                      thickness: 1.0,
+                      height: 1.0,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                          top: 10, left: 20, right: 20, bottom: 10),
+                      // padding: const EdgeInsets.only(left: 10, right: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [Text("${item.process} - ${item.level}")],
+                          ),
+                          Text(item.companyName)
+                        ],
+                      ),
+                    )
+                  ] */
+              ),
+            ),
+          ),
+        ),
+        if (item.resume != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Column(
+                children: [
+                  /*  if (item.status != "Application")
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PDFViewerScreen(
+                                pdfAssetPath: 'assets/images/cv.pdf',
+                                phoneNumber1: item.contactNo!.toInt(),
+                                phoneNumber2: item.alternateNo!.toInt(),
+                                // Replace with the actual asset path of your PDF file
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          size: 15.h,
+                          color: Constants.themeBgColor,
+                        )), */
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PDFViewerScreen(
+                              pdfAssetPath: 'assets/images/cv.pdf',
+                              phoneNumber1: item.contactNo!.toInt(),
+                              phoneNumber2: item.alternateNo!.toInt(),
+                              // Replace with the actual asset path of your PDF file
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Image.asset(
+                        "assets/images/cv.png",
+                        height: 15.h,
+                      )),
+                ],
+              ),
+            ),
+          )
+      ],
+    );
+  }
+
+  Widget customTab(
+    String title,
+  ) {
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: Constants.borderColor, width: 1)),
+        child: Row(
+          children: [
+            Text(title),
+            SizedBox(
+              width: 5.w,
+            ),
+          ],
+        ));
+  }
+
+  PopupMenuItem<String> customMenuItem(Application option, bool isOdd) {
+    return PopupMenuItem<String>(
+      value: option
+          .value, // Replace 'someValue' with the actual property you want to use as the value
+      child: Text(
+        option.value
+            .toString(), // Replace 'applicantName' with the actual property you want to use as the label
+        style: const TextStyle(
+            color: Colors.black // Example: custom styling based on isOdd
+            ),
+      ),
+    );
+  }
+}

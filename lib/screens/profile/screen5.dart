@@ -17,12 +17,11 @@ class SkillsMulti extends StatefulWidget {
   final ProfileSummaryModel? prevPageModel;
 
   // final bool? expirieanceFlag;
-  // final List<Experience> experienceList;
+  final List<Experience> experienceList;
 
-  const SkillsMulti({
-    Key? key,
-    required this.prevPageModel,
-  }) : super(key: key);
+  const SkillsMulti(
+      {Key? key, required this.prevPageModel, required this.experienceList})
+      : super(key: key);
   @override
   State<SkillsMulti> createState() => _SkillsMultiState();
 }
@@ -42,9 +41,15 @@ class _SkillsMultiState extends State<SkillsMulti> {
     skillsController = TextEditingController();
     if (widget.prevPageModel != null) {
       fetchApiskill = widget.prevPageModel!.skills ?? [];
-      selectedValuesList = widget.prevPageModel!.skills ?? [];
       expID = widget.prevPageModel!.id;
     }
+    for (var experience in widget.experienceList) {
+      if (experience.skills_exp != null) {
+        selectedValues.addAll(experience.skills_exp!);
+      }
+    }
+    selectedValues.addAll(fetchApiskill);
+    selectedValues = selectedValues.toSet().toList();
   }
 
   @override
@@ -83,7 +88,7 @@ class _SkillsMultiState extends State<SkillsMulti> {
   }
 
   void save() async {
-    List<String> skills = fetchApiskill;
+    List<String> skills = selectedValues;
 
     ProfileSummaryModel model = ProfileSummaryModel(
       id: expID,
@@ -135,10 +140,10 @@ class _SkillsMultiState extends State<SkillsMulti> {
               SkillSelection(
                 name: "skills",
                 isSkill: true,
-                fetchApiskill: fetchApiskill,
+                fetchApiskill: selectedValues,
                 title: "Add Skill",
                 controller: skillsController,
-                selectedValuesList: selectedValuesList,
+                selectedValuesList: selectedValues,
                 callback: updateSelectedValues,
                 contextIn: context,
                 hintText: "Advance Excel",

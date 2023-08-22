@@ -168,7 +168,7 @@ class _TalentPoolState extends State<TalentPool>
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
-        .where((e) => e.status_code!.contains('T'))
+        .where((e) => e.status_code!.contains('TP'))
         .map((e) => e.status.toString())
         .toSet()
         .toList()
@@ -512,7 +512,7 @@ class _TalentPoolState extends State<TalentPool>
                           )));
             } else {
               ChangeStatusModel changeStatusModel = ChangeStatusModel(
-                  status: "T2", sourceId: id, subStatus: "View");
+                  status: "TP2", sourceId: id, subStatus: "View");
               Map<String, dynamic> jsonData = changeStatusModel.toJson();
               try {
                 JobPostApiService.changeStatus(jsonData, item.id!.toInt());

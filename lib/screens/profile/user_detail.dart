@@ -136,7 +136,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
   //   }
   // }
 
-  void _onSearchChanged() {
+  /* void _onSearchChanged() {
     String query = _searchController.text.toLowerCase();
 
     setState(() {
@@ -163,6 +163,38 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               (profile.skills != null &&
                   profile.skills!
                       .any((skill) => skill.toLowerCase().contains(query))))
+          .toList();
+
+      // Update the searchResults list with filteredProfileSummaries
+      searchResults = filteredProfileSummaries.toList();
+    });
+  } */
+  void _onSearchChanged() {
+    String query = _searchController.text.toLowerCase();
+    List<String> searchTerms = query.split(',');
+
+    setState(() {
+      // Filter the profileSummaries based on the search query
+      List<UserDetail> filteredProfileSummaries = profileSummaries
+          .where((profile) =>
+              (profile.firstName != null && searchTerms.any((term) => profile.firstName!.toLowerCase().contains(term))) ||
+              (profile.lastName != null &&
+                  searchTerms.any((term) =>
+                      profile.lastName!.toLowerCase().contains(term))) ||
+              (profile.userLocality != null &&
+                  searchTerms.any((term) =>
+                      profile.userLocality!.toLowerCase().contains(term))) ||
+              (profile.userLocation != null &&
+                  searchTerms.any((term) =>
+                      profile.userLocation!.toLowerCase().contains(term))) ||
+              (profile.jobTitleRecent != null &&
+                  searchTerms.any((term) =>
+                      profile.jobTitleRecent!.toLowerCase().contains(term))) ||
+              (profile.companyNameRecent != null &&
+                  searchTerms.any((term) => profile.companyNameRecent!.toLowerCase().contains(term))) ||
+              (profile.level != null && searchTerms.any((term) => profile.level!.toLowerCase().contains(term))) ||
+              (profile.languages != null && profile.languages!.any((language) => searchTerms.any((term) => language.toLowerCase().contains(term)))) ||
+              (profile.skills != null && profile.skills!.any((skill) => searchTerms.any((term) => skill.toLowerCase().contains(term)))))
           .toList();
 
       // Update the searchResults list with filteredProfileSummaries
@@ -606,17 +638,15 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          if (profilemodel.active == true)
-                                            const Icon(
+                                          Visibility(
+                                            visible:
+                                                profilemodel.active == true,
+                                            child: const Icon(
                                               Icons.circle,
                                               size: 20,
                                               color: Colors.green,
-                                            )
-                                          else
-                                            const SizedBox(
-                                              width:
-                                                  24, // Width of the blank space when the user is not active
                                             ),
+                                          ),
                                           if (profilemodel.availabilityRecent ==
                                                   "Imediate" ||
                                               profilemodel.availabilityRecent ==

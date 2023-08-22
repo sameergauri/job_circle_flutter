@@ -31,8 +31,11 @@ class ProfileSummary extends StatefulWidget {
 class _ProfileSummaryState extends State<ProfileSummary>
     with TickerProviderStateMixin {
   late Widget previousWidget;
+  // ignore: non_constant_identifier_names
   var profile_final_pic = "";
+  // ignore: non_constant_identifier_names
   var profile_cv_link = "";
+  // ignore: non_constant_identifier_names
   var profile_cv_file = "";
   late String experienceText;
 
@@ -85,6 +88,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
   }
 
   bool isSearchVisible = false;
+  // ignore: prefer_final_fields
   FocusNode _searchFocusNode = FocusNode();
 
   void toggleSearchVisibility() {
@@ -120,9 +124,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
       var userData = dataResult["users"];
       var educationData = dataResult["educations"] as List<dynamic>;
       var experienceData = dataResult["experiences"] as List<dynamic>;
-      print(userData);
-      print(educationData);
-      print(experienceData);
+    //  print(userData);
+      //print(educationData);
+      //print(experienceData);
       profilemodel = ProfileSummaryModel.fromJson(userData);
 
       // Check if educationData and experienceData are not empty before converting them
@@ -302,6 +306,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                                 ),
                                                               ),
                                                               Text(
+                                                                // ignore: unnecessary_string_interpolations
                                                                 "${profilemodel.last_name.toString().toTitleCase()}",
                                                                 style:
                                                                     GoogleFonts
@@ -313,7 +318,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                                           .bold,
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                   width: 5),
                                                               if (profilemodel
                                                                           .dateofbirth !=
@@ -407,7 +412,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                           Row(
                                                             children: [
                                                               Text(
-                                                                '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                                '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
                                                                 style:
                                                                     TextStyle(
                                                                   fontSize:
@@ -450,148 +455,207 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                 ],
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
-                                              child: Container(
-                                                height: 102,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  color: Colors.brown.shade50,
-                                                ),
-                                                //  padding: const EdgeInsets.all(10.0),
-                                                child: ListView(
-                                                  shrinkWrap: true,
-                                                  physics:
-                                                      BouncingScrollPhysics(),
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8),
-                                                      child: CustomFieldBlock(
-                                                        iconColor:
-                                                            Color.fromRGBO(37,
-                                                                150, 190, 0),
-                                                        imageUrl:
-                                                            "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
-                                                        description:
-                                                            "Recruiters identify prospective candidates through their CV.",
-                                                        buttonText:
-                                                            "+ Upload Resume",
-                                                        onPressed: () {
-                                                          setState(() async {
-                                                            var data =
-                                                                await uploadFile([
-                                                              'pdf',
-                                                              'doc'
-                                                            ]);
-                                                            var payload = {
-                                                              "stage":
-                                                                  "upload_cv",
-                                                              "data": {
-                                                                "id": await Utils
-                                                                    .getPreferencesValue(
-                                                                  null,
-                                                                  ESharedPreferences
-                                                                      .user_id
-                                                                      .name,
+                                            if (profilemodel.cv_link == null ||
+                                                profilemodel.skills!.isEmpty ||
+                                                (profilemodel
+                                                    .languages!.isEmpty) ||
+                                                educationList.isEmpty ||
+                                                experienceList.isEmpty)
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(12.0),
+                                                child: Container(
+                                                  height: 102,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                    color: Colors.brown.shade50,
+                                                  ),
+                                                  //  padding: const EdgeInsets.all(10.0),
+                                                  child: ListView(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const BouncingScrollPhysics(),
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    children: [
+                                                      if (profilemodel
+                                                              .cv_link ==
+                                                          null)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8,
+                                                                  right: 8.0),
+                                                          child:
+                                                              CustomFieldBlock(
+                                                            iconColor:
+                                                                const Color.fromRGBO(
+                                                                    37,
+                                                                    150,
+                                                                    190,
+                                                                    0),
+                                                            imageUrl:
+                                                                "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
+                                                            description:
+                                                                "Recruiters identify prospective candidates through their CV.",
+                                                            buttonText:
+                                                                "+ Upload Resume",
+                                                            onPressed: () {
+                                                              setState(
+                                                                  () async {
+                                                                var data =
+                                                                    await uploadFile([
+                                                                  'pdf',
+                                                                  'doc'
+                                                                ]);
+                                                                var payload = {
+                                                                  "stage":
+                                                                      "upload_cv",
+                                                                  "data": {
+                                                                    "id": await Utils
+                                                                        .getPreferencesValue(
+                                                                      null,
+                                                                      ESharedPreferences
+                                                                          .user_id
+                                                                          .name,
+                                                                    ),
+                                                                    "cv_link": data[
+                                                                        'fileName'],
+                                                                  },
+                                                                };
+                                                                await save(
+                                                                    data[
+                                                                        'fileName'],
+                                                                    payload);
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+
+                                                      // Block 2: Email
+                                                      // Block 2: Email
+                                                      // CustomFieldBlock(
+                                                      //   imageUrl:
+                                                      //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
+                                                      //   description:
+                                                      //       "Ensure your contact email",
+                                                      //   buttonText: "Verify Now",
+                                                      //   onPressed: () {
+                                                      //     sendToBasicInfo();
+                                                      //   },
+                                                      // ),
+
+                                                      // Block 3: Skills
+                                                      if (profilemodel
+                                                          .skills!.isEmpty)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8.0,
+                                                                  right: 8.0),
+                                                          child:
+                                                              CustomFieldBlock(
+                                                            imageUrl:
+                                                                "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                                                            description:
+                                                                "Your Skills Will Connect You with Relevant Job Opportunities",
+                                                            buttonText:
+                                                                "+ Add Skills",
+                                                            onPressed: () {
+                                                              List<String>
+                                                                  skills = [];
+                                                              sendToSkills(
+                                                                  skills);
+                                                            },
+                                                          ),
+                                                        ),
+
+                                                      // Block 4: Language
+
+                                                      if (profilemodel
+                                                          .languages!.isEmpty)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8.0,
+                                                                  right: 8.0),
+                                                          child:
+                                                              CustomFieldBlock(
+                                                            imageUrl:
+                                                                "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
+                                                            description:
+                                                                "Specify the languages",
+                                                            buttonText:
+                                                                "+ Add Languages",
+                                                            onPressed: () {
+                                                              sendToLanguges();
+                                                            },
+                                                          ),
+                                                        ),
+                                                      if (experienceList
+                                                          .isEmpty)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8.0,
+                                                                  right: 8.0),
+                                                          child:
+                                                              CustomFieldBlock(
+                                                            imageUrl:
+                                                                "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
+                                                            description:
+                                                                "Keep your profile updated with your recent work experience.",
+                                                            buttonText:
+                                                                "+ Add Experience",
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Screen3(),
                                                                 ),
-                                                                "cv_link": data[
-                                                                    'fileName'],
-                                                              },
-                                                            };
-                                                            await save(
-                                                                data[
-                                                                    'fileName'],
-                                                                payload);
-                                                          });
-                                                        },
-                                                      ),
-                                                    ),
-
-                                                    // Block 2: Email
-                                                    // Block 2: Email
-                                                    // CustomFieldBlock(
-                                                    //   imageUrl:
-                                                    //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
-                                                    //   description:
-                                                    //       "Ensure your contact email",
-                                                    //   buttonText: "Verify Now",
-                                                    //   onPressed: () {
-                                                    //     sendToBasicInfo();
-                                                    //   },
-                                                    // ),
-
-                                                    // Block 3: Skills
-                                                    CustomFieldBlock(
-                                                      imageUrl:
-                                                          "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                                                      description:
-                                                          "Your Skills Will Connect You with Relevant Job Opportunities",
-                                                      buttonText:
-                                                          "+ Add Skills",
-                                                      onPressed: () {
-                                                        sendToSkills(
-                                                            Experience());
-                                                      },
-                                                    ),
-
-                                                    // Block 4: Language
-                                                    CustomFieldBlock(
-                                                      imageUrl:
-                                                          "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
-                                                      description:
-                                                          "Specify the languages",
-                                                      buttonText:
-                                                          "+ Add Languages",
-                                                      onPressed: () {
-                                                        sendToBasicInfo();
-                                                      },
-                                                    ),
-                                                    CustomFieldBlock(
-                                                      imageUrl:
-                                                          "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
-                                                      description:
-                                                          "Keep your profile updated with your recent work experience.",
-                                                      buttonText:
-                                                          "+ Add Experience",
-                                                      onPressed: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    Screen3(),
+                                                              );
+                                                            },
                                                           ),
-                                                        );
-                                                      },
-                                                    ),
-                                                    CustomFieldBlock(
-                                                      imageUrl:
-                                                          "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                                                      description:
-                                                          "Share Educational detail to maximize your potential.",
-                                                      buttonText:
-                                                          "+ Add Education",
-                                                      onPressed: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    Screen2(),
+                                                        ),
+                                                      if (educationList.isEmpty)
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 8.0,
+                                                                  right: 8.0),
+                                                          child:
+                                                              CustomFieldBlock(
+                                                            imageUrl:
+                                                                "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+                                                            description:
+                                                                "Share Educational detail to maximize your potential.",
+                                                            buttonText:
+                                                                "+ Add Education",
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Screen2(),
+                                                                ),
+                                                              );
+                                                            },
                                                           ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
+                                                        ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
                                             Visibility(
                                               visible: (usertype == 1
                                                   ? true
@@ -611,7 +675,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                               child: skills(experienceList),
                                             ),
                                             Visibility(
-                                              visible: usertype == 1,
+                                              visible: (usertype == 1
+                                                  ? true
+                                                  : false),
                                               child: languages(
                                                   profilemodel.languages ?? []),
                                             ),
@@ -692,9 +758,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                               : 0.0, // Fade in/out the search container
                                           child: SlideTransition(
                                             position: Tween<Offset>(
-                                              begin: Offset(-1,
+                                              begin: const Offset(-1,
                                                   0), // Start from the left side of the screen
-                                              end: Offset(0,
+                                              end: const Offset(0,
                                                   0), // Slide to the center of the screen
                                             ).animate(CurvedAnimation(
                                               parent:
@@ -817,6 +883,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     width: 80,
                                                     fit: BoxFit.contain)),
                                             backgroundImage:
+                                                // ignore: unnecessary_null_comparison
                                                 profile_final_pic == null
                                                     ? Image.network(
                                                             profile_final_pic)
@@ -1013,7 +1080,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InkWell(
@@ -1035,8 +1102,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      SizedBox(width: 3),
-                      Icon(
+                      const SizedBox(width: 3),
+                      const Icon(
                         Icons.arrow_forward_ios,
                         size: 16,
                       ),
@@ -1068,8 +1135,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                 children: [
                   ListTile(
                     contentPadding:
-                        EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
-                    leading: Container(
+                        const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+                    leading: SizedBox(
                       width: 70.w,
                       height: 70.h,
                       // decoration: BoxDecoration(
@@ -1139,7 +1206,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       },
                       child: Container(
                         padding:
-                            EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                            const EdgeInsets.only(left: 10, right: 4, bottom: 10),
                         child: Icon(Icons.edit_outlined, size: 18.h),
                       ),
                     ),
@@ -1151,12 +1218,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
         ),
       );
     } else {
-      return SizedBox.shrink(); // Return an empty widget if the list is empty
+      return const SizedBox.shrink(); // Return an empty widget if the list is empty
     }
   }
 
   Widget experience(List<Experience> experienceList) {
     bool shouldShowAddButton = experienceList.isNotEmpty;
+    // ignore: unused_local_variable
     bool hasExperienceData = profilemodel.experience != null;
 
     if (experienceList.isEmpty) {
@@ -1177,7 +1245,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              Spacer(), // Added Spacer widget
+              const Spacer(), // Added Spacer widget
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: InkWell(
@@ -1198,8 +1266,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      SizedBox(width: 3),
-                      Icon(
+                      const SizedBox(width: 3),
+                      const Icon(
                         Icons
                             .arrow_forward_ios, // Replace this with the icon of your choice
                         size: 16,
@@ -1227,7 +1295,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: experienceList.length,
-            separatorBuilder: (context, index) => SizedBox(height: 8.0),
+            separatorBuilder: (context, index) => const SizedBox(height: 8.0),
             itemBuilder: (context, index) {
               final experience = experienceList[index];
               final joiningDate = experience.joining_date;
@@ -1259,6 +1327,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
               return ListTile(
                 contentPadding: const EdgeInsets.only(
                     left: 10, right: 10, top: 0, bottom: 0),
+                // ignore: sized_box_for_whitespace
                 leading: Container(
                   width: 70.w,
                   height: 70.h,
@@ -1292,7 +1361,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       '$formattedJoiningDate - $formattedLastWorkingDate ($experienceText)',
                       style: TextStyle(
@@ -1315,7 +1384,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           experience); // Pass the selected experience object
                     },
                     child: Container(
-                      padding: EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                      padding: const EdgeInsets.only(left: 10, right: 4, bottom: 10),
                       child: Icon(Icons.edit_outlined, size: 18.h),
                     )),
               );
@@ -1324,12 +1393,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
         ),
       );
     } else {
-      return SizedBox.shrink(); // Return an empty widget if the list is empty
+      return const SizedBox.shrink(); // Return an empty widget if the list is empty
     }
   }
 
   Widget languages(List<dynamic> languages) {
     // Filter out languages other than English, Hindi, and Marathi
+    //print(profilemodel.languages);
     List filteredLanguages = languages
         .where((language) =>
             language != "English" &&
@@ -1380,7 +1450,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           colorBlendMode: BlendMode.clear,
                         ),
 
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           "Languages",
                           style: GoogleFonts.varela(
@@ -1395,17 +1465,17 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         sendToLanguges();
                       },
                       child: Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           left: 10,
                           right: 18,
                           bottom: 0,
                         ),
-                        child: Icon(Icons.add, size: 18),
+                        child: const Icon(Icons.add, size: 18),
                       ),
                     ),
                   ],
                 ),
-                Divider(
+                const Divider(
                   color: Constants.borderColor,
                   thickness: 2.5,
                   indent: 10,
@@ -1435,7 +1505,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         return Chip(
                           label: Text(
                             language,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                             ),
@@ -1513,14 +1583,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         //   size: 16,
                         // ),
                         Image.network(
-                          "https://cdn-icons-png.flaticon.com/128/9666/9666850.png",
+                          "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
                           height: 16,
                           // width: 16,
                           fit: BoxFit
                               .contain, // or BoxFit.cover, depending on your requirement
                           colorBlendMode: BlendMode.clear,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           "Skills",
                           style: GoogleFonts.varela(
@@ -1532,20 +1602,20 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     ),
                     InkWell(
                       onTap: () {
-                        sendToSkills(Experience(skills_exp: skills));
+                        sendToSkills(skills);
                       },
                       child: Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           left: 10,
                           right: 18,
                           bottom: 0,
                         ),
-                        child: Icon(Icons.add, size: 18),
+                        child: const Icon(Icons.add, size: 18),
                       ),
                     ),
                   ],
                 ),
-                Divider(
+                const Divider(
                   color: Constants.borderColor,
                   thickness: 2.5,
                   indent: 10,
@@ -1574,7 +1644,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         return Chip(
                           label: Text(
                             skill,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                             ),
@@ -1600,23 +1670,25 @@ class _ProfileSummaryState extends State<ProfileSummary>
     );
   }
 
-  void sendToSkills(Experience experience) async {
+  void sendToSkills(List<String> skills) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SkillsMulti(
           prevPageModel: profilemodel,
-          // experienceList: experienceList,
+          experienceList: experienceList,
+          // initialSkills: skills,
         ),
       ),
     );
     if (result != null) {
-      experience.skills_exp = result.skills_exp;
+      skills = result.skills;
       setState(() {});
     }
   }
 
   void sendToLanguges() async {
+    // ignore: unused_local_variable
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -1699,12 +1771,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
               SizedBox(width: 2.h),
               if (imageUrl != null) // Check if the icon is not null
                 Image.network(
-                  imageUrl!,
+                  imageUrl,
                   width: 20,
                   height: 20,
                   fit: BoxFit.contain,
                 ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               if (isresume == false)
                 Text(
                   title.toString(),
@@ -1743,15 +1815,15 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           }
                         },
                         child: Container(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             left: 10,
                             right: 14,
                             bottom: 0,
                             top: 0,
                           ),
                           // child: Icon(Icons.add, size: 18.h),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 4),
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 4),
                             child: Icon(
                               Icons
                                   .add, // Replace this with the icon of your choice

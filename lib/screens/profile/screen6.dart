@@ -1,12 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:job_circle/screens/profile/screen4.dart';
 
 import '../../constants/gobal.dart';
@@ -65,7 +63,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
 
   static Future<void> updateLanguages(
       Map<String, dynamic> jsonData, int id) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/$id';
+    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/$id/languges';
 
     try {
       var response = await http.put(
@@ -97,7 +95,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
     await updateLanguages(jsonData, expID!);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('language saved successfully')),
+      const SnackBar(content: Text('language saved successfully')),
     );
   }
 
@@ -147,7 +145,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
                 contextIn: context,
                 hintText: "English",
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               InkWell(
                 onTap: save,
                 child: Container(

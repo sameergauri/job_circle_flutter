@@ -84,6 +84,7 @@ class Utils {
       var index = fileName.lastIndexOf("_");
       fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
       extention = Utils.getExtention(fileName);
+    // ignore: empty_catches
     } catch (ex) {}
     return fileNamea + extention;
   }
@@ -208,6 +209,7 @@ class Utils {
 }
 
 String convertToTitleCase(String text) {
+  // ignore: unnecessary_null_comparison
   if (text == null) {
     return "";
   }

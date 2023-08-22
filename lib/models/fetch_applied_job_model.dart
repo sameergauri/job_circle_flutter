@@ -48,8 +48,11 @@ class ResultData {
 }
 
 class Applicant {
+  bool? showRejectTextField = false;
   int? spocContactNo;
   String? companyName;
+  String? sub_code;
+  String? interview_rounds;
   String? natureOfWork;
   String? sub_status;
   String? availabilityRecent;
@@ -92,8 +95,11 @@ class Applicant {
   String? lastWorkingDateRecent;
 
   Applicant({
+    this.showRejectTextField,
     this.spocContactNo,
     this.companyName,
+    this.sub_code,
+    this.interview_rounds,
     this.natureOfWork,
     this.sub_status,
     this.status_code,
@@ -142,6 +148,8 @@ class Applicant {
       skills: _parseSkills(json['skills']),
       status_code: json['status_code'],
       companyName: json['company_name'],
+      sub_code: json['sub_code'],
+      interview_rounds: json['interview_rounds'],
       sub_status: json['sub_status'],
       natureOfWork: json['natur_of_work'],
       availabilityRecent: json['availability_recent'],
@@ -201,11 +209,13 @@ class Applicant {
     return {
       'spoc_contact_no': spocContactNo,
       'company_name': companyName,
+      'sub_code': sub_code,
+      'interview_rounds': interview_rounds,
       'natur_of_work': natureOfWork,
       'sub_status': sub_status,
       'availability_recent': availabilityRecent,
       'status': status,
-      'status_code':status_code,
+      'status_code': status_code,
       'total_salary': totalSalary,
       'job_title_previous': jobTitlePrevious,
       'contact_no': contactNo,
@@ -244,9 +254,6 @@ class Applicant {
     };
   }
 }
-
-
-
 
 /* class ApplicantData {
   final List<Applicant>? content;
@@ -388,3 +395,13 @@ class Applicant {
   }
 }
  */ */
+
+class JobInteractionModel {
+  final bool showRejectTextField;
+  final String rejectionReason;
+
+  JobInteractionModel({
+    required this.showRejectTextField,
+    required this.rejectionReason,
+  });
+}
