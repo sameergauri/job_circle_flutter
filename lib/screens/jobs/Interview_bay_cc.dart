@@ -40,7 +40,7 @@ class InterViewBay extends StatefulWidget {
 }
 
 class _InterViewBayState extends State<InterViewBay>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
   @override
@@ -91,13 +91,18 @@ class _InterViewBayState extends State<InterViewBay>
   @override
   void initState() {
     super.initState();
-    bindProfileSummary();
+    initializeState();
+  }
+
+  Future<void> initializeState() async {
+    await bindProfileSummary();
     fetchData();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-
+    fetchTabData();
+    await fetchAllApplicants(profilemodel.id!.toInt());
     //  _applicantsFuture = fetchApplicantsByUserId(552);
   }
 
@@ -254,6 +259,30 @@ class _InterViewBayState extends State<InterViewBay>
     });
   }
 
+  bool _isVi = false, isf2f = false;
+  late TabController customTabController;
+
+  List<Applicant>? applicants; // Holds fetched data
+  bool isLoading = true; // Indicates whether data is loading
+  String? error; // Holds error message, if any
+
+  Future<void> fetchTabData() async {
+    try {
+      List<Applicant> data = await fetchAllApplicants(profilemodel.id!.toInt());
+      setState(() {
+        applicants = data;
+        isLoading = false;
+        error = null;
+      });
+    } catch (e) {
+      setState(() {
+        applicants = null;
+        isLoading = false;
+        error = "An error occurred: $e";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -263,62 +292,62 @@ class _InterViewBayState extends State<InterViewBay>
     } else {
       // Build your widget's UI with the 'profilemodel' data
       // For example:
-      return FutureBuilder<List<Applicant>>(
-        future: profilemodel.id != null
-            ? fetchAllApplicants(profilemodel.id!.toInt())
-            : Future.error("Profile model is null"),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData && snapshot.data != null) {
-            final data = snapshot.data!;
-            final statuses = getStatuses(data); // Get the statuses here
+      return PageStorage(
+        bucket: PageStorageBucket(),
+        key: const PageStorageKey<String>("futureKey"),
+        child: FutureBuilder<List<Applicant>>(
+          future: profilemodel.id != null
+              ? fetchAllApplicants(profilemodel.id!.toInt())
+              : Future.error("Profile model is null"),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasData && snapshot.data != null) {
+              final data = snapshot.data!;
+              final statuses = getStatuses(data); // Get the statuses here
 
-            return DefaultTabController(
-              length: statuses.length,
-              child: Scaffold(
-                appBar: PreferredSize(
-                  preferredSize:
-                      Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
-                  child: AppBar(
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    bottom: TabBar(
-                      key: const ValueKey("ccTab2"),
-                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                      labelColor: Colors.black,
-                      isScrollable: true,
-                      unselectedLabelColor: Colors.black,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      splashBorderRadius: BorderRadius.circular(8),
-                      indicatorWeight: 7.h,
-                      indicatorPadding:
-                          EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
-                      indicator: BoxDecoration(
-                        color: Constants.borderColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Constants.borderColor),
+              return DefaultTabController(
+                length: statuses.length,
+                child: Scaffold(
+                  appBar: PreferredSize(
+                    preferredSize:
+                        Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                    child: AppBar(
+                      elevation: 0,
+                      backgroundColor: Colors.white,
+                      bottom: TabBar(
+                        key: const ValueKey("ccTab2"),
+                        labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                        labelColor: Colors.black,
+                        isScrollable: true,
+                        unselectedLabelColor: Colors.black,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        splashBorderRadius: BorderRadius.circular(8),
+                        indicatorWeight: 7.h,
+                        indicatorPadding:
+                            EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
+                        indicator: BoxDecoration(
+                          color: Constants.borderColor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Constants.borderColor),
+                        ),
+                        tabs: statuses
+                            .map(
+                              (status) => customTab(
+                                status, // Show status in the top-level tab bar
+                              ),
+                            )
+                            .toList(),
                       ),
-                      tabs: statuses
-                          .map(
-                            (status) => customTab(
-                              status, // Show status in the top-level tab bar
-                            ),
-                          )
-                          .toList(),
                     ),
                   ),
-                ),
-                body: RefreshIndicator(
-                  onRefresh: () async {
-                    setState(
-                        () {}); // This will trigger the rebuild of the widget tree
-                  },
-                  child: TabBarView(
+                  body: TabBarView(
                     key: const ValueKey("ccTabView2"),
-                    children: statuses.map<Widget>((status) {
+                    children: statuses.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final status = entry.value;
                       // Filter applicants based on the current status
                       final applicants = data
                           .where((applicant) =>
@@ -351,12 +380,13 @@ class _InterViewBayState extends State<InterViewBay>
                         List<String> companyTab = applicants
                             .where(
                                 (applicant) => applicant.status_code == "IB5")
-                            .map(
-                                (applicant) => applicant.companyName.toString())
+                            .map((applicant) => applicant.short_name.toString())
                             .toSet()
                             .toList()
                           ..sort();
-
+                        customTabController = TabController(
+                            length: companyTab.length, vsync: this);
+                        //TODO: Add custom tab controller
                         return DefaultTabController(
                           length: companyTab.length,
                           child: Scaffold(
@@ -366,6 +396,7 @@ class _InterViewBayState extends State<InterViewBay>
                               child: AppBar(
                                 backgroundColor: Colors.white,
                                 bottom: TabBar(
+                                  controller: customTabController,
                                   key: const ValueKey("ccTab3"),
                                   isScrollable: true,
                                   indicatorSize: TabBarIndicatorSize.tab,
@@ -392,57 +423,158 @@ class _InterViewBayState extends State<InterViewBay>
                                 ),
                               ),
                             ),
-                            body: TabBarView(
-                              key: const ValueKey("ccTabView3"),
-                              children: companyTab.map((companyName) {
-                                // Filter applicants based on the current company name and status
-                                final filteredApplicants = applicants
-                                    .where((applicant) =>
-                                        applicant.status_code == "IB5" &&
-                                        applicant.companyName.toString() ==
-                                            companyName)
-                                    .toList();
+                            body: PageStorage(
+                              bucket: PageStorageBucket(),
+                              key: PageStorageKey<String>(status),
+                              child: TabBarView(
+                                controller: customTabController,
+                                key: const ValueKey("ccTabView3"),
+                                children: companyTab.asMap().entries.map((e) {
+                                  final index = e.key;
+                                  final status = e.value;
+                                  // Filter applicants based on the current company name and status
+                                  final filteredApplicants = applicants
+                                      .where((applicant) =>
+                                          applicant.status_code == "IB5" &&
+                                          applicant.short_name.toString() ==
+                                              e.value)
+                                      .toList();
 
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: filteredApplicants.length,
-                                  itemBuilder: (context, index) {
-                                    final applicant = filteredApplicants[index];
+                                  return Column(
+                                    children: [
+                                      PageStorage(
+                                        bucket:
+                                            PageStorageBucket(), // Add this line
+                                        key: const PageStorageKey<String>(
+                                            "sskk"),
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
 
-                                    return InkWell(
-                                      onTap: () {
-                                        // Handle tap on the parent widget (outside the Row)
-                                        FocusManager.instance.primaryFocus
-                                            ?.unfocus(); // Unfocus the keyboard
-                                        if (isSearchVisible) {
-                                          setState(() {
-                                            isSearchVisible = false;
-                                            _animationController
-                                                .reverse(); // Reverse the animation
-                                            _searchFocusNode
-                                                .unfocus(); // Clear focus when it becomes invisible
-                                          });
-                                        }
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
+                                            return InkWell(
+                                              onTap: () {
+                                                // Handle tap on the parent widget (outside the Row)
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus(); // Unfocus the keyboard
+                                                if (isSearchVisible) {
+                                                  setState(() {
+                                                    isSearchVisible = false;
+                                                    _animationController
+                                                        .reverse(); // Reverse the animation
+                                                    _searchFocusNode
+                                                        .unfocus(); // Clear focus when it becomes invisible
+                                                  });
+                                                }
+                                              },
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  listViewItem_new(
+                                                    context,
+                                                    applicant,
+                                                    true,
+                                                    statuses,
+                                                    profilemodel.id != null
+                                                        ? profilemodel.id!
+                                                            .toInt()
+                                                        : 467,
+                                                    index,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
                                         children: [
-                                          listViewItem_new(
-                                            context,
-                                            applicant,
-                                            true,
-                                            statuses,
-                                            profilemodel.id != null
-                                                ? profilemodel.id!.toInt()
-                                                : 467,
-                                            index,
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                right: 15.w, bottom: 10),
+                                            child: Row(
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      isf2f = !isf2f;
+                                                      _isVi = false;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: isf2f
+                                                            ? Constants
+                                                                .borderColor
+                                                            : Colors.white,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                    .only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        8),
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        8)),
+                                                        border: Border.all(
+                                                            color: Constants
+                                                                .themeBgColor)),
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 6,
+                                                        horizontal: 12),
+                                                    child: const Text("F2F"),
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      isf2f = false;
+                                                      _isVi = !_isVi;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: _isVi
+                                                            ? Constants
+                                                                .borderColor
+                                                            : Colors.white,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                    .only(
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        8),
+                                                                bottomRight:
+                                                                    Radius
+                                                                        .circular(
+                                                                            8)),
+                                                        border: Border.all(
+                                                            color: Constants
+                                                                .themeBgColor)),
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 6,
+                                                        horizontal: 12),
+                                                    child:
+                                                        const Text("Virtual"),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              }).toList(),
+                                      )
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
                         );
@@ -503,12 +635,15 @@ class _InterViewBayState extends State<InterViewBay>
                             ),
                             body: TabBarView(
                               key: const ValueKey("ccTabView3"),
-                              children: subStatuses.map((subStatus) {
+                              children:
+                                  subStatuses.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final status = entry.value;
                                 // Filter applicants based on the current status and sub_status
                                 final filteredApplicants = applicants
                                     .where((applicant) =>
                                         applicant.sub_status.toString() ==
-                                        subStatus)
+                                        entry.value)
                                     .toList();
 
                                 return ListView.builder(
@@ -719,13 +854,13 @@ class _InterViewBayState extends State<InterViewBay>
                     }).toList(),
                   ),
                 ),
-              ),
+              );
+            }
+            return const Center(
+              child: Text("No Data"),
             );
-          }
-          return const Center(
-            child: Text("No Data"),
-          );
-        },
+          },
+        ),
       );
 
       /* FutureBuilder<List<Applicant>>(
@@ -858,6 +993,8 @@ class _InterViewBayState extends State<InterViewBay>
   }
 
   String selectedInterviewRound = 'Select';
+
+  bool switchValue = true;
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
       List<String> status, int id, int index) {
@@ -1079,24 +1216,27 @@ class _InterViewBayState extends State<InterViewBay>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                /* Container(
-                                  margin: const EdgeInsets.only(bottom: 2),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                      color: Constants.borderColor,
-                                      borderRadius: BorderRadius.circular(8)),
-                                  child: Text(
-                                    item.companyName.toString(),
-                                    style: GoogleFonts.varela(
-                                      color: Colors.black54,
-                                      // fontWeight: FontWeight.bold,
+                                if (!item.status_code!.contains("IB5"))
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                        color: Constants.borderColor,
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Text(
+                                      item.status_code!.contains("IB5")
+                                          ? item.short_name.toString()
+                                          : item.companyName.toString(),
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black54,
+                                        // fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ), */
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 8),
+                                      vertical: 1, horizontal: 4),
                                   decoration: BoxDecoration(
                                       color: Constants.borderColor,
                                       borderRadius: BorderRadius.circular(8)),
@@ -1104,7 +1244,10 @@ class _InterViewBayState extends State<InterViewBay>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        "${item.process} - ${item.leadLevel}",
+                                        item.role_code != null &&
+                                                item.role_code != ""
+                                            ? "${item.process} - ${item.role_code}"
+                                            : "${item.process} - ${item.leadLevel}",
                                         style: GoogleFonts.varela(
                                           color: Colors.black54,
                                           // fontWeight: FontWeight.bold,
@@ -1122,45 +1265,19 @@ class _InterViewBayState extends State<InterViewBay>
 
 // ...
                                 item.status_code!.contains("IB5")
-                                    ? FutureBuilder<InterviewResult>(
-                                        future: fetchDataAndUpdateDropdown(
-                                            item.jobId!.toInt(),
-                                            item.id!.toInt()),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          } else if (snapshot.hasError) {
-                                            return Center(
-                                                child: Text(
-                                                    'Error: ${snapshot.error}'));
-                                          } else if (snapshot.hasData) {
-                                            InterviewResult interviewResult =
-                                                snapshot.data!;
-                                            interviewRounds = interviewResult
-                                                .resultData.interviewRounds;
-
-                                            return Column(
-                                              children: [
-                                                DropdownButton<String>(
-                                                  value: selectedRoundsMap[
-                                                      item.id],
-                                                  onChanged: (newValue) {
-                                                    updateSelectedRoundForJob(
-                                                        item.id!.toInt(),
-                                                        newValue!);
+                                    ? InkWell(
+                                        onTap: () {
+                                          item.sub_code == "IB5:1"
+                                              ? setState(() {
+                                                  {
                                                     ChangeStatusModel
                                                         changeStatusModel =
                                                         ChangeStatusModel(
-                                                            status: "IB5"
-                                                                .toString(),
+                                                            status: item
+                                                                .status_code,
                                                             sourceId: id,
-                                                            interview_rounds:
-                                                                newValue,
-                                                            subStatus: item
-                                                                .sub_status);
+                                                            subStatus:
+                                                                "On-Site Interview");
                                                     Map<String, dynamic>
                                                         jsonData =
                                                         changeStatusModel
@@ -1175,53 +1292,161 @@ class _InterViewBayState extends State<InterViewBay>
                                                       print('Error: $e');
                                                       // Handle error...
                                                     }
-                                                  },
-                                                  items: [
-                                                    DropdownMenuItem<String>(
-                                                        /* value:
-                                                          item.interview_rounds, */
-                                                        child:
-                                                            item.interview_rounds ==
-                                                                    null
-                                                                ? Text(
-                                                                    'InterView rounds',
-                                                                    style: GoogleFonts.varela(
-                                                                        fontSize:
-                                                                            12.sp),
-                                                                  )
-                                                                : Text(
-                                                                    item.interview_rounds
-                                                                        .toString(),
-                                                                    style: GoogleFonts.varela(
-                                                                        fontSize:
-                                                                            12.sp),
-                                                                  )),
-                                                    for (String round
-                                                        in interviewRounds)
-                                                      DropdownMenuItem<String>(
-                                                        value: round,
-                                                        child: Text(
-                                                          round,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                                  fontSize:
-                                                                      12.sp),
+                                                  }
+                                                })
+                                              : setState(() {
+                                                  ChangeStatusModel
+                                                      changeStatusModel =
+                                                      ChangeStatusModel(
+                                                          status:
+                                                              item.status_code,
+                                                          sourceId: id,
+                                                          subStatus:
+                                                              "Virtual Interview");
+                                                  Map<String, dynamic>
+                                                      jsonData =
+                                                      changeStatusModel
+                                                          .toJson();
+                                                  try {
+                                                    JobPostApiService
+                                                        .changeStatus(jsonData,
+                                                            item.id!.toInt());
+                                                    setState(() {});
+                                                  } catch (e) {
+                                                    print('Error: $e');
+                                                    // Handle error...
+                                                  }
+                                                });
+                                        },
+                                        child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 6, horizontal: 2),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                item.sub_code == "IB5:1"
+                                                    ? GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            switchValue =
+                                                                !switchValue;
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          width: 30.0,
+                                                          height: 15.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        16.0),
+                                                            color: switchValue
+                                                                ? Colors.green
+                                                                : Colors.grey,
+                                                          ),
+                                                          child: Stack(
+                                                            alignment: switchValue
+                                                                ? Alignment
+                                                                    .centerRight
+                                                                : Alignment
+                                                                    .centerLeft,
+                                                            children: [
+                                                              Container(
+                                                                width: 15.0,
+                                                                height: 15.0,
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            switchValue =
+                                                                !switchValue;
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          width: 30.0,
+                                                          height: 15.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        16.0),
+                                                            color: switchValue
+                                                                ? Colors.green
+                                                                : Colors.grey,
+                                                          ),
+                                                          child: Stack(
+                                                            alignment: switchValue
+                                                                ? Alignment
+                                                                    .centerRight
+                                                                : Alignment
+                                                                    .centerLeft,
+                                                            children: [
+                                                              Container(
+                                                                width: 15.0,
+                                                                height: 15.0,
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                  ],
-                                                  underline:
-                                                      Container(), // This removes the underline
-                                                )
-
-                                                // Rest of your UI...
+                                                /*  Row(
+                                                        children: [
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
+                                                          Text(
+                                                            "On-Site",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                                    color: Colors
+                                                                        .blue),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Row(
+                                                        children: [
+                                                          Text(
+                                                            "Virtual",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                                    color: Colors
+                                                                        .blue),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
+                                                        ],
+                                                      ), */
+                                                /* Text(
+                                                  "Move to",
+                                                  style: GoogleFonts.varela(
+                                                      fontSize: 8.sp,
+                                                      fontStyle:
+                                                          FontStyle.italic),
+                                                ) */
                                               ],
-                                            );
-                                          } else {
-                                            return const Center(
-                                                child:
-                                                    Text('No data available'));
-                                          }
-                                        },
+                                            )),
                                       )
 
                                     /* PopupMenuButton<String>(
@@ -1597,93 +1822,97 @@ class _InterViewBayState extends State<InterViewBay>
                               ),
                             ),
                           const Spacer(),
-                          InkWell(
-                            onTap: () {
-                              item.sub_code == "IB5:1"
-                                  ? setState(() {
-                                      {
-                                        ChangeStatusModel changeStatusModel =
-                                            ChangeStatusModel(
-                                                status: item.status_code,
-                                                sourceId: id,
-                                                subStatus: "On-Site Interview");
-                                        Map<String, dynamic> jsonData =
-                                            changeStatusModel.toJson();
-                                        try {
-                                          JobPostApiService.changeStatus(
-                                              jsonData, item.id!.toInt());
-                                          setState(() {});
-                                        } catch (e) {
-                                          print('Error: $e');
-                                          // Handle error...
-                                        }
-                                      }
-                                    })
-                                  : setState(() {
-                                      ChangeStatusModel changeStatusModel =
-                                          ChangeStatusModel(
-                                              status: item.status_code,
-                                              sourceId: id,
-                                              subStatus: "Virtual Interview");
-                                      Map<String, dynamic> jsonData =
-                                          changeStatusModel.toJson();
-                                      try {
-                                        JobPostApiService.changeStatus(
-                                            jsonData, item.id!.toInt());
-                                        setState(() {});
-                                      } catch (e) {
-                                        print('Error: $e');
-                                        // Handle error...
-                                      }
-                                    });
-                            },
-                            child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 6, horizontal: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                          FutureBuilder<InterviewResult>(
+                            future: fetchDataAndUpdateDropdown(
+                                item.jobId!.toInt(), item.id!.toInt()),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else if (snapshot.hasData) {
+                                InterviewResult interviewResult =
+                                    snapshot.data!;
+                                interviewRounds =
+                                    interviewResult.resultData.interviewRounds;
+
+                                return Column(
                                   children: [
-                                    item.sub_code == "IB5:1"
-                                        ? Row(
-                                            children: [
-                                              Image.asset(
-                                                "assets/images/leftfinger.png",
-                                                height: 17.h,
-                                              ),
-                                              const SizedBox(
-                                                width: 6,
-                                              ),
-                                              Text(
-                                                "On-Site",
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          border:
+                                              Border.all(color: Colors.blue)),
+                                      child: DropdownButton<String>(
+                                        elevation: 4,
+                                        value: selectedRoundsMap[item.id],
+                                        onChanged: (newValue) {
+                                          updateSelectedRoundForJob(
+                                              item.id!.toInt(), newValue!);
+                                          ChangeStatusModel changeStatusModel =
+                                              ChangeStatusModel(
+                                                  status: "IB5".toString(),
+                                                  sourceId: id,
+                                                  interview_rounds: newValue,
+                                                  subStatus: item.sub_status);
+                                          Map<String, dynamic> jsonData =
+                                              changeStatusModel.toJson();
+                                          try {
+                                            JobPostApiService.changeStatus(
+                                                jsonData, item.id!.toInt());
+                                            setState(() {});
+                                          } catch (e) {
+                                            print('Error: $e');
+                                            // Handle error...
+                                          }
+                                        },
+                                        items: [
+                                          DropdownMenuItem<String>(
+                                              /* value:
+                                                            item.interview_rounds, */
+                                              child: item.interview_rounds ==
+                                                      null
+                                                  ? Text(
+                                                      'InterView rounds',
+                                                      style: GoogleFonts.varela(
+                                                          fontSize: 14.sp),
+                                                    )
+                                                  : Text(
+                                                      item.interview_rounds
+                                                          .toString(),
+                                                      style: GoogleFonts.varela(
+                                                          fontSize: 14.sp),
+                                                    )),
+                                          for (String round in interviewRounds)
+                                            DropdownMenuItem<String>(
+                                              value: round,
+                                              child: Text(
+                                                round,
                                                 style: GoogleFonts.varela(
-                                                    color: Colors.blue),
+                                                    fontSize: 12.sp),
                                               ),
-                                            ],
-                                          )
-                                        : Row(
-                                            children: [
-                                              Text(
-                                                "Virtual",
-                                                style: GoogleFonts.varela(
-                                                    color: Colors.blue),
-                                              ),
-                                              const SizedBox(
-                                                width: 6,
-                                              ),
-                                              Image.asset(
-                                                "assets/images/rightfinger.png",
-                                                height: 17.h,
-                                              ),
-                                            ],
-                                          ),
-                                    Text(
-                                      "Mode of interview",
-                                      style: GoogleFonts.varela(
-                                          fontSize: 8.sp,
-                                          fontStyle: FontStyle.italic),
+                                            ),
+                                        ],
+                                        underline:
+                                            Container(), // This removes the underline
+                                      ),
                                     )
+
+                                    // Rest of your UI...
                                   ],
-                                )),
+                                );
+                              } else {
+                                return const Center(
+                                    child: Text('No data available'));
+                              }
+                            },
                           )
                         ],
                       ),

@@ -58,7 +58,7 @@ class ApplicationAPI {
 
   Future<InterviewResult> fetchInterviewResult(int jobId, int leadId) async {
     final response = await http.get(Uri.parse(
-        'http://192.168.1.104:9090/leads/v1/getInterviewRounds?jobId=$jobId&leadId=$leadId'));
+        'http://${GlobalConstants.API_Host}/leads/v1/getInterviewRounds?jobId=$jobId&leadId=$leadId'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonData = json.decode(response.body);

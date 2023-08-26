@@ -51,6 +51,8 @@ class Applicant {
   bool? showRejectTextField = false;
   int? spocContactNo;
   String? companyName;
+  String? short_name;
+  String? role_code;
   String? sub_code;
   String? interview_rounds;
   String? natureOfWork;
@@ -98,6 +100,8 @@ class Applicant {
     this.showRejectTextField,
     this.spocContactNo,
     this.companyName,
+    this.short_name,
+    this.role_code,
     this.sub_code,
     this.interview_rounds,
     this.natureOfWork,
@@ -148,6 +152,8 @@ class Applicant {
       skills: _parseSkills(json['skills']),
       status_code: json['status_code'],
       companyName: json['company_name'],
+      short_name: json['short_name'],
+      role_code: json['role_code'],
       sub_code: json['sub_code'],
       interview_rounds: json['interview_rounds'],
       sub_status: json['sub_status'],
@@ -209,7 +215,9 @@ class Applicant {
     return {
       'spoc_contact_no': spocContactNo,
       'company_name': companyName,
+      'short_name': short_name,
       'sub_code': sub_code,
+      'role_code': role_code,
       'interview_rounds': interview_rounds,
       'natur_of_work': natureOfWork,
       'sub_status': sub_status,

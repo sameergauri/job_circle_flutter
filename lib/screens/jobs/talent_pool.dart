@@ -373,7 +373,7 @@ class _TalentPoolState extends State<TalentPool>
               ),
             );
           }
-          return const SizedBox();
+          return const Center(child: Text("No Data"));
         },
       );
 
@@ -737,7 +737,10 @@ class _TalentPoolState extends State<TalentPool>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        "${item.process} - ${item.leadLevel}",
+                                        item.role_code != null &&
+                                                item.role_code != ""
+                                            ? "${item.process} - ${item.role_code}"
+                                            : "${item.process} - ${item.leadLevel}",
                                         style: GoogleFonts.varela(
                                           color: Colors.black54,
                                           // fontWeight: FontWeight.bold,
