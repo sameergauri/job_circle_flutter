@@ -1,10 +1,16 @@
 import 'dart:convert';
 
+import 'package:awesome_calendar/awesome_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/constants/custom_dialogue_select.dart';
+import 'package:job_circle/constants/custom_dialogue_update_crpf_in_new.dart';
+import 'package:job_circle/constants/customdialogue_for_join.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
@@ -12,7 +18,6 @@ import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/screens/jobs/recruitz.dart';
-import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
 import '../../constants/customdialogue_for_call_whatsapp.dart';
+import '../../constants/customtoggle.dart';
 import '../../constants/drop_down_class.dart';
 import '../../models/application_status_model.dart';
 import '../../models/interview_rounds_model.dart';
@@ -102,7 +108,7 @@ class _InterViewBayState extends State<InterViewBay>
       duration: const Duration(milliseconds: 300),
     );
     fetchTabData();
-    await fetchAllApplicants(profilemodel.id!.toInt());
+    // await fetchAllApplicants(profilemodel.id!.toInt());
     //  _applicantsFuture = fetchApplicantsByUserId(552);
   }
 
@@ -139,7 +145,7 @@ class _InterViewBayState extends State<InterViewBay>
 
   Future<List<Applicant>> fetchAllApplicants(int userId) async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -238,6 +244,7 @@ class _InterViewBayState extends State<InterViewBay>
   final FocusNode _searchFocusNode = FocusNode();
 
   bool _showRejectTextField = false;
+  bool _showremarkfordropandNotJoin = false;
 
   void toggleSearchVisibility() {
     setState(() {
@@ -305,128 +312,140 @@ class _InterViewBayState extends State<InterViewBay>
                 child: CircularProgressIndicator(),
               );
             } else if (snapshot.hasData && snapshot.data != null) {
-              final data = snapshot.data!;
-              final statuses = getStatuses(data); // Get the statuses here
+              List<Applicant>? dataList = snapshot.data;
 
-              return DefaultTabController(
-                length: statuses.length,
-                child: Scaffold(
-                  appBar: PreferredSize(
-                    preferredSize:
-                        Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
-                    child: AppBar(
-                      elevation: 0,
-                      backgroundColor: Colors.white,
-                      bottom: TabBar(
-                        key: const ValueKey("ccTab2"),
-                        labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                        labelColor: Colors.black,
-                        isScrollable: true,
-                        unselectedLabelColor: Colors.black,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        splashBorderRadius: BorderRadius.circular(8),
-                        indicatorWeight: 7.h,
-                        indicatorPadding:
-                            EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
-                        indicator: BoxDecoration(
-                          color: Constants.borderColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Constants.borderColor),
+              // Define a flag to track if any item meets the condition
+              bool anyItemMeetsCondition = false;
+
+              for (Applicant item in dataList!) {
+                if (item.status_code!.contains("IB")) {
+                  // If the condition is met for any item, set the flag to true and break the loop
+                  anyItemMeetsCondition = true;
+                  break;
+                }
+              }
+
+              if (anyItemMeetsCondition) {
+                final data = snapshot.data!;
+                final statuses = getStatuses(data); // Get the statuses here
+
+                return DefaultTabController(
+                  length: statuses.length,
+                  child: Scaffold(
+                    appBar: PreferredSize(
+                      preferredSize:
+                          Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                      child: AppBar(
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        bottom: TabBar(
+                          key: const ValueKey("ccTab2"),
+                          labelPadding:
+                              const EdgeInsets.only(left: 5, right: 5),
+                          labelColor: Colors.black,
+                          isScrollable: true,
+                          unselectedLabelColor: Colors.black,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          splashBorderRadius: BorderRadius.circular(8),
+                          indicatorWeight: 7.h,
+                          indicatorPadding: EdgeInsets.only(
+                              bottom: 8.h, left: 3.w, right: 3.w),
+                          indicator: BoxDecoration(
+                            color: Constants.borderColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Constants.borderColor),
+                          ),
+                          tabs: statuses
+                              .map(
+                                (status) => customTab(
+                                  status, // Show status in the top-level tab bar
+                                ),
+                              )
+                              .toList(),
                         ),
-                        tabs: statuses
-                            .map(
-                              (status) => customTab(
-                                status, // Show status in the top-level tab bar
-                              ),
-                            )
-                            .toList(),
                       ),
                     ),
-                  ),
-                  body: TabBarView(
-                    key: const ValueKey("ccTabView2"),
-                    children: statuses.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final status = entry.value;
-                      // Filter applicants based on the current status
-                      final applicants = data
-                          .where((applicant) =>
-                              applicant.status.toString() == status)
-                          .toList();
+                    body: TabBarView(
+                      key: const ValueKey("ccTabView2"),
+                      children: statuses.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final status = entry.value;
+                        // Filter applicants based on the current status
+                        final applicants = data
+                            .where((applicant) =>
+                                applicant.status.toString() == status)
+                            .toList();
 
-                      // Check if sub_status is null or not
-                      if (status == 'New' ||
-                          status == "Reject" ||
-                          status == "Select") {
-                        // Display applicants directly without sub_status tabs
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: applicants.length,
-                          itemBuilder: (context, index) {
-                            final applicant = applicants[index];
-                            return listViewItem_new(
-                              context,
-                              applicant,
-                              true,
-                              statuses,
-                              profilemodel.id != null
-                                  ? profilemodel.id!.toInt()
-                                  : 467,
-                              index,
-                            );
-                          },
-                        );
-                      } else if (status == "In-Process") {
-                        List<String> companyTab = applicants
-                            .where(
-                                (applicant) => applicant.status_code == "IB5")
-                            .map((applicant) => applicant.short_name.toString())
-                            .toSet()
-                            .toList()
-                          ..sort();
-                        customTabController = TabController(
-                            length: companyTab.length, vsync: this);
-                        //TODO: Add custom tab controller
-                        return DefaultTabController(
-                          length: companyTab.length,
-                          child: Scaffold(
-                            appBar: PreferredSize(
-                              preferredSize: const Size(
-                                  double.maxFinite, kTextTabBarHeight),
-                              child: AppBar(
-                                backgroundColor: Colors.white,
-                                bottom: TabBar(
-                                  controller: customTabController,
-                                  key: const ValueKey("ccTab3"),
-                                  isScrollable: true,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  unselectedLabelStyle: GoogleFonts.varela(),
-                                  labelStyle: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w600),
-                                  unselectedLabelColor: Colors.black,
-                                  labelColor: Constants.subtitleclr,
-                                  indicatorPadding: EdgeInsets.only(
-                                      bottom: 8.h, left: 3.w, right: 3.w),
-                                  indicator: isSelect
-                                      ? BoxDecoration(
-                                          color: Constants.borderColor,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                              color: Constants.borderColor))
-                                      : null,
-                                  indicatorColor: Constants.borderColor,
-                                  tabs: companyTab
-                                      .map((companyName) =>
-                                          Tab(text: companyName))
-                                      .toList(),
+                        // Check if sub_status is null or not
+                        if (status == "Reject") {
+                          // Display applicants directly without sub_status tabs
+                          return ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: applicants.length,
+                            itemBuilder: (context, index) {
+                              final applicant = applicants[index];
+                              return listViewItem_new(
+                                context,
+                                applicant,
+                                true,
+                                statuses,
+                                profilemodel.id != null
+                                    ? profilemodel.id!.toInt()
+                                    : 467,
+                                index,
+                              );
+                            },
+                          );
+                        } else if (status == "In-Process") {
+                          List<String> companyTab = applicants
+                              .where(
+                                  (applicant) => applicant.status_code == "IB5")
+                              .map((applicant) =>
+                                  applicant.short_name.toString())
+                              .toSet()
+                              .toList()
+                            ..sort();
+                          customTabController = TabController(
+                              length: companyTab.length, vsync: this);
+                          //TODO: Add custom tab controller
+                          return DefaultTabController(
+                            length: companyTab.length,
+                            child: Scaffold(
+                              appBar: PreferredSize(
+                                preferredSize: const Size(
+                                    double.maxFinite, kTextTabBarHeight),
+                                child: AppBar(
+                                  backgroundColor: Colors.white,
+                                  bottom: TabBar(
+                                    controller: customTabController,
+                                    key: const ValueKey("ccTab3"),
+                                    isScrollable: true,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                    unselectedLabelStyle: GoogleFonts.varela(),
+                                    labelStyle: GoogleFonts.varela(
+                                        fontWeight: FontWeight.w600),
+                                    unselectedLabelColor: Colors.black,
+                                    labelColor: Constants.subtitleclr,
+                                    indicatorPadding: EdgeInsets.only(
+                                        bottom: 8.h, left: 3.w, right: 3.w),
+                                    indicator: isSelect
+                                        ? BoxDecoration(
+                                            color: Constants.borderColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            border: Border.all(
+                                                color: Constants.borderColor))
+                                        : null,
+                                    indicatorColor: Constants.borderColor,
+                                    tabs: companyTab
+                                        .map((companyName) =>
+                                            Tab(text: companyName))
+                                        .toList(),
+                                  ),
                                 ),
                               ),
-                            ),
-                            body: PageStorage(
-                              bucket: PageStorageBucket(),
-                              key: PageStorageKey<String>(status),
-                              child: TabBarView(
+                              body: TabBarView(
                                 controller: customTabController,
                                 key: const ValueKey("ccTabView3"),
                                 children: companyTab.asMap().entries.map((e) {
@@ -440,57 +459,179 @@ class _InterViewBayState extends State<InterViewBay>
                                               e.value)
                                       .toList();
 
-                                  return Column(
-                                    children: [
-                                      PageStorage(
-                                        bucket:
-                                            PageStorageBucket(), // Add this line
-                                        key: const PageStorageKey<String>(
-                                            "sskk"),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredApplicants.length,
-                                          itemBuilder: (context, index) {
-                                            final applicant =
-                                                filteredApplicants[index];
+                                  return ListView.builder(
+                                    // scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: filteredApplicants.length,
+                                    itemBuilder: (context, index) {
+                                      final applicant =
+                                          filteredApplicants[index];
 
-                                            return InkWell(
-                                              onTap: () {
-                                                // Handle tap on the parent widget (outside the Row)
-                                                FocusManager
-                                                    .instance.primaryFocus
-                                                    ?.unfocus(); // Unfocus the keyboard
-                                                if (isSearchVisible) {
-                                                  setState(() {
-                                                    isSearchVisible = false;
-                                                    _animationController
-                                                        .reverse(); // Reverse the animation
-                                                    _searchFocusNode
-                                                        .unfocus(); // Clear focus when it becomes invisible
-                                                  });
-                                                }
-                                              },
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
-                                                  listViewItem_new(
-                                                    context,
-                                                    applicant,
-                                                    true,
-                                                    statuses,
-                                                    profilemodel.id != null
-                                                        ? profilemodel.id!
-                                                            .toInt()
-                                                        : 467,
-                                                    index,
-                                                  ),
-                                                ],
+                                      return InkWell(
+                                        onTap: () {
+                                          // Handle tap on the parent widget (outside the Row)
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus(); // Unfocus the keyboard
+                                          if (isSearchVisible) {
+                                            setState(() {
+                                              isSearchVisible = false;
+                                              _animationController
+                                                  .reverse(); // Reverse the animation
+                                              _searchFocusNode
+                                                  .unfocus(); // Clear focus when it becomes invisible
+                                            });
+                                          }
+                                        },
+                                        child: SingleChildScrollView(
+                                          // scrollDirection: Axis.vertical,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              listViewItem_new(
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                index,
                                               ),
-                                            );
-                                          },
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const Spacer(),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        }
+
+                        //TODO: Substatus as per company in select tab
+
+                        else if (status == "New") {
+                          List<String> companyTab = applicants
+                              .map((applicant) =>
+                                  applicant.short_name.toString())
+                              .toSet()
+                              .toList()
+                            ..sort();
+                          customTabController = TabController(
+                              length: companyTab.length, vsync: this);
+                          //TODO: Add custom tab controller
+                          return DefaultTabController(
+                            length: companyTab.length,
+                            child: Scaffold(
+                              appBar: PreferredSize(
+                                preferredSize: const Size(
+                                    double.maxFinite, kTextTabBarHeight),
+                                child: AppBar(
+                                  backgroundColor: Colors.white,
+                                  bottom: TabBar(
+                                    controller: customTabController,
+                                    key: const ValueKey("ccTab3"),
+                                    isScrollable: true,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                    unselectedLabelStyle: GoogleFonts.varela(),
+                                    labelStyle: GoogleFonts.varela(
+                                        fontWeight: FontWeight.w600),
+                                    unselectedLabelColor: Colors.black,
+                                    labelColor: Constants.subtitleclr,
+                                    indicatorPadding: EdgeInsets.only(
+                                        bottom: 8.h, left: 3.w, right: 3.w),
+                                    indicator: isSelect
+                                        ? BoxDecoration(
+                                            color: Constants.borderColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            border: Border.all(
+                                                color: Constants.borderColor))
+                                        : null,
+                                    indicatorColor: Constants.borderColor,
+                                    tabs: companyTab
+                                        .map((companyName) =>
+                                            Tab(text: companyName))
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                              body: PageStorage(
+                                bucket: PageStorageBucket(),
+                                key: PageStorageKey<String>(status),
+                                child: TabBarView(
+                                  controller: customTabController,
+                                  key: const ValueKey("ccTabView3"),
+                                  children: companyTab.asMap().entries.map((e) {
+                                    final index = e.key;
+                                    final status = e.value;
+                                    // Filter applicants based on the current company name and status
+                                    final filteredApplicants = applicants
+                                        .where((applicant) =>
+                                                applicant.short_name
+                                                    .toString() ==
+                                                e.value /* &&   //Before 02-09-2023 if want previous then 
+                                              applicant.sub_code == "IB7-5"  */
+                                            )
+                                        .toList();
+
+                                    return Column(
+                                      children: [
+                                        PageStorage(
+                                          bucket:
+                                              PageStorageBucket(), // Add this line
+                                          key: const PageStorageKey<String>(
+                                              "sskk"),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount:
+                                                filteredApplicants.length,
+                                            itemBuilder: (context, index) {
+                                              final applicant =
+                                                  filteredApplicants[index];
+
+                                              return InkWell(
+                                                onTap: () {
+                                                  // Handle tap on the parent widget (outside the Row)
+                                                  FocusManager
+                                                      .instance.primaryFocus
+                                                      ?.unfocus(); // Unfocus the keyboard
+                                                  if (isSearchVisible) {
+                                                    setState(() {
+                                                      isSearchVisible = false;
+                                                      _animationController
+                                                          .reverse(); // Reverse the animation
+                                                      _searchFocusNode
+                                                          .unfocus(); // Clear focus when it becomes invisible
+                                                    });
+                                                  }
+                                                },
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      listViewItem_new(
+                                                        context,
+                                                        applicant,
+                                                        true,
+                                                        statuses,
+                                                        profilemodel.id != null
+                                                            ? profilemodel.id!
+                                                                .toInt()
+                                                            : 467,
+                                                        index,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        //TODO: filter button at the bottom
+                                        /*  const Spacer(),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -570,238 +711,243 @@ class _InterViewBayState extends State<InterViewBay>
                                             ),
                                           ),
                                         ],
-                                      )
-                                    ],
-                                  );
-                                }).toList(),
+                                      ) */
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      } else {
-                        // Proceed with sub_status tabs for other statuses
-                        final subStatuses = applicants
-                            .map(
-                                (applicant) => applicant.sub_status?.toString())
-                            .where((subStatus) => subStatus != null)
-                            .toSet()
-                            .toList()
-                          ..sort();
+                          );
+                        } else {
+                          // Proceed with sub_status tabs for other statuses
+                          final subStatuses = applicants
+                              .map((applicant) =>
+                                  applicant.sub_status?.toString())
+                              .where((subStatus) => subStatus != null)
+                              .toSet()
+                              .toList()
+                            ..sort();
 
-                        // Second tab bar needed for subStatuses
+                          // Second tab bar needed for subStatuses
 
-                        return DefaultTabController(
-                          length: subStatuses.length,
-                          child: Scaffold(
-                            appBar: PreferredSize(
-                              preferredSize: const Size(
-                                  double.maxFinite, kTextTabBarHeight),
-                              child: AppBar(
-                                //elevation: 0,
-                                backgroundColor: Colors.white,
-                                bottom: TabBar(
-                                  key: const ValueKey("ccTab3"),
-                                  isScrollable: true,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  //indicatorWeight: 2.0,
-                                  unselectedLabelStyle: GoogleFonts.varela(),
-                                  labelStyle: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w600),
-                                  unselectedLabelColor: Colors.black,
-                                  labelColor: Constants.subtitleclr,
-                                  indicatorPadding: EdgeInsets.only(
-                                      bottom: 8.h, left: 3.w, right: 3.w),
-                                  indicator: isSelect
-                                      ? BoxDecoration(
-                                          color: Constants.borderColor,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                              color: Constants
-                                                  .borderColor) // Creates border
-                                          )
-                                      : null,
-                                  indicatorColor: Constants.borderColor,
-                                  /*  onTap: (value) {
+                          return DefaultTabController(
+                            length: subStatuses.length,
+                            child: Scaffold(
+                              appBar: PreferredSize(
+                                preferredSize: const Size(
+                                    double.maxFinite, kTextTabBarHeight),
+                                child: AppBar(
+                                  //elevation: 0,
+                                  backgroundColor: Colors.white,
+                                  bottom: TabBar(
+                                    key: const ValueKey("ccTab3"),
+                                    isScrollable: true,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                    //indicatorWeight: 2.0,
+                                    unselectedLabelStyle: GoogleFonts.varela(),
+                                    labelStyle: GoogleFonts.varela(
+                                        fontWeight: FontWeight.w600),
+                                    unselectedLabelColor: Colors.black,
+                                    labelColor: Constants.subtitleclr,
+                                    indicatorPadding: EdgeInsets.only(
+                                        bottom: 8.h, left: 3.w, right: 3.w),
+                                    indicator: isSelect
+                                        ? BoxDecoration(
+                                            color: Constants.borderColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            border: Border.all(
+                                                color: Constants
+                                                    .borderColor) // Creates border
+                                            )
+                                        : null,
+                                    indicatorColor: Constants.borderColor,
+                                    /*  onTap: (value) {
                                   setState(() {
                                     isSelect = !isSelect;
                                   });
                                 }, */
-                                  tabs: subStatuses
-                                      .map((subStatus) => Tab(text: subStatus!))
-                                      .toList(),
+                                    tabs: subStatuses
+                                        .map((subStatus) =>
+                                            Tab(text: subStatus!))
+                                        .toList(),
+                                  ),
                                 ),
                               ),
-                            ),
-                            body: TabBarView(
-                              key: const ValueKey("ccTabView3"),
-                              children:
-                                  subStatuses.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final status = entry.value;
-                                // Filter applicants based on the current status and sub_status
-                                final filteredApplicants = applicants
-                                    .where((applicant) =>
-                                        applicant.sub_status.toString() ==
-                                        entry.value)
-                                    .toList();
+                              body: TabBarView(
+                                key: const ValueKey("ccTabView3"),
+                                children:
+                                    subStatuses.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final status = entry.value;
+                                  // Filter applicants based on the current status and sub_status
+                                  final filteredApplicants = applicants
+                                      .where((applicant) =>
+                                          applicant.sub_status.toString() ==
+                                          entry.value)
+                                      .toList();
 
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: filteredApplicants.length,
-                                  itemBuilder: (context, index) {
-                                    final applicant = filteredApplicants[index];
+                                  return ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: filteredApplicants.length,
+                                    itemBuilder: (context, index) {
+                                      final applicant =
+                                          filteredApplicants[index];
 
-                                    return InkWell(
-                                      onTap: () {
-                                        // Handle tap on the parent widget (outside the Row)
-                                        FocusManager.instance.primaryFocus
-                                            ?.unfocus(); // Unfocus the keyboard
-                                        if (isSearchVisible) {
-                                          setState(() {
-                                            isSearchVisible = false;
-                                            _animationController
-                                                .reverse(); // Reverse the animation
-                                            _searchFocusNode
-                                                .unfocus(); // Clear focus when it becomes invisible
-                                          });
-                                        }
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          listViewItem_new(
-                                            context,
-                                            applicant,
-                                            true,
-                                            statuses,
-                                            profilemodel.id != null
-                                                ? profilemodel.id!.toInt()
-                                                : 467,
-                                            index,
-                                          ),
-                                          /*  GestureDetector(
-                                            onTap: () {
-                                              // Handle tap on the parent widget (outside the Row)
-                                              if (isSearchVisible) {
-                                                setState(() {
-                                                  isSearchVisible = false;
-                                                  _animationController
-                                                      .reverse(); // Reverse the animation
-                                                  _searchFocusNode
-                                                      .unfocus(); // Clear focus when it becomes invisible
-                                                });
-                                              }
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Expanded(
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      // Handle tap inside the search container (Expanded)
-                                                      _searchFocusNode
-                                                          .requestFocus();
-                                                      /*  if (!isSearchVisible) {
-                                                        setState(() {
-                                                          isSearchVisible =
-                                                              true;
-                                                          _animationController
-                                                              .forward(); // Start the animation
-                                                          _searchFocusNode
-                                                              .requestFocus(); // Request focus on the search field when it becomes visible
-                                                        });
-                                                      } */
-                                                    },
-                                                    child: AnimatedOpacity(
-                                                      duration: const Duration(
-                                                          milliseconds: 500),
-                                                      opacity: isSearchVisible
-                                                          ? 1.0
-                                                          : 0.0, // Fade in/out the search container
-                                                      child: SlideTransition(
-                                                        position: Tween<Offset>(
-                                                          begin: const Offset(
-                                                              -1,
-                                                              0), // Start from the left side of the screen
-                                                          end: const Offset(0,
-                                                              0), // Slide to the center of the screen
-                                                        ).animate(
-                                                            CurvedAnimation(
-                                                          parent:
-                                                              _animationController, // Use the same animation controller from your code
-                                                          curve: Curves
-                                                              .easeInOut, // Set the desired animation curve
-                                                        )),
-                                                        child: Container(
-                                                          height: 50.h,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8,
-                                                                  right: 12,
-                                                                  top: 10),
-                                                          child: TextField(
-                                                            focusNode:
-                                                                _searchFocusNode,
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                            ),
-                                                            decoration:
-                                                                InputDecoration(
-                                                              fillColor:
-                                                                  Colors.white,
-                                                              focusedBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    const BorderSide(),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10),
+                                      return InkWell(
+                                        onTap: () {
+                                          // Handle tap on the parent widget (outside the Row)
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus(); // Unfocus the keyboard
+                                          if (isSearchVisible) {
+                                            setState(() {
+                                              isSearchVisible = false;
+                                              _animationController
+                                                  .reverse(); // Reverse the animation
+                                              _searchFocusNode
+                                                  .unfocus(); // Clear focus when it becomes invisible
+                                            });
+                                          }
+                                        },
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              listViewItem_new(
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                index,
+                                              ),
+                                              /*  GestureDetector(
+                                              onTap: () {
+                                                // Handle tap on the parent widget (outside the Row)
+                                                if (isSearchVisible) {
+                                                  setState(() {
+                                                    isSearchVisible = false;
+                                                    _animationController
+                                                        .reverse(); // Reverse the animation
+                                                    _searchFocusNode
+                                                        .unfocus(); // Clear focus when it becomes invisible
+                                                  });
+                                                }
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Expanded(
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        // Handle tap inside the search container (Expanded)
+                                                        _searchFocusNode
+                                                            .requestFocus();
+                                                        /*  if (!isSearchVisible) {
+                                                          setState(() {
+                                                            isSearchVisible =
+                                                                true;
+                                                            _animationController
+                                                                .forward(); // Start the animation
+                                                            _searchFocusNode
+                                                                .requestFocus(); // Request focus on the search field when it becomes visible
+                                                          });
+                                                        } */
+                                                      },
+                                                      child: AnimatedOpacity(
+                                                        duration: const Duration(
+                                                            milliseconds: 500),
+                                                        opacity: isSearchVisible
+                                                            ? 1.0
+                                                            : 0.0, // Fade in/out the search container
+                                                        child: SlideTransition(
+                                                          position: Tween<Offset>(
+                                                            begin: const Offset(
+                                                                -1,
+                                                                0), // Start from the left side of the screen
+                                                            end: const Offset(0,
+                                                                0), // Slide to the center of the screen
+                                                          ).animate(
+                                                              CurvedAnimation(
+                                                            parent:
+                                                                _animationController, // Use the same animation controller from your code
+                                                            curve: Curves
+                                                                .easeInOut, // Set the desired animation curve
+                                                          )),
+                                                          child: Container(
+                                                            height: 50.h,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 8,
+                                                                    right: 12,
+                                                                    top: 10),
+                                                            child: TextField(
+                                                              focusNode:
+                                                                  _searchFocusNode,
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                color:
+                                                                    Colors.black,
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
                                                               ),
-                                                              filled: true,
-                                                              contentPadding:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                bottom: 10,
-                                                                left: 5,
-                                                                top: 10,
-                                                              ),
-                                                              border:
-                                                                  OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10),
-                                                              ),
-                                                              hintText: "Rahul",
-                                                              suffixIcon:
-                                                                  GestureDetector(
-                                                                onTap: () {
-                                                                  // Handle tap on the search icon inside the search container
-                                                                  setState(() {
-                                                                    isSearchVisible =
-                                                                        false;
-                                                                    _animationController
-                                                                        .reverse(); // Reverse the animation
-                                                                    _searchFocusNode
-                                                                        .requestFocus(); // Clear focus on the search field when it becomes invisible
-                                                                  });
-                                                                },
-                                                                child:
-                                                                    const Icon(
-                                                                  Icons.search,
-                                                                  size: 24,
-                                                                  color: Colors
-                                                                      .black,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                fillColor:
+                                                                    Colors.white,
+                                                                focusedBorder:
+                                                                    OutlineInputBorder(
+                                                                  borderSide:
+                                                                      const BorderSide(),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                ),
+                                                                filled: true,
+                                                                contentPadding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                  bottom: 10,
+                                                                  left: 5,
+                                                                  top: 10,
+                                                                ),
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                ),
+                                                                hintText: "Rahul",
+                                                                suffixIcon:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    // Handle tap on the search icon inside the search container
+                                                                    setState(() {
+                                                                      isSearchVisible =
+                                                                          false;
+                                                                      _animationController
+                                                                          .reverse(); // Reverse the animation
+                                                                      _searchFocusNode
+                                                                          .requestFocus(); // Clear focus on the search field when it becomes invisible
+                                                                    });
+                                                                  },
+                                                                  child:
+                                                                      const Icon(
+                                                                    Icons.search,
+                                                                    size: 24,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
@@ -810,54 +956,59 @@ class _InterViewBayState extends State<InterViewBay>
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    // Handle tap on the search icon outside the search container
-                                                    if (!isSearchVisible) {
-                                                      setState(() {
-                                                        isSearchVisible = true;
-                                                        _animationController
-                                                            .forward(); // Start the animation
-                                                        _searchFocusNode
-                                                            .requestFocus(); // Request focus on the search field when it becomes visible
-                                                      });
-                                                    }
-                                                  },
-                                                  child: Visibility(
-                                                    visible: !isSearchVisible,
-                                                    child: const Padding(
-                                                      padding: EdgeInsets.only(
-                                                          right: 20, top: 10),
-                                                      child: Icon(
-                                                        Icons.search,
-                                                        size: 24,
-                                                        color: Colors.black,
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      // Handle tap on the search icon outside the search container
+                                                      if (!isSearchVisible) {
+                                                        setState(() {
+                                                          isSearchVisible = true;
+                                                          _animationController
+                                                              .forward(); // Start the animation
+                                                          _searchFocusNode
+                                                              .requestFocus(); // Request focus on the search field when it becomes visible
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Visibility(
+                                                      visible: !isSearchVisible,
+                                                      child: const Padding(
+                                                        padding: EdgeInsets.only(
+                                                            right: 20, top: 10),
+                                                        child: Icon(
+                                                          Icons.search,
+                                                          size: 24,
+                                                          color: Colors.black,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ) */
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              }).toList(),
+                                                ],
+                                              ),
+                                            ) */
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                      return const SizedBox();
-                    }).toList(),
+                          );
+                        }
+                      }).toList(),
+                    ),
                   ),
-                ),
-              );
+                );
+              } else {
+                // Display a "no data" message
+                return const Center(
+                  child: Text("No data to display."),
+                );
+              }
             }
             return const Center(
-              child: Text("No Data"),
+              child: Text("No Data to display."),
             );
           },
         ),
@@ -980,10 +1131,15 @@ class _InterViewBayState extends State<InterViewBay>
   }
 
   TextEditingController showrejectTextFileld = TextEditingController();
+  TextEditingController remarkfordropandNotJoin = TextEditingController();
+
   Map<int, bool> selectedJobs = {};
+  Map<int, bool> selectedDropOut = {};
+  Map<int, bool> selectedWalkOut = {};
+  Map<int, bool> selectedoption = {};
 
   Future<InterviewResult>? interviewResultFuture;
-  List<String> interviewRounds = []; // Initialize as an empty list
+  // Initialize as an empty list
 
   Future<InterviewResult> fetchDataAndUpdateDropdown(
       int jobId, int leadId) async {
@@ -994,26 +1150,135 @@ class _InterViewBayState extends State<InterViewBay>
 
   String selectedInterviewRound = 'Select';
 
-  bool switchValue = true;
+  bool switchValue = false;
+
+  Map<int, bool> jobToggleStates = {};
+
+  List<JobItem> jobs = [];
+
+  bool submited = false,
+      under = false,
+      notSubmited = false,
+      shedule = false,
+      pending = false,
+      done = false;
+
+  bool Drop = false, notJoin = false;
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
       List<String> status, int id, int index) {
+    // spocController.text =
+    // "${userRole.runtimeType} ${userModel.lastName} -  ${userModel.role}";
+
+    List<String> finalinterviewRounds = item.inteviewrounds!
+        .map((round) =>
+            round.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''))
+        .expand((formattedRound) => formattedRound.split(', '))
+        .toList();
+
+    /* String? getInitialValue() {
+      if (selectedRoundsMap[item.id] != null &&
+          selectedRoundsMap[item.id]!.isNotEmpty &&
+          finalinterviewRounds.contains(selectedRoundsMap[item.id]!)) {
+        return selectedRoundsMap[item.id]!;
+      } else if (finalinterviewRounds.isNotEmpty) {
+        return finalinterviewRounds[0];
+      } else {
+        return null;
+      }
+    } */
+
     final isSelected = selectedJobs[item.id] ?? false;
+    final isDrop = selectedDropOut[item.id] ?? false;
+    final isWalk = selectedWalkOut[item.id] ?? false;
+    final isDropOut = selectedoption[item.id] ?? false;
+
+    DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
+    DateTime today = DateTime.now();
+    DateTime? doj;
+    if (item.doj != null) {
+      doj = DateTime(item.doj!.year, item.doj!.month, item.doj!.day);
+    }
+    DateTime today1 = DateTime(today.year, today.month, today.day);
+
+    bool isToday = doj != null && doj.isAtSameMomentAs(today1);
+
+    DateTime yesterday = today1.subtract(const Duration(days: 1));
+    bool isYesterday = doj != null && doj.isAtSameMomentAs(yesterday);
+
+    DateTime initialDate = DateTime.now();
+    DateTime lastAllowedDate = DateTime.now().add(const Duration(days: 4 * 31));
+    DateTime? singleSelect;
+
+    // Replace with your stored date
+    const Duration threshold = Duration(days: 6); // 6 days threshold
+
+    bool isWithinThreshold(DateTime currentDate) {
+      return doj != null
+          ? currentDate.isAfter(doj.subtract(threshold)) &&
+              currentDate.isBefore(doj)
+          : false;
+    }
+
+    bool isDateWithinThreshold = isWithinThreshold(today1);
+
+    Future<void> singleSelectPicker() async {
+      final DateTime? picked = await showDialog<DateTime>(
+        context: context,
+        builder: (BuildContext context) {
+          return AwesomeCalendarDialog(
+            initialDate: initialDate,
+            startDate: initialDate,
+            endDate: lastAllowedDate,
+            selectionMode: SelectionMode.single,
+            cancelBtnText: "",
+            confirmBtnText: "Submit",
+          );
+        },
+      );
+      if (picked != null) {
+        setState(() {
+          singleSelect = picked;
+        });
+        print(picked);
+        ChangeStatusModel changeStatusModel = ChangeStatusModel(
+          status: "IB7",
+          subStatus: "Confirmation Pending",
+          doj: picked,
+          id: item.id,
+          sourceId: item.sourceId,
+        );
+        Map<String, dynamic> jsonData = changeStatusModel.toJson();
+        try {
+          JobPostApiService.changeStatus(jsonData, item.id!.toInt());
+          setState(() {});
+          // First pop to close the dialog
+        } catch (e) {
+          print('Error: $e');
+          // Handle error...
+        }
+      }
+    }
+
     // List<String>? myStrings;
     //  bool stopIteration = false;
-
+    /*  int jobId =
+        item.id!.toInt(); // Replace with the actual ID or unique identifier
+    if (!jobToggleStates.containsKey(jobId)) {
+      jobToggleStates[jobId] = true; // Initialize the toggle state for this job
+    } */
     return Stack(
       children: [
         InkWell(
           onTap: () {
             if (item.status != "Application") {
-              Navigator.push(
+              /* Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => TalentPoolDetail(
                             applicant: item,
                             Status: status,
-                          )));
+                          ))); */
             } else {
               ChangeStatusModel changeStatusModel = ChangeStatusModel(
                   status: "TP2", sourceId: id, subStatus: "View");
@@ -1057,7 +1322,7 @@ class _InterViewBayState extends State<InterViewBay>
           child: SwipeTo(
             iconOnRightSwipe: Icons.call,
             iconOnLeftSwipe: Icons.sms_outlined,
-            onRightSwipe: item.alternateNo == 0
+            onRightSwipe: item.alternateNo == 0 || item.alternateNo == null
                 ? () async {
                     FlutterPhoneDirectCaller.callNumber("+91${item.contactNo}");
                   }
@@ -1065,15 +1330,17 @@ class _InterViewBayState extends State<InterViewBay>
                     showDialog(
                       context: context,
                       builder: (context) {
-                        return CustomAlertDialog(
-                          phoneNumber1: item.contactNo!.toInt(),
-                          phoneNumber2: item.alternateNo!.toInt(),
-                          isCall: true,
-                        );
+                        return item.alternateNo != null
+                            ? CustomAlertDialog(
+                                phoneNumber1: item.contactNo!.toInt(),
+                                phoneNumber2: item.alternateNo!.toInt(),
+                                isCall: true,
+                              )
+                            : const SizedBox();
                       },
                     );
                   },
-            onLeftSwipe: item.alternateNo == 0
+            onLeftSwipe: item.alternateNo == 0 || item.alternateNo == null
                 ? () async {
                     Uri url =
                         Uri.parse("whatsapp://send?phone=91${item.contactNo}");
@@ -1086,8 +1353,8 @@ class _InterViewBayState extends State<InterViewBay>
                       context: context,
                       builder: (context) {
                         return CustomAlertDialog(
-                          phoneNumber1: item.contactNo!.toInt(),
-                          phoneNumber2: item.alternateNo!.toInt(),
+                          phoneNumber1: int.parse(item.contactNo.toString()),
+                          phoneNumber2: int.parse(item.alternateNo.toString()),
                           isCall: false,
                         );
                       },
@@ -1130,76 +1397,355 @@ class _InterViewBayState extends State<InterViewBay>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  " (${calculateAge(item.dateOfBirth.toString())} yr's)",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.black54, fontSize: 12.sp),
-                                )
+                                if (item.status_code != "IB7" &&
+                                    item.dateOfBirth != null)
+                                  Text(
+                                    " (${calculateAge(item.dateOfBirth.toString())} yr's)",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.black54, fontSize: 12.sp),
+                                  )
                               ],
                             ),
-                            Row(
-                              children: [
-                                item.qualification == null
-                                    ? Row(
-                                        children: [
-                                          Image.asset(
-                                            "assets/images/bag.png",
-                                            height: 12.h,
-                                            //  color: Constants.subtitleclr,
-                                          ),
-                                          const SizedBox(
-                                            width: 4,
-                                          ),
-                                          Text(
-                                            item.isExperienced.toString(),
-                                            style: GoogleFonts.varela(
-                                              color: Colors.black54,
-                                              // fontWeight: FontWeight.bold,
+                            if (item.status_code != "IB7" &&
+                                item.status_code != "IB5" &&
+                                item.status_code != "IB4")
+                              Row(
+                                children: [
+                                  item.qualification == null
+                                      ? Row(
+                                          children: [
+                                            Image.asset(
+                                              "assets/images/bag.png",
+                                              height: 12.h,
+                                              //  color: Constants.subtitleclr,
                                             ),
-                                          ),
-                                        ],
-                                      )
-                                    : Row(
-                                        children: [
-                                          Image.asset(
-                                            "assets/images/graduate.png",
-                                            height: 15.h,
-                                            //  color: Constants.subtitleclr,
-                                          ),
-                                          const SizedBox(
-                                            width: 2,
-                                          ),
-                                          Text(
-                                            "${item.qualification.toString()}  |  ",
-                                            style: GoogleFonts.varela(
-                                              color: Colors.black54,
-                                              // fontWeight: FontWeight.bold,
+                                            const SizedBox(
+                                              width: 4,
                                             ),
-                                          ),
-                                          Image.asset(
-                                            "assets/images/bag.png",
-                                            height: 12.h,
-                                            //  color: Constants.subtitleclr,
-                                          ),
-                                          const SizedBox(
-                                            width: 2,
-                                          ),
-                                          Text(
-                                            " ${item.isExperienced}",
-                                            style: GoogleFonts.varela(
-                                              color: Colors.black54,
-                                              // fontWeight: FontWeight.bold,
+                                            Text(
+                                              item.isExperienced.toString(),
+                                              style: GoogleFonts.varela(
+                                                color: Colors.black54,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      )
-                              ],
-                            ),
+                                          ],
+                                        )
+                                      : Row(
+                                          children: [
+                                            Image.asset(
+                                              "assets/images/graduate.png",
+                                              height: 15.h,
+                                              //  color: Constants.subtitleclr,
+                                            ),
+                                            const SizedBox(
+                                              width: 2,
+                                            ),
+                                            Text(
+                                              "${item.qualification.toString()}  |  ",
+                                              style: GoogleFonts.varela(
+                                                color: Colors.black54,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Image.asset(
+                                              "assets/images/bag.png",
+                                              height: 12.h,
+                                              //  color: Constants.subtitleclr,
+                                            ),
+                                            const SizedBox(
+                                              width: 2,
+                                            ),
+                                            Text(
+                                              " ${item.isExperienced}",
+                                              style: GoogleFonts.varela(
+                                                color: Colors.black54,
+                                                // fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                ],
+                              ),
+                            if (item.status_code == "IB7" ||
+                                item.status_code == "IB5" ||
+                                item.status_code == "IB4")
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                    // color: Constants.borderColor,
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      item.role_code != null &&
+                                              item.role_code != ""
+                                          ? "${item.process} - ${item.role_code}"
+                                          : "${item.process} - ${item.leadLevel}",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black54,
+                                        // fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ],
                     ),
-                    if (item.status != "Application")
+                    if ((item.status_code != "IB7" &&
+                            item.status_code != "IB8" &&
+                            item.status_code != "IB5") &&
+                        !isDropOut)
+                      Wrap(
+                        children: [
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.end,
+                            children: List.generate(
+                              applicationList!
+                                  .where((option) =>
+                                      option.code!.contains('IB8:3'))
+                                  .length,
+                              (index) {
+                                final option = applicationList!
+                                    .where((option) =>
+                                        option.code!.contains('IB8:3'))
+                                    .toList()[index];
+                                return InkWell(
+                                  onTap: option.code != "IB8:3"
+                                      ? () {
+                                          /*  ChangeStatusModel changeStatusModel =
+                                              ChangeStatusModel(
+                                                  status:
+                                                      option.sub_value.toString(),
+                                                  sourceId: item.sourceId,
+                                                  subStatus: option.value,
+                                                  interview_rounds:
+                                                      item.inteviewrounds!.first);
+                                          Map<String, dynamic> jsonData =
+                                              changeStatusModel.toJson();
+                                          try {
+                                            JobPostApiService.changeStatus(
+                                                jsonData, item.id!.toInt());
+                                            setState(() {});
+                                          } catch (e) {
+                                            print('Error: $e');
+                                            // Handle error...
+                                          } */
+                                        }
+                                      : () {
+                                          setState(() {
+                                            selectedoption[item.id!.toInt()] =
+                                                !isSelected;
+                                          });
+                                        },
+                                  child: Wrap(
+                                    children: [
+                                      //  if (option.code != "IB8:1")
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 6, right: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          color: Colors.grey.shade100,
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        child: Text(
+                                          option.code != "IB5:2"
+                                              ? option.value.toString()
+                                              : "F2F Interview",
+                                          style: GoogleFonts.varela(
+                                              color: Colors.blue),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return CustomDialogueForNew(
+                                    title: 'Interview bay',
+                                    company_name: item.companyName.toString(),
+                                    nature_of_work:
+                                        item.natureOfWork.toString(),
+                                    process: item.process.toString(),
+                                    role: item.leadLevel.toString(),
+                                    companyId: item.short_list_for!.toInt(),
+                                    item: item,
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 6, right: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                color: Colors.grey.shade100,
+                                border:
+                                    Border.all(color: Constants.borderColor),
+                              ),
+                              child: Text(
+                                "Shedule Interview",
+                                style: GoogleFonts.varela(color: Colors.blue),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    //TODO: Old DropDown code of dropout,virtual and onsite interview in New.
+                    /*  (item.status_code != "IB7" &&
+                                item.status_code != "IB8" &&
+                                item.status_code != "IB5") &&
+                            !isDropOut
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 6.h),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    value == "Drop-out"
+                                        ? setState(() {
+                                            selectedoption[item.id!.toInt()] =
+                                                !isSelected;
+                                          })
+                                        : setState(() {
+                                            String subValue = "0";
+                                            for (var app in applicationList!) {
+                                              if (app.value.toString() ==
+                                                      value &&
+                                                  app.sub_value != null) {
+                                                subValue =
+                                                    app.sub_value.toString();
+                                                break;
+                                              }
+                                            }
+
+                                            selectedValueMap[item.id!] =
+                                                SelectedOption(
+                                                    value, subValue.toString());
+                                            if (item.sub_code == "IB5:2" ||
+                                                item.sub_code == "IB5:1") {
+                                              updateSelectedRoundForJob(
+                                                  item.id!.toInt(),
+                                                  item.inteviewrounds!.first
+                                                      .toString());
+                                            }
+
+                                            // Now you can use both value and subValue for further operations
+                                            ChangeStatusModel
+                                                changeStatusModel =
+                                                ChangeStatusModel(
+                                                    interview_rounds:
+                                                        item.sub_code ==
+                                                                    "IB5:2" ||
+                                                                item.sub_code ==
+                                                                    "IB5:1"
+                                                            ? item
+                                                                .inteviewrounds!
+                                                                .first
+                                                            : null,
+                                                    status: subValue.toString(),
+                                                    sourceId: item.sourceId,
+                                                    subStatus: value);
+                                            Map<String, dynamic> jsonData =
+                                                changeStatusModel.toJson();
+                                            try {
+                                              JobPostApiService.changeStatus(
+                                                  jsonData, item.id!.toInt());
+                                              setState(() {});
+                                            } catch (e) {
+                                              print('Error: $e');
+                                              // Handle error...
+                                            }
+                                            /*  Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: ((context) => CC(
+                                                          key: _talentPollKey,
+                                                        )))); */
+                                          });
+                                    // setState(() {});
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return applicationList!
+                                        .where((element) =>
+                                            element.code!.contains(":"))
+                                        .map((option) {
+                                      bool isOdd =
+                                          applicationList!.indexOf(option) %
+                                                  2 ==
+                                              1;
+                                      // Retrieve the corresponding sub_value from the option
+                                      String subValue = option.sub_value
+                                          .toString(); // Replace with the actual property name
+                                      // setState(() {});
+                                      return customMenuItem(option, isOdd);
+                                    }).toList();
+                                  },
+                                  child: Container(
+                                    // height: 32,
+                                    /*   margin: const EdgeInsets.only(
+                                              bottom: 10, top: 10), */
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        // color: Constants.subtitleclr,
+                                        border: Border.all(
+                                            color: Constants.borderColor)),
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          selectedValueMap[item.id!]
+                                                  ?.selectedValue ??
+                                              item.sub_status.toString(),
+                                          style: GoogleFonts.varela(
+                                            color: Colors.black,
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 13,
+                                          color: Colors.black,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  offset: const Offset(0, 32),
+                                  elevation: 16,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : const SizedBox(), */
+
+                    if ((item.status != "Application" &&
+                            item.status_code != "IB7") &&
+                        item.status_code != "IB5" &&
+                        item.status_code != "IB4")
                       Container(
                         decoration: BoxDecoration(
                             color: Constants.borderColor,
@@ -1216,7 +1762,8 @@ class _InterViewBayState extends State<InterViewBay>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (!item.status_code!.contains("IB5"))
+                                if (!item.status_code!.contains("IB5") &&
+                                    !item.status_code!.contains("IB7"))
                                   Container(
                                     margin: const EdgeInsets.only(bottom: 2),
                                     padding: const EdgeInsets.symmetric(
@@ -1234,42 +1781,84 @@ class _InterViewBayState extends State<InterViewBay>
                                       ),
                                     ),
                                   ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 1, horizontal: 4),
-                                  decoration: BoxDecoration(
-                                      color: Constants.borderColor,
-                                      borderRadius: BorderRadius.circular(8)),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        item.role_code != null &&
-                                                item.role_code != ""
-                                            ? "${item.process} - ${item.role_code}"
-                                            : "${item.process} - ${item.leadLevel}",
-                                        style: GoogleFonts.varela(
-                                          color: Colors.black54,
-                                          // fontWeight: FontWeight.bold,
+                                if (item.status_code != "IB7")
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 1, horizontal: 4),
+                                    decoration: BoxDecoration(
+                                        color: Constants.borderColor,
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          item.role_code != null &&
+                                                  item.role_code != ""
+                                              ? "${item.process} - ${item.role_code}"
+                                              : "${item.process} - ${item.leadLevel}",
+                                          style: GoogleFonts.varela(
+                                            color: Colors.black54,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                             const Spacer(),
                             Column(
-                              children: [
-                                // Declare selectedStatus as a class-level variable
-
-// ...
-                                item.status_code!.contains("IB5")
-                                    ? InkWell(
-                                        onTap: () {
-                                          item.sub_code == "IB5:1"
-                                              ? setState(() {
-                                                  {
+                              children: const [
+                                /* item.sub_code == "IB5:1"
+                                                ? */
+                                /* GestureDetector(
+                                          onTap: () {
+                                            item.sub_code == "IB5:1"
+                                                ? setState(() {
+                                                    {
+                                                      CustomToggleButton(
+                                                        isToggleOn: switchValue,
+                                                        onToggleChanged:
+                                                            (value) {
+                                                          setState(() {
+                                                            switchValue = value;
+                                                          });
+                                                        },
+                                                      );
+                                                      ChangeStatusModel
+                                                          changeStatusModel =
+                                                          ChangeStatusModel(
+                                                              status: item
+                                                                  .status_code,
+                                                              sourceId: id,
+                                                              subStatus:
+                                                                  "Virtual Interview");
+                                                      Map<String, dynamic>
+                                                          jsonData =
+                                                          changeStatusModel
+                                                              .toJson();
+                                                      try {
+                                                        JobPostApiService
+                                                            .changeStatus(
+                                                                jsonData,
+                                                                item.id!
+                                                                    .toInt());
+                                                        setState(() {});
+                                                      } catch (e) {
+                                                        print('Error: $e');
+                                                        // Handle error...
+                                                      }
+                                                    }
+                                                  })
+                                                : setState(() {
+                                                    CustomToggleButton(
+                                                      isToggleOn: switchValue,
+                                                      onToggleChanged: (value) {
+                                                        setState(() {
+                                                          switchValue = value;
+                                                        });
+                                                      },
+                                                    );
                                                     ChangeStatusModel
                                                         changeStatusModel =
                                                         ChangeStatusModel(
@@ -1292,164 +1881,88 @@ class _InterViewBayState extends State<InterViewBay>
                                                       print('Error: $e');
                                                       // Handle error...
                                                     }
-                                                  }
-                                                })
-                                              : setState(() {
-                                                  ChangeStatusModel
-                                                      changeStatusModel =
-                                                      ChangeStatusModel(
-                                                          status:
-                                                              item.status_code,
-                                                          sourceId: id,
-                                                          subStatus:
-                                                              "Virtual Interview");
-                                                  Map<String, dynamic>
-                                                      jsonData =
-                                                      changeStatusModel
-                                                          .toJson();
-                                                  try {
-                                                    JobPostApiService
-                                                        .changeStatus(jsonData,
-                                                            item.id!.toInt());
-                                                    setState(() {});
-                                                  } catch (e) {
-                                                    print('Error: $e');
-                                                    // Handle error...
-                                                  }
-                                                });
-                                        },
-                                        child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 6, horizontal: 2),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                item.sub_code == "IB5:1"
-                                                    ? GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            switchValue =
-                                                                !switchValue;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          width: 30.0,
-                                                          height: 15.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        16.0),
-                                                            color: switchValue
-                                                                ? Colors.green
-                                                                : Colors.grey,
-                                                          ),
-                                                          child: Stack(
-                                                            alignment: switchValue
-                                                                ? Alignment
-                                                                    .centerRight
-                                                                : Alignment
-                                                                    .centerLeft,
-                                                            children: [
-                                                              Container(
-                                                                width: 15.0,
-                                                                height: 15.0,
-                                                                decoration:
-                                                                    const BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            switchValue =
-                                                                !switchValue;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          width: 30.0,
-                                                          height: 15.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        16.0),
-                                                            color: switchValue
-                                                                ? Colors.green
-                                                                : Colors.grey,
-                                                          ),
-                                                          child: Stack(
-                                                            alignment: switchValue
-                                                                ? Alignment
-                                                                    .centerRight
-                                                                : Alignment
-                                                                    .centerLeft,
-                                                            children: [
-                                                              Container(
-                                                                width: 15.0,
-                                                                height: 15.0,
-                                                                decoration:
-                                                                    const BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                /*  Row(
-                                                        children: [
-                                                          const SizedBox(
-                                                            width: 6,
-                                                          ),
-                                                          Text(
-                                                            "On-Site",
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                                    color: Colors
-                                                                        .blue),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : Row(
-                                                        children: [
-                                                          Text(
-                                                            "Virtual",
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                                    color: Colors
-                                                                        .blue),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 6,
-                                                          ),
-                                                        ],
-                                                      ), */
-                                                /* Text(
-                                                  "Move to",
-                                                  style: GoogleFonts.varela(
-                                                      fontSize: 8.sp,
-                                                      fontStyle:
-                                                          FontStyle.italic),
-                                                ) */
-                                              ],
-                                            )),
-                                      )
+                                                  });
+                                          }, */
 
-                                    /* PopupMenuButton<String>(
+                                /* : GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        switchValue =
+                                                            !switchValue;
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      width: 30.0,
+                                                      height: 15.0,
+                                                      decoration:
+                                                          BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    16.0),
+                                                        color: switchValue
+                                                            ? Colors.green
+                                                            : Colors.grey,
+                                                      ),
+                                                      child: Stack(
+                                                        alignment: switchValue
+                                                            ? Alignment
+                                                                .centerRight
+                                                            : Alignment
+                                                                .centerLeft,
+                                                        children: [
+                                                          Container(
+                                                            width: 15.0,
+                                                            height: 15.0,
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              color: Colors
+                                                                  .white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ), */
+                                /*  Row(
+                                                    children: [
+                                                      const SizedBox(
+                                                        width: 6,
+                                                      ),
+                                                      Text(
+                                                        "On-Site",
+                                                        style: GoogleFonts
+                                                            .varela(
+                                                                color: Colors
+                                                                    .blue),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Row(
+                                                    children: [
+                                                      Text(
+                                                        "Virtual",
+                                                        style: GoogleFonts
+                                                            .varela(
+                                                                color: Colors
+                                                                    .blue),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 6,
+                                                      ),
+                                                    ],
+                                                  ), */
+                                /* Text(
+                                              "Move to",
+                                              style: GoogleFonts.varela(
+                                                  fontSize: 8.sp,
+                                                  fontStyle:
+                                                      FontStyle.italic),
+                                            ) */
+
+                                /* PopupMenuButton<String>(
                                         onSelected: (value) {
                                           setState(() {
                                             String subValue = "0";
@@ -1550,107 +2063,7 @@ class _InterViewBayState extends State<InterViewBay>
                                               BorderRadius.circular(8),
                                         ),
                                       ) */
-                                    : PopupMenuButton<String>(
-                                        onSelected: (value) {
-                                          setState(() {
-                                            String subValue = "0";
-                                            for (var app in applicationList!) {
-                                              if (app.value.toString() ==
-                                                      value &&
-                                                  app.sub_value != null) {
-                                                subValue =
-                                                    app.sub_value.toString();
-                                                break;
-                                              }
-                                            }
 
-                                            selectedValueMap[item.id!] =
-                                                SelectedOption(
-                                                    value, subValue.toString());
-
-                                            // Now you can use both value and subValue for further operations
-                                            ChangeStatusModel
-                                                changeStatusModel =
-                                                ChangeStatusModel(
-                                                    status: subValue.toString(),
-                                                    sourceId: id,
-                                                    subStatus: value);
-                                            Map<String, dynamic> jsonData =
-                                                changeStatusModel.toJson();
-                                            try {
-                                              JobPostApiService.changeStatus(
-                                                  jsonData, item.id!.toInt());
-                                              setState(() {});
-                                            } catch (e) {
-                                              print('Error: $e');
-                                              // Handle error...
-                                            }
-                                            /*  Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((context) => CC(
-                                                    key: _talentPollKey,
-                                                  )))); */
-                                          });
-                                          // setState(() {});
-                                        },
-                                        itemBuilder: (BuildContext context) {
-                                          return applicationList!
-                                              .where((element) =>
-                                                  element.code!.contains(":"))
-                                              .map((option) {
-                                            bool isOdd = applicationList!
-                                                        .indexOf(option) %
-                                                    2 ==
-                                                1;
-                                            // Retrieve the corresponding sub_value from the option
-                                            String subValue = option.sub_value
-                                                .toString(); // Replace with the actual property name
-                                            // setState(() {});
-                                            return customMenuItem(
-                                                option, isOdd);
-                                          }).toList();
-                                        },
-                                        child: Container(
-                                          // height: 32,
-                                          /*   margin: const EdgeInsets.only(
-                                        bottom: 10, top: 10), */
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              // color: Constants.subtitleclr,
-                                              border: Border.all(
-                                                  color:
-                                                      Constants.borderColor)),
-                                          padding: const EdgeInsets.all(12),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                selectedValueMap[item.id!]
-                                                        ?.selectedValue ??
-                                                    item.sub_status.toString(),
-                                                style: GoogleFonts.varela(
-                                                  color: Colors.black,
-                                                  fontSize: 12.sp,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const Icon(
-                                                Icons.arrow_drop_down,
-                                                size: 13,
-                                                color: Colors.black,
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        offset: const Offset(0, 32),
-                                        elevation: 16,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                      )
                                 /* PopupMenuButton<String>(
                                   onSelected: (value) {
                                     setState(() {
@@ -1699,169 +2112,544 @@ class _InterViewBayState extends State<InterViewBay>
                           ],
                         ),
                       ),
-                    if (item.status_code == "IB5" && !isSelected)
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
+                    //TODO: to add document status as per document mode.
+
+                    if (item.status_code == "IB7" && item.mode_document == 1)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const Text("Documentation Status :"),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height / 24,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: applicationList!
-                                  .where((option) => option.code!.contains(';'))
-                                  .length,
-                              itemBuilder: (context, index) {
-                                final option = applicationList!
-                                    .where(
-                                        (option) => option.code!.contains(';'))
-                                    .toList()[index];
-                                return InkWell(
-                                  onTap: () {
+                            height: 4.h,
+                          ),
+                          Wrap(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  if (item.document_status != "Under Review" &&
+                                      item.document_status != "Submitted" &&
+                                      item.document_status != "Not Submitted") {
                                     ChangeStatusModel changeStatusModel =
                                         ChangeStatusModel(
-                                            status: option.sub_value.toString(),
-                                            sourceId: id,
-                                            subStatus: option.value);
+                                      status: "IB7",
+                                      subStatus: item.sub_code == "IB7-4"
+                                          ? "Ready to Join"
+                                          : "Confirmation Pending",
+                                      doj: item.doj,
+                                      id: item.id,
+                                      sourceId: item.sourceId,
+                                      document_status: "Not Submitted",
+                                    );
                                     Map<String, dynamic> jsonData =
                                         changeStatusModel.toJson();
                                     try {
                                       JobPostApiService.changeStatus(
                                           jsonData, item.id!.toInt());
                                       setState(() {});
+                                      // First pop to close the dialog
                                     } catch (e) {
                                       print('Error: $e');
                                       // Handle error...
                                     }
+                                  }
+                                },
+                                child: item.document_status != "Under Review" &&
+                                        item.document_status != "Submitted"
+                                    ? Container(
+                                        margin: EdgeInsets.only(right: 6.w),
+                                        decoration: BoxDecoration(
+                                            color: item.document_status ==
+                                                    "Not Submitted"
+                                                ? Colors.red
+                                                : Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            border: Border.all(
+                                                color: Constants.borderColor)),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4, horizontal: 10),
+                                        child: Text("Not Submitted",
+                                            style: GoogleFonts.varela(
+                                                color: item.document_status ==
+                                                        "Not Submitted"
+                                                    ? Colors.white
+                                                    : Colors.black)),
+                                      )
+                                    : disableContainer("Not Submitted"),
+                              ),
+                              InkWell(
+                                  onTap: () {
+                                    if (item.document_status != "Submitted" &&
+                                        item.document_status !=
+                                            "Under Review") {
+                                      ChangeStatusModel changeStatusModel =
+                                          ChangeStatusModel(
+                                              status: "IB7",
+                                              subStatus:
+                                                  item.sub_code == "IB7-4"
+                                                      ? "Ready to Join"
+                                                      : "Confirmation Pending",
+                                              doj: item.doj,
+                                              id: item.id,
+                                              sourceId: item.sourceId,
+                                              document_status: "Under Review");
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+                                      try {
+                                        JobPostApiService.changeStatus(
+                                            jsonData, item.id!.toInt());
+                                        setState(() {});
+                                        // First pop to close the dialog
+                                      } catch (e) {
+                                        print('Error: $e');
+                                        // Handle error...
+                                      }
+                                    }
                                   },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                        top: 6, bottom: 6, right: 6),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 2),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        color: Colors.grey.shade100,
-                                        border: Border.all(
-                                            color: Constants.borderColor)),
-                                    child: Text(option.value.toString(),
-                                        style: GoogleFonts.varela(
-                                            color: Colors.blue)),
-                                  ),
-                                );
-                              },
-                            ),
+                                  child: item.document_status != "Submitted"
+                                      ? Container(
+                                          margin: EdgeInsets.only(right: 6.w),
+                                          decoration: BoxDecoration(
+                                              color: item.document_status ==
+                                                      "Under Review"
+                                                  ? Colors.orangeAccent
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 10),
+                                          child: Text("Under Review",
+                                              style: GoogleFonts.varela(
+                                                  color: item.document_status ==
+                                                          "Under Review"
+                                                      ? Colors.white
+                                                      : Colors.black)),
+                                        )
+                                      : disableContainer("Under Review")),
+                              InkWell(
+                                onTap: () {
+                                  if (item.document_status == "Under Review" ||
+                                      item.document_status == "Not Submitted" &&
+                                          item.mode_document == 1) {
+                                    setState(() {
+                                      notSubmited = false;
+                                      submited = true;
+                                      under = false;
+                                    });
+                                    ChangeStatusModel changeStatusModel =
+                                        ChangeStatusModel(
+                                            status: "IB7",
+                                            subStatus: item.sub_code == "IB7-4"
+                                                ? "Ready to Join"
+                                                : "Confirmation Pending",
+                                            doj: item.doj,
+                                            id: item.id,
+                                            sourceId: item.sourceId,
+                                            document_status: "Submitted");
+                                    Map<String, dynamic> jsonData =
+                                        changeStatusModel.toJson();
+                                    try {
+                                      JobPostApiService.changeStatus(
+                                          jsonData, item.id!.toInt());
+                                      setState(() {});
+                                      // First pop to close the dialog
+                                    } catch (e) {
+                                      print('Error: $e');
+                                      // Handle error...
+                                    }
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 6.w),
+                                  decoration: BoxDecoration(
+                                      color:
+                                          item.document_status == "Submitted" &&
+                                                  item.mode_document == 1
+                                              ? Colors.green
+                                              : Colors.white,
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      border: Border.all(
+                                          color: Constants.borderColor)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 10),
+                                  child: Text("Submitted",
+                                      style: GoogleFonts.varela(
+                                          color: item.document_status ==
+                                                      "Submitted" &&
+                                                  item.mode_document == 1
+                                              ? Colors.white
+                                              : Colors.black)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 4.h,
                           )
                         ],
                       ),
-                    if (item.status_code == "IB5" && !isSelected)
+
+                    if (item.status_code == "IB7" && item.mode_document == 0)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Documentation Status :"),
+                          SizedBox(
+                            height: 4.h,
+                          ),
+                          Wrap(
+                            children: [
+                              InkWell(
+                                  onTap: () {
+                                    if (item.document_status != "Pending" &&
+                                        item.document_status != "Submitted" &&
+                                        item.document_status !=
+                                            "Schedule F2F" &&
+                                        item.mode_document == 0) {
+                                      ChangeStatusModel changeStatusModel =
+                                          ChangeStatusModel(
+                                              status: "IB7",
+                                              subStatus:
+                                                  item.sub_code == "IB7-4"
+                                                      ? "Ready to Join"
+                                                      : "Confirmation Pending",
+                                              doj: item.doj,
+                                              id: item.id,
+                                              sourceId: item.sourceId,
+                                              document_status: "Schedule F2F");
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+                                      try {
+                                        JobPostApiService.changeStatus(
+                                            jsonData, item.id!.toInt());
+                                        setState(() {});
+                                        // First pop to close the dialog
+                                      } catch (e) {
+                                        print('Error: $e');
+                                        // Handle error...
+                                      }
+                                    }
+                                  },
+                                  child: item.document_status != "Pending" &&
+                                          item.document_status != "Submitted" &&
+                                          item.mode_document == 0
+                                      ? Container(
+                                          margin: EdgeInsets.only(right: 6.w),
+                                          decoration: BoxDecoration(
+                                              color: item.document_status ==
+                                                      "Schedule F2F"
+                                                  ? Colors.amber
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 10),
+                                          child: Text("Schedule F2F",
+                                              style: GoogleFonts.varela(
+                                                  color: item.document_status ==
+                                                          "Schedule F2F"
+                                                      ? Colors.white
+                                                      : Colors.black)),
+                                        )
+                                      : disableContainer("Schedule F2F")),
+                              InkWell(
+                                  onTap: () {
+                                    if (item.document_status != "Submitted" &&
+                                        item.document_status != "Pending" &&
+                                        item.mode_document == 0) {
+                                      ChangeStatusModel changeStatusModel =
+                                          ChangeStatusModel(
+                                              status: "IB7",
+                                              subStatus:
+                                                  item.sub_code == "IB7-4"
+                                                      ? "Ready to Join"
+                                                      : "Confirmation Pending",
+                                              doj: item.doj,
+                                              id: item.id,
+                                              sourceId: item.sourceId,
+                                              document_status: "Pending");
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+                                      try {
+                                        JobPostApiService.changeStatus(
+                                            jsonData, item.id!.toInt());
+                                        setState(() {});
+                                        // First pop to close the dialog
+                                      } catch (e) {
+                                        print('Error: $e');
+                                        // Handle error...
+                                      }
+                                    }
+                                  },
+                                  child: item.document_status != "Submitted" &&
+                                          item.mode_document == 0
+                                      ? Container(
+                                          margin: EdgeInsets.only(right: 6.w),
+                                          decoration: BoxDecoration(
+                                              color: item.document_status ==
+                                                      "Pending"
+                                                  ? Colors.orangeAccent
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              border: Border.all(
+                                                  color:
+                                                      Constants.borderColor)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 10),
+                                          child: Text("Pending",
+                                              style: GoogleFonts.varela(
+                                                  color: item.document_status ==
+                                                          "Pending"
+                                                      ? Colors.white
+                                                      : Colors.black)),
+                                        )
+                                      : disableContainer("Pending")),
+                              InkWell(
+                                onTap: () {
+                                  if (item.document_status == "Pending" ||
+                                      item.document_status == "Schedule F2F" &&
+                                          item.mode_document == 0) {
+                                    ChangeStatusModel changeStatusModel =
+                                        ChangeStatusModel(
+                                            status: "IB7",
+                                            subStatus: item.sub_code == "IB7-4"
+                                                ? "Ready to Join"
+                                                : "Confirmation Pending",
+                                            doj: item.doj,
+                                            id: item.id,
+                                            sourceId: item.sourceId,
+                                            document_status: "Submitted");
+                                    Map<String, dynamic> jsonData =
+                                        changeStatusModel.toJson();
+                                    try {
+                                      JobPostApiService.changeStatus(
+                                          jsonData, item.id!.toInt());
+                                      setState(() {});
+                                      // First pop to close the dialog
+                                    } catch (e) {
+                                      print('Error: $e');
+                                      // Handle error...
+                                    }
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 6.w),
+                                  decoration: BoxDecoration(
+                                      color:
+                                          item.document_status == "Submitted" &&
+                                                  item.mode_document == 0
+                                              ? Colors.green
+                                              : Colors.white,
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      border: Border.all(
+                                          color: Constants.borderColor)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 10),
+                                  child: Text("Submitted",
+                                      style: GoogleFonts.varela(
+                                          color: item.document_status ==
+                                                      "Submitted" &&
+                                                  item.mode_document == 0
+                                              ? Colors.white
+                                              : Colors.black)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 4.h,
+                          )
+                        ],
+                      ),
+                    //todo to show DOJ and select or update DOJ only for select tab.
+                    if (item.status_code == "IB7" &&
+                        (item.sub_code == "IB7-5" ||
+                            item.sub_code == "IB7-4" ||
+                            item.sub_code == "IB7-1"))
                       Row(
                         children: [
                           InkWell(
                             onTap: () {
-                              ChangeStatusModel changeStatusModel =
-                                  ChangeStatusModel(
-                                status: "IB7",
-                                sourceId: id,
-                              );
-                              Map<String, dynamic> jsonData =
-                                  changeStatusModel.toJson();
-                              try {
-                                JobPostApiService.changeStatus(
-                                    jsonData, item.id!.toInt());
-                                setState(() {});
-                              } catch (e) {
-                                print('Error: $e');
-                                // Handle error...
-                              }
-                              /*    Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: ((context) => CC(
-                                            key: _talentPollKey,
-                                          )))); */
+                              isToday || isYesterday || item.sub_code == "IB7-4"
+                                  ? null
+                                  : singleSelectPicker();
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(top: 5, bottom: 3),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6, horizontal: 10),
-                              decoration: BoxDecoration(
-                                  color: Colors.green[900],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Constants.borderColor, width: 2)),
-                              child: Text("Select",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600)),
-                            ),
+                                decoration: BoxDecoration(
+                                    color: doj == yesterday
+                                        ? Constants.themeBgColor
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                        color: item.doj != null
+                                            ? item.doj?.day == tomorrow.day &&
+                                                    item.doj!.month ==
+                                                        tomorrow.month &&
+                                                    item.doj!.year ==
+                                                        tomorrow.year
+                                                ? Colors.blue
+                                                : item.doj!.day ==
+                                                            DateTime.now()
+                                                                .day &&
+                                                        item.doj!.month ==
+                                                            DateTime.now()
+                                                                .month &&
+                                                        item.doj!.year ==
+                                                            DateTime.now().year
+                                                    ? Colors.green
+                                                    : doj == yesterday
+                                                        ? Colors.white
+                                                        : Colors.brown
+                                            : Constants.themeBgColor)),
+                                padding: const EdgeInsets.only(
+                                    left: 5, top: 4, bottom: 4, right: 5),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.calendar_month_outlined,
+                                        size: 15.h,
+                                        color: item.doj != null
+                                            ? item.doj?.day == tomorrow.day &&
+                                                    item.doj!.month ==
+                                                        tomorrow.month &&
+                                                    item.doj!.year ==
+                                                        tomorrow.year
+                                                ? Colors.blue
+                                                : item.doj!.day ==
+                                                            DateTime.now()
+                                                                .day &&
+                                                        item.doj!.month ==
+                                                            DateTime.now()
+                                                                .month &&
+                                                        item.doj!.year ==
+                                                            DateTime.now().year
+                                                    ? Colors.green
+                                                    : doj == yesterday
+                                                        ? Colors.white
+                                                        : Colors.brown
+                                            : Constants.themeBgColor),
+                                    SizedBox(
+                                      width: 4.w,
+                                    ),
+                                    item.doj != null
+                                        ? item.doj!.day == DateTime.now().day &&
+                                                item.doj!.month ==
+                                                    DateTime.now().month &&
+                                                item.doj!.year ==
+                                                    DateTime.now().year
+                                            ? Text("Today",
+                                                style: GoogleFonts.varela(
+                                                    color: Colors.green,
+                                                    fontWeight:
+                                                        FontWeight.w600))
+                                            : item.doj!.day == tomorrow.day &&
+                                                    item.doj!.month ==
+                                                        tomorrow.month &&
+                                                    item.doj!.year ==
+                                                        tomorrow.year
+                                                ? Text("Tomorrow",
+                                                    style: GoogleFonts.varela(
+                                                        color: Colors.blue,
+                                                        fontWeight:
+                                                            FontWeight.w600))
+                                                : doj == yesterday
+                                                    ? Text("Yesterday",
+                                                        style: GoogleFonts.varela(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600))
+                                                    : Text(
+                                                        DateFormat('dd MMM yyyy')
+                                                            .format(item.doj!),
+                                                        style: GoogleFonts.varela(
+                                                            color: Colors.brown,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600))
+                                        : Text("Select DOJ",
+                                            style: GoogleFonts.varela(
+                                                color: Constants.themeBgColor,
+                                                fontWeight: FontWeight.w600)),
+                                  ],
+                                )),
                           ),
-                          if (!isSelected)
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          if (item.doj != null &&
+                              !isToday &&
+                              item.sub_code != "IB7-4")
                             InkWell(
                               onTap: () {
-                                setState(() {
-                                  selectedJobs[item.id!.toInt()] = !isSelected;
-                                });
+                                ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB7",
+                                  subStatus: "Confirmation Pending",
+                                  doj: null,
+                                  id: item.id,
+                                  sourceId: item.sourceId,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                  // First pop to close the dialog
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                }
                               },
-                              child: Container(
-                                margin: const EdgeInsets.only(
-                                    top: 5, bottom: 3, left: 10),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                        color: Constants.themeBgColor,
-                                        width: 2)),
-                                child: Text("Reject",
-                                    style: GoogleFonts.varela(
-                                        color: Constants.themeBgColor,
-                                        fontWeight: FontWeight.w600)),
+                              child: Image.asset(
+                                "assets/images/close (1).png",
+                                height: 16.h,
+                                color: Colors.grey.shade400,
                               ),
                             ),
                           const Spacer(),
-                          FutureBuilder<InterviewResult>(
-                            future: fetchDataAndUpdateDropdown(
-                                item.jobId!.toInt(), item.id!.toInt()),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Center(
-                                    child: Text('Error: ${snapshot.error}'));
-                              } else if (snapshot.hasData) {
-                                InterviewResult interviewResult =
-                                    snapshot.data!;
-                                interviewRounds =
-                                    interviewResult.resultData.interviewRounds;
-
-                                return Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          border:
-                                              Border.all(color: Colors.blue)),
-                                      child: DropdownButton<String>(
-                                        elevation: 4,
-                                        value: selectedRoundsMap[item.id],
-                                        onChanged: (newValue) {
-                                          updateSelectedRoundForJob(
-                                              item.id!.toInt(), newValue!);
+                          if (item.sub_code == "IB7-4")
+                            Container(
+                              margin:
+                                  EdgeInsets.only(bottom: 10.h, right: 10.w),
+                              child: Image.asset(
+                                "assets/images/readytojoin.png",
+                                height: 40.h,
+                              ),
+                            ),
+                        ],
+                      ),
+                    if (item.status_code == "IB5" && !isSelected && !isWalk)
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Wrap(
+                            children: List.generate(
+                              applicationList!
+                                  .where((option) => option.code!.contains(';'))
+                                  .length,
+                              (index) {
+                                final option = applicationList!
+                                    .where(
+                                        (option) => option.code!.contains(';'))
+                                    .toList()[index];
+                                return InkWell(
+                                  onTap: option.code != "IB8;2"
+                                      ? () {
                                           ChangeStatusModel changeStatusModel =
                                               ChangeStatusModel(
-                                                  status: "IB5".toString(),
-                                                  sourceId: id,
-                                                  interview_rounds: newValue,
-                                                  subStatus: item.sub_status);
+                                            status: option.sub_value.toString(),
+                                            sourceId: item.sourceId,
+                                            subStatus: option.value,
+                                          );
                                           Map<String, dynamic> jsonData =
                                               changeStatusModel.toJson();
                                           try {
@@ -1872,83 +2660,615 @@ class _InterViewBayState extends State<InterViewBay>
                                             print('Error: $e');
                                             // Handle error...
                                           }
+                                        }
+                                      : () {
+                                          setState(() {
+                                            selectedWalkOut[item.id!.toInt()] =
+                                                !isWalk;
+                                          });
                                         },
-                                        items: [
-                                          DropdownMenuItem<String>(
-                                              /* value:
-                                                            item.interview_rounds, */
-                                              child: item.interview_rounds ==
-                                                      null
-                                                  ? Text(
-                                                      'InterView rounds',
-                                                      style: GoogleFonts.varela(
-                                                          fontSize: 14.sp),
-                                                    )
-                                                  : Text(
-                                                      item.interview_rounds
-                                                          .toString(),
-                                                      style: GoogleFonts.varela(
-                                                          fontSize: 14.sp),
-                                                    )),
-                                          for (String round in interviewRounds)
-                                            DropdownMenuItem<String>(
-                                              value: round,
-                                              child: Text(
-                                                round,
-                                                style: GoogleFonts.varela(
-                                                    fontSize: 12.sp),
-                                              ),
-                                            ),
-                                        ],
-                                        underline:
-                                            Container(), // This removes the underline
+                                  child: Wrap(
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 6, right: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          color: Colors.grey.shade100,
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        child: Text(
+                                          option.value.toString(),
+                                          style: GoogleFonts.varela(
+                                              color: Colors.blue),
+                                        ),
                                       ),
-                                    )
-
-                                    // Rest of your UI...
-                                  ],
+                                    ],
+                                  ),
                                 );
-                              } else {
-                                return const Center(
-                                    child: Text('No data available'));
-                              }
+                              },
+                            ),
+                          ),
+
+                          /*  ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: applicationList!
+                                .where((option) => option.code!.contains(';'))
+                                .length,
+                            itemBuilder: (context, index) {
+                              final option = applicationList!
+                                  .where((option) => option.code!.contains(';'))
+                                  .toList()[index];
+                              return InkWell(
+                                onTap: option.code != "IB8;2"
+                                    ? () {
+                                        ChangeStatusModel changeStatusModel =
+                                            ChangeStatusModel(
+                                                status:
+                                                    option.sub_value.toString(),
+                                                sourceId: item.sourceId,
+                                                subStatus: option.value);
+                                        Map<String, dynamic> jsonData =
+                                            changeStatusModel.toJson();
+                                        try {
+                                          JobPostApiService.changeStatus(
+                                              jsonData, item.id!.toInt());
+                                          setState(() {});
+                                        } catch (e) {
+                                          print('Error: $e');
+                                          // Handle error...
+                                        }
+                                      }
+                                    : () {
+                                        setState(() {
+                                          selectedWalkOut[item.id!.toInt()] =
+                                              !isWalk;
+                                        });
+                                      },
+                                child: Wrap(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          top: 6, bottom: 6, right: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 2),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          color: Colors.grey.shade100,
+                                          border: Border.all(
+                                              color: Constants.borderColor)),
+                                      child: Text(option.value.toString(),
+                                          style: GoogleFonts.varela(
+                                              color: Colors.blue)),
+                                    ),
+                                  ],
+                                ),
+                              );
                             },
-                          )
+                          ), */
+                          const Spacer(),
+                          // const (),
+                          //if (item.status_code!.contains("IB5"))
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 2),
+                              child: Stack(
+                                children: [
+                                  // item.sub_code=="IB5:1"?
+                                  ToggleButton(
+                                    initialValue:
+                                        item.sub_code == "IB5:1" ? true : false,
+                                    item: item,
+                                    id: item.id!.toInt(),
+                                  ),
+                                ],
+                              )),
                         ],
                       ),
-                    if (item.status_code == "IB5" && isSelected)
-                      SizedBox(
-                        height: 40,
-                        child: TextField(
-                          controller: showrejectTextFileld,
-                          decoration: const InputDecoration(
-                            labelText: "Reason for rejection",
-                            border: OutlineInputBorder(),
+
+                    if (item.status_code == "IB5" && !isSelected && !isWalk)
+                      Row(children: [
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return CustomDialogueForSelect(
+                                  item: item,
+                                );
+                              },
+                            );
+                            /*    Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 3, top: 3.h),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: Colors.green[900],
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: Constants.borderColor, width: 2)),
+                            child: Text("Select",
+                                style: GoogleFonts.varela(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600)),
                           ),
                         ),
-                      ),
-                    if (item.status_code == "IB5" && isSelected)
+                        if (!isSelected && !isWalk)
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedJobs[item.id!.toInt()] = !isSelected;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(
+                                  top: 3, bottom: 3, left: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: Constants.themeBgColor, width: 2)),
+                              child: Text("Reject",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                        const Spacer(),
+                        if (item.status_code != "IB7" &&
+                            item.status_code == "IB5")
+                          Container(
+                            height: 30.h,
+                            padding: const EdgeInsets.only(left: 8),
+                            // Adjust the padding as needed
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50.r),
+                              border:
+                                  Border.all(color: Colors.blue, width: 1.5),
+                            ),
+                            child: DropdownButton<String>(
+                              // menuMaxHeight: 0.1,
+                              borderRadius: BorderRadius.circular(8.r),
+                              elevation: 4,
+                              value: item.interview_rounds,
+                              onChanged: (newValue) {
+                                if (newValue != null) {
+                                  updateSelectedRoundForJob(
+                                      item.id!.toInt(), newValue);
+                                }
+                                ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB5",
+                                  sourceId: item.sourceId,
+                                  interview_rounds: newValue,
+                                  subStatus: item.sub_status,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                }
+                              },
+                              items: [
+                                if (item.interview_rounds != null &&
+                                    !finalinterviewRounds
+                                        .contains(item.interview_rounds))
+                                  DropdownMenuItem<String>(
+                                    value: item
+                                        .interview_rounds, // Use the initial value from the JSON string
+                                    child: Text(
+                                      item.interview_rounds.toString(),
+                                      style: GoogleFonts.varela(
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ),
+                                ...finalinterviewRounds.map((round) {
+                                  return DropdownMenuItem<String>(
+                                    value: round,
+                                    child: Text(
+                                      round,
+                                      style: GoogleFonts.varela(
+                                        fontSize: 12.sp,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                              underline:
+                                  Container(), // This removes the underline
+                              hint: Text(
+                                'Select',
+                                style: GoogleFonts.varela(
+                                  fontSize: 12.sp,
+                                ),
+                              ), // Display "Select" when item.interview_rounds is empty
+                            ),
+                          )
+                      ]),
+
+                    /* FutureBuilder<InterviewResult>(
+                              future: fetchDataAndUpdateDropdown(
+                                  item.jobId!.toInt(), item.id!.toInt()),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                } else if (snapshot.hasData) {
+                                  InterviewResult interviewResult =
+                                      snapshot.data!;
+                                  interviewRounds = interviewResult
+                                      .resultData.interviewRounds;
+
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        height: 30,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            border:
+                                                Border.all(color: Colors.blue)),
+                                        child: DropdownButton<String>(
+                                          elevation: 4,
+                                          value: selectedRoundsMap[item.id],
+                                          onChanged: (newValue) {
+                                            if (newValue != null) {
+                                              updateSelectedRoundForJob(
+                                                  item.id!.toInt(), newValue);
+                                            }
+                                            ChangeStatusModel
+                                                changeStatusModel =
+                                                ChangeStatusModel(
+                                                    status: "IB5".toString(),
+                                                    sourceId: item.sourceId,
+                                                    interview_rounds: newValue,
+                                                    subStatus: item.sub_status);
+                                            Map<String, dynamic> jsonData =
+                                                changeStatusModel.toJson();
+                                            try {
+                                              JobPostApiService.changeStatus(
+                                                  jsonData, item.id!.toInt());
+                                              setState(() {});
+                                            } catch (e) {
+                                              print('Error: $e');
+                                              // Handle error...
+                                            }
+                                          },
+                                          items: [
+                                            DropdownMenuItem<String>(
+                                                value: item.interview_rounds,
+                                                child: item.interview_rounds ==
+                                                        null
+                                                    ? Text(
+                                                        'InterView rounds',
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize:
+                                                                    14.sp),
+                                                      )
+                                                    : Text(
+                                                        item.interview_rounds
+                                                            .toString(),
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize:
+                                                                    14.sp),
+                                                      )),
+                                            for (String round
+                                                in interviewRounds)
+                                              DropdownMenuItem<String>(
+                                                value: round,
+                                                child: Text(
+                                                  round,
+                                                  style: GoogleFonts.varela(
+                                                      fontSize: 12.sp),
+                                                ),
+                                              ),
+                                          ],
+                                          underline:
+                                              Container(), // This removes the underline
+                                        ),
+                                      ),
+
+                                      // Rest of your UI...
+                                    ],
+                                  );
+                                } else {
+                                  return const Center(
+                                      child: Text('No data available'));
+                                }
+                              },
+                            ) */
+
+                    if (item.status_code == "IB7" && item.sub_code == "IB7-5" ||
+                        item.sub_code == "IB7-4" && !isDrop)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          //    if (showrejectTextFileld.text.isNotEmpty)
-                          ElevatedButton(
-                            onPressed: () {
-                              ChangeStatusModel changeStatusModel =
-                                  ChangeStatusModel(
-                                      status: "IB6",
-                                      sourceId: id,
-                                      remark: showrejectTextFileld.text);
-                              Map<String, dynamic> jsonData =
-                                  changeStatusModel.toJson();
-                              try {
-                                JobPostApiService.changeStatus(
-                                    jsonData, item.id!.toInt());
-                                setState(() {});
-                              } catch (e) {
-                                print('Error: $e');
-                                // Handle error...
-                              }
+                          if (item.doj != null && isToday ||
+                              item.doj != null && isYesterday)
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedDropOut[item.id!.toInt()] = !isDrop;
+                                  notJoin = true;
+                                  Drop = false;
+                                });
+                              },
+                              /* ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB7",
+                                  subStatus: "Not Join",
+                                  doj: item.doj,
+                                  id: item.id,
+                                  sourceId: item.sourceId,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                  // First pop to close the dialog
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                } */
+
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    top: 5, bottom: 3, right: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Constants.themeBgColor,
+                                        width: 2)),
+                                child: Text("Not Join",
+                                    style: GoogleFonts.varela(
+                                        color: Constants.themeBgColor,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          if (item.doj != null && isToday ||
+                              item.doj != null && isYesterday)
+                            InkWell(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return CustomDialogueForJoin(
+                                      item: item,
+                                    );
+                                  },
+                                );
+                                /*  ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB7",
+                                  subStatus: "Join",
+                                  doj: item.doj,
+                                  id: item.id,
+                                  sourceId: item.sourceId,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                  // First pop to close the dialog
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                } */
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    top: 5, bottom: 3, right: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.green, width: 2)),
+                                child: Text("Join",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          if (((item.doj == null || !isToday) &&
+                                  !isYesterday) &&
+                              item.sub_code != "IB7-4")
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedDropOut[item.id!.toInt()] = !isDrop;
+                                  Drop = true;
+                                  notJoin = false;
+                                });
+                                /*  ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB7",
+                                  subStatus: "Offer Drop",
+                                  doj: item.doj,
+                                  id: item.id,
+                                  sourceId: item.sourceId,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                  // First pop to close the dialog
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                } */
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    top: 5, bottom: 3, right: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Constants.themeBgColor,
+                                        width: 2)),
+                                child: Text("Offer Drop",
+                                    style: GoogleFonts.varela(
+                                        color: Constants.themeBgColor,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          if (!isToday &&
+                              item.doj != null &&
+                              !isYesterday &&
+                              item.sub_code != "IB7-4")
+                            InkWell(
+                              onTap: () {
+                                ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                  status: "IB7",
+                                  subStatus: "Ready to Join",
+                                  doj: item.doj,
+                                  id: item.id,
+                                  sourceId: item.sourceId,
+                                );
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                  // First pop to close the dialog
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  top: 5,
+                                  bottom: 3,
+                                  right: 6,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.green, width: 2)),
+                                child: Text("Ready to Join",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                        ],
+                      ),
+
+                    //TODO: Reason remark for offer Drop and not join
+
+                    if (item.status_code == "IB7" && isDrop)
+                      Container(
+                        margin: EdgeInsets.only(top: 10.h),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r)),
+                        height: MediaQuery.of(context).size.height / 26,
+                        child: TextField(
+                          controller: remarkfordropandNotJoin,
+                          decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.only(top: 10.h, left: 6.w),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Constants.borderColor),
+                                borderRadius: BorderRadius.circular(8)),
+                            labelText: notJoin
+                                ? "Reason of Not Join"
+                                : Drop
+                                    ? "Reason of Offer Drop"
+                                    : "",
+                            hintStyle:
+                                GoogleFonts.varela(color: Colors.grey.shade400),
+                            hintText: notJoin
+                                ? "Reason of not join"
+                                : Drop
+                                    ? "Reason of Offer Drop"
+                                    : "",
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                  color: Constants.borderColor),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                  color: Constants.borderColor),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    if (item.status_code == "IB7" && isDrop)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedDropOut[item.id!.toInt()] = false;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              child: Text("Cancel",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          /*  ElevatedButton(
+                            onPressed: () {selectedoption
                               /*  Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -1961,10 +3281,279 @@ class _InterViewBayState extends State<InterViewBay>
 
                               // Reset _showRejectTextField to hide the text field
                               setState(() {
-                                _showRejectTextField = false;
+                                _showRejectTextField = true;
                               });
                             },
-                            child: const Text("Submit"),
+                            child: const Text("Cancel"),
+                          ), */
+                          //    if (showrejectTextFileld.text.isNotEmpty)
+                          // if (showrejectTextFileld.text.isNotEmpty)
+                          InkWell(
+                            onTap: () {
+                              if (remarkfordropandNotJoin.text.isEmpty) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return CustomDialog(
+                                        fetchDataFromApi: () {},
+                                        onClose: () {
+                                          Navigator.pop(context);
+                                        },
+                                        isFisrt: false,
+                                        title: "Feedback",
+                                        subtitle: notJoin
+                                            ? "Please give the reason of Not Join"
+                                            : Drop
+                                                ? "Please give the reason of Offer Drop"
+                                                : "");
+                                  },
+                                );
+                              } else {
+                                ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                        status: "IB7",
+                                        subStatus:
+                                            notJoin ? "Not Join" : "Offer Drop",
+                                        doj: item.doj,
+                                        id: item.id,
+                                        sourceId: item.sourceId,
+                                        remark: remarkfordropandNotJoin.text);
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                }
+                                /*  Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                                // Perform actions on submission
+                                // For example, save the reason and update status
+                                // ...
+
+                                // Reset _showRejectTextField to hide the text field
+                                setState(() {
+                                  _showremarkfordropandNotJoin = false;
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              child: Text("Submit",
+                                  style: GoogleFonts.varela(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (item.status_code == "IB8" && item.remark != null)
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.shade200,
+                                  offset: const Offset(0.5, 2),
+                                  blurRadius: 2,
+                                  spreadRadius: 2)
+                            ],
+                            borderRadius: BorderRadius.circular(8.r)),
+                        margin: EdgeInsets.only(top: 4.h),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 4.h, horizontal: 8.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Feedback",
+                              style: GoogleFonts.varela(
+                                  // color: Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.sp),
+                            ),
+                            if (item.remark != null)
+                              Text(
+                                "${item.remark}",
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontSize: 12.sp,
+                                ),
+                                overflow: TextOverflow.clip,
+                                softWrap: true,
+                              ),
+                          ],
+                        ),
+                      ),
+
+                    //TODO: Remark End for not join and offer drop......
+
+                    if (item.status_code == "IB5" && isSelected ||
+                        isWalk ||
+                        isDropOut)
+                      Container(
+                        margin: EdgeInsets.only(top: 10.h),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r)),
+                        height: MediaQuery.of(context).size.height / 26,
+                        child: TextField(
+                          controller: showrejectTextFileld,
+                          decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.only(top: 10.h, left: 6.w),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Constants.borderColor),
+                                borderRadius: BorderRadius.circular(8)),
+                            labelText: isSelected
+                                ? "Reason of Rejection"
+                                : isDropOut
+                                    ? "Reason of Drop-Out"
+                                    : "Reason of Walk Out",
+                            hintStyle:
+                                GoogleFonts.varela(color: Colors.grey.shade400),
+                            hintText: isSelected
+                                ? "Reason of Rejection"
+                                : isDropOut
+                                    ? "Reason of Drop-Out"
+                                    : "Reason of Walk Out",
+                            //labelStyle: GoogleFonts.varela(color: Colors.grey.shade400),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                  color: Constants.borderColor),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                  color: Constants.borderColor),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (item.status_code == "IB5" && isSelected ||
+                        isWalk ||
+                        isDropOut)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isSelected
+                                    ? selectedJobs[item.id!.toInt()] = false
+                                    : isDropOut
+                                        ? selectedoption[item.id!.toInt()] =
+                                            false
+                                        : selectedWalkOut[item.id!.toInt()] =
+                                            false;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              child: Text("Cancel",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          /*  ElevatedButton(
+                            onPressed: () {
+                              /*  Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                              // Perform actions on submission
+                              // For example, save the reason and update status
+                              // ...
+
+                              // Reset _showRejectTextField to hide the text field
+                              setState(() {
+                                _showRejectTextField = true;
+                              });
+                            },
+                            child: const Text("Cancel"),
+                          ), */
+                          //    if (showrejectTextFileld.text.isNotEmpty)
+                          // if (showrejectTextFileld.text.isNotEmpty)
+                          InkWell(
+                            onTap: () {
+                              if (showrejectTextFileld.text.isEmpty) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return CustomDialog(
+                                        fetchDataFromApi: () {},
+                                        onClose: () {
+                                          Navigator.pop(context);
+                                        },
+                                        isFisrt: false,
+                                        title: "Feedback",
+                                        subtitle: isSelected
+                                            ? "Please give the reason of Rejection"
+                                            : isDropOut
+                                                ? "Provide Reason to drop out first"
+                                                : "Provide Reason to walk out first");
+                                  },
+                                );
+                              } else {
+                                ChangeStatusModel changeStatusModel =
+                                    ChangeStatusModel(
+                                        status: isSelected
+                                            ? "IB6"
+                                            : isDropOut
+                                                ? "IB8"
+                                                : "IB8",
+                                        sourceId: item.sourceId,
+                                        remark: showrejectTextFileld.text);
+                                Map<String, dynamic> jsonData =
+                                    changeStatusModel.toJson();
+                                try {
+                                  JobPostApiService.changeStatus(
+                                      jsonData, item.id!.toInt());
+                                  setState(() {});
+                                } catch (e) {
+                                  print('Error: $e');
+                                  // Handle error...
+                                }
+                                /*  Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) => CC(
+                                            key: _talentPollKey,
+                                          )))); */
+                                // Perform actions on submission
+                                // For example, save the reason and update status
+                                // ...
+
+                                // Reset _showRejectTextField to hide the text field
+                                setState(() {
+                                  _showRejectTextField = false;
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              child: Text("Submit",
+                                  style: GoogleFonts.varela(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w600)),
+                            ),
                           ),
                         ],
                       ),
@@ -2033,9 +3622,11 @@ class _InterViewBayState extends State<InterViewBay>
                           context,
                           MaterialPageRoute(
                             builder: (context) => PDFViewerScreen(
-                              pdfAssetPath: 'assets/images/cv.pdf',
+                              pdfAssetPath: item.resume.toString(),
                               phoneNumber1: item.contactNo!.toInt(),
-                              phoneNumber2: item.alternateNo!.toInt(),
+                              phoneNumber2: item.alternateNo != null
+                                  ? item.alternateNo!.toInt()
+                                  : 0,
                               // Replace with the actual asset path of your PDF file
                             ),
                           ),
@@ -2050,6 +3641,19 @@ class _InterViewBayState extends State<InterViewBay>
             ),
           )
       ],
+    );
+  }
+
+  Container disableContainer(String title) {
+    return Container(
+      margin: EdgeInsets.only(right: 6.w),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+      child:
+          Text(title, style: GoogleFonts.varela(color: Colors.grey.shade500)),
     );
   }
 

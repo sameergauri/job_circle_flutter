@@ -153,8 +153,8 @@ class JobPostApiService {
     }
   }
 
-  static Future<void> addResume(
-      Map<String, dynamic> jsonData, BuildContext context) async {
+  static Future<void> addResume(Map<String, dynamic> jsonData,
+      BuildContext context, bool fromDialog) async {
     final apiUrl = Uri.parse('http://${GlobalConstants.API_Host}/leads/v1');
 
     try {
@@ -169,7 +169,7 @@ class JobPostApiService {
         print('Response Data: $responseData');
 
         final resultKey = responseData['resultKey'] as String?;
-        if (resultKey == 'SUCCESS') {
+        if (resultKey == 'SUCCESS' && fromDialog == false) {
           showDialog(
             barrierDismissible: false,
             context: context,
@@ -186,7 +186,7 @@ class JobPostApiService {
               );
             },
           );
-        } else {
+        } else if (fromDialog == false) {
           showDialog(
             barrierDismissible: false,
             context: context,
@@ -199,7 +199,7 @@ class JobPostApiService {
               );
             },
           );
-        }
+        } else {}
       } else {
         print('Error: ${response.statusCode}');
         showDialog(

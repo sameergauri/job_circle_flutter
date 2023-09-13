@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class InterviewResult {
   final String resultKey;
   final ResultData resultData;
@@ -37,6 +35,35 @@ class ResultData {
   });
 
   factory ResultData.fromJson(Map<String, dynamic> json) {
+    int? jobId =
+        json['jobId'] as int?; // Use 'as int?' to handle potential null
+    int? uId = json['uId']; // Use 'as String?' to handle potential null
+
+    final roundsListJson = json['interview_rounds'];
+    List<String> interviewRounds = [];
+
+    if (roundsListJson is List<dynamic>) {
+      interviewRounds =
+          roundsListJson.map((round) => round.toString()).toList();
+    } else {
+      // Handle the case where 'interview_rounds' is missing or not a list
+      // You can provide a default value or take other error-handling measures
+    }
+
+    int? leadId =
+        json['leadId'] as int?; // Use 'as int?' to handle potential null
+
+    return ResultData(
+      jobId: jobId ?? 0, // Provide a default value (e.g., 0) if jobId is null
+      uId: uId ??
+          0, // Provide a default value (e.g., an empty string) if uId is null
+      interviewRounds: interviewRounds,
+      leadId:
+          leadId ?? 0, // Provide a default value (e.g., 0) if leadId is null
+    );
+  }
+
+  /*  factory ResultData.fromJson(Map<String, dynamic> json) {
     List<dynamic> roundsList = jsonDecode(json['interview_rounds']);
     List<String> interviewRounds =
         roundsList.map((round) => round.toString()).toList();
@@ -47,5 +74,5 @@ class ResultData {
       interviewRounds: interviewRounds,
       leadId: json['leadId'],
     );
-  }
+  } */
 }

@@ -332,7 +332,7 @@ class _CustomDialogState extends State<CustomDialog> {
                             // Add your custom dialog content here
                             Text(
                               widget.title,
-                              style: const TextStyle(
+                              style: GoogleFonts.varela(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blue),

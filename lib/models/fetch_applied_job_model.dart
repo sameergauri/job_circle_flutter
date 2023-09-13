@@ -50,7 +50,9 @@ class ResultData {
 class Applicant {
   bool? showRejectTextField = false;
   int? spocContactNo;
+  String? emp_id;
   String? companyName;
+  String? remark;
   String? short_name;
   String? role_code;
   String? sub_code;
@@ -93,13 +95,23 @@ class Applicant {
   int? alternateNo;
   int? sourceId;
   List<String>? languages;
+  List<String>? inteviewrounds;
   String? availabilityPrevious;
   String? lastWorkingDateRecent;
+  DateTime? doj;
+  int? mode_document;
+  String? document_status;
+  int? short_list_for;
+  int? is_ref;
+  String? last_name;
+  String? source_name;
 
   Applicant({
     this.showRejectTextField,
     this.spocContactNo,
+    this.emp_id,
     this.companyName,
+    this.remark,
     this.short_name,
     this.role_code,
     this.sub_code,
@@ -142,16 +154,26 @@ class Applicant {
     this.alternateNo,
     this.sourceId,
     this.languages,
+    this.inteviewrounds,
     this.availabilityPrevious,
     this.lastWorkingDateRecent,
+    this.doj,
+    this.mode_document,
+    this.document_status,
+    this.short_list_for,
+    this.is_ref,
+    this.last_name,
+    this.source_name,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
     return Applicant(
       spocContactNo: json['spoc_contact_no'],
+      emp_id: json['emp_id'],
       skills: _parseSkills(json['skills']),
       status_code: json['status_code'],
       companyName: json['company_name'],
+      remark: json['remark'],
       short_name: json['short_name'],
       role_code: json['role_code'],
       sub_code: json['sub_code'],
@@ -192,11 +214,43 @@ class Applicant {
       alternateNo: json['alternate_no'],
       sourceId: json['source_id'],
       languages: _parseSkills(json['languages']),
+      inteviewrounds: _parseSkills(json['inteviewrounds']),
       availabilityPrevious: json['availability_previous'],
       lastWorkingDateRecent: json['last_working_date_recent'],
+      doj: json['doj'] != null ? DateTime.parse(json['doj']) : null,
+      mode_document: json['mode_document'],
+      document_status: json['document_status'],
+      short_list_for: json['short_list_for'],
+      is_ref: json['is_ref'],
+      last_name: json['last_name'],
+      source_name:json['source_name'],
     );
   }
+
+  get interviewrounds => null;
   static List<String>? _parseSkills(dynamic jsonSkills) {
+    try {
+      if (jsonSkills == null) {
+        return null;
+      } else if (jsonSkills is String) {
+        // Remove the square brackets and escape characters, then split by comma
+        final cleanedString = jsonSkills.replaceAll(RegExp(r'[[]\"]'), '');
+        final List<String> rounds =
+            cleanedString.split(',').map((e) => e.trim()).toList();
+        return rounds;
+      } else if (jsonSkills is List<dynamic>) {
+        // If 'skills' is already a list, cast it to List<String> and return.
+        return jsonSkills.cast<String>();
+      } else {
+        // If 'skills' has an unexpected format, return null or handle it as appropriate.
+        return null;
+      }
+    } catch (e) {
+      print('Error parsing skills: $e');
+      return null;
+    }
+  }
+  /*  static List<String>? _parseSkills(dynamic jsonSkills) {
     if (jsonSkills == null) {
       return null; // Return null if 'skills' is null in the JSON data.
     } else if (jsonSkills is String) {
@@ -209,12 +263,14 @@ class Applicant {
       // If 'skills' has an unexpected format, return null or handle it as appropriate.
       return null;
     }
-  }
+  } */
 
   Map<String, dynamic> toJson() {
     return {
       'spoc_contact_no': spocContactNo,
+      'emp_id': emp_id,
       'company_name': companyName,
+      'remark': remark,
       'short_name': short_name,
       'sub_code': sub_code,
       'role_code': role_code,
@@ -256,9 +312,18 @@ class Applicant {
       'user_location': userLocation,
       'alternate_no': alternateNo,
       'source_id': sourceId,
-      'languages': languages, // Assuming languages is already a List<String>
+      'languages': languages,
+      'inteviewrounds': inteviewrounds,
+      // Assuming languages is already a List<String>
       'availability_previous': availabilityPrevious,
       'last_working_date_recent': lastWorkingDateRecent,
+      'doj': doj?.toIso8601String(),
+      'mode_document': mode_document,
+      'document_status': document_status,
+      'short_list_for': short_list_for,
+      'is_ref': is_ref,
+      'last_name': last_name,
+      'source_name': source_name,
     };
   }
 }
@@ -411,5 +476,16 @@ class JobInteractionModel {
   JobInteractionModel({
     required this.showRejectTextField,
     required this.rejectionReason,
+  });
+}
+
+class toggle {
+  // ... other fields ...
+
+  bool switchValue;
+
+  toggle({
+    // ... other constructor parameters ...
+    required this.switchValue,
   });
 }

@@ -2410,11 +2410,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                           .toInt(),
                                                       sourceId: profilemodel.id!
                                                           .toInt(),
-                                                      sourceName: profilemodel
-                                                              .first_name
-                                                              .toString() +
-                                                          profilemodel.last_name
-                                                              .toString(),
+                                                      sourceName:
+                                                          "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                                       isRefer: true,
                                                       spocId: jobDetailsModel
                                                           .spoc!

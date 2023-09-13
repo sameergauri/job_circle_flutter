@@ -115,15 +115,21 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 ),
               ],
             ),
-   
       body: FutureBuilder<PDFDocument>(
-        future: PDFDocument.fromAsset(widget.pdfAssetPath),
+        future: PDFDocument.fromURL(
+            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.pdfAssetPath}"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               return PDFViewer(
+                scrollDirection: Axis.vertical,
+                panLimit: 1.1,
                 document: snapshot.data!,
-                zoomSteps: 1,
+                zoomSteps: 3,
+                showNavigation: false,
+                showPicker: false,
+            
+                // numberPickerConfirmWidget: f,
               );
             } else {
               return const Center(child: Text('Failed to load PDF'));

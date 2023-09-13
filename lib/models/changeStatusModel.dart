@@ -55,6 +55,13 @@ class ChangeStatusModel {
   String? subStatus;
   int? uid;
   DateTime? updatedDate;
+  String? emp_id;
+  String? client_email;
+  // List<String>? document_list;
+  String? document_status;
+  int? is_notice;
+  int? mode_document;
+  DateTime? last_working_date;
 
   ChangeStatusModel({
     this.alternateNo,
@@ -113,6 +120,13 @@ class ChangeStatusModel {
     this.subStatus,
     this.uid,
     this.updatedDate,
+    this.client_email,
+    this.last_working_date,
+    // this.document_list,
+    this.document_status,
+    this.emp_id,
+    this.is_notice,
+    this.mode_document,
   });
 
   factory ChangeStatusModel.fromJson(Map<String, dynamic> json) =>
@@ -177,11 +191,24 @@ class ChangeStatusModel {
         updatedDate: json['updated_date'] != null
             ? DateTime.parse(json['updated_date'])
             : null,
+        emp_id: json['emp_id'],
+        client_email: json['client_email'],
+        document_status: json['document_status'],
+        is_notice: json['is_notice'],
+        mode_document: json['mode_document'],
+        last_working_date: json['last_working_date'] != null
+            ? DateTime.parse(json['last_working_date'])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
         'alternate_no': alternateNo,
         'applicant_name': applicantName,
+        'is_notice': is_notice,
+        'client_email': client_email,
+        'mode_document': mode_document,
+        'document_status': document_status,
+        'emp_id': emp_id,
         'attr_status': attrStatus,
         'interview_rounds': interview_rounds,
         'clientAmount': clientAmount,
@@ -193,6 +220,7 @@ class ChangeStatusModel {
         'complete_status': completeStatus,
         'contact_no': contactNo,
         'created_date': createdDate?.toIso8601String(),
+        'last_working_date': last_working_date?.toIso8601String,
         'doj': doj?.toIso8601String(),
         'dos': dos?.toIso8601String(),
         'emp_id': empId,

@@ -42,6 +42,7 @@ class JobApplicationModel {
   final String? subStatus;
   final int? uid;
   final String? userType;
+  final String? interview_rounds;
 
   JobApplicationModel({
     this.alternateNo,
@@ -87,6 +88,7 @@ class JobApplicationModel {
     this.subStatus,
     this.uid,
     this.userType,
+    this.interview_rounds,
   });
 
   factory JobApplicationModel.fromJson(Map<String, dynamic> json) {
@@ -134,6 +136,7 @@ class JobApplicationModel {
       subStatus: json['sub_status'],
       uid: json['uid'],
       userType: json['user_type'],
+      interview_rounds:json['interview_rounds'],
     );
   }
 
@@ -182,6 +185,7 @@ class JobApplicationModel {
       'sub_status': subStatus,
       'uid': uid,
       'user_type': userType,
+      'interview_rounds': interview_rounds,
     };
   }
 }

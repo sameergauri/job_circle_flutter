@@ -5,11 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/jobs.dart';
-import 'package:job_circle/screens/jobs/recruitz.dart';
-import 'package:job_circle/screens/profile/user_detail.dart';
+import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'jobs/cc.dart';
+import 'jobs/Interview_bay_cc.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
@@ -53,8 +52,13 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         index: selectedIndex,
         children: [
           const Jobs(),
-          const UserDetailsPage(),
-          if (role == "3") const CC() else const Recruitz(),
+          //  const UserDetailsPage(),
+          if (role == "3")
+            const InterViewBay()
+          //CC()
+          else
+            const MyPipeLine()
+          //Recruitz(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -107,7 +111,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       backgroundColor: Colors.blue,
     ));
 
-    bottomTabItems.add(
+    /*  bottomTabItems.add(
       BottomNavigationBarItem(
         icon: Image.asset(
           "assets/images/user-group.png",
@@ -120,7 +124,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         label: "All Users",
         backgroundColor: Colors.blue,
       ),
-    );
+    ); */
 
     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
@@ -131,15 +135,14 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         "assets/images/recruitz.png",
         height: 25.h,
       ),
-      label: 'Recruitz',
+      label: 'My PipeLine',
+      //'Recruitz',
       backgroundColor: Colors.blue,
     ));
 
     setState(() {});
   }
 }
-
-
 
 /* class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   final PageController pageController = PageController();

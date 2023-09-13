@@ -4,7 +4,6 @@ import 'package:job_circle/screens/refer_now.dart';
 
 import '../../themes/colors.dart';
 
-
 class TrackApplication extends StatefulWidget {
   const TrackApplication({Key? key}) : super(key: key);
 

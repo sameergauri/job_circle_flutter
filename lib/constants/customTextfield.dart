@@ -178,7 +178,7 @@ class _CustomFormTextFieldMultiSelectLocationState
         children: [
           Text(
             title,
-            style: GoogleFonts.sourceSansPro(
+            style: GoogleFonts.varela(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -282,7 +282,7 @@ class _CustomFormTextFieldMultiSelectLocationState
                                 controller: controller,
                                 decoration: InputDecoration(
                                   hintText: hintText,
-                                  hintStyle: GoogleFonts.sourceSansPro(
+                                  hintStyle: GoogleFonts.varela(
                                     color: Constants.subtitleclr,
                                     fontSize: 15.sp,
                                   ),
@@ -841,7 +841,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(controller!.text,
-                          style: GoogleFonts.sourceSansPro(
+                          style: GoogleFonts.varela(
                               // fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontSize: 15.sp)),
@@ -860,7 +860,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                     ],
                   )
                 : Text(widget.controller!.text,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+                    style: GoogleFonts.varela(fontSize: 15.sp))));
   }
 
   /* Future<List<Map<String, dynamic>>> getSuggestions(String pattern) async {
@@ -994,8 +994,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp,
+                  style: GoogleFonts.varela(
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1008,8 +1008,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp,
+                  style: GoogleFonts.varela(
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1052,7 +1052,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         filled: true,
                         fillColor: Colors.white,
                         hintText: hintText,
-                        hintStyle: GoogleFonts.sourceSansPro(
+                        hintStyle: GoogleFonts.varela(
                           color: Constants.subtitleclr,
                           fontSize: 15.sp,
                         ),
@@ -1320,7 +1320,7 @@ class _CustomFormTextFieldMultiSelectState
         children: [
           Text(
             title,
-            style: GoogleFonts.sourceSansPro(
+            style: GoogleFonts.varela(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -1436,7 +1436,7 @@ class _CustomFormTextFieldMultiSelectState
                                 controller: controller,
                                 decoration: InputDecoration(
                                   hintText: hintText,
-                                  hintStyle: GoogleFonts.sourceSansPro(
+                                  hintStyle: GoogleFonts.varela(
                                     color: Constants.subtitleclr,
                                     fontSize: 15.sp,
                                   ),
@@ -1939,7 +1939,7 @@ class _CustomJobFormTextFieldRespoOneState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(controller!.text,
-                          style: GoogleFonts.sourceSansPro(
+                          style: GoogleFonts.varela(
                               // fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontSize: 15.sp)),
@@ -1954,7 +1954,7 @@ class _CustomJobFormTextFieldRespoOneState
                     ],
                   )
                 : Text(widget.controller!.text,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+                    style: GoogleFonts.varela(fontSize: 15.sp))));
   }
 
   Future<List> getSuggestions(String pattern) async {
@@ -2198,7 +2198,7 @@ class _CustomJobFormTextFieldRespoOneState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
+                  style: GoogleFonts.varela(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2212,7 +2212,7 @@ class _CustomJobFormTextFieldRespoOneState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
+                  style: GoogleFonts.varela(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2248,7 +2248,7 @@ class _CustomJobFormTextFieldRespoOneState
                       controller: controller,
                       decoration: InputDecoration(
                         hintText: hintText,
-                        hintStyle: GoogleFonts.sourceSansPro(
+                        hintStyle: GoogleFonts.varela(
                           color: Constants.subtitleclr,
                           fontSize: 15.sp,
                         ),
@@ -2474,7 +2474,7 @@ class _CustomJobFormTextFieldJobRespoState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(controller!.text,
-                          style: GoogleFonts.sourceSansPro(
+                          style: GoogleFonts.varela(
                               // fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontSize: 15.sp)),
@@ -2493,7 +2493,7 @@ class _CustomJobFormTextFieldJobRespoState
                     ],
                   )
                 : Text(widget.controller!.text,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+                    style: GoogleFonts.varela(fontSize: 15.sp))));
   }
 
   Future<List> getSuggestions(String pattern) async {
@@ -2648,7 +2648,7 @@ class _CustomJobFormTextFieldJobRespoState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
+                  style: GoogleFonts.varela(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2662,7 +2662,7 @@ class _CustomJobFormTextFieldJobRespoState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.sourceSansPro(
+                  style: GoogleFonts.varela(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2698,7 +2698,7 @@ class _CustomJobFormTextFieldJobRespoState
                       controller: controller,
                       decoration: InputDecoration(
                         hintText: hintText,
-                        hintStyle: GoogleFonts.sourceSansPro(
+                        hintStyle: GoogleFonts.varela(
                           color: Constants.subtitleclr,
                           fontSize: 15.sp,
                         ),
