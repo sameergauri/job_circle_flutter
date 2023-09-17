@@ -91,9 +91,24 @@ class _AddResumeState extends State<AddResume> {
     return Scaffold(
       backgroundColor: const Color(0xfffedf6f9),
       appBar: AppBar(
-          title: const Text(
-            "Candidate Detail's",
-            style: TextStyle(color: Colors.white),
+          // automaticallyImplyLeading: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.company_name,
+                style: TextStyle(color: Colors.white, fontSize: 18.sp),
+              ),
+              Row(
+                children: [
+                  Text(widget.process,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                  const Text(" - "),
+                  Text(widget.role,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp))
+                ],
+              )
+            ],
           ),
           iconTheme: const IconThemeData(color: Colors.white),
           elevation: 0,
@@ -521,7 +536,7 @@ class _AddResumeState extends State<AddResume> {
                           )
                         ]),
                   ),
-                  Container(
+                  /*  Container(
                     margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -616,7 +631,7 @@ class _AddResumeState extends State<AddResume> {
                             ],
                           )
                         ]),
-                  ),
+                  ), */
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -912,7 +927,9 @@ class _AddResumeState extends State<AddResume> {
               naturofwork: widget.nature_of_work,
               shortListFor: widget.company_id,
               status: "TP1",
-
+              alternateNo: secondry.text.isNotEmpty
+                  ? int.parse(secondry.text.trim())
+                  : null,
               // subStatus: "Shortlist",
               sourceId: widget.sourceId,
               sourceName: widget.sourceName,
@@ -949,7 +966,9 @@ class _AddResumeState extends State<AddResume> {
               sourceId: widget.sourceId,
               sourceName: widget.sourceName,
               jobid: widget.jobId,
-              alternateNo: int.parse(secondry.text.trim()),
+              alternateNo: secondry.text.isNotEmpty
+                  ? int.parse(secondry.text.trim())
+                  : null,
               spoc: widget.spocId,
               dos: DateTime.now());
           final jsonData = addResumeModel.toJson();
@@ -962,29 +981,32 @@ class _AddResumeState extends State<AddResume> {
         if (applicationList![0].id == 0) {
           // Call the `addResume` function with the specific data
           final addResumeModel = JobApplicationModel(
-              isRef: 1,
-              uid: 0,
-              resume: icon_data,
-              id: 0,
-              applicantName: "${firt_name.text} ${last_name.text}",
-              lastName: last_name.text,
-              contactNo: int.parse(primary_number.text.trim()),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "IB4",
-              subStatus: "Shortlist",
-              sourceId: widget.sourceId,
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              spoc: widget.spocId,
-              dos: DateTime.now()
-              // ... fill in other properties as needed
-              );
+            isRef: 1,
+            uid: 0,
+            resume: icon_data,
+            id: 0,
+            applicantName: "${firt_name.text} ${last_name.text}",
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status: "IB4",
+            subStatus: "Shortlist",
+            sourceId: widget.sourceId,
+            sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.spocId,
+            dos: DateTime.now(),
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            // ... fill in other properties as needed
+          );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
           setState(() {
@@ -1015,6 +1037,9 @@ class _AddResumeState extends State<AddResume> {
               jobid: widget.jobId.toInt(),
               //alternateNo: int.parse(secondry.text),
               spoc: widget.spocId.toInt(),
+              alternateNo: secondry.text.isNotEmpty
+                  ? int.parse(secondry.text.trim())
+                  : null,
               dos: DateTime.now());
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);

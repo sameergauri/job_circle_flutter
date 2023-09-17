@@ -46,7 +46,7 @@ class JobData {
   final dynamic jobSkills;
   final List<dynamic> skills;
   final List<dynamic> jobBenefits;
-  final List<dynamic> inteviewrounds;
+  final List<int> inteviewrounds;
   final List<Location> location;
   final String isFresher;
   final int maxAge;
@@ -172,7 +172,7 @@ class JobData {
                 jsonDecode(json['job_benifits']).map((benefit) => benefit))
             : [],
         inteviewrounds: json['inteviewrounds'] != null
-            ? List<String>.from(
+            ? List<int>.from(
                 jsonDecode(json['inteviewrounds']).map((rounds) => rounds))
             : [],
         isFresher: json['isfresher'] ?? '',

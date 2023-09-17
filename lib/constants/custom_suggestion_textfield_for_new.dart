@@ -11,31 +11,39 @@ import 'package:job_circle/models/process_model.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/themes/colors.dart';
 
-class SuggestionTextField extends StatefulWidget {
+class SuggestionTextFieldForNew extends StatefulWidget {
   final String? companyID, process, role, hint, title;
   final int textfieldNumber;
   final Function(bool) onChanged;
   final Function getFunctionalAreaId;
   final Function onTapCallback;
+  final Function(String)? getSpocfName;
+  final Function(String)? getSpoclName;
+  final Function(int)? getspoc;
   TextEditingController controller = TextEditingController();
-  SuggestionTextField(
-      {super.key,
-      required this.companyID,
-      required this.controller,
-      required this.textfieldNumber,
-      required this.process,
-      required this.role,
-      required this.hint,
-      required this.title,
-      required this.onTapCallback,
-      required this.getFunctionalAreaId,
-      required this.onChanged});
+  SuggestionTextFieldForNew({
+    super.key,
+    required this.companyID,
+    required this.controller,
+    required this.textfieldNumber,
+    required this.process,
+    required this.role,
+    required this.hint,
+    required this.title,
+    required this.onTapCallback,
+    required this.getFunctionalAreaId,
+    required this.onChanged,
+    this.getSpocfName,
+    this.getSpoclName,
+    this.getspoc,
+  });
 
   @override
-  State<SuggestionTextField> createState() => _SuggestionTextFieldState();
+  State<SuggestionTextFieldForNew> createState() =>
+      _SuggestionTextFieldForNewState();
 }
 
-class _SuggestionTextFieldState extends State<SuggestionTextField> {
+class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
   @override
   void initState() {
     super.initState();
@@ -62,7 +70,8 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
       required String process}) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"));
+        // "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -128,7 +137,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
   Future<List<RoleModel>> getJobTitle(String companyId, String proces) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctRolename?companyid=$companyId&process=$proces"));
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctRolename?companyid=$companyId&process=$proces"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -197,7 +206,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
   ) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctProcess?companyid=$name"));
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctProcess?companyid=$name"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -381,7 +390,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                   Text(
                     "${widget.title}",
                     style: GoogleFonts.sourceSansPro(
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                       color: Colors.grey.shade700,
                       fontWeight: FontWeight.w600,
                     ),
@@ -432,7 +441,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                             Text(
                               "${widget.title}",
                               style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
+                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -498,7 +507,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                                 Text(
                                   "${widget.title}",
                                   style: GoogleFonts.sourceSansPro(
-                                    fontSize: 18.sp,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -567,7 +576,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                                 Text(
                                   "${widget.title}",
                                   style: GoogleFonts.sourceSansPro(
-                                    fontSize: 18.sp,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -757,6 +766,12 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                                         handleBoolChange(true);
                                         widget
                                             .getFunctionalAreaId(suggestion.id);
+                                        widget.getSpocfName!(
+                                            suggestion.spoc_fname.toString());
+                                        widget.getSpoclName!(
+                                            suggestion.spoc_lname.toString());
+                                        widget
+                                            .getspoc!(suggestion.spoc!.toInt());
                                         searchKeyWord = "";
                                       });
                                     },

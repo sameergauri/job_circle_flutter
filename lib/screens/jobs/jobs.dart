@@ -186,6 +186,7 @@ class _JobsState extends ConsumerState<Jobs>
 
   @override
   void initState() {
+    bindInit();
     _refreshController = RefreshController(initialRefresh: false);
     super.initState();
     setState(() {
@@ -198,7 +199,7 @@ class _JobsState extends ConsumerState<Jobs>
       bindItems();
 
       bindProfileSummary();
-      bindInit();
+
       fetchJobs();
       // getJobDetails()
     });
@@ -219,8 +220,17 @@ class _JobsState extends ConsumerState<Jobs>
       locationid = jUserRaw['locationid'];
       locationname = jUserRaw['location'];
     }
+
     user_selected_lcoation = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_selected_lcoation.name);
+    setState(() {
+      user_selected_lcoation = locationname;
+      Utils.setPreference(
+          null,
+          ESharedPreferences
+              .user_selected_lcoation.name, // set job location at jobs page.
+          user_selected_lcoation);
+    });
     /* if (localtion != "") {                         set job location on jobs page 23/03/23
       // user_selected_lcoation ?? localtion;
       await Utils.setPreference(
@@ -753,6 +763,7 @@ class _JobsState extends ConsumerState<Jobs>
                     ),
                   ),
                 ),
+                //  if (usertype == 3)
                 Tab(
                   child: InkWell(
                     onTap: () {},
@@ -764,12 +775,12 @@ class _JobsState extends ConsumerState<Jobs>
                       height: 33.h,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Salary"),
-                          Image.asset(
-                            "assets/images/updown.png",
-                            height: 15.h,
-                          )
+                        children: const [
+                          Text("My Jobs"),
+                          /* Image.asset(
+                              "assets/images/updown.png",
+                              height: 15.h,
+                            ) */
                         ],
                       ),
                     ),

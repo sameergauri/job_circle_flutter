@@ -1860,7 +1860,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              if (jobDetailsModel.inteviewrounds != null)
+                              if (jobDetailsModel.interviewrounds != null)
                                 Row(
                                   children: [
                                     /*  Image.asset(
@@ -1876,15 +1876,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     ),
                                   ],
                                 ),
-                              if (jobDetailsModel.inteviewrounds != null)
+                              if (jobDetailsModel.interviewrounds != null)
                                 SizedBox(
                                   height: 3.sp,
                                 ),
-                              if (jobDetailsModel.inteviewrounds != null)
+                              if (jobDetailsModel.interviewrounds != null)
                                 Wrap(
                                   children: [
-                                    ...jobDetailsModel.inteviewrounds!
-                                        .take(5)
+                                    ...jobDetailsModel.interviewrounds!
                                         .map((item) => customSkill(item, true))
                                         .toList(),
                                   ],

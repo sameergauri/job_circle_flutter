@@ -1,15 +1,26 @@
 class NatureOfWorkModel {
-  int id;
-  String functional_area;
+  int? id;
+  String? functional_area;
+  String? spoc_fname;
+  int? spoc;
+  String? spoc_lname;
 
-  NatureOfWorkModel({required this.id, required this.functional_area});
+  NatureOfWorkModel(
+      {this.id,
+      this.functional_area,
+      this.spoc,
+      this.spoc_fname,
+      this.spoc_lname});
 
   factory NatureOfWorkModel.fromJson(Map<String, dynamic> json) {
     return NatureOfWorkModel(
-      id: json['id'] ?? json['id'], // Handle both property orders
-      functional_area: json['functional_area'] ??
-          json['functional_area'], // Handle both property orders
-    );
+        id: json['id'] ?? json['id'], // Handle both property orders
+        functional_area: json['functional_area'] ?? json['functional_area'],
+        spoc_fname: json['spoc_fname'] ?? "",
+        spoc_lname: json['spoc_lname'] ?? '',
+        spoc: json['spoc'] ?? 0
+        // Handle both property orders
+        );
   }
 }
 

@@ -76,3 +76,64 @@ class ResultData {
     );
   } */
 }
+
+class InterviewRoundModel {
+  final int id;
+  final String groupName;
+  final String code;
+  final String value;
+  final int active;
+  final int deleted;
+  final String urlSlug;
+  final int parentid;
+  final String? parentname; // Use nullable type for fields that can be null
+  final int? parent_id;
+  final String? parent_name;
+  final int orderno;
+  final dynamic extra; // Use dynamic for fields with various types
+  final dynamic icon;
+  final dynamic subValue;
+  final dynamic actionLine;
+
+  InterviewRoundModel({
+    required this.id,
+    required this.groupName,
+    required this.code,
+    required this.value,
+    required this.active,
+    required this.deleted,
+    required this.urlSlug,
+    required this.parentid,
+    this.parentname,
+    this.parent_id,
+    this.parent_name,
+    required this.orderno,
+    this.extra,
+    this.icon,
+    this.subValue,
+    this.actionLine,
+  });
+
+ factory InterviewRoundModel.fromJson(Map<String, dynamic> json) {
+    return InterviewRoundModel(
+      id: json['id'] ?? 0, // Default to 0 if id is null
+      groupName: json['group_name'] ?? '',
+      code: json['code'] ?? '',
+      value: json['value'] ?? '',
+      active: json['active'] ?? 0,
+      deleted: json['deleted'] ?? 0,
+      urlSlug: json['url_slug'] ?? '',
+      parentid: json['parentid'] ?? 0,
+      parentname: json['parentname'],
+      parent_id: json['parent_id'],
+      parent_name: json['parent_name'],
+      orderno: json['orderno'] ?? 0,
+      extra: json['extra'],
+      icon: json['icon'],
+      subValue: json['sub_value'],
+      actionLine: json['action_line'],
+    );
+  }
+
+}
+

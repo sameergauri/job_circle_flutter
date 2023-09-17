@@ -42,6 +42,7 @@ class JobApplicationModel {
   final String? subStatus;
   final int? uid;
   final String? userType;
+  final String? client_resume_id;
   final String? interview_rounds;
 
   JobApplicationModel({
@@ -88,6 +89,7 @@ class JobApplicationModel {
     this.subStatus,
     this.uid,
     this.userType,
+    this.client_resume_id,
     this.interview_rounds,
   });
 
@@ -136,7 +138,8 @@ class JobApplicationModel {
       subStatus: json['sub_status'],
       uid: json['uid'],
       userType: json['user_type'],
-      interview_rounds:json['interview_rounds'],
+      client_resume_id: json['client_resume_id'],
+      interview_rounds: json['interview_rounds'],
     );
   }
 
@@ -185,6 +188,7 @@ class JobApplicationModel {
       'sub_status': subStatus,
       'uid': uid,
       'user_type': userType,
+      'client_resume_id': client_resume_id,
       'interview_rounds': interview_rounds,
     };
   }

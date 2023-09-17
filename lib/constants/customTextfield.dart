@@ -736,6 +736,7 @@ class CustomJobFormTextField extends StatefulWidget {
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
+  final void Function(String)? onGetResumeId;
   // final void Function(String)? onJobTitle;
   var onIDSelected;
   final Function onTapCallback;
@@ -746,6 +747,7 @@ class CustomJobFormTextField extends StatefulWidget {
     this.controller,
     this.onSubmit,
     this.focusNode,
+    this.onGetResumeId,
     required this.onTapCallback,
     //  this.onJobTitle,
     // required this.isEdit,
@@ -1133,6 +1135,8 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         // onIDSelected(suggestion.id.toString());
                         // widget.onJobTitle!(firstText.toString());
                         widget.onSubmit!(selectedId.toString());
+                        var selectedResumeId = suggestion.isResumeId;
+                        widget.onGetResumeId!(selectedResumeId);
 
                         // FocusScope.of(context).nextFocus();
                       });
@@ -2592,7 +2596,7 @@ class _CustomJobFormTextFieldJobRespoState
             value.toLowerCase().startsWith(pattern.toLowerCase())) {
           NatureOfWorkModel natureOFwork = NatureOfWorkModel.fromJson(entry);
           if (!uniqueValues.contains(natureOFwork.id)) {
-            uniqueValues.add(natureOFwork.id);
+            uniqueValues.add(natureOFwork.id!.toInt());
             suggestions.add(natureOFwork);
           }
         }

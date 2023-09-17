@@ -30,6 +30,7 @@ import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/customDialogue.dart';
+import '../../models/interview_rounds_model.dart';
 import '../../models/job_post_model.dart';
 import '../../models/more__details.dart';
 import '../../service/job_post_api_service.dart';
@@ -528,7 +529,7 @@ class _JobFormState extends State<JobForm> {
             : agegroupContainer = false;
 
         selectedComunication = jobData.rating;
-        selectedInterViewRounds = jobData.inteviewrounds.cast<String>();
+        selectedInterviewRoundsId = jobData.inteviewrounds.cast<int>();
         if (jobData.eligible.contains(
             "Candidate should be from relevant experience background.")) {
           isRelevantExpperience = true;
@@ -742,7 +743,7 @@ class _JobFormState extends State<JobForm> {
       setState(() {});
     });
     getJobTitle4("pattern", "language").then((_) {
-      isInterview = List<bool>.filled(jobTitleSuggestion4.length, false);
+      isInterview = List<bool>.filled(interviewRoundsModel!.length, false);
       setState(() {});
     });
     getJobTitle2("pattern", "language").then((_) {
@@ -1125,6 +1126,7 @@ class _JobFormState extends State<JobForm> {
 
   List<dynamic> jobTitleSuggestion3 = [];
   List<dynamic> jobTitleSuggestion4 = [];
+  List<dynamic> interviewRoundsId = [];
   bool isNotFound = false;
   List<dynamic> jobTitleSuggestion2 = [];
   List<dynamic> jobTitleSuggestion5 = [];
@@ -1462,8 +1464,38 @@ class _JobFormState extends State<JobForm> {
       throw Exception('Failed to retrieve suggestions');
     }
   } */
+  List<InterviewRoundModel>? interviewRoundsModel;
 
-  Future<List> getJobTitle4(String pattern, String? name) async {
+  int selectedItemCount = 0;
+
+  Future<List<InterviewRoundModel>?> getJobTitle4(
+      String pattern, String? name) async {
+    final url = Uri.parse(
+        'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final List<dynamic> contentList = jsonData['resultData']['content'];
+
+        // Convert the list of Map to a list of Applicant objects
+        interviewRoundsModel = contentList
+            .map((json) => InterviewRoundModel.fromJson(json))
+            .toList();
+        return interviewRoundsModel;
+      } else {
+        print('Failed to fetch data. Status Code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error while fetching data: $e');
+      return [];
+    }
+  }
+
+//TODO: old Api code to fetch interviewRounds.
+  /*  Future<List> getJobTitle4(String pattern, String? name) async {
     // Interview Rounds
     final response = await http.get(Uri.parse(
         'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=interview_rounds&pageNumber=1&pageSize=100'));
@@ -1477,12 +1509,13 @@ class _JobFormState extends State<JobForm> {
       content.sort((a, b) => (a['orderno'] ?? 0).compareTo(b['orderno'] ?? 0));
 
       jobTitleSuggestion4 = content.map((e) => e['value'].toString()).toList();
+      interviewRoundsId = content.map((e) => e['id'].toString()).toList();
       print(jobTitleSuggestion4);
       return jobTitleSuggestion4;
     } else {
       throw Exception('Failed to retrieve suggestions');
     }
-  }
+  } */
 
   /* Future<List> getJobTitle4(String pattern, String? name) async {  // Interview Rounds api withoud order
     final response = await http.get(Uri.parse(
@@ -1575,6 +1608,7 @@ class _JobFormState extends State<JobForm> {
   List<String> selectedLanguages = [];
   List<String> selectedJobBenefits = [];
   List<String> selectedInterViewRounds = [];
+  List<int> selectedInterviewRoundsId = [];
   String? selectedShiftTime1;
   String? selectedComunication;
   String? selectedWeakOff1;
@@ -1582,7 +1616,7 @@ class _JobFormState extends State<JobForm> {
 
   List<JobTitleItem> jobTitleItems = [];
   List<JobTitleItem> jobTitleItems1 = [];
-  List<JobTitleItem> jobTitleItems2 = [];
+  List<JobTitleItemForInterviewRounds> jobTitleItems2 = [];
 
   List<bool> isSelected = [];
   List<bool> isJobBenefits = [];
@@ -1862,7 +1896,7 @@ class _JobFormState extends State<JobForm> {
                               // You can choose to provide a default value or show an error message to the user.
                             }
                             jobPostModel model = jobPostModel(
-                              active: 0,
+                              active: null,
                               crpf_id: functionalAreaId,
                               id: jobID,
                               roleName: role.text,
@@ -1913,7 +1947,8 @@ class _JobFormState extends State<JobForm> {
                               eligible: selectedKeyEligibility,
 
                               moredetails: selectedKeyMoreDetails,
-                              interviewRounds: selectedInterViewRounds,
+                              inteview_rounds: selectedInterviewRoundsId,
+                              //  interviewRounds: selectedInterViewRounds,
                               rating: selectedComunication,
 
                               workCity: int.parse(CityID.toString()),
@@ -2243,8 +2278,9 @@ class _JobFormState extends State<JobForm> {
                       eligible: finalList,
 
                       moredetails: selectedKeyMoreDetails,
-                      interviewRounds: selectedInterViewRounds,
+                      // interviewRounds: selectedInterViewRounds,  //TODO: old interview Rounds.
                       rating: selectedComunication,
+                      inteview_rounds: selectedInterviewRoundsId,
 
                       workCity: int.parse(CityID.toString()),
 
@@ -6949,6 +6985,38 @@ class _JobFormState extends State<JobForm> {
                       "Optional", false, false), */
                   /*  newFormFiled(shorListController, context, "Interview Rounds",
                       "Graduate", false, false, false) */
+                  if (selectedInterViewRounds.isNotEmpty)
+                    Text(
+                      "Interview Rounds Sequence::",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 18.sp,
+                          // color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  Wrap(
+                    direction: Axis.horizontal,
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: List.generate(
+                      selectedInterViewRounds != null
+                          ? selectedInterViewRounds.length
+                          : 0,
+                      (index) {
+                        String title = selectedInterViewRounds[index];
+
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 8.w),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              border:
+                                  Border.all(color: Constants.themeBgColor)),
+                          margin: EdgeInsets.only(right: 6.w, top: 6.h),
+                          child: Text(title),
+                        );
+                      },
+                    ),
+                  ),
                   Text(
                     "Interview Rounds",
                     style: GoogleFonts.sourceSansPro(
@@ -7018,6 +7086,7 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ),
                   ), */
+
                   Container(
                     width: double.maxFinite,
                     margin: const EdgeInsets.only(top: 10, bottom: 12),
@@ -7026,12 +7095,15 @@ class _JobFormState extends State<JobForm> {
                       spacing: 5,
                       runSpacing: 5,
                       children: List.generate(
-                        jobTitleSuggestion4.length,
+                        interviewRoundsModel != null
+                            ? interviewRoundsModel!.length
+                            : 0,
                         (index) {
-                          String title = jobTitleSuggestion4[index];
-                          bool isSelected =
-                              selectedInterViewRounds.contains(title);
-                          JobTitleItem item = JobTitleItem(
+                          String title = interviewRoundsModel![index].value;
+                          bool isSelected = selectedInterviewRoundsId
+                              .contains(interviewRoundsModel![index].id);
+                          JobTitleItemForInterviewRounds item =
+                              JobTitleItemForInterviewRounds(
                             isunSelect: true,
                             ismulti: false,
                             title: title,
@@ -7039,12 +7111,31 @@ class _JobFormState extends State<JobForm> {
                             onTap: (selected) {
                               setState(() {
                                 if (selected) {
+                                  //     selectedItemCount++;
                                   selectedInterViewRounds.add(title);
+                                  selectedInterviewRoundsId
+                                      .add(interviewRoundsModel![index].id);
                                 } else {
+                                  // selectedItemCount--;
                                   selectedInterViewRounds.remove(title);
+                                  selectedInterviewRoundsId
+                                      .remove(interviewRoundsModel![index].id);
                                 }
                               });
                             },
+                            /* onTap: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  selectedInterViewRounds.add(title);
+                                  selectedInterviewRoundsId
+                                      .add(interviewRoundsModel![index].id);
+                                } else {
+                                  selectedInterViewRounds.remove(title);
+                                  selectedInterviewRoundsId
+                                      .remove(interviewRoundsModel![index].id);
+                                }
+                              });
+                            }, */
                             isVisible: true,
                             onlyOneIcon: false,
                             getJobTitle1isSelected: null,

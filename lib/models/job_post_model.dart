@@ -19,6 +19,7 @@ class jobPostModel {
   DateTime? inActiveDate;
   String? industry;
   List<String>? interviewRounds;
+  List<int>? inteview_rounds;
   List<String>? job_skills;
   String? isFresher;
   String? isMonthly;
@@ -81,6 +82,7 @@ class jobPostModel {
     this.inActiveDate,
     this.industry,
     this.interviewRounds,
+    this.inteview_rounds,
     this.isFresher,
     this.isMonthly,
     this.jobBenefits,
@@ -155,6 +157,9 @@ class jobPostModel {
         industry: json["industry"],
         interviewRounds: json["inteviewrounds"] != null
             ? List<String>.from(json["inteviewrounds"].map((x) => x))
+            : null,
+        inteview_rounds: json['inteview_rounds'] != null
+            ? List<int>.from(json['inteview_rounds'].map((x) => x))
             : null,
         isFresher: json["isfresher"],
         isMonthly: json["ismonthly"],
@@ -240,6 +245,9 @@ class jobPostModel {
         "industry": industry,
         "inteviewrounds": interviewRounds != null
             ? List<dynamic>.from(interviewRounds!.map((x) => x))
+            : null,
+        "inteview_rounds": inteview_rounds != null
+            ? List<int>.from(inteview_rounds!.map((e) => e))
             : null,
         "job_skills": job_skills != null
             ? List<dynamic>.from(job_skills!.map((x) => x))

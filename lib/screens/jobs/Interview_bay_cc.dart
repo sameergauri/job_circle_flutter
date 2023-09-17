@@ -219,6 +219,10 @@ class _InterViewBayState extends State<InterViewBay>
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
         .where((e) => e.status_code!.contains('IB'))
+        .where((element) =>
+            element.status_code !=
+            "IB8") //TODO: to remove disqualify and reject from tab bar
+        .where((element) => element.status_code != "IB6")
         .map((e) => e.status.toString())
         .toSet()
         .toList()
@@ -722,6 +726,10 @@ class _InterViewBayState extends State<InterViewBay>
                         } else {
                           // Proceed with sub_status tabs for other statuses
                           final subStatuses = applicants
+                              .where((element) =>
+                                  element.sub_code !=
+                                  "IB7-3") //TODO: to remove offerDrop and notJoin from tab bar viee
+                              .where((element) => element.sub_code != "IB7-2")
                               .map((applicant) =>
                                   applicant.sub_status?.toString())
                               .where((subStatus) => subStatus != null)
@@ -1575,10 +1583,12 @@ class _InterViewBayState extends State<InterViewBay>
                           InkWell(
                             onTap: () {
                               showDialog(
+                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) {
                                   return CustomDialogueForNew(
-                                    title: 'Interview bay',
+                                    title: 'Register ',
+                                    title2: "for an Interview.",
                                     company_name: item.companyName.toString(),
                                     nature_of_work:
                                         item.natureOfWork.toString(),
@@ -1601,7 +1611,7 @@ class _InterViewBayState extends State<InterViewBay>
                                     Border.all(color: Constants.borderColor),
                               ),
                               child: Text(
-                                "Shedule Interview",
+                                "Schedule Interview",
                                 style: GoogleFonts.varela(color: Colors.blue),
                               ),
                             ),

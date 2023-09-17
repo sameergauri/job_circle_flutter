@@ -9,6 +9,7 @@ import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'jobs/Interview_bay_cc.dart';
+import 'jobs/my_team.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
@@ -24,11 +25,17 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   String userName = "";
   String userEmail = "";
   String role = "";
+  int id = 0;
   List<BottomNavigationBarItem> bottomTabItems = [];
 
   @override
   void initState() {
     super.initState();
+    bindBottomTabs();
+    getData();
+  }
+
+  getData() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences pref = await Utils.getSharedPreferences();
       userType = await Utils.getPreferencesValue(
@@ -40,9 +47,9 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       userName = userRawData['firstName'] + " " + userRawData['lastName'];
       userEmail = userRawData['email'];
       role = userRawData['role'];
+      id = userRawData['id'];
       setState(() {});
     });
-    bindBottomTabs();
   }
 
   @override
@@ -52,12 +59,17 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         index: selectedIndex,
         children: [
           const Jobs(),
-          //  const UserDetailsPage(),
+
           if (role == "3")
             const InterViewBay()
           //CC()
           else
-            const MyPipeLine()
+            const MyPipeLine(),
+          role == "3"
+              ? LeadsTable(
+                  id: id,
+                )
+              : const Placeholder(),
           //Recruitz(),
         ],
       ),
@@ -90,13 +102,13 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
     );
   }
 
-  void bindBottomTabs() async {
+  bindBottomTabs() async {
     /* userType = await Utils.getPreferencesValue(
-        null, ESharedPreferences.user_type.name); */
+        null, ESharedPreferences.user_type.name);
 
-    //var partnerRequest = await Utils.getCacheData('partner_request');
+    var partnerRequest = await Utils.getCacheData('partner_request'); */
 
-    bottomTabItems.clear(); // Clear existing items before adding new ones
+    //bottomTabItems.clear(); // Clear existing items before adding new ones
 
     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
@@ -111,21 +123,6 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       backgroundColor: Colors.blue,
     ));
 
-    /*  bottomTabItems.add(
-      BottomNavigationBarItem(
-        icon: Image.asset(
-          "assets/images/user-group.png",
-          height: 20.h,
-        ),
-        activeIcon: Image.asset(
-          "assets/images/user-group.png",
-          height: 25.h,
-        ),
-        label: "All Users",
-        backgroundColor: Colors.blue,
-      ),
-    ); */
-
     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/recruitz.png",
@@ -139,6 +136,21 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       //'Recruitz',
       backgroundColor: Colors.blue,
     ));
+
+    bottomTabItems.add(
+      BottomNavigationBarItem(
+        icon: Image.asset(
+          "assets/images/user-group.png",
+          height: 20.h,
+        ),
+        activeIcon: Image.asset(
+          "assets/images/user-group.png",
+          height: 25.h,
+        ),
+        label: "Team",
+        backgroundColor: Colors.blue,
+      ),
+    );
 
     setState(() {});
   }

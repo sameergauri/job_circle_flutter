@@ -27,7 +27,7 @@ class JobDetailsModel {
   double? minctc;
   double? maxctc;
   String? ctcdesc;
-  List<String>? inteviewrounds;
+  List<String>? interviewrounds;
   List<String>? skills;
   String? payout;
   String? paymentclause;
@@ -78,7 +78,7 @@ class JobDetailsModel {
     this.minctc,
     this.maxctc,
     this.ctcdesc,
-    this.inteviewrounds,
+    this.interviewrounds,
     this.skills,
     this.payout,
     this.paymentclause,
@@ -109,8 +109,8 @@ class JobDetailsModel {
     List<String>? eligible =
         map['eligible'] != null ? parseLanguageKnown(map['eligible']) : null;
 
-    List<String>? inteviewrounds = map['inteviewrounds'] != null
-        ? parseLanguageKnown(map['inteviewrounds'])
+    List<String>? interviewrounds = map['interviewrounds'] != null
+        ? parseLanguageKnown(map['interviewrounds'])
         : null;
 
     List<String>? skills =
@@ -161,7 +161,7 @@ class JobDetailsModel {
       minctc: double.tryParse(map['minctc']?.toString() ?? ''),
       maxctc: double.tryParse(map['maxctc']?.toString() ?? ''),
       ctcdesc: map['ctcdesc'],
-      inteviewrounds: inteviewrounds,
+      interviewrounds: interviewrounds,
       skills: skills,
       payout: map['payout'],
       paymentclause: map['paymentclause'],
