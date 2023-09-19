@@ -128,7 +128,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 zoomSteps: 3,
                 showNavigation: false,
                 showPicker: false,
-            
+
                 // numberPickerConfirmWidget: f,
               );
             } else {

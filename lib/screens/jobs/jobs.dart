@@ -1,5 +1,8 @@
+// ignore_for_file: await_only_futures
+
 import 'dart:convert';
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:circular_menu/circular_menu.dart';
 import 'package:file_picker/file_picker.dart';
@@ -56,7 +59,7 @@ class _JobsState extends ConsumerState<Jobs>
   ];
 
   late final TabController _tabController =
-      TabController(length: 9, vsync: this);
+      TabController(length: 2, vsync: this);
 
   late int selectedJobTypeIndex = 0;
   late List jobItems = [];
@@ -161,11 +164,19 @@ class _JobsState extends ConsumerState<Jobs>
   var user_selected_lcoation;
   var partner_request = 1;
 
-  void _onRefresh() async {
+  Future<void> _onRefresh() async {
     // if failed,use refreshFailed()
     await Future.delayed(const Duration(milliseconds: 200));
 
     searchAgain();
+    _refreshController.refreshCompleted();
+  }
+
+  Future<void> _onRefreshForMyJobs({Map<String, String>? data}) async {
+    // if failed,use refreshFailed()
+    await Future.delayed(const Duration(milliseconds: 200));
+    log(data.toString());
+    searchAgain(data: data);
     _refreshController.refreshCompleted();
   }
 
@@ -263,6 +274,7 @@ class _JobsState extends ConsumerState<Jobs>
 
   int? cutTab;
   bool isSelect = false;
+  bool isMyJobs = false;
   bool isSelected = false;
   bool saved = false;
 
@@ -404,6 +416,13 @@ class _JobsState extends ConsumerState<Jobs>
 
 /*   late String selectedKey = data.keys.first;
   final int _tabIndex = 0; */
+
+  late Map<String, String> staticMap = {
+    'spoc': '${profilemodel.id}',
+  };
+  late Map<String, String> staticMap1 = {
+    'spoc': '${profilemodel.report_to}',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -618,15 +637,15 @@ class _JobsState extends ConsumerState<Jobs>
               labelColor: Colors.black,
               unselectedLabelColor: Colors.black,
               indicatorSize: TabBarIndicatorSize.tab,
-              splashBorderRadius: BorderRadius.circular(50),
+              splashBorderRadius: BorderRadius.circular(8.r),
               //indicatorSize: TabBarIndicatorSize.label,
               indicatorWeight: 5,
               indicatorPadding: EdgeInsets.only(
-                  top: 4.5.h, bottom: 8.h, left: 3.w, right: 3.w),
+                  top: 10.h, bottom: 12.h, left: 3.w, right: 3.w),
               indicator: isSelect
                   ? BoxDecoration(
                       color: Constants.borderColor,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(
                           color: Constants.borderColor) // Creates border
                       )
@@ -637,8 +656,13 @@ class _JobsState extends ConsumerState<Jobs>
                   isSelect = !isSelect;
                   if (value == 1) {
                     // sortByd = "New Jobs";
-
-                    searchAgain();
+                    isSelect
+                        ? searchAgain(
+                            data: role == "1" || role == "2"
+                                ? staticMap1
+                                : staticMap)
+                        : searchAgain();
+                    // isSelect ? ;
                   }
                   if (value == 2) {
                     sortByd = "Newer Jobs";
@@ -710,9 +734,9 @@ class _JobsState extends ConsumerState<Jobs>
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50.r),
+                          borderRadius: BorderRadius.circular(8.r),
                           border: Border.all(color: Constants.borderColor)),
-                      height: 33.h,
+                      height: 28.h,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -764,9 +788,14 @@ class _JobsState extends ConsumerState<Jobs>
                   ),
                 ),
                 //  if (usertype == 3)
-                Tab(
+                /*  Tab(
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      searchAgain(
+                          data: role == "1" || role == "2"
+                              ? staticMap1
+                              : staticMap);
+                    },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
@@ -785,8 +814,11 @@ class _JobsState extends ConsumerState<Jobs>
                       ),
                     ),
                   ),
+                ), */
+                Tab(
+                  child: customTab("My Jobs", "assets/images/check.png", 1),
                 ),
-                Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
+                /* Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
                 Tab(
                     child: customTab(
                         "Work from home", "assets/images/check.png", 3)),
@@ -800,7 +832,7 @@ class _JobsState extends ConsumerState<Jobs>
                         customTab("Recomended", "assets/images/check.png", 7)),
                 Tab(
                     child:
-                        customTab("Saved Jobs", "assets/images/check.png", 7)),
+                        customTab("Saved Jobs", "assets/images/check.png", 7)), */
 
                 /*    Tab(
                     child: Container(
@@ -1291,7 +1323,19 @@ class _JobsState extends ConsumerState<Jobs>
                                 },
                               ),
                               controller: _refreshController,
-                              onRefresh: _onRefresh,
+                              onRefresh: () async {
+                                log(isSelect.toString());
+                                await _onRefreshForMyJobs(
+                                    data: !isSelect
+                                        ? null
+                                        : role == "1" || role == "2"
+                                            ? staticMap1
+                                            : staticMap);
+                              },
+                              /*  : () async {
+                                      log(isSelect.toString());
+                                      await _onRefresh();
+                                    }, */
                               onLoading: _onLoading,
                               child: SingleChildScrollView(
                                 child: Column(
@@ -1755,9 +1799,9 @@ class _JobsState extends ConsumerState<Jobs>
 
   Widget customTab(String title, String img, int select) {
     return Container(
-        padding: EdgeInsets.symmetric(vertical: 9.5.h, horizontal: 10.w),
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50.r),
+            borderRadius: BorderRadius.circular(8.r),
             border: Border.all(color: Constants.borderColor, width: 1)),
         child: cutTab == select
             ? isSelect
@@ -2959,6 +3003,7 @@ class _JobsState extends ConsumerState<Jobs>
 
   void searchAgain({Map<String, String>? data}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     _page = 0;
     _hasNextPage = true;
     _isFirstLoadRunning = false;

@@ -98,7 +98,7 @@ class Applicant {
   List<String>? inteviewrounds;
   String? availabilityPrevious;
   String? lastWorkingDateRecent;
-  DateTime? doj;
+  String? doj;
   int? mode_document;
   String? document_status;
   int? short_list_for;
@@ -106,9 +106,10 @@ class Applicant {
   String? last_name;
   String? source_name;
   String? company_resumeId;
-  DateTime? dol;
+  String? dol;
   String? referral_name;
   String? spoc_name;
+  int? reportTo;
 
   Applicant(
       {this.showRejectTextField,
@@ -171,7 +172,8 @@ class Applicant {
       this.company_resumeId,
       this.dol,
       this.referral_name,
-      this.spoc_name});
+      this.spoc_name,
+      this.reportTo});
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
     return Applicant(
@@ -224,7 +226,7 @@ class Applicant {
       inteviewrounds: _parseSkills(json['inteviewrounds']),
       availabilityPrevious: json['availability_previous'],
       lastWorkingDateRecent: json['last_working_date_recent'],
-      doj: json['doj'] != null ? DateTime.parse(json['doj']) : null,
+      doj: json['doj'],
       mode_document: json['mode_document'],
       document_status: json['document_status'],
       short_list_for: json['short_list_for'],
@@ -232,9 +234,10 @@ class Applicant {
       last_name: json['last_name'],
       source_name: json['source_name'],
       company_resumeId: json['company_resumeId'],
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      dol: json['dol'],
       referral_name: json['referral_name'],
       spoc_name: json['spoc_name'],
+      reportTo: json['report_to'],
     );
   }
 
@@ -328,7 +331,7 @@ class Applicant {
       // Assuming languages is already a List<String>
       'availability_previous': availabilityPrevious,
       'last_working_date_recent': lastWorkingDateRecent,
-      'doj': doj?.toIso8601String(),
+      'doj': doj,
       'mode_document': mode_document,
       'document_status': document_status,
       'short_list_for': short_list_for,
@@ -339,6 +342,7 @@ class Applicant {
       'dol': dol,
       'referral_name': referral_name,
       'spoc_name': spoc_name,
+      'report_to': reportTo
     };
   }
 }
@@ -503,4 +507,28 @@ class toggle {
     // ... other constructor parameters ...
     required this.switchValue,
   });
+}
+
+class ReportTo {
+  int? reportTo;
+  int? id;
+
+  ReportTo({
+    this.reportTo,
+    this.id,
+  });
+
+  factory ReportTo.fromJson(Map<String, dynamic> json) {
+    return ReportTo(
+      reportTo: json['report_to'] as int,
+      id: json['id'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'report_to': reportTo,
+      'id': id,
+    };
+  }
 }

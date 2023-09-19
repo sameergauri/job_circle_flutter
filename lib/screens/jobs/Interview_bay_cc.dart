@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:awesome_calendar/awesome_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +36,9 @@ import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
+
+final fetchAllApplicantProvider = FutureProvider.family<List<Applicant>,int>(
+    (ref, id) => _InterViewBayState.fetchAllApplicants(id));
 
 class InterViewBay extends StatefulWidget {
   const InterViewBay({
@@ -143,7 +147,7 @@ class _InterViewBayState extends State<InterViewBay>
     }
   }
 
-  Future<List<Applicant>> fetchAllApplicants(int userId) async {
+  static Future<List<Applicant>> fetchAllApplicants(int userId) async {
     final url = Uri.parse(
         'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId&page=1&size=1000');
     try {
@@ -1178,11 +1182,14 @@ class _InterViewBayState extends State<InterViewBay>
     // spocController.text =
     // "${userRole.runtimeType} ${userModel.lastName} -  ${userModel.role}";
 
-    List<String> finalinterviewRounds = item.inteviewrounds!
-        .map((round) =>
-            round.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''))
-        .expand((formattedRound) => formattedRound.split(', '))
-        .toList();
+    List<String> finalinterviewRounds = item.inteviewrounds
+            ?.map((round) => round
+                .replaceAll('[', '')
+                .replaceAll(']', '')
+                .replaceAll('"', ''))
+            .expand((formattedRound) => formattedRound.split(', '))
+            .toList() ??
+        [];
 
     /* String? getInitialValue() {
       if (selectedRoundsMap[item.id] != null &&

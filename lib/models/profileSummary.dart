@@ -31,6 +31,7 @@ class ProfileSummaryModel with Searchable {
   String? experience;
   String? updated_date;
   String? createdon;
+  int? report_to;
   // bool? isActive; // Add this field to represent active status
   // DateTime? lastActiveDate;
   bool isVisible; // Add this field to store last active date
@@ -69,6 +70,7 @@ class ProfileSummaryModel with Searchable {
     this.isVisible = true,
     this.cover_pic,
     this.bio,
+    this.report_to,
   });
 
   factory ProfileSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -115,7 +117,9 @@ class ProfileSummaryModel with Searchable {
           // isActive: json['active'],
           // lastActiveDate: json["lastActive"]
           cover_pic: json['cover_pic'],
-          bio: json['bio']);
+          bio: json['bio'],
+          report_to:json['report_to'],
+          );
     } catch (e) {
       print("Error parsing JSON: $e");
       return ProfileSummaryModel(); // Return a default instance or handle the error accordingly
@@ -186,7 +190,8 @@ class ProfileSummaryModel with Searchable {
       // 'active': isActive,
       // 'lastActive': lastActiveDate
       'cover_pic': cover_pic,
-      'bio': bio
+      'bio': bio,
+      'report_to': report_to,
     };
   }
 
