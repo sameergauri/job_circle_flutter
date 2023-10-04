@@ -244,7 +244,7 @@ class _AddResumeState extends State<AddResume> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 4, horizontal: 10),
                           child: Text(
-                            "Contact No.'s",
+                            "Contact Numbers",
                             style: GoogleFonts.sourceSansPro(
                                 fontSize: 20.sp,
                                 color: const Color(0xfff729995),
@@ -640,8 +640,7 @@ class _AddResumeState extends State<AddResume> {
                         children: [
                           InkWell(
                             onTap: () async {
-                              var data =
-                                  await uploadFile(['pdf', 'doc', 'docx']);
+                              var data = await uploadFile(['pdf']);
                               if (data != null) {
                                 setState(() {
                                   icon_data = data;
@@ -694,7 +693,7 @@ class _AddResumeState extends State<AddResume> {
                                     fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                "Word or pdf file.",
+                                "Only pdf file.",
                                 style: GoogleFonts.sourceSansPro(
                                     fontSize: 8.sp,
                                     fontStyle: FontStyle.italic,
@@ -844,7 +843,22 @@ class _AddResumeState extends State<AddResume> {
 
         // Handle any exceptions that occur during the upload
         print("Error during file upload: $e");
-        return null;
+        return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Error while uploading cv"),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Ok"),
+                ),
+              ],
+            );
+          },
+        );
       }
     } else {
       // Close the loading dialog when the user cancels file selection
@@ -916,7 +930,7 @@ class _AddResumeState extends State<AddResume> {
               isRef: 1,
               uid: 0,
               id: 0,
-              applicantName: "${firt_name.text} ${last_name.text}",
+              applicantName: firt_name.text,
               lastName: last_name.text,
               contactNo: int.parse(primary_number.text.trim()),
               qualification: graduate == true ? "Graduate" : "Under Graduate",
@@ -935,7 +949,76 @@ class _AddResumeState extends State<AddResume> {
               sourceName: widget.sourceName,
               jobid: widget.jobId,
               spoc: widget.spocId,
-              dos: DateTime.now()
+              dol: DateTime.now()
+              // ... fill in other properties as needed
+              );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          setState(() {
+            isLoading = false;
+          });
+        } else {
+          // Call the `addResume` function with a different set of data
+          final addResumeModel = JobApplicationModel(
+            isRef: 1,
+            resume: icon_data,
+            uid: applicationList![0].id,
+            id: 0,
+            applicantName: applicationList![0].firstName,
+            lastName: applicationList![0].lastName,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status: "TP1",
+            // subStatus: "Shortlist",
+            sourceId: widget.sourceId,
+            sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            spoc: widget.spocId,
+            dol: DateTime.now(),
+          );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } else {
+        if (applicationList![0].id == 0) {
+          // Call the `addResume` function with the specific data
+          final addResumeModel = JobApplicationModel(
+              isRef: 1,
+              uid: 0,
+              resume: icon_data,
+              id: 0,
+              applicantName: firt_name.text,
+              lastName: last_name.text,
+              contactNo: int.parse(primary_number.text.trim()),
+              qualification: graduate == true ? "Graduate" : "Under Graduate",
+              isExperienced: fresher ? 0 : 1,
+              companyName: widget.company_name,
+              process: widget.process,
+              level: widget.role,
+              naturofwork: widget.nature_of_work,
+              shortListFor: widget.company_id,
+              status: "IB4",
+              subStatus: "Shortlist",
+              sourceId: widget.sourceId,
+              sourceName: widget.sourceName,
+              jobid: widget.jobId,
+              spoc: widget.spocId,
+              alternateNo: secondry.text.isNotEmpty
+                  ? int.parse(secondry.text.trim())
+                  : null,
+              dol: DateTime.now()
               // ... fill in other properties as needed
               );
           final jsonData = addResumeModel.toJson();
@@ -947,80 +1030,10 @@ class _AddResumeState extends State<AddResume> {
           // Call the `addResume` function with a different set of data
           final addResumeModel = JobApplicationModel(
               isRef: 1,
-              resume: icon_data,
-              uid: applicationList![0].id,
-              id: 0,
-              applicantName:
-                  "${applicationList![0].firstName} ${applicationList![0].lastName}",
-              lastName: applicationList![0].lastName,
-              contactNo: int.parse(primary_number.text.trim()),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "TP1",
-              // subStatus: "Shortlist",
-              sourceId: widget.sourceId,
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              alternateNo: secondry.text.isNotEmpty
-                  ? int.parse(secondry.text.trim())
-                  : null,
-              spoc: widget.spocId,
-              dos: DateTime.now());
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          setState(() {
-            isLoading = false;
-          });
-        }
-      } else {
-        if (applicationList![0].id == 0) {
-          // Call the `addResume` function with the specific data
-          final addResumeModel = JobApplicationModel(
-            isRef: 1,
-            uid: 0,
-            resume: icon_data,
-            id: 0,
-            applicantName: "${firt_name.text} ${last_name.text}",
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status: "IB4",
-            subStatus: "Shortlist",
-            sourceId: widget.sourceId,
-            sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: widget.spocId,
-            dos: DateTime.now(),
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          setState(() {
-            isLoading = false;
-          });
-        } else {
-          // Call the `addResume` function with a different set of data
-          final addResumeModel = JobApplicationModel(
-              isRef: 1,
               uid: applicationList![0].id,
               id: 0,
               resume: icon_data,
-              applicantName:
-                  "${applicationList![0].firstName.toString()} ${applicationList![0].lastName.toString()}",
+              applicantName: applicationList![0].firstName.toString(),
               lastName: applicationList![0].lastName.toString(),
               contactNo: int.parse(primary_number.text.trim()),
               qualification: graduate == true ? "Graduate" : "Under Graduate",
@@ -1040,7 +1053,7 @@ class _AddResumeState extends State<AddResume> {
               alternateNo: secondry.text.isNotEmpty
                   ? int.parse(secondry.text.trim())
                   : null,
-              dos: DateTime.now());
+              dol: DateTime.now());
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
           setState(() {

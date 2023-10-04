@@ -13,7 +13,6 @@ import '../../../models/job_details_model.dart';
 import '../../../models/profileSummary.dart';
 import '../../../themes/colors.dart';
 import '../../models/my_team_model.dart';
-import 'my_team_detail.dart';
 
 class LeadsTable extends StatefulWidget {
   final int id;
@@ -119,9 +118,14 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
   //   });
   // }
 
+  List<String> spocList = [];
+  double calculateOffset() {
+    return -(spocList.length * 62.0);
+  }
+
   Future<void> fetchAllLeadDetails() async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=${widget.id}&userId2=${widget.id}&page=1&size=300');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=${widget.id}&page=1&size=100');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -161,13 +165,13 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
           DateTime nextMonthDateTime =
               DateTime(currentDateTime.year, currentDateTime.month + 1, 1);
 
-          if ((dol?.month == currentDateTime.month &&
-                  doj?.month == currentDateTime.month) ||
-              (doj?.month == currentDateTime.month &&
-                  dol?.month == lastMonthDateTime.month) ||
+          DateTime nextSixMonthDateTime =
+              DateTime(currentDateTime.year, currentDateTime.month + 6, 6);
+
+          if ((doj?.month == currentDateTime.month ||
+                  doj?.month == nextSixMonthDateTime.month ||
+                  dol?.month == currentDateTime.month) ||
               (applicants[i].status == 'Select' && doj == null) ||
-              (dol?.month == currentDateTime.month &&
-                  doj?.month == nextMonthDateTime.month) ||
               (applicants[i].status == 'In-Process' ||
                   applicants[i].status == 'New')) {
             filteredApplicants.add(applicants[i]);
@@ -216,13 +220,23 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
             filteredApplicants[i].sub_status = "Virtual";
           }
         }
+        for (int i = 0; i < filteredApplicants.length; i++) {
+          if (filteredApplicants[i].sub_status == 'On-Site Interview') {
+            filteredApplicants[i].sub_status = "Face2Face";
+          }
+        }
 
         for (int i = 0; i < filteredApplicants.length; i++) {
           if (filteredApplicants[i].sub_status == 'Confirmation Pending') {
             filteredApplicants[i].sub_status = "Pending";
           }
         }
-
+        spocList = filteredApplicants
+            .map((lead) => lead.source_name ?? '')
+            .toSet()
+            .toList()
+            .cast<String>();
+        spocList.insert(0, 'All');
         setState(() {
           allLeadsData = filteredApplicants;
           dojList = formattedDojList.cast<DateTime?>();
@@ -258,6 +272,8 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
     }
   }
 
+  String selectedRound = '';
+  String selectedName = '';
   bool isDropdownOpen = false;
   bool isValueSelected = false;
   String? selectedSpocValue;
@@ -266,6 +282,22 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
     _searchController.dispose();
     _animationController?.dispose();
     super.dispose();
+  }
+
+  String extractInitials(String fullName) {
+    List<String> nameParts = fullName.split(' ');
+    String initials = '';
+
+    for (var i = 0; i < nameParts.length; i++) {
+      String part = nameParts[i];
+      if (part.isNotEmpty) {
+        initials += i == 0
+            ? part
+            : ' ' + (i == nameParts.length - 1 ? part[0] : part[0] + ' ');
+      }
+    }
+
+    return initials;
   }
 
   @override
@@ -282,29 +314,77 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
         }
       },
       child: Scaffold(
-        floatingActionButton: ElevatedButton(
-          onPressed: () {
-            _showSpocListDialog();
-          },
-          child: Text(
-            'ALL',
-            style: GoogleFonts.varela(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: const Size(70, 30),
-          ),
-        ),
+        floatingActionButton: PopupMenuButton<String>(
+            offset: Offset(0, calculateOffset()),
+            itemBuilder: (BuildContext context) {
+              return [
+                ...spocList.asMap().entries.map((entry) {
+                  final String round = entry.value;
+                  final isOddIndex = entry.key % 2 == 1;
+                  return PopupMenuItem<String>(
+                    padding: EdgeInsets.zero,
+                    value: round,
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color:
+                            isOddIndex ? Colors.white : Constants.borderColor,
+                      ),
+                      child: Center(
+                        child: Text(
+                          extractInitials(round),
+                          style: GoogleFonts.sourceSansPro(
+                            color: isOddIndex
+                                ? Constants.subtitleclr
+                                : Constants.subtitleclr,
+                            fontSize: 15.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ];
+            },
+            onSelected: (selectedRound) {
+              setState(() {
+                selectedSpoc.clear();
+                if (selectedSpoc.contains(selectedRound)) {
+                  selectedSpoc.remove(selectedRound);
+                } else {
+                  selectedSpoc.add(selectedRound);
+                }
+                selectedName = selectedRound;
+                _applySpocFilter(selectedSpoc);
+              });
+            },
+            child: GestureDetector(
+              onTap: null,
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 6.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xfff729995),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  selectedSpoc.isNotEmpty
+                      ? extractInitials(selectedName)
+                      : 'All',
+                  style: GoogleFonts.varela(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            )),
         backgroundColor: Colors.white,
         appBar: isSearchVisible
             ? AppBar(
                 automaticallyImplyLeading: false,
                 elevation: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: const IconThemeData(color: Colors.white),
                 backgroundColor: Colors.white,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -390,9 +470,9 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
           ),
           child: SfDataGridTheme(
             data: SfDataGridThemeData(
-              headerColor: const Color.fromARGB(255, 163, 235, 229),
-              filterIconColor: const Color.fromARGB(255, 39, 27, 31),
-            ),
+                headerColor: const Color(0xfff729995),
+                filterIconColor: Colors.white,
+                sortIconColor: Colors.white),
             child: SfDataGrid(
               source: DataSource(leads: filteredLeadsData, context: context),
               selectionMode: SelectionMode.single,
@@ -433,7 +513,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                       style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -447,7 +527,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                       style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -466,7 +546,26 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                       style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  filterPopupMenuOptions: const FilterPopupMenuOptions(
+                      canShowSortingOptions: false,
+                      canShowClearFilterOption: false,
+                      filterMode: FilterMode.checkboxFilter),
+                ),
+                GridColumn(
+                  columnName: 'sub_status',
+                  // width: 90,
+                  allowSorting: false,
+                  label: Container(
+                    child: Text(
+                      'Sub Status',
+                      style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -483,7 +582,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                       style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: Colors.white,
                       ),
                     ),
                     filterPopupMenuOptions: const FilterPopupMenuOptions(
@@ -491,25 +590,6 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                         canShowClearFilterOption: false,
                         filterMode: FilterMode.checkboxFilter),
                     sortIconPosition: ColumnHeaderIconPosition.start),
-                GridColumn(
-                  columnName: 'sub_status',
-                  // width: 90,
-                  allowSorting: false,
-                  label: Container(
-                    child: Text(
-                      'Sub Status',
-                      style: GoogleFonts.varela(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  filterPopupMenuOptions: const FilterPopupMenuOptions(
-                      canShowSortingOptions: false,
-                      canShowClearFilterOption: false,
-                      filterMode: FilterMode.checkboxFilter),
-                ),
                 GridColumn(
                   width: 120,
                   columnName: 'doc_status',
@@ -520,7 +600,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                       style: GoogleFonts.varela(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -560,7 +640,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                     child: Icon(
                       Icons.search,
                       size: 24,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -571,7 +651,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                   style: GoogleFonts.varela(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -581,7 +661,8 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
       } else {
         return Text(
           label,
-          style: GoogleFonts.varela(fontWeight: FontWeight.bold, fontSize: 13),
+          style: GoogleFonts.varela(
+              fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
         );
       }
     }
@@ -697,17 +778,14 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
 
   void _applySpocFilter(List<String> selectedSpoc) {
     setState(() {
-      if (selectedSpoc.contains('Other')) {
-        filteredLeadsData = allLeadsData
-            .where((lead) =>
-                (lead.source_name ?? '') != '' &&
-                lead.reportTo != 2 &&
-                lead.sourceId != 2)
-            .toList();
+      if (selectedSpoc.contains('All')) {
+        filteredLeadsData = allLeadsData;
+        // selectedSpoc.clear();
       } else {
         filteredLeadsData = allLeadsData
             .where((lead) => selectedSpoc.contains(lead.source_name ?? ''))
             .toList();
+        // selectedSpoc.clear();
       }
     });
   }
@@ -725,9 +803,9 @@ class DataSource extends DataGridSource {
             columnName: 'companyName', value: dataGridRow.short_name),
         DataGridCell<String>(columnName: 'process', value: dataGridRow.process),
         DataGridCell<String>(columnName: 'status', value: dataGridRow.status),
-        DataGridCell<String>(columnName: 'doj', value: dataGridRow.doj),
         DataGridCell<String>(
             columnName: 'sub_status', value: dataGridRow.sub_status),
+        DataGridCell<String>(columnName: 'doj', value: dataGridRow.doj),
         DataGridCell<String>(
             columnName: 'doc_status', value: dataGridRow.document_status),
       ]);
@@ -753,12 +831,12 @@ class DataSource extends DataGridSource {
               if (rowIndex >= 0 && rowIndex < leads.length) {
                 Applicant clickedLead = leads[rowIndex];
 
-                Navigator.push(
+                /*  Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyTeamDetail(leadModel: clickedLead),
                   ),
-                );
+                ); */
               }
             },
             child: Container(
@@ -790,12 +868,12 @@ class DataSource extends DataGridSource {
               if (rowIndex >= 0 && rowIndex < leads.length) {
                 Applicant clickedLead = leads[rowIndex];
 
-                Navigator.push(
+                /*  Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyTeamDetail(leadModel: clickedLead),
                   ),
-                );
+                ); */
               }
             },
             child: Container(
@@ -829,12 +907,12 @@ class DataSource extends DataGridSource {
               if (rowIndex >= 0 && rowIndex < leads.length) {
                 Applicant clickedLead = leads[rowIndex];
 
-                Navigator.push(
+                /*  Navigator.push(  //TODO: Navigate to lead detail page.
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyTeamDetail(leadModel: clickedLead),
                   ),
-                );
+                ); */
               }
             },
             child: Container(
@@ -863,12 +941,12 @@ class DataSource extends DataGridSource {
               if (rowIndex >= 0 && rowIndex < leads.length) {
                 Applicant clickedLead = leads[rowIndex];
 
-                Navigator.push(
+                /*  Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyTeamDetail(leadModel: clickedLead),
                   ),
-                );
+                ); */
               }
             },
             child: Container(

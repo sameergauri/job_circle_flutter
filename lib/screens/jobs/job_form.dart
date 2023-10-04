@@ -1595,7 +1595,9 @@ class _JobFormState extends State<JobForm> {
 
   void updateSelectedValues1(String value) {
     setState(() {
-      selectedWorkLocation.add(value);
+      if (!selectedWorkLocation.contains(value)) {
+        selectedWorkLocation.add(value);
+      }
     });
   }
 
@@ -2616,7 +2618,7 @@ class _JobFormState extends State<JobForm> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "No's of vacancies",
+                              "No of vacancies",
                               style: GoogleFonts.sourceSansPro(
                                   fontSize: 18.sp,
                                   // color: Colors.grey.shade500,
@@ -4138,7 +4140,7 @@ class _JobFormState extends State<JobForm> {
                     ),
                   ), */
                   Text(
-                    "Weak Off",
+                    "Week Off",
                     style: GoogleFonts.sourceSansPro(
                         fontSize: 18.sp,
                         // color: Colors.grey.shade500,
@@ -5638,7 +5640,7 @@ class _JobFormState extends State<JobForm> {
                             });
                           },
                           isSelect: femalePrefered,
-                          title: "Female Prefered")
+                          title: "Female Preferred")
                     ],
                   ),
                   Row(

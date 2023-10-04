@@ -615,8 +615,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   jobId: jobDetailsModel.id!.toInt(),
                                   sourceId: profilemodel.id!.toInt(),
                                   sourceName:
-                                      profilemodel.first_name.toString() +
-                                          profilemodel.last_name.toString(),
+                                      "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                   isRefer: false,
                                   spocId: jobDetailsModel.spoc!.toInt(),
                                 )));
@@ -818,6 +817,48 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 ? const SizedBox()
                                 : const SizedBox()
                             : Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/bag.png",
+                                    height: 12.h,
+                                    //  color: Constants.subtitleclr,
+                                  ),
+                                  SizedBox(
+                                    width: 8.w,
+                                  ),
+                                  jobDetailsModel.maxexperience == "& above"
+                                      ? jobDetailsModel.minexperience == 0.6
+                                          ? Text(
+                                              // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                              "6 Month & Above.",
+                                              style: GoogleFonts.varela(
+                                                  // color: Colors.black54,
+                                                  color: Colors.grey.shade700,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 13.sp),
+                                            )
+                                          : Text(
+                                              "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Years & above.",
+                                              style: GoogleFonts.varela(
+                                                  // color: Colors.black54,
+                                                  color: Colors.grey.shade700,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 13.sp),
+                                            )
+                                      : Text(
+                                          "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} - ${jobDetailsModel.maxexperience.toString().replaceAll(".0", "")} Years",
+                                          style: GoogleFonts.varela(
+                                              // color: Colors.black54,
+                                              color: Colors.grey.shade700,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 13.sp),
+                                        )
+                                ],
+                              ),
+
+                    /* Row(
                                 children: [
                                   Image.asset(
                                     "assets/images/bag.png",
@@ -830,7 +871,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   jobDetailsModel.maxexperience == "& above"
                                       ? SizedBox(
                                           child: Text(
-                                            "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Years & above.",
+                                            "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Month & above.",
                                             style: GoogleFonts.varela(
                                                 color: Colors.grey.shade700,
                                                 // color: Colors.black54,
@@ -849,7 +890,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                           ),
                                         ),
                                 ],
-                              ),
+                              ), */
                     if (jobDetailsModel.minctc != null &&
                         jobDetailsModel.maxctc != null)
                       Row(
@@ -1367,7 +1408,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Skill's Required",
+                                    "Skills Required",
                                     style: GoogleFonts.varela(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 15.h),
@@ -1557,7 +1598,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Transport boundries ",
+                                        "Transport boundaries",
                                         style: GoogleFonts.varela(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 15.h),

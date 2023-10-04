@@ -73,7 +73,7 @@ class _JobsState extends ConsumerState<Jobs>
   var _hasNextPage = true;
   var _isFirstLoadRunning = false;
   var _isLoadMoreRunning = false;
-  final _pageSize = 15;
+  final _pageSize = 20;
   var localtion = "";
   var licationid = 0;
   late var usertype = -1;
@@ -630,7 +630,7 @@ class _JobsState extends ConsumerState<Jobs>
           ),
           iconTheme: const IconThemeData(color: Constants.themeBgColor),
           bottom: PreferredSize(
-            preferredSize: const Size(0, 25),
+            preferredSize: Size(0, 25.h),
             child: TabBar(
               labelPadding: const EdgeInsets.only(left: 5, right: 5),
               controller: _tabController,
@@ -2518,7 +2518,53 @@ class _JobsState extends ConsumerState<Jobs>
                   children: [
                     Column(
                       children: [
-                        usertype == 3
+                        usertype == 3 && profilemodel.id == item['spoc']
+                            ? InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MatchingJobs()));
+                                  /* JobPostApiService.postJobApply(
+                              jobId: item['id'],
+                              userId: int.parse(profilemodel.id.toString()),
+                              context: context);
+                          /*  Navigator.pushNamed(context, ERoute.application.name,
+                              arguments: {
+                                "isnew": false,
+                                "prevModel": jobDetailsModel,
+                                "refer": true,
+                                "cmpnyname": item['companyname'].toString()
+                              }); */ */
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4.h, horizontal: 8.w),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Constants.subtitleclr),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Matching CV",
+                                        style: TextStyle(
+                                          color: Constants.subtitleclr,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15.h,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : const SizedBox()
+                        //TODO: old code to display matching jobs and tag line as per login type.
+                        /* usertype == 3
                             ? profilemodel.id == item['spoc']
                                 ? Visibility(
                                     visible: usertype == 3,
@@ -2598,7 +2644,7 @@ class _JobsState extends ConsumerState<Jobs>
                                     ),
                                   ],
                                 ),
-                              )
+                              ) */
                       ],
                     ),
                     const Spacer(),
@@ -2619,9 +2665,8 @@ class _JobsState extends ConsumerState<Jobs>
                                         sourceId: profilemodel.id != null
                                             ? profilemodel.id!.toInt()
                                             : 0,
-                                        sourceName: profilemodel.first_name
-                                                .toString() +
-                                            profilemodel.last_name.toString(),
+                                        sourceName:
+                                            "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                         isRefer: false,
                                         spocId: item['spoc'],
                                       )));
@@ -3029,7 +3074,7 @@ class _JobsState extends ConsumerState<Jobs>
         seardData['location'] = locationid.toString();
       }
 
-      seardData['sort'] = sortByd;
+      // seardData['sort'] = sortByd;
       seardData['sortType'] = 'asc';
 
       seardData['rolename'] = searchText;
@@ -3041,7 +3086,12 @@ class _JobsState extends ConsumerState<Jobs>
       RequestResult res = Utils.parseResponse(result);
       var list = res.resultData as List;
       setState(() {
-        jobItems.addAll(list);
+        for (var item in list) {
+          if (!jobItems.contains(item)) {
+            jobItems.add(item);
+          }
+        }
+        // jobItems.addAll(list);
         if (list.length < _pageSize) {
           _hasNextPage = false;
         }

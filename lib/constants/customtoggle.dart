@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/jobs/cc.dart';
 
 import '../models/changeStatusModel.dart';
 import '../models/fetch_applied_job_model.dart';
@@ -10,31 +9,41 @@ class ToggleButton extends StatefulWidget {
 //  final Function(bool) onChanged;
   final Applicant item;
   final int id;
+  final Function refreshCallback;
 
-  const ToggleButton(
-      {super.key,
-      required this.initialValue,
-   //   required this.onChanged,
-      required this.item,
-      required this.id});
+  const ToggleButton({
+    super.key,
+    required this.initialValue,
+    //   required this.onChanged,
+    required this.item,
+    required this.id,
+    required this.refreshCallback,
+  });
 
   @override
   _ToggleButtonState createState() => _ToggleButtonState();
 }
 
 class _ToggleButtonState extends State<ToggleButton> {
- // late bool _isToggleOn;
+  // late bool _isToggleOn;
 
   @override
   void initState() {
     super.initState();
- //   _isToggleOn = widget.initialValue;
+    //   _isToggleOn = widget.initialValue;
+  }
+
+  void someFunction() {
+    // Perform some action...
+
+    // Trigger the refresh callback
+    widget.refreshCallback();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+    return InkWell(
+      onTap: () async {
         /* setState(() {
           _isToggleOn = !_isToggleOn;
           widget.onChanged(_isToggleOn);
@@ -50,9 +59,8 @@ class _ToggleButtonState extends State<ToggleButton> {
         Map<String, dynamic> jsonData = changeStatusModel.toJson();
 
         try {
-          JobPostApiService.changeStatus(jsonData, widget.id.toInt());
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const CC()));
+          await JobPostApiService.changeStatus(jsonData, widget.id.toInt());
+          someFunction();
         } catch (e) {
           print('Error: $e');
           // Handle error...
@@ -66,7 +74,9 @@ class _ToggleButtonState extends State<ToggleButton> {
           color: widget.initialValue ? Colors.green : Colors.grey,
         ),
         child: Stack(
-          alignment: widget.initialValue ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: widget.initialValue
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
           children: [
             Container(
               width: 15.0,

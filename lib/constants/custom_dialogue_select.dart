@@ -11,7 +11,9 @@ import '../service/job_post_api_service.dart';
 
 class CustomDialogueForSelect extends StatefulWidget {
   final Applicant item;
-  const CustomDialogueForSelect({super.key, required this.item});
+  final Function refreshCallback;
+  const CustomDialogueForSelect(
+      {super.key, required this.item, required this.refreshCallback});
 
   @override
   State<CustomDialogueForSelect> createState() =>
@@ -169,6 +171,13 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
   } */
 
   bool f2f = false, online = false;
+
+  void someFunction() {
+    // Perform some action...
+
+    // Trigger the refresh callback
+    widget.refreshCallback();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +406,7 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
               children: [
                 f2f == true || online == true
                     ? InkWell(
-                        onTap: () {
+                        onTap: () async {
                           ChangeStatusModel changeStatusModel =
                               ChangeStatusModel(
                                   status: "IB7",
@@ -411,9 +420,12 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                           Map<String, dynamic> jsonData =
                               changeStatusModel.toJson();
                           try {
-                            JobPostApiService.changeStatus(
+                            await JobPostApiService.changeStatus(
                                 jsonData, widget.item.id!.toInt());
+                            /* fetchApplicants = ref
+                .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */
                             setState(() {});
+                            someFunction();
                             Navigator.pop(context);
                           } catch (e) {
                             print('Error: $e');

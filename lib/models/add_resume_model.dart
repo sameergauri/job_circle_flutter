@@ -8,6 +8,7 @@ class JobApplicationModel {
   final int? contactNo;
   final DateTime? doj;
   final DateTime? dos;
+  final DateTime? dol;
   final int? empId;
   final int? expMax;
   final int? expMin;
@@ -56,6 +57,7 @@ class JobApplicationModel {
     this.contactNo,
     this.doj,
     this.dos,
+    this.dol,
     this.empId,
     this.expMax,
     this.expMin,
@@ -104,6 +106,7 @@ class JobApplicationModel {
       contactNo: json['contact_no'],
       doj: json['doj'] != null ? DateTime.parse(json['doj']) : null,
       dos: json['dos'] != null ? DateTime.parse(json['dos']) : null,
+      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
       empId: json['emp_id'],
       expMax: json['exp_max'],
       expMin: json['exp_min'],
@@ -154,6 +157,7 @@ class JobApplicationModel {
       'contact_no': contactNo,
       'doj': doj?.toIso8601String(),
       'dos': dos?.toIso8601String(),
+      'dol': dol?.toIso8601String(),
       'emp_id': empId,
       'exp_max': expMax,
       'exp_min': expMin,

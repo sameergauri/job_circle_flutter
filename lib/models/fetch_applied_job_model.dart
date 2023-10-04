@@ -106,6 +106,7 @@ class Applicant {
   String? last_name;
   String? source_name;
   String? company_resumeId;
+  DateTime? dol;
 
   Applicant({
     this.showRejectTextField,
@@ -166,6 +167,7 @@ class Applicant {
     this.last_name,
     this.source_name,
     this.company_resumeId,
+    this.dol,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
@@ -227,6 +229,7 @@ class Applicant {
       last_name: json['last_name'],
       source_name: json['source_name'],
       company_resumeId: json['company_resumeId'],
+      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
     );
   }
 
@@ -321,6 +324,7 @@ class Applicant {
       'availability_previous': availabilityPrevious,
       'last_working_date_recent': lastWorkingDateRecent,
       'doj': doj?.toIso8601String(),
+      'dol':dol?.toIso8601String(),
       'mode_document': mode_document,
       'document_status': document_status,
       'short_list_for': short_list_for,
