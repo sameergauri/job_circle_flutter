@@ -955,7 +955,7 @@ class _Screen2State extends State<Screen2> {
                     ],
                   )
                 : CustomJobFormTextFieldRespOne(
-                  onIDSelected: (){},
+                    onIDSelected: () {},
                     // isSelected: isIndustry,
                     focusNode: uniOFocus,
                     role: "",

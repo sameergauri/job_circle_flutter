@@ -3062,7 +3062,9 @@ class _JobsState extends ConsumerState<Jobs>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      locationid = prefs.getInt('loc')!;
+      if (prefs.getInt('loc') != null) {
+        locationid = prefs.getInt('loc')!;
+      }
       _isLoadMoreRunning = true;
 
       // Display a progress indicator at the bottom

@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/scheduler.dart'
-    show Ticker, TickerProvider, SingleTickerProviderStateMixin;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -17,18 +16,18 @@ import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+
 import '../../components/autolistviewmodal.dart';
 import '../../constants/customSelection.dart';
 import '../../constants/customTextfield.dart';
 import '../../constants/gobal.dart';
 import '../../models/api_response.dart';
 import '../../service/FileUploadService.dart';
+import '../../service/job_post_api_service.dart';
 
 class Screen1 extends StatefulWidget {
   Screen1({Key? key, this.prevPageModel}) : super(key: key);
@@ -48,6 +47,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   TextEditingController firstName = TextEditingController();
   TextEditingController middleName = TextEditingController();
   TextEditingController lastName = TextEditingController();
+  TextEditingController bio = TextEditingController();
   TextEditingController userLocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
@@ -80,9 +80,15 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   bool isPrimaryNumberVerified = false;
   bool isSecondaryNumber = false;
 
-  FocusNode localityFocus = FocusNode();
-  FocusNode cityFocus = FocusNode();
+  FocusNode firtnamefocus = FocusNode();
+  FocusNode middlenamefocus = FocusNode();
+  FocusNode lastnamefocus = FocusNode();
+  FocusNode aboutmefocus = FocusNode();
+  FocusNode secondarynumberfocus = FocusNode();
   FocusNode primaryNumberFocus = FocusNode();
+  FocusNode emailfocus = FocusNode();
+  FocusNode localityFocus = FocusNode();
+  FocusNode dobfocus = FocusNode();
   FocusNode secondaryNumberFocus = FocusNode();
   FocusNode otpChar2FocusNode = FocusNode();
   FocusNode otpChar3FocusNode = FocusNode();
@@ -91,6 +97,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
 
   String gender = "";
   String martialStatus = "";
+  String Localityfinal = '';
+  String cityname = '';
   List<dynamic> selectedValuesList = [];
   List<String> selectedValues = [];
   FocusNode industryFocus = FocusNode();
@@ -182,6 +190,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 18));
+
   @override
   void initState() {
     super.initState();
@@ -189,6 +199,13 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       // primaryNumber = await Utils.getPreferencesValue(
       //     null, ESharedPreferences.user_mobile.name);
       setState(() {});
+    });
+
+    primaryNumberFocus.addListener(() {
+      if (!primaryNumberFocus.hasFocus) {
+        // The user left the text field; perform your specific operation here
+        //performSpecificOperation();
+      }
     });
 
     otpChar1FocusNode = FocusNode();
@@ -206,9 +223,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     ticker = Ticker((_) => updateTimerDisplay());
 
     bindLocation();
-    dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    //dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-    dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+    //dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     industryFocus.requestFocus();
     getJobTitle("pattern", "language").then((_) {
@@ -245,16 +262,24 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         });
         middleName.text = widget.prevPageModel!.middle_name.toString();
         lastName.text = widget.prevPageModel!.last_name.toString();
-        selectedLocation = widget.prevPageModel?.user_location == null
+        vaccination = widget.prevPageModel!.vaccination_certificate.toString();
+        resideAt =
+            "${widget.prevPageModel!.user_locality.toString()}, ${widget.prevPageModel!.user_location.toString()}";
+        /*  selectedLocation = widget.prevPageModel?.user_location == null
             ? AutoCompleteModel("", "", {})
             : AutoCompleteModel(
                 widget.prevPageModel!.user_location.toString(), "", {});
         jobLocationController.text = widget.prevPageModel?.user_location == null
             ? ''
-            : widget.prevPageModel!.user_location.toString();
+            : widget.prevPageModel!.user_location.toString(); */
+        if (widget.prevPageModel!.user_location != null) {
+          localityController.text =
+              "${widget.prevPageModel!.user_locality.toString()}, ${widget.prevPageModel!.user_location.toString()}";
+        }
+        cityname = widget.prevPageModel!.user_location.toString();
+        Localityfinal = widget.prevPageModel!.user_locality.toString();
+        data = widget.prevPageModel!.vaccination_certificate.toString();
 
-        localityController.text =
-            widget.prevPageModel!.user_locality.toString();
         setState(() {
           isLocality = true;
         });
@@ -265,7 +290,11 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
 
         emailadr.text = widget.prevPageModel!.email.toString();
         primaryNumber.text = widget.prevPageModel!.mobile.toString();
-        secondaryNumber.text = widget.prevPageModel!.alternate_no.toString();
+        if (widget.prevPageModel!.alternate_no != null &&
+            widget.prevPageModel!.alternate_no != 0) {
+          secondaryNumber.text = widget.prevPageModel!.alternate_no.toString();
+        }
+        bio.text = widget.prevPageModel!.bio.toString();
 
         if (widget.prevPageModel!.gender == "Male") {
           setState(() {
@@ -310,19 +339,26 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   }
 
   DateTime? selectedDate;
+
   void selectDate() async {
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      initialDate: dateFormat.parse(dateOfBirth.text) ?? lastDate,
+      firstDate: DateTime(1975),
+      lastDate: lastDate,
     );
+
+    String formatDate(DateTime date) {
+      final formatter = DateFormat('dd-MM-yyyy');
+      return formatter.format(date);
+    }
 
     if (pickedDate != null) {
       setState(() {
         selectedDate = pickedDate;
-        dateOfBirth.text =
-            pickedDate.toString(); // Update the TextFormField text
+        dateOfBirth.text = formatDate(pickedDate);
+        dataOfBirthValue = pickedDate; // Update the TextFormField text
       });
     }
   }
@@ -340,7 +376,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         } else if (e['group_name'] == 'language') {
           e['checked'] = false;
           if (widget.prevPageModel?.languages != null) {
-            if (widget.prevPageModel!.languages!.indexOf(e['value']) > -1) {
+            if (widget.prevPageModel!.languages!.contains(e['value'])) {
               e['checked'] = true;
             }
           }
@@ -393,6 +429,16 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   // trans = false;
   bool language = false;
   String year = "";
+  String? resideAt;
+  bool isEmailValid(String email) {
+    // Define a regular expression pattern for a valid email address
+    // This pattern is a simple one and may not cover all edge cases
+    // You can use a more comprehensive regex pattern for email validation
+    const pattern = r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$';
+    final regExp = RegExp(pattern);
+    return regExp.hasMatch(email.toLowerCase());
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -409,17 +455,17 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Edit Introduction",
+                "Edit Intro",
                 style: GoogleFonts.varela(
                   fontSize: 18.sp,
-                  color: Colors.black,
+                  color: Constants.themeBgColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 "Introduce yourself to the recruiters",
                 style: GoogleFonts.varela(
-                    color: Colors.grey.shade600,
+                    color: Constants.hintColor,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.normal),
               )
@@ -428,25 +474,66 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         ),
         bottomNavigationBar: InkWell(
           onTap: () {
-            if (basicForm.currentState!.validate()) {
+            if (firstName.text.isEmpty) {
+              //final snackBar = customSnackbar();
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("First name is compalsory."));
+            } else if (lastName.text.isEmpty) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Last name is compalsory."));
+            } else if (primaryNumber.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Primary number is compalsory."));
+            } else if (ismale == false && isfemale == false) {
+            } else if (dateOfBirth.text.isEmpty) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Select Gender."));
+            } else if (resideAt!.isEmpty) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Current Residence Town?"));
+            } else if (secondaryNumber.text.isNotEmpty &&
+                secondaryNumber.text.length < 10) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Incorrect alternate number."));
+            } else if (!isEmailValid(emailadr.text)) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Invalid email"));
+            }
+            /* else if (emailadr.text.isNotEmpty) {
+              if (emailadr.text.contains("@")) {
+              } else {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(customSnackbar("Invalid email"));
+              }
+            } */
+            else {
               save();
             }
+
+            /*  if (basicForm.currentState!.validate()) {
+              save();
+            } else {
+              log("fill all detail");
+            } */
           },
           child: Container(
             margin:
                 const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
             decoration: BoxDecoration(
                 color: Constants.themeBgColor,
-                borderRadius: BorderRadius.circular(15)),
+                borderRadius: BorderRadius.circular(8.r)),
             width: double.maxFinite,
-            padding: const EdgeInsets.only(bottom: 7, top: 7),
+            padding: const EdgeInsets.only(bottom: 8, top: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "Save",
                   style: GoogleFonts.varela(
-                      fontWeight: FontWeight.bold, color: Colors.white),
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ],
             ),
@@ -485,9 +572,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                   bottom: MediaQuery.of(context).viewInsets.bottom,
                 ),
                 child: Column(
-                  children: [
-                    basicInfo(),
-                  ],
+                  // shrinkWrap: true,
+                  children: [basicInfo()],
                 ),
               );
             },
@@ -497,10 +583,46 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     );
   }
 
+  SnackBar customSnackbar(String title) {
+    return SnackBar(
+      backgroundColor:
+          Colors.transparent, // Set background color to transparent
+      elevation: 0, // Remove shadow
+      content: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16.0), // Add horizontal padding
+        decoration: BoxDecoration(
+          color: Colors.white, // White background
+          borderRadius: BorderRadius.circular(8.0), // Border radius
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 15.h,
+            ), // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black, // Text color
+                fontSize: 14.0, // Text size
+              ),
+            ),
+          ],
+        ),
+      ),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  String? data;
+
   Widget basicInfo() {
     age = ((DateTime.now().difference(dataOfBirthValue)).inDays / 365.floor());
     return Container(
-      margin: const EdgeInsets.only(top: 10),
+      //margin: const EdgeInsets.only(top: 10),
       key: const Key('second'),
       child: Center(
         child: Padding(
@@ -511,283 +633,69 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  CustomTextField(
+                      focusNode: firstNameFocus,
+                      controller: firstName,
+                      hint: "Sameer",
+                      label: "First Name",
+                      icon: const Icon(Icons.person)),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  CustomTextField(
+                      focusNode: middleNameFocus,
+                      controller: middleName,
+                      hint: "Jameel",
+                      label: "Middle Name",
+                      icon: const Icon(Icons.person)),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextField(
+                      focusNode: lastNameFocus,
+                      controller: lastName,
+                      hint: "Gauri",
+                      label: "Last Name",
+                      icon: const Icon(Icons.person)),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  CustomTextField(
+                      focusNode: aboutmefocus,
+                      controller: bio,
+                      hint: "I am software developer",
+                      label: "About me",
+                      icon: const Icon(Icons.info_outline)),
+                  SizedBox(
+                    height: 10.h,
+                  ),
                   Row(
                     children: [
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "First Name",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            isFirstName
-                                ? customContainerSelect(
-                                    isVacancy: true,
-                                    isCross: true,
-                                    isNumOfOpening: true,
-                                    onPressed: () {
-                                      setState(() {
-                                        isFirstName = false;
-                                        // FocusScope.of(context).autofocus(focusNode);
-                                        firstName.clear();
-                                        firstNameFocus.requestFocus();
-                                      });
-                                    },
-                                    isSelect: true,
-                                    title: firstName.text)
-                                : Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.32,
-                                    // height: 55,
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 5.h),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2.32,
-                                          height: 35,
-                                          color: Colors.white,
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return "This Text field Cant be empty";
-                                              }
-                                              return null;
-                                            },
-                                            // inputFormatters: [
-                                            //   FilteringTextInputFormatter.deny(
-                                            //       RegExp(r'[.]')),
-                                            //   FilteringTextInputFormatter.
-                                            // ],
-                                            // focusNode: firstNameFocus,
-                                            // maxLength: 3,
-                                            onFieldSubmitted: (value) {
-                                              firstName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isFirstName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            onChanged: (value) {
-                                              setState(() {});
-                                            },
-                                            onTapOutside: (event) {
-                                              firstName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isFirstName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            onEditingComplete: () {
-                                              firstName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isFirstName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            keyboardType: TextInputType.text,
-                                            controller: firstName,
-                                            // enabled: enableShortListFor,
-                                            onTap: (() {}),
-                                            decoration: InputDecoration(
-                                                counterText: '',
-                                                // contentPadding:
-                                                //     const EdgeInsets.only(
-                                                //         // top: 8,
-                                                //         // bottom: 8,
-                                                //         left: 10,
-                                                //         right: 10),
-                                                // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                // Icons.workspace_premium
-                                                // label: const Text("Company Name *"),
-                                                //border: OutlineInputBorder(),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  borderSide: const BorderSide(
-                                                      color:
-                                                          Color(0xffff0eceb)),
-                                                ),
-                                                focusColor:
-                                                    const Color(0xffff0eceb),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(
-                                                      color: Color.fromARGB(
-                                                          255, 122, 113, 111)),
-                                                ),
-                                                hintText:
-                                                    "Enter you first name",
-                                                hintStyle:
-                                                    GoogleFonts.sourceSansPro(
-                                                        color: Constants
-                                                            .subtitleclr,
-                                                        fontSize: 15.sp)
-                                                //  prefixIcon: Icon(Icons.list)
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                          ],
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.7.w,
+                        child: const Divider(
+                          thickness: 1.5,
                         ),
                       ),
-                      SizedBox(
-                        width: 10.h,
+                      const SizedBox(
+                        width: 4,
                       ),
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Middle Name",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            isMiddleName
-                                ? customContainerSelect(
-                                    isVacancy: true,
-                                    isCross: true,
-                                    isNumOfOpening: true,
-                                    onPressed: () {
-                                      setState(() {
-                                        isMiddleName = false;
-                                        // FocusScope.of(context).autofocus(focusNode);
-                                        middleName.clear();
-                                        firstNameFocus.requestFocus();
-                                      });
-                                    },
-                                    isSelect: true,
-                                    title: middleName.text)
-                                : Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.32,
-                                    // height: 55,
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 5.h),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2.32,
-                                          height: 35,
-                                          color: Colors.white,
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return "This Text field Cant be empty";
-                                              }
-                                              return null;
-                                            },
-                                            // inputFormatters: [
-                                            //   FilteringTextInputFormatter.deny(
-                                            //       RegExp(r'[.]')),
-                                            //   FilteringTextInputFormatter.
-                                            // ],
-                                            // focusNode: firstNameFocus,
-                                            // maxLength: 3,
-                                            onFieldSubmitted: (value) {
-                                              middleName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isMiddleName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            onChanged: (value) {
-                                              setState(() {});
-                                            },
-                                            onTapOutside: (event) {
-                                              middleName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isMiddleName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            onEditingComplete: () {
-                                              middleName.text.isNotEmpty
-                                                  ? setState(() {
-                                                      isMiddleName = true;
-                                                      // _showContainer1 = value.isEmpty;
-                                                    })
-                                                  : null;
-                                            },
-                                            keyboardType: TextInputType.text,
-                                            controller: middleName,
-                                            // enabled: enableShortListFor,
-                                            onTap: (() {}),
-                                            decoration: InputDecoration(
-                                                counterText: '',
-                                                contentPadding:
-                                                    const EdgeInsets.only(
-                                                        top: 8,
-                                                        bottom: 8,
-                                                        left: 10,
-                                                        right: 10),
-                                                // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                                // Icons.workspace_premium
-                                                // label: const Text("Company Name *"),
-                                                //border: OutlineInputBorder(),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  borderSide: const BorderSide(
-                                                      color:
-                                                          Color(0xffff0eceb)),
-                                                ),
-                                                focusColor:
-                                                    const Color(0xffff0eceb),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(
-                                                      color: Color.fromARGB(
-                                                          255, 122, 113, 111)),
-                                                ),
-                                                hintText:
-                                                    "Enter you middle name",
-                                                hintStyle:
-                                                    GoogleFonts.sourceSansPro(
-                                                        color: Constants
-                                                            .subtitleclr,
-                                                        fontSize: 15.sp)
-                                                //  prefixIcon: Icon(Icons.list)
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                          ],
+                      Text(
+                        "Contact Detail",
+                        style: GoogleFonts.varela(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 20.w,
+                        child: const Divider(
+                          thickness: 1.5,
                         ),
                       ),
                     ],
@@ -795,426 +703,73 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                   SizedBox(
                     height: 10.h,
                   ),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Last Name",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        isLastName
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                isAnother: true,
-                                isNumOfOpening: false,
-                                onPressed: () {
-                                  setState(() {
-                                    isLastName = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    lastName.clear();
-                                    firstNameFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: lastName.text)
-                            : Container(
-                                width: MediaQuery.of(context).size.width,
-                                // height: 55,
-                                margin: const EdgeInsets.only(bottom: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(bottom: 5.h),
-                                      width: MediaQuery.of(context).size.width,
-                                      height: 35,
-                                      color: Colors.white,
-                                      child: TextFormField(
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return "This Text field Cant be empty";
-                                          }
-                                          return null;
-                                        },
-                                        // inputFormatters: [
-                                        //   FilteringTextInputFormatter.deny(
-                                        //       RegExp(r'[.]')),
-                                        //   FilteringTextInputFormatter.
-                                        // ],
-                                        // focusNode: firstNameFocus,
-                                        // maxLength: 3,
-                                        onFieldSubmitted: (value) {
-                                          lastName.text.isNotEmpty
-                                              ? setState(() {
-                                                  isLastName = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onChanged: (value) {
-                                          setState(() {});
-                                        },
-                                        onTapOutside: (event) {
-                                          lastName.text.isNotEmpty
-                                              ? setState(() {
-                                                  isLastName = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onEditingComplete: () {
-                                          lastName.text.isNotEmpty
-                                              ? setState(() {
-                                                  isLastName = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        controller: lastName,
-                                        // enabled: enableShortListFor,
-                                        onTap: (() {}),
-                                        decoration: InputDecoration(
-                                            counterText: '',
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                    left: 10,
-                                                    right: 10),
-                                            // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                            // Icons.workspace_premium
-                                            // label: const Text("Company Name *"),
-                                            //border: OutlineInputBorder(),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb)),
-                                            ),
-                                            focusColor:
-                                                const Color(0xffff0eceb),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111)),
-                                            ),
-                                            hintText: "Enter your last name",
-                                            hintStyle:
-                                                GoogleFonts.sourceSansPro(
-                                                    color:
-                                                        Constants.subtitleclr,
-                                                    fontSize: 15.sp)
-                                            //  prefixIcon: Icon(Icons.list)
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                      ],
-                    ),
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
+                  CustomTextField(
+                      isDisabled: false,
+                      isPrimaryNumber: true,
+                      focusNode: primaryNumberFocus,
+                      controller: primaryNumber,
+                      hint: "844******2",
+                      label: "Primary Number",
+                      maxLength: 10,
+                      isNumber: true,
+                      icon: const Icon(Icons.phone_android_rounded)),
                   SizedBox(
-                    height: 5.h,
+                    height: 20.h,
+                  ),
+                  CustomTextField(
+                      focusNode: secondaryNumberFocus,
+                      controller: secondaryNumber,
+                      hint: "844******2",
+                      label: "Alternate Number",
+                      maxLength: 10,
+                      isNumber: true,
+                      isOptional: true,
+                      icon: const Icon(Icons.phone_android_rounded)),
+
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  CustomTextField(
+                      focusNode: emailfocus,
+                      controller: emailadr,
+                      hint: "sameer***@gmail.com",
+                      label: "Email ID",
+                      // maxLength: 10,
+                      // isNumber: true,
+                      icon: const Icon(Icons.email_outlined)),
+                  SizedBox(
+                    height: 10.h,
                   ),
                   Row(
                     children: [
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Primary Number",
-                              style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            isPrimaryNumberVerified
-                                ? customContainerSelect(
-                                    isVacancy: true,
-                                    isCross: true,
-                                    isNumOfOpening: true,
-                                    onPressed: () {
-                                      setState(() {
-                                        isPrimaryNumberVerified = false;
-                                        // FocusScope.of(context).autofocus(focusNode);
-                                        primaryNumber.clear();
-                                        primaryNumberFocus.requestFocus();
-                                      });
-                                    },
-                                    isSelect: true,
-                                    title: primaryNumber.text,
-                                  )
-                                : Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.32,
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 5.h),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2.32,
-                                          height: 35,
-                                          color: Colors.white,
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return "This Text field Cant be empty";
-                                              }
-                                              return null;
-                                            },
-                                            // onFieldSubmitted: (value) {
-                                            //   if (primaryNumber
-                                            //       .text.isNotEmpty) {
-                                            //     setState(() {
-                                            //       // Trigger OTP verification process here
-                                            //       // Call a function to send OTP to the primary number
-                                            //       // sendOtpToPrimaryNumber(primaryNumberController.text);
-                                            //       isPrimaryNumberVerified =
-                                            //           true;
-                                            //     });
-                                            //   }
-                                            // },
-                                            onFieldSubmitted: (value) {
-                                              if (primaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  // startTimer();
-                                                });
-                                                saveOTP();
-                                              }
-                                            },
-
-                                            onChanged: (value) {
-                                              setState(() {});
-                                            },
-                                            onTapOutside: (event) {
-                                              if (primaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  isPrimaryNumberVerified =
-                                                      true;
-                                                });
-                                              }
-                                            },
-                                            onEditingComplete: () {
-                                              if (primaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  isPrimaryNumberVerified =
-                                                      true;
-                                                });
-                                              }
-                                            },
-                                            keyboardType: TextInputType.number,
-                                            controller: primaryNumber,
-                                            onTap: (() {}),
-                                            decoration: InputDecoration(
-                                              counterText: '',
-                                              contentPadding:
-                                                  const EdgeInsets.only(
-                                                top: 8,
-                                                bottom: 8,
-                                                left: 10,
-                                                right: 10,
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb),
-                                                ),
-                                              ),
-                                              focusColor:
-                                                  const Color(0xffff0eceb),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111),
-                                                ),
-                                              ),
-                                              hintText:
-                                                  "Enter your primary number",
-                                              hintStyle:
-                                                  GoogleFonts.sourceSansPro(
-                                                color: Constants.subtitleclr,
-                                                fontSize: 15.sp,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                          ],
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.7.w,
+                        child: const Divider(
+                          thickness: 1.5,
                         ),
                       ),
-                      SizedBox(
-                        width: 10.h,
+                      const SizedBox(
+                        width: 4,
                       ),
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Secondary Number",
-                              style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            isSecondaryNumber
-                                ? customContainerSelect(
-                                    isVacancy: true,
-                                    isCross: true,
-                                    isNumOfOpening: true,
-                                    onPressed: () {
-                                      setState(() {
-                                        isSecondaryNumber = false;
-                                        // FocusScope.of(context).autofocus(focusNode);
-                                        secondaryNumber.clear();
-                                        secondaryNumberFocus.requestFocus();
-                                      });
-                                    },
-                                    isSelect: true,
-                                    title: secondaryNumber.text,
-                                  )
-                                : Container(
-                                    width: MediaQuery.of(context).size.width /
-                                        2.32,
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 5.h),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2.32,
-                                          height: 35,
-                                          color: Colors.white,
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return "This Text field Cant be empty";
-                                              }
-                                              return null;
-                                            },
-                                            onFieldSubmitted: (value) {
-                                              if (secondaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  // Trigger OTP verification process here
-                                                  // Call a function to send OTP to the secondary number
-                                                  // sendOtpToSecondaryNumber(secondaryNumberController.text);
-                                                  isSecondaryNumber = true;
-                                                });
-                                              }
-                                            },
-                                            onChanged: (value) {
-                                              setState(() {});
-                                            },
-                                            onTapOutside: (event) {
-                                              if (secondaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  isSecondaryNumber = true;
-                                                });
-                                              }
-                                            },
-                                            onEditingComplete: () {
-                                              if (secondaryNumber
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  isSecondaryNumber = true;
-                                                });
-                                              }
-                                            },
-                                            keyboardType: TextInputType.number,
-                                            controller: secondaryNumber,
-                                            onTap: (() {}),
-                                            decoration: InputDecoration(
-                                              counterText: '',
-                                              contentPadding:
-                                                  const EdgeInsets.only(
-                                                top: 8,
-                                                bottom: 8,
-                                                left: 10,
-                                                right: 10,
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb),
-                                                ),
-                                              ),
-                                              focusColor:
-                                                  const Color(0xffff0eceb),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111),
-                                                ),
-                                              ),
-                                              hintText:
-                                                  "Enter your secondary number",
-                                              hintStyle:
-                                                  GoogleFonts.sourceSansPro(
-                                                color: Constants.subtitleclr,
-                                                fontSize: 15.sp,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                          ],
+                      Text(
+                        "Basic Detail",
+                        style: GoogleFonts.varela(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 11.w,
+                        child: const Divider(
+                          thickness: 1.5,
                         ),
                       ),
                     ],
                   ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  Row(
+
+                  /*  Row(
                     children: [
                       Text(
                         "Gender",
@@ -1224,34 +779,34 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                         ),
                       ),
                     ],
-                  ),
-                  Wrap(
+                  ), */
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            istranse = false;
-                            ismale = true;
-                            isfemale = false;
-                          });
-                        },
-                        isSelect: ismale,
-                        title: "Male",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            istranse = false;
-                            ismale = false;
-                            isfemale = true;
-                          });
-                        },
-                        isSelect: isfemale,
-                        title: "Female",
-                      ),
-                      customContainerSelect(
+                      customContainerMale(
+                          onPressed: () {
+                            setState(() {
+                              istranse = false;
+                              ismale = true;
+                              isfemale = false;
+                            });
+                          },
+                          isSelect: ismale,
+                          title: "Male",
+                          img: "assets/images/male1.png"),
+                      customContainerMale(
+                          onPressed: () {
+                            setState(() {
+                              istranse = false;
+                              ismale = false;
+                              isfemale = true;
+                            });
+                          },
+                          isSelect: isfemale,
+                          title: "Female",
+                          img: "assets/images/female1.png"),
+                      /*  customContainerSelect(
                         isAnother: true,
                         onPressed: () {
                           setState(() {
@@ -1262,153 +817,11 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                         },
                         isSelect: istranse,
                         title: "Transgender",
-                      ),
+                      ), */
                     ],
                   ),
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Email ID",
-                        style: GoogleFonts.sourceSansPro(
-                            fontSize: 18.sp,
-                            // color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      isEmail
-                          ? customContainerSelect(
-                              isVacancy: true,
-                              isCross: true,
-                              isAnother: false,
-                              isEmails: true,
-                              isNumOfOpening: false,
-                              onPressed: () {
-                                setState(() {
-                                  isEmail = false;
-                                  // FocusScope.of(context).autofocus(focusNode);
-                                  emailadr.clear();
-                                  firstNameFocus.requestFocus();
-                                });
-                              },
-                              isSelect: true,
-                              title: emailadr.text)
-                          : Container(
-                              width: MediaQuery.of(context).size.width / 1.8,
-                              // height: 55,
-                              margin: const EdgeInsets.only(bottom: 5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(bottom: 5.h),
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    height: 35,
-                                    color: Colors.white,
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "This Text field Cant be empty";
-                                        }
-                                        return null;
-                                      },
-                                      // inputFormatters: [
-                                      //   FilteringTextInputFormatter.deny(
-                                      //       RegExp(r'[.]')),
-                                      //   FilteringTextInputFormatter.
-                                      // ],
-                                      // focusNode: firstNameFocus,
-                                      // maxLength: 3,
-                                      onFieldSubmitted: (value) {
-                                        emailadr.text.isNotEmpty
-                                            ? setState(() {
-                                                isEmail = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
-                                      onChanged: (value) {
-                                        setState(() {});
-                                      },
-                                      onTapOutside: (event) {
-                                        emailadr.text.isNotEmpty
-                                            ? setState(() {
-                                                isEmail = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
-                                      onEditingComplete: () {
-                                        emailadr.text.isNotEmpty
-                                            ? setState(() {
-                                                isEmail = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
-                                      keyboardType: TextInputType.text,
-                                      controller: emailadr,
-                                      // enabled: enableShortListFor,
-                                      onTap: (() {}),
-                                      decoration: InputDecoration(
-                                          counterText: '',
-                                          contentPadding: const EdgeInsets.only(
-                                              top: 8,
-                                              bottom: 8,
-                                              left: 10,
-                                              right: 10),
-                                          // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                          // Icons.workspace_premium
-                                          // label: const Text("Company Name *"),
-                                          //border: OutlineInputBorder(),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: const BorderSide(
-                                                color: Color(0xffff0eceb)),
-                                          ),
-                                          focusColor: const Color(0xffff0eceb),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: const BorderSide(
-                                                color: Color.fromARGB(
-                                                    255, 122, 113, 111)),
-                                          ),
-                                          hintText: "Enter your email address",
-                                          hintStyle: GoogleFonts.sourceSansPro(
-                                              color: Constants.subtitleclr,
-                                              fontSize: 15.sp)
-                                          //  prefixIcon: Icon(Icons.list)
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Row(
+
+                  /* Row(
                     children: [
                       Text(
                         "Marital Status",
@@ -1492,171 +905,122 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                         title: "Separated",
                       ),
                     ],
-                  ),
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Date Of Birth",
-                        style: GoogleFonts.sourceSansPro(
-                            fontSize: 18.sp,
-                            // color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      isDateOfBirth
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                customContainerSelect(
-                                  isVacancy: true,
-                                  isCross: true,
-                                  isAnother: false,
-                                  isEmails: true,
-                                  isNumOfOpening: false,
-                                  onPressed: () async {
-                                    setState(() {
-                                      isDateOfBirth = false;
-                                    });
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now().add(
-                                        const Duration(days: -(365 * 50)),
-                                      ),
-                                      lastDate: DateTime.now(),
-                                      currentDate: dataOfBirthValue,
-                                      firstDate: DateTime.now(),
-                                    );
+                  ), */
 
-                                    if (pickedDate != null) {
-                                      String formattedDate =
-                                          DateFormat('dd-MM-yyyy')
-                                              .format(pickedDate);
-                                      dataOfBirthValue = pickedDate;
-                                      setState(() {
-                                        dateOfBirth.text = formattedDate;
-                                        dt = DateFormat('yyyy-MM-dd HH:mm:ss')
-                                            .format(pickedDate);
-                                        year = (dt - DateTime.now());
-                                        isDateOfBirth = false;
-                                        dateOfBirth.clear();
-                                      });
-                                    } else {
-                                      print("Date is not selected");
-                                    }
-                                  },
-                                  isSelect: true,
-                                  title: dateOfBirth.text,
-                                ),
-                                Text(
-                                  "Age: ${calculateAge(dataOfBirthValue).toString()}",
-                                ),
-                              ],
-                            )
-                          : Container(
-                              width: MediaQuery.of(context).size.width / 1.8,
-                              // height: 55,
-                              margin: const EdgeInsets.only(bottom: 5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(bottom: 5.h),
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.8,
-                                    height: 35,
-                                    color: Colors.white,
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "This Text field Cant be empty";
-                                        }
-                                        return null;
-                                      },
-                                      // focusNode: firstNameFocus,
-                                      onFieldSubmitted: (value) {
-                                        dateOfBirth.text.isNotEmpty
-                                            ? setState(() {
-                                                isDateOfBirth = true;
-                                              })
-                                            : null;
-                                      },
-                                      onTapOutside: (event) {
-                                        dateOfBirth.text.isNotEmpty
-                                            ? setState(() {
-                                                isDateOfBirth = true;
-                                              })
-                                            : null;
-                                      },
-                                      onEditingComplete: () {
-                                        dateOfBirth.text.isNotEmpty
-                                            ? setState(() {
-                                                isDateOfBirth = true;
-                                              })
-                                            : null;
-                                      },
-                                      keyboardType: TextInputType.text,
-                                      controller: dateOfBirth,
-                                      onTap: () {
-                                        selectDate();
-                                      },
-                                      decoration: InputDecoration(
-                                        counterText: '',
-                                        contentPadding: const EdgeInsets.only(
-                                            top: 8,
-                                            bottom: 8,
-                                            left: 10,
-                                            right: 10),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          borderSide: const BorderSide(
-                                              color: Color(0xffff0eceb)),
-                                        ),
-                                        focusColor: const Color(0xffff0eceb),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                              color: Color.fromARGB(
-                                                  255, 122, 113, 111)),
-                                        ),
-                                        hintText: "Enter your date of birth",
-                                        hintStyle: GoogleFonts.sourceSansPro(
-                                            color: Constants.subtitleclr,
-                                            fontSize: 15.sp),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      selectDate();
+                    },
+                    child: Container(
+                      height: MediaQuery.of(context).size.height / 24,
+                      margin: EdgeInsets.only(bottom: 5.h),
+                      // width: MediaQuery.of(context).size.width / 1.8,
+                      // height: 35,
+                      color: Colors.white,
+                      child: TextFormField(
+                        enabled: false,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "This Text field Cant be empty";
+                          }
+                          return null;
+                        },
+                        // focusNode: firstNameFocus,
+                        /*  onFieldSubmitted: (value) {
+                          dateOfBirth.text.isNotEmpty
+                              ? setState(() {
+                                  isDateOfBirth = true;
+                                })
+                              : null;
+                        },
+                        onTapOutside: (event) {
+                          dateOfBirth.text.isNotEmpty
+                              ? setState(() {
+                                  isDateOfBirth = true;
+                                })
+                              : null;
+                        },
+                        onEditingComplete: () {
+                          dateOfBirth.text.isNotEmpty
+                              ? setState(() {
+                                  isDateOfBirth = true;
+                                })
+                              : null;
+                        }, */
+                        keyboardType: TextInputType.text,
+                        controller: dateOfBirth,
+                        /* onTap: () {
+                          selectDate();
+                        }, */
+                        style: GoogleFonts.varela(color: Constants.subtitleclr),
+                        decoration: InputDecoration(
+                            prefixIcon:
+                                const Icon(Icons.calendar_month_outlined),
+                            prefixIconColor: Constants.themeBgColor,
+                            contentPadding: const EdgeInsets.only(
+                                top: 8, bottom: 8, left: 10, right: 10),
+                            counterText: '',
+                            suffix: Text(
+                              "${calculateAge(dateOfBirth.text).toString()} yrs",
+                            ),
+                            labelText: "Date of birth",
+                            labelStyle: const TextStyle(
+                              color: Constants.themeBgColor,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                              borderSide: const BorderSide(
+                                  color: Constants.themeBgColor),
+                            ),
+                            focusColor: const Color(0xffff0eceb),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                              borderSide: const BorderSide(
+                                color: Constants.themeBgColor,
                               ),
                             ),
-                    ],
+                            hintText: "26-Jan-2023",
+                            hintStyle: GoogleFonts.sourceSansPro(
+                                color: Constants.hintColor, fontSize: 15.sp)),
+                      ),
+                    ),
                   ),
                   SizedBox(
-                    height: 6.h,
+                    height: 10.h,
                   ),
-                  const Divider(
-                    thickness: 1.5,
+                  CustomJobFormTextFieldRespOneProfile(
+                    onIDSelected: () {},
+                    // isSelected: isIndustry,
+                    focusNode: localityFocus,
+                    role: "",
+                    isCompany: false,
+                    isIndustry: true,
+                    name: "location",
+                    title: "locality",
+                    //controller: localityController,
+                    onChanged: (p0) {
+                      setState(() {
+                        isLocality = true;
+                      });
+                    },
+                    onCitySubmit: (p0) {
+                      setState(() {
+                        cityname = p0;
+                      });
+                    },
+                    onSubmit: (p0) {
+                      setState(() {
+                        Localityfinal = p0;
+                      });
+                    },
+                    contextIn: context,
+                    hintText: resideAt.toString(),
                   ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
+
+                  /* Flexible(
                         child: isLocality
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1700,55 +1064,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                                 contextIn: context,
                                 hintText: "Thane",
                               ),
-                      ),
-                      SizedBox(width: 10),
-                      Flexible(
-                        child: isCity
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "City",
-                                    style: GoogleFonts.sourceSansPro(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  customContainerSelect1(
-                                    true,
-                                    jobLocationController.text,
-                                    true,
-                                    () {
-                                      setState(() {
-                                        isCity = false;
-                                        cityFocus.requestFocus();
-                                        jobLocationController.clear();
-                                      });
-                                    },
-                                  ),
-                                ],
-                              )
-                            : CustomJobFormTextFieldRespOne(
-                                onIDSelected: () {},
-                                // isSelected: isIndustry,
-                                focusNode: cityFocus,
-                                role: "",
-                                isCompany: false,
-                                isIndustry: true,
-                                name: "city",
-                                title: "City",
-                                controller: jobLocationController,
-                                onChanged: (p0) {
-                                  setState(() {
-                                    isCity = true;
-                                  });
-                                },
-                                contextIn: context,
-                                hintText: "Mumbai",
-                              ),
-                      ),
-                    ],
-                  ),
+                      ), */
+                  // SizedBox(width: 10),
 
                   // Text(
                   //   "Reside at",
@@ -1813,148 +1130,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                   //     ),
                   //   ),
                   // ),
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Have you been fully vaccinated?",
-                              style: GoogleFonts.varela(
-                                color: isPresent
-                                    ? Colors.black
-                                    : Colors.grey.shade400,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isPresent = !isPresent;
-                                  if (isPresent) {
-                                    vaccination = "1";
-                                  } else {
-                                    vaccination = "0";
-                                  }
-                                });
-                              },
-                              child: Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(3),
-                                  color: isPresent
-                                      ? Colors.red
-                                      : Colors
-                                          .white, // Change background color based on isPresent
-                                ),
-                                child: isPresent
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 20,
-                                      )
-                                    : Container(),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
 
-                        // customDocumnet(
-                        //   "Vaccination Certificate",
-                        // ),
-                        if (isPresent)
-                          Column(
-                            children: [
-                              // Text(
-                              //   "Please Upload Your Vaccination Certificate",
-                              //   style: GoogleFonts.varela(
-                              //     color: isPresent
-                              //         ? Colors.black
-                              //         : Colors.grey.shade400,
-                              //     fontWeight: FontWeight.w400,
-                              //   ),
-                              // ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() async {
-                                    var data = await uploadFile(['pdf']);
-                                    var payload = {
-                                      "stage": "upload_cv",
-                                      "data": {
-                                        "id": await Utils.getPreferencesValue(
-                                          null,
-                                          ESharedPreferences.user_id.name,
-                                        ),
-                                        "cv_link": data['fileName'],
-                                      },
-                                    };
-                                    // await save(data['fileName'], payload);
-                                  });
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    border: Border.all(
-                                        color: Constants.borderColor),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 0, vertical: 5),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(left: 4),
-                                        child: Text(
-                                            "Upload Vaccination Certificate"),
-                                      ),
-                                      const SizedBox(
-                                          width:
-                                              4), // Adjust the spacing between text and icon
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 4),
-                                        child: Image.asset(
-                                          "assets/images/cv.png",
-                                          height: 18.h,
-                                        ),
-                                      ) // Replace Icons.file_upload with your desired icon
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 6.h,
-                  ),
-                  const Divider(
-                    thickness: 1.5,
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Row(
+/*                   Row(
                     children: [
                       Text(
                         "Blood Group",
@@ -2104,9 +1281,329 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                         title: "AB-",
                       ),
                     ],
+                  ), */
+                  SizedBox(
+                    height: 10.h,
                   ),
                   SizedBox(
-                    height: 15.h,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      // selectedKeyResponsible.contains(item)
+                                      Colors.grey,
+                                  width: 1.5,
+                                ),
+                              ),
+                              height: 16,
+                              width: 20,
+                              child: Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.transparent,
+                                ),
+                                child: Checkbox(
+                                  activeColor: Colors.white,
+                                  checkColor: Constants.themeBgColor,
+                                  visualDensity: VisualDensity.compact,
+                                  value: isPresent,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      isPresent = !isPresent;
+                                      if (isPresent) {
+                                        vaccination = "1";
+                                      } else {
+                                        vaccination = "0";
+                                      }
+                                    }); // Notify Flutter that the state has changed
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            /* GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isPresent = !isPresent;
+                                  if (isPresent) {
+                                    vaccination = "1";
+                                  } else {
+                                    vaccination = "0";
+                                  }
+                                });
+                              },
+                              child: Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(3),
+                                  color: isPresent
+                                      ? Colors.red
+                                      : Colors
+                                          .white, // Change background color based on isPresent
+                                ),
+                                child: isPresent
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 20,
+                                      )
+                                    : Container(),
+                              ),
+                            ), */
+                            Text(
+                              "I am fully Covid-vaccinated.",
+                              style: GoogleFonts.varela(
+                                color: isPresent
+                                    ? Colors.black
+                                    : Colors.grey.shade400,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (data != null)
+                              InkWell(
+                                onTap: () {
+                                  //  log("message");
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Scaffold(
+                                        floatingActionButton: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  data = null;
+                                                });
+                                                Navigator.pop(context);
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 4.h,
+                                                    horizontal: 8.r),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r),
+                                                    border: Border.all(
+                                                        color: Constants
+                                                            .themeBgColor)),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.cancel_outlined,
+                                                      size: 15.h,
+                                                      color: Constants
+                                                          .themeBgColor,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 4.w,
+                                                    ),
+                                                    const Text("Remove"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: () async {
+                                                setState(() async {
+                                                  data =
+                                                      await uploadFile(['pdf']);
+
+                                                  /*  var payload = {
+                                          "stage": "upload_cv",
+                                          "data": {
+                                            "id": await Utils.getPreferencesValue(
+                                              null,
+                                              ESharedPreferences.user_id.name,
+                                            ),
+                                            "cv_link": data['fileName'],
+                                          },
+                                        }; */
+                                                  // await save(data['fileName'], payload);
+                                                });
+                                                Navigator.pop(context);
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    EdgeInsets.only(left: 20.w),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 4.h,
+                                                    horizontal: 8.r),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r),
+                                                    border: Border.all(
+                                                        color: Constants
+                                                            .themeBgColor)),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.upload_file,
+                                                      size: 15.h,
+                                                      color: Constants
+                                                          .themeBgColor,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 4.w,
+                                                    ),
+                                                    const Text("Replace"),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        body: Container(
+                                          child: FutureBuilder<PDFDocument>(
+                                            future: PDFDocument.fromURL(
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$data"),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                if (snapshot.hasData) {
+                                                  return PDFViewer(
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    panLimit: 1.1,
+                                                    document: snapshot.data!,
+                                                    zoomSteps: 3,
+                                                    showNavigation: false,
+                                                    showPicker: false,
+
+                                                    // numberPickerConfirmWidget: f,
+                                                  );
+                                                } else {
+                                                  return const Center(
+                                                      child: Text(
+                                                          'Failed to load PDF'));
+                                                }
+                                              } else {
+                                                return const Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10.w),
+                                    child: const Icon(
+                                      Icons.visibility_outlined,
+                                      color: Constants.themeBgColor,
+                                    )),
+                              )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+
+                        // customDocumnet(
+                        //   "Vaccination Certificate",
+                        // ),
+                        if (isPresent)
+                          Column(
+                            children: [
+                              // Text(
+                              //   "Please Upload Your Vaccination Certificate",
+                              //   style: GoogleFonts.varela(
+                              //     color: isPresent
+                              //         ? Colors.black
+                              //         : Colors.grey.shade400,
+                              //     fontWeight: FontWeight.w400,
+                              //   ),
+                              // ),
+                              if (data == null)
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() async {
+                                          data = await uploadFile(['pdf']);
+                                          /*  var payload = {
+                                          "stage": "upload_cv",
+                                          "data": {
+                                            "id": await Utils.getPreferencesValue(
+                                              null,
+                                              ESharedPreferences.user_id.name,
+                                            ),
+                                            "cv_link": data['fileName'],
+                                          },
+                                        }; */
+                                          // await save(data['fileName'], payload);
+                                        });
+                                      },
+                                      child: Container(
+                                        margin:
+                                            const EdgeInsets.only(right: 10),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 0, vertical: 5),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Padding(
+                                              padding: EdgeInsets.only(left: 4),
+                                              child: Text(
+                                                  /*
+                                                ? widget.prevPageModel!
+                                                    .vaccination_certificate
+                                                    .toString()
+                                                : */
+                                                  "Upload Vaccination Certificate"),
+                                            ),
+                                            const SizedBox(
+                                                width:
+                                                    4), // Adjust the spacing between text and icon
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 4),
+                                              child: Image.asset(
+                                                "assets/images/cv.png",
+                                                height: 18.h,
+                                              ),
+                                            ),
+
+                                            // Replace Icons.file_upload with your desired icon
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ],
+                          )
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 10.h,
                   ),
 
                   // Row(
@@ -2182,6 +1679,91 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void performSpecificOperation() {
+    // Replace this with your specific operation logic
+    if (primaryNumber.text != widget.prevPageModel!.mobile) {
+      setState(() {
+        saveOTP();
+      });
+    }
+  }
+
+  Widget CustomTextField(
+      {Icon? icon,
+      required String hint,
+      required String label,
+      required FocusNode focusNode,
+      bool? isPrimaryNumber = false,
+      String? img,
+      bool? isImage = false,
+      int? maxLength,
+      bool isNumber = false,
+      bool? keyboardType,
+      bool? isDisabled = true,
+      bool? isOptional = false,
+      required TextEditingController controller}) {
+    // bool isError = false;
+    return SizedBox(
+      height: MediaQuery.of(context).size.height / 24,
+      child: TextFormField(
+        enabled: isDisabled,
+        // autofocus: focusNode.canRequestFocus,
+        focusNode: focusNode,
+        inputFormatters: isNumber
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+              ]
+            : <TextInputFormatter>[
+                FilteringTextInputFormatter.singleLineFormatter,
+              ],
+        /*  validator: (value) {
+          if (value == null || value.isEmpty) {
+            //return "This Text field Cant be empty";
+          }
+          return null;
+        }, */
+        maxLength: maxLength,
+        keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
+        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+        textCapitalization: TextCapitalization.sentences,
+        controller: controller.text != "0" ? controller : null,
+        onTap: (() {}),
+        style:
+            GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
+        decoration: InputDecoration(
+            filled: isPrimaryNumber! ? true : false,
+            fillColor:
+                isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent,
+            prefixIcon: icon,
+            prefixIconColor: Constants.themeBgColor,
+            suffix: isOptional != null && isOptional
+                ? const Text("(Optional)")
+                : const SizedBox(),
+            contentPadding:
+                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+            counterText: '',
+            labelText: label,
+            labelStyle: const TextStyle(
+              color: Constants.themeBgColor,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(color: Color(0xffff0eceb)),
+            ),
+            focusColor: const Color(0xffff0eceb),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(
+                color: Constants.themeBgColor,
+              ),
+            ),
+            hintText: hint,
+            hintStyle: GoogleFonts.sourceSansPro(
+                color: Constants.hintColor, fontSize: 15.sp)),
       ),
     );
   }
@@ -2319,7 +1901,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                     const SizedBox(height: 10),
                     Text(
                       timerText,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -2386,7 +1968,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               "Current Focus Node: $currentFocusNode, Next Focus Node: $nextFocusNode");
         },
         textAlign: TextAlign.center,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           counterText: '',
         ),
       ),
@@ -2413,10 +1995,10 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   }
 
   saveOTP() async {
-    bool validate = basicForm.currentState!.validate();
-    if (!validate) {
+    //bool validate = basicForm.currentState!.validate();
+    /* if (!validate) {
       return;
-    }
+    } */
     var result =
         await UserDataService().authenticate({"mobile": primaryNumber.text});
     var res = Utils.parseResponse(result);
@@ -2478,8 +2060,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
           content: Text("Invalid OTP. Please try again."),
         ));
       } else {
-        await Utils.setPreference(
-            pres, ESharedPreferences.user_id.name, data['id']);
+        // await Utils.setPreference(
+        /*      pres, ESharedPreferences.user_id.name, data['id']);
         await Utils.setPreference(pres, ESharedPreferences.user_type.name,
             int.parse(data['usertype']));
 
@@ -2497,7 +2079,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         await Utils.setPreference(pres, ESharedPreferences.user_data.name,
             jsonEncode(model.toJson()));
         await Utils.setPreference(
-            pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
+            pres, ESharedPreferences.user_rawData.name, jsonEncode(data)); */
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("OTP Verified Successfully"),
         ));
@@ -2518,7 +2100,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     otpChar4Controller.text = "";
   }
 
-  calculateAge(DateTime birthDate) {
+  /*  calculateAge(String birthDate) {
     DateTime currentDate = DateTime.now();
     int age = currentDate.year - birthDate.year;
     int month1 = currentDate.month;
@@ -2533,7 +2115,26 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       }
     }
     return age;
+  } */
+  int calculateAge(String dateOfBirthText) {
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateTime dateOfBirth = dateFormat.parse(dateOfBirthText);
+    final DateTime currentDate = DateTime.now();
+
+    final int years = currentDate.year - dateOfBirth.year;
+    final int currentMonth = currentDate.month;
+    final int birthMonth = dateOfBirth.month;
+
+    if (currentMonth < birthMonth ||
+        (currentMonth == birthMonth && currentDate.day < dateOfBirth.day)) {
+      // Subtract 1 from the age if the birthdate hasn't occurred yet this year.
+      return years - 1;
+    } else {
+      return years;
+    }
   }
+
+  int? finalage;
 
   InkWell customLanguage(String title) {
     return InkWell(
@@ -2626,6 +2227,47 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     }
   }
 
+  InkWell customContainerMale(
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      required String img,
+      bool? isSalary = false}) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            width: MediaQuery.of(context).size.width / 2.3.w,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color:
+                    // isSelect ? const Color(0xfff310d44) :
+                    Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+                border: isSelect
+                    ? Border.all(color: Constants.themeBgColor)
+                    : null),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  img,
+                  height: 20,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp)),
+              ],
+            )));
+  }
+
   InkWell customContainerSelect(
       {required final VoidCallback onPressed,
       required bool isSelect,
@@ -2692,26 +2334,70 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
-  uploadFile(allowExt) async {
-    Utils.showLoaderDialog(context, "Uploading...");
+  Future<String?> uploadFile(
+    allowExt,
+  ) async {
+    Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: allowExt,
-        withReadStream: true);
+      type: FileType.custom,
+      allowedExtensions: allowExt,
+      withReadStream: true,
+    );
 
     if (result != null) {
-      var res =
-          await FileUploadService().uploadSingleFile("cv", result.files.single);
-      var resultD = Utils.parseResponse(res);
-      Navigator.pop(context);
-      if (resultD.resultKey == 'SUCCESS') {
-        return resultD.resultData[0];
+      try {
+        var res = await FileUploadService()
+            .uploadSingleFile("salarySlip", result.files.single);
+        var resultD = Utils.parseResponse(res);
+
+        if (resultD.resultKey == 'SUCCESS') {
+          String filePath = result.files.single.path ?? '';
+          String filename = resultD.resultData[0]["fileName"];
+          print(filename);
+          print("Filename: $filePath");
+
+          // Close the loading dialog when the upload is successful
+          Navigator.pop(context);
+          //save(filename, data);
+
+          return filename;
+        } else {
+          // Close the loading dialog when there is an error
+          Navigator.pop(context);
+
+          // Handle the case where the server returns an error
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Error while uploading cv"),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
+          return null;
+        }
+      } catch (e) {
+        // Close the loading dialog in case of exceptions
+        Navigator.pop(context);
+
+        // Handle any exceptions that occur during the upload
+        print("Error during file upload: $e");
+        return null;
       }
-      // File file = File(result.files.single.readStream.first!);
     } else {
+      // Close the loading dialog when the user cancels file selection
       Navigator.pop(context);
+
+      // Handle the case where the user cancels file selection
       return null;
-      // User canceled the picker
     }
   }
 
@@ -2749,6 +2435,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     var mobilenumber = await Utils.getPreferencesValue(
         prefs, ESharedPreferences.user_mobile.name);
 
+    //if(primaryNumber.text.isNotEmpty&&firstName.te){}
     var params = {
       "stage": "basic_info",
       "data": {
@@ -2760,51 +2447,71 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         "middle_name": middleName.text.trim(),
         "last_name": lastName.text.trim(),
         "gender": genderValue,
-        "languages": selectedLanguages,
-        "skills": fetchApiskill,
-        "user_location": selectedLocation.value, // <-- Update here
-        "email": emailadr.text, // <-- Update here
-        "martial_status": martialStatusValue,
+        // "languages": selectedLanguages,
+        // "skills": fetchApiskill,
+        "user_location": cityname,
+        "user_locality": Localityfinal, // <-- Update here
+        "email": emailadr.text.toLowerCase(), // <-- Update here
+        // "martial_status": martialStatusValue,
         "vaccination": vaccination,
         "dateofbirth": DateFormat("yyyy-MM-dd").format(dataOfBirthValue),
+        "bio": bio.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
+        "vaccination_certificate":
+            data != null && vaccination != "0" ? data : null
       }
     };
 
     // Continue with the remaining logic...
 
-    CardModel model = CardModel();
-    model.mobile = primaryNumber.text;
+    CardModel model = CardModel(
+        alternate_no: secondaryNumber.text,
+        middle_name: middleName.text.isNotEmpty ? middleName.text : null,
+        firstName: firstName.text,
+        lastName: lastName.text,
+        mobile: primaryNumber.text,
+        email: emailadr.text,
+        gender: genderValue,
+        dateofbirth: dateOfBirth.text,
+        bio: bio.text,
+        location: localityController.text,
+        vaccination: int.parse(vaccination),
+        vaccination_certificate:
+            data != null && vaccination != 0 ? data : null);
 
-    model.cardName = (firstName.text + " " + lastName.text).toTitleCase();
-    model.email = emailadr.text;
-    model.martial_status = martialStatusValue;
-    model.gender = genderValue;
     print(params);
-    var result = await UserDataService().saveUserStages(params);
+    final jsonData = model.toJson();
+    await JobPostApiService.PostUserInfo(
+      params,
+    );
+    /* var result = await UserDataService().saveUserStages(model.toJson());
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       await Utils.setPreference(
-          prefs, ESharedPreferences.user_data.name, jsonEncode(model));
-      if (widget.prevPageModel == null) {
-        Navigator.pushNamed(context, ERoute.screen2.name);
-      } else {
-        widget.prevPageModel!.first_name = firstName.text;
+          prefs, ESharedPreferences.user_data.name, jsonEncode(model)); */
+    if (widget.prevPageModel == null) {
+      Navigator.pushNamed(context, ERoute.screen2.name);
+    } else {
+      /* widget.prevPageModel!.first_name = firstName.text;
         widget.prevPageModel!.last_name = lastName.text;
-        widget.prevPageModel!.user_location = selectedLocation.label;
+        widget.prevPageModel!.alternate_no = int.parse(secondaryNumber.text);
+        widget.prevPageModel!.user_location = localityController.text;
         /* widget.prevPageModel.job_location_id =
             int.parse(selectedLocation.value); */
+        widget.prevPageModel!.bio = bio.text;
+
         widget.prevPageModel!.gender = gender;
-        widget.prevPageModel!.martial_status = martialStatus;
-        widget.prevPageModel!.languages = selectedLanguages;
+
+        //  widget.prevPageModel!.martial_status = martialStatus;
+        //   widget.prevPageModel!.languages = selectedLanguages;
         // widget.prevPageModel!.skills = fetchApiskill;
         widget.prevPageModel!.dateofbirth =
-            DateFormat("yyyy-MM-dd").format(dataOfBirthValue);
+            DateFormat("yyyy-MM-dd").format(dataOfBirthValue); */
 
-        Navigator.pop(context, widget.prevPageModel);
-      }
-      Utils.setCacheData('firstName', firstName.text);
+      Navigator.pop(
+        context,
+      );
     }
-    setState(() {});
+    Utils.setCacheData('firstName', firstName.text);
   }
 }

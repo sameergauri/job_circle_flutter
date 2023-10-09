@@ -1,10 +1,16 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:job_circle/constants/custom_textfield_for_profile.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/service/FileUploadService.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +48,7 @@ class _Screen3State extends State<Screen3> {
   late TextEditingController currentSalaryController = TextEditingController();
   late TextEditingController joiningDataController = TextEditingController();
   late TextEditingController lastWorkingController = TextEditingController();
+  late TextEditingController description = TextEditingController();
 
   late List<AutoCompleteModel> jobTitleList = [];
   late List<AutoCompleteModel> totalExperienceList = [];
@@ -53,6 +60,13 @@ class _Screen3State extends State<Screen3> {
   List<String> fetchApiskill = [];
   String? fetchApiGender;
   FocusNode titleFocus = FocusNode();
+  FocusNode cmpnyFocusNode = FocusNode();
+  FocusNode cityFocus = FocusNode();
+  FocusNode salaryFocus = FocusNode();
+  FocusNode skillFocus = FocusNode();
+  FocusNode descriptionFocus = FocusNode();
+
+  FocusNode joiningDateFocus = FocusNode();
 
   String work_type = "";
   String availability = "";
@@ -81,7 +95,10 @@ class _Screen3State extends State<Screen3> {
   bool isOnsite = false;
   bool isHybrid = false;
   bool isWfh = false;
-  bool isMonthly = true; // Set the initial value based on your logic
+  bool isMonthly = false;
+  bool isYearly = false;
+  bool yes = false; // Set the initial value based on your logic
+  bool no = false;
   var dt;
   bool apportunities = false;
 
@@ -94,10 +111,10 @@ class _Screen3State extends State<Screen3> {
     });
   }
 
-  DateTime? selectedDate;
+  DateTime? selectedJoiningDate;
   DateTime? selectedLastWorkingDate;
 
-  void selectDate() async {
+  /* void selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -110,6 +127,51 @@ class _Screen3State extends State<Screen3> {
         selectedDate = pickedDate;
         joiningDataController.text =
             pickedDate.toString(); // Update the TextFormField text
+      });
+    }
+  } */
+  void selectDateForJoiningDay() async {
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedJoiningDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    String formatDate(DateTime date) {
+      final formatter = DateFormat('dd-MMM-yyyy');
+      return formatter.format(date);
+    }
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedJoiningDate = pickedDate;
+        joiningDataController.text = formatDate(pickedDate);
+        //  dataOfBirthValue = pickedDate; // Update the TextFormField text
+      });
+    }
+  }
+
+  void selectDateForLastWorkingDay() async {
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedJoiningDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    String formatDate(DateTime date) {
+      final formatter = DateFormat('dd-MMM-yyyy');
+      return formatter.format(date);
+    }
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedLastWorkingDate = pickedDate;
+        lastWorkingController.text = formatDate(pickedDate);
+        //  dataOfBirthValue = pickedDate; // Update the TextFormField text
       });
     }
   }
@@ -131,6 +193,13 @@ class _Screen3State extends State<Screen3> {
             pickedDate.toString(); // Update the TextFormField text
       });
     }
+  }
+
+  String? someid;
+  void getSuggestionList(String id) {
+    setState(() {
+      someid = id;
+    });
   }
 
   void getValueOfJobtitle(String getJobTitle) async {
@@ -163,7 +232,7 @@ class _Screen3State extends State<Screen3> {
     bindProfileSummary();
     titleFocus.requestFocus();
 
-    final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
+    final DateFormat dateFormatter = DateFormat('dd,MMM,yyyy');
 
     if (widget.prevPageModel != null) {
       companyController.text = widget.prevPageModel!.company_name ?? '';
@@ -185,11 +254,78 @@ class _Screen3State extends State<Screen3> {
           isCompanyLocation = true;
         });
       }
-      companyWebsiteController.text =
-          widget.prevPageModel!.company_website ?? '';
+
       if (companyWebsiteController.text.isNotEmpty) {
         setState(() {
           isCOmpanyWebsite = true;
+        });
+      }
+
+      if (widget.prevPageModel!.isCurrent == 1) {
+        setState(() {
+          yes = true;
+        });
+      } else {
+        setState(() {
+          no = true;
+        });
+      }
+      if (widget.prevPageModel!.description != null) {
+        description.text = widget.prevPageModel!.description!;
+      }
+      setState(() {
+        widget.prevPageModel!.work_type == "OnSite"
+            ? isOnsite = true
+            : widget.prevPageModel!.work_type == "Hybrid"
+                ? isHybrid = true
+                : widget.prevPageModel!.work_type == "WFH"
+                    ? isWfh = true
+                    : null;
+      });
+      if (widget.prevPageModel!.joining_date != null) {
+        setState(() {
+          selectedJoiningDate = widget.prevPageModel!.joining_date;
+        });
+      }
+      if (no && widget.prevPageModel!.last_working_date != null) {
+        setState(() {
+          selectedLastWorkingDate = widget.prevPageModel!.last_working_date;
+        });
+      }
+      setState(() {
+        widget.prevPageModel!.emptype == "FullTime"
+            ? isFullTime = true
+            : widget.prevPageModel!.emptype == "PartTime"
+                ? isPartTime = true
+                : widget.prevPageModel!.emptype == "Contractual"
+                    ? isContract = true
+                    : widget.prevPageModel!.emptype == "Internship"
+                        ? isIntern = true
+                        : null;
+      });
+      if (widget.prevPageModel!.offer_letter != null) {
+        setState(() {
+          offerLetter = widget.prevPageModel!.offer_letter;
+        });
+      }
+      if (widget.prevPageModel!.appointment_letter != null) {
+        setState(() {
+          appointmentLetter = widget.prevPageModel!.appointment_letter;
+        });
+      }
+      if (widget.prevPageModel!.salary_slip != null) {
+        setState(() {
+          alarySlip = widget.prevPageModel!.salary_slip;
+        });
+      }
+      if (widget.prevPageModel!.increment_letter != null) {
+        setState(() {
+          incrementLetter = widget.prevPageModel!.increment_letter;
+        });
+      }
+      if (widget.prevPageModel!.experience_letter != null) {
+        setState(() {
+          experienceLetter = widget.prevPageModel!.experience_letter;
         });
       }
 
@@ -203,6 +339,36 @@ class _Screen3State extends State<Screen3> {
       joiningDataController.text = widget.prevPageModel!.joining_date != null
           ? dateFormatter.format(widget.prevPageModel!.joining_date!)
           : '';
+      setState(() {
+        widget.prevPageModel!.availability == "Immediate"
+            ? imd = true
+            : widget.prevPageModel!.availability == "15Days or less"
+                ? day15 = true
+                : widget.prevPageModel!.availability == "1 Month"
+                    ? day30 = true
+                    : widget.prevPageModel!.availability == "2 Month"
+                        ? day60 = true
+                        : widget.prevPageModel!.availability ==
+                                "3 month or more"
+                            ? day90 = true
+                            : null;
+      });
+      if (widget.prevPageModel!.availability != null) {
+        setState(() {
+          apportunities = true;
+        });
+      }
+
+      if (widget.prevPageModel!.ismonthly == 1 &&
+          widget.prevPageModel!.isCurrent == 1) {
+        setState(() {
+          isMonthly = true;
+        });
+      } else {
+        setState(() {
+          isYearly = true;
+        });
+      }
 
       lastWorkingController.text =
           widget.prevPageModel!.last_working_date != null
@@ -229,7 +395,7 @@ class _Screen3State extends State<Screen3> {
       }
 
       // Check if "I am currently working" is selected
-      if (widget.prevPageModel!.working == "I am currently working") {
+      if (widget.prevPageModel!.isCurrent == "I am currently working") {
         setState(() {
           isPresent = true;
           working = "I am currently working";
@@ -342,6 +508,8 @@ class _Screen3State extends State<Screen3> {
       offerletter = false,
       salrysleep = false,
       bankstmt = false,
+      increament = false,
+      appontment = false,
       experienceletter = false,
       onNoticePeriod = false,
       imd = false,
@@ -363,7 +531,7 @@ class _Screen3State extends State<Screen3> {
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            iconTheme: const IconThemeData(color: Colors.black),
+            iconTheme: const IconThemeData(color: Constants.themeBgColor),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -372,7 +540,7 @@ class _Screen3State extends State<Screen3> {
                         "Add Experience",
                         style: GoogleFonts.varela(
                           fontSize: 18.sp,
-                          color: Colors.black,
+                          color: Constants.themeBgColor,
                           fontWeight: FontWeight.w500,
                         ),
                       )
@@ -380,7 +548,7 @@ class _Screen3State extends State<Screen3> {
                         "Edit Experience",
                         style: GoogleFonts.varela(
                           fontSize: 18.sp,
-                          color: Colors.black,
+                          color: Constants.themeBgColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -395,29 +563,71 @@ class _Screen3State extends State<Screen3> {
             ),
           ),
           extendBodyBehindAppBar: true,
-          bottomNavigationBar: InkWell(
-            onTap: () {
-              save();
-            },
-            child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-              decoration: BoxDecoration(
-                  color: Constants.themeBgColor,
-                  borderRadius: BorderRadius.circular(15)),
-              width: double.maxFinite,
-              padding: const EdgeInsets.symmetric(vertical: 7),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Save",
-                    style: GoogleFonts.varela(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+          bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
+                      companyController.text.isNotEmpty) &&
+                  (yes || no)
+              ? InkWell(
+                  onTap: () {
+                    if (jobTitleController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Job title is not optional"));
+                    } else if (companyController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Company is not optional"));
+                    } else if (!yes && !no) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Select any one option from yes and no"));
+                    } else if (!isPartTime &&
+                        !isFullTime &&
+                        !isContract &&
+                        !isIntern) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Select any one option from emp type."));
+                    } else if (companyLocationController.text.isEmpty) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(customSnackbar("Enter your location"));
+                    } else if (!isOnsite && !isHybrid && !isWfh) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Select any one option form work mode"));
+                    } else if (fetchApiskill.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Add atleast one skill"));
+                    } else if (joiningDataController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Provide your joining dare"));
+                    } else if (no && lastWorkingController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Provide last working date"));
+                    } else if (currentSalaryController.text.isNotEmpty &&
+                        (!isMonthly && !isYearly) &&
+                        yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Select any one option from salry type."));
+                    } else {
+                      save();
+                    }
+                  },
+                  child: Container(
+                    margin:
+                        const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    decoration: BoxDecoration(
+                        color: Constants.themeBgColor,
+                        borderRadius: BorderRadius.circular(8.r)),
+                    width: double.maxFinite,
+                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Save",
+                          style: GoogleFonts.varela(
+                              fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                )
+              : const SizedBox(),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(children: [
@@ -425,6 +635,40 @@ class _Screen3State extends State<Screen3> {
               ]),
             ),
           )),
+    );
+  }
+
+  SnackBar customSnackbar(String title) {
+    return SnackBar(
+      backgroundColor:
+          Colors.transparent, // Set background color to transparent
+      elevation: 0, // Remove shadow
+      content: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16.0), // Add horizontal padding
+        decoration: BoxDecoration(
+          color: Colors.white, // White background
+          borderRadius: BorderRadius.circular(8.0), // Border radius
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 15.h,
+            ), // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black, // Text color
+                fontSize: 14.0, // Text size
+              ),
+            ),
+          ],
+        ),
+      ),
+      duration: const Duration(seconds: 3),
     );
   }
 
@@ -445,51 +689,46 @@ class _Screen3State extends State<Screen3> {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: isJobTitlle!
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Job Title",
-                                style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              customContainerSelect1(
-                                true,
-                                jobTitleController.text,
-                                true,
-                                () {
-                                  setState(() {
-                                    isJobTitlle = false;
-                                    titleFocus.requestFocus();
-                                    jobTitleController.clear();
-                                  });
-                                },
-                              ),
-                            ],
-                          )
-                        : CustomJobFormTextFieldRespOne(
-                            onIDSelected: () {},
-                            // isSelected: isIndustry,
-                            focusNode: titleFocus,
-                            role: "",
-                            isCompany: false,
-                            isIndustry: true,
-                            name: "job_title",
-                            title: "Job Title",
-                            controller: jobTitleController,
-                            onChanged: (p0) {
-                              isEdit1 = true;
-                            },
-                            contextIn: context,
-                            hintText: "Sales Manager",
-                          ),
+                    child: CustomJobTitleForExperience(
+                      onIDSelected: () {},
+                      // isSelected: isIndustry,
+                      focusNode: titleFocus,
+                      role: "",
+                      isCompany: false,
+                      isIndustry: true,
+                      name: "job_title",
+                      title: "Job Title",
+                      controller: jobTitleController,
+                      onChanged: (p0) {
+                        isEdit1 = true;
+                      },
+                      contextIn: context,
+                      hintText: "Sales Manager",
+                    ),
                   ),
                   const SizedBox(height: 10),
 
-                  Column(
+                  customCompanyforExperience(
+                      onTapCallback: () {},
+                      focusNode: cmpnyFocusNode,
+                      isCompany: true,
+                      name: "company",
+                      getid: getSuggestionList,
+                      /* onFocusNodeRequested: (p0) {
+                                  focusNode.requestFocus();
+                                }, */
+                      title: "Client Name",
+                      controller: companyController,
+                      // isEdit: isEdit,
+                      //  focusNode: focusNode,
+                      onChanged: (p0) {},
+                      contextIn: context,
+                      //  onSubmit: (p0) {},
+                      hintText: "Aditya birla Health Insurance",
+                      // getSuggestions: getSuggestions,
+                      onIDSelected: () {}),
+
+                  /*                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -600,11 +839,147 @@ class _Screen3State extends State<Screen3> {
                                 ],
                               )),
                     ],
-                  ),
+                  ), */
+
+                  if (jobTitleController.text.isNotEmpty &&
+                      companyController.text.isNotEmpty)
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 7.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "Is this your current company?",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 7.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () async {
+                                setState(() {
+                                  yes = true;
+                                  no = false;
+                                });
+                                if (someid == null) {
+                                  await JobPostApiService.AddCompanytoMom(
+                                      companyController.text.toString());
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 2.h, horizontal: 10.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                        color: yes
+                                            ? Constants.themeBgColor
+                                            : Colors.transparent)),
+                                child: Text(
+                                  "Yes",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () async {
+                                setState(() {
+                                  yes = false;
+                                  no = true;
+                                });
+                                if (someid == null) {
+                                  await JobPostApiService.AddCompanytoMom(
+                                      companyController.text.toString());
+                                }
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(left: 4.w),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 2.h, horizontal: 10.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                        color: no
+                                            ? Constants.themeBgColor
+                                            : Colors.transparent)),
+                                child: Text(
+                                  "No",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
+
+//TODO: All the details view only when any one option from current company is selected.
+
+                  if (yes || no)
+                    Column(
+                      children: [
+                        // QuillEditorPage(),
+                        CustomTextField(
+                            focusNode: descriptionFocus,
+                            controller: description,
+                            hint: "About you",
+                            label: "Description",
+                            isdescription: true,
+                            icon: const Icon(Icons.description)),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+
+                        CustomFormTextFieldMultiSelectForProfile(
+                          name: "skills",
+                          focusNode: skillFocus,
+                          isSkill: true,
+                          fetchApiskill: fetchApiskill,
+                          title: "Skills Required",
+                          controller: skillsController,
+                          selectedValuesList: selectedValuesList,
+                          callback: updateSelectedValues,
+                          contextIn: context,
+                          hintText: "Advance Excel",
+                        ),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+
+                        // TODO: old code for company location.
+                        /* Row(  
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,8 +1008,7 @@ class _Screen3State extends State<Screen3> {
                                   isSelect: true,
                                   title: companyLocationController.text)
                               : Container(
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.32,
+                                  width: double.maxFinite,
                                   // height: 55,
                                   margin: const EdgeInsets.only(bottom: 5),
                                   child: Column(
@@ -730,7 +1104,7 @@ class _Screen3State extends State<Screen3> {
                       SizedBox(
                         width: 10.h,
                       ),
-                      Column(
+                      /*  Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -864,180 +1238,630 @@ class _Screen3State extends State<Screen3> {
                                     ],
                                   )),
                         ],
-                      ),
+                      ), */
                     ],
-                  ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Working Type",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
+                  ), */
+                        SizedBox(
+                          height: 10.h,
                         ),
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    children: [
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isHybrid = false;
-                            isOnsite = true;
-                            isWfh = false;
-                          });
-                        },
-                        isSelect: isOnsite,
-                        title: "On-Site",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isHybrid = true;
-                            isOnsite = false;
-                            isWfh = false;
-                          });
-                        },
-                        isSelect: isHybrid,
-                        title: "Hybrid",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isHybrid = false;
-                            isOnsite = false;
-                            isWfh = true;
-                          });
-                        },
-                        isSelect: isWfh,
-                        title: "WFH",
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  CustomFormTextFieldMultiSelect(
-                    name: "skills",
-                    isSkill: true,
-                    fetchApiskill: fetchApiskill,
-                    title: "Skills Required",
-                    controller: skillsController,
-                    selectedValuesList: selectedValuesList,
-                    callback: updateSelectedValues,
-                    contextIn: context,
-                    hintText: "Advance Excel",
-                  ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  Column(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Current Salary",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
-                                // color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w600),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 1.83.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "Work Mode",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 11.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Wrap(
+                          children: [
+                            customContainerSelectForWorkingType(
+                              onPressed: () {
+                                setState(() {
+                                  isHybrid = false;
+                                  isOnsite = true;
+                                  isWfh = false;
+                                });
+                              },
+                              isSelect: isOnsite,
+                              title: "On-Site",
+                            ),
+                            customContainerSelectForWorkingType(
+                              onPressed: () {
+                                setState(() {
+                                  isHybrid = true;
+                                  isOnsite = false;
+                                  isWfh = false;
+                                });
+                              },
+                              isSelect: isHybrid,
+                              title: "Hybrid",
+                            ),
+                            customContainerSelectForWorkingType(
+                              onPressed: () {
+                                setState(() {
+                                  isHybrid = false;
+                                  isOnsite = false;
+                                  isWfh = true;
+                                });
+                              },
+                              isSelect: isWfh,
+                              title: "WFH",
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+
+                        CustomTextFieldComapanyLocation(
+                          isCompany: false,
+                          name: "city",
+                          isCity: true,
+                          focusNode: cityFocus,
+                          /* onFocusNodeRequested: (p0) {
+                                                      focusNode.requestFocus();
+                                                    }, */
+                          title: "City",
+                          role: "",
+                          controller: companyLocationController,
+                          // isEdit: isEdit,
+                          //  focusNode: focusNode,
+                          onChanged: (p0) {
+                            isEdit10 = p0;
+                          },
+                          contextIn: context,
+                          onSubmit: (p0) {},
+                          hintText: "Thane",
+                          //  onIDSelected: handleSelectedID,
+                          //   getSuggestions: getJobTitle,
+                        ),
+
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 1.75.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "Emp Type",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 8.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Wrap(
+                          children: [
+                            customContainerSelectForEmpType(
+                                onPressed: () {
+                                  setState(() {
+                                    isPartTime = false;
+                                    isFullTime = true;
+                                    isContract = false;
+                                    isIntern = false;
+                                    temporary = false;
+                                  });
+                                },
+                                isSelect: isFullTime,
+                                title: "Full Time"),
+                            customContainerSelectForEmpType(
+                                onPressed: () {
+                                  setState(() {
+                                    isPartTime = true;
+                                    isFullTime = false;
+                                    isContract = false;
+                                    isIntern = false;
+                                    temporary = false;
+                                  });
+                                },
+                                isSelect: isPartTime,
+                                title: "Part Time"),
+                            customContainerSelectForEmpType(
+                                onPressed: () {
+                                  setState(() {
+                                    isPartTime = false;
+                                    isFullTime = false;
+                                    isContract = true;
+                                    isIntern = false;
+                                    temporary = false;
+                                  });
+                                },
+                                isSelect: isContract,
+                                title: "Contractual"),
+                            customContainerSelectForEmpType(
+                                onPressed: () {
+                                  setState(() {
+                                    isPartTime = false;
+                                    isFullTime = false;
+                                    isContract = false;
+                                    isIntern = true;
+                                    temporary = false;
+                                  });
+                                },
+                                isSelect: isIntern,
+                                title: "Internship"),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+
+                        //TODO: new, joining and lastworking date
+
+                        InkWell(
+                          onTap: () {
+                            selectDateForJoiningDay();
+                          },
+                          child: Container(
+                            // width: MediaQuery.of(context).size.width / 2.5,
+                            height: MediaQuery.of(context).size.height / 25,
+                            margin: EdgeInsets.only(bottom: 5.h),
+                            // width: MediaQuery.of(context).size.width / 1.8,
+                            // height: 35,
+                            color: Colors.white,
+                            child: TextFormField(
+                              focusNode: joiningDateFocus,
+                              enabled: false,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "This Text field Cant be empty";
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.text,
+                              controller: joiningDataController,
+                              /* onTap: () {
+                          selectDate();
+                        }, */
+                              style: GoogleFonts.varela(
+                                  color: Constants.hintColor, fontSize: 14.sp),
+                              decoration: InputDecoration(
+                                  prefixIcon:
+                                      const Icon(Icons.calendar_month_outlined),
+                                  prefixIconColor: Constants.themeBgColor,
+                                  contentPadding: const EdgeInsets.only(
+                                      top: 8, bottom: 8, left: 10, right: 10),
+                                  counterText: '',
+                                  labelText: "Joining Date",
+                                  labelStyle: const TextStyle(
+                                    color: Constants.themeBgColor,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    borderSide: const BorderSide(
+                                        color: Constants.themeBgColor),
+                                  ),
+                                  focusColor: const Color(0xffff0eceb),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    borderSide: const BorderSide(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                  ),
+                                  hintText: "26-Jan-2023",
+                                  hintStyle: GoogleFonts.sourceSansPro(
+                                      color: Constants.hintColor,
+                                      fontSize: 15.sp)),
+                            ),
                           ),
-                          Row(
-                            children: [
-                              isCurrentSalary
-                                  ? customContainerSelect(
-                                      isVacancy: true,
-                                      isCross: true,
-                                      isNumOfOpening: false,
-                                      isEmails: true,
-                                      onPressed: () {
+                        ),
+                        SizedBox(
+                          height: 6.h,
+                        ),
+                        if (no)
+                          InkWell(
+                            onTap: () {
+                              selectDateForLastWorkingDay();
+                            },
+                            child: Container(
+                              // width: MediaQuery.of(context).size.width / 2.5,
+                              height: MediaQuery.of(context).size.height / 25,
+                              margin: EdgeInsets.only(bottom: 5.h),
+                              // width: MediaQuery.of(context).size.width / 1.8,
+                              // height: 35,
+                              color: Colors.white,
+                              child: TextFormField(
+                                focusNode: joiningDateFocus,
+                                enabled: false,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "This Text field Cant be empty";
+                                  }
+                                  return null;
+                                },
+                                keyboardType: TextInputType.text,
+                                controller: lastWorkingController,
+                                /* onTap: () {
+                          selectDate();
+                        }, */
+                                style: GoogleFonts.varela(
+                                    color: Constants.hintColor,
+                                    fontSize: 14.sp),
+                                decoration: InputDecoration(
+                                    prefixIcon: const Icon(
+                                        Icons.calendar_month_outlined),
+                                    prefixIconColor: Constants.themeBgColor,
+                                    contentPadding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, left: 10, right: 10),
+                                    counterText: '',
+                                    labelText: "Last Working Date",
+                                    labelStyle: const TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                          color: Constants.themeBgColor),
+                                    ),
+                                    focusColor: const Color(0xffff0eceb),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                    ),
+                                    hintText: "26-Jan-2023",
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.hintColor,
+                                        fontSize: 15.sp)),
+                              ),
+                            ),
+                          ),
+                        if (yes)
+                          Container(
+
+                              // height: 55,
+                              margin: const EdgeInsets.only(bottom: 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(bottom: 5.h),
+                                    height:
+                                        MediaQuery.of(context).size.height / 25,
+                                    color: Colors.white,
+                                    child: TextFormField(
+                                      maxLength: 8,
+                                      focusNode: salaryFocus,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "This Text field Cant be empty";
+                                        }
+                                        return null;
+                                      },
+
+                                      // focusNode: titleFocus,
+                                      // maxLength: 3,
+                                      onFieldSubmitted: (value) {
+                                        currentSalaryController.text.isNotEmpty
+                                            ? setState(() {
+                                                isCurrentSalary = true;
+                                                // _showContainer1 = value.isEmpty;
+                                              })
+                                            : null;
+                                      },
+
+                                      onChanged: (value) {
                                         setState(() {
-                                          isCurrentSalary = false;
-                                          // FocusScope.of(context).autofocus(focusNode);
-                                          currentSalaryController.clear();
-                                          titleFocus.requestFocus();
+                                          currentSalaryController.text.isEmpty
+                                              ? isMonthly = false
+                                              : isYearly = false;
                                         });
                                       },
-                                      isSelect: true,
-                                      title: currentSalaryController.text)
-                                  : Container(
-                                      width: MediaQuery.of(context).size.width /
-                                          2.3,
-                                      // height: 55,
-                                      margin: const EdgeInsets.only(bottom: 5),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 5,
+                                      onTapOutside: (event) {
+                                        currentSalaryController.text.isNotEmpty
+                                            ? setState(() {
+                                                isCurrentSalary = true;
+                                                // _showContainer1 = value.isEmpty;
+                                              })
+                                            : null;
+                                      },
+                                      onEditingComplete: () {
+                                        currentSalaryController.text.isNotEmpty
+                                            ? setState(() {
+                                                isCompanyLocation = true;
+                                                // _showContainer1 = value.isEmpty;
+                                              })
+                                            : null;
+                                      },
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      controller: currentSalaryController,
+                                      // enabled: enableShortListFor,
+                                      onTap: (() {}),
+                                      style: GoogleFonts.varela(
+                                          color: Constants.hintColor,
+                                          fontSize: 14.sp),
+                                      decoration: InputDecoration(
+                                        counterText: '',
+                                        label: const Text("Salary"),
+                                        labelStyle: GoogleFonts.varela(
+                                            color: Constants.themeBgColor,
+                                            fontSize: 15.sp),
+                                        suffixIcon: Padding(
+                                          padding: EdgeInsets.only(right: 6.w),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    isMonthly = true;
+                                                    isYearly = false;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 2.h,
+                                                      horizontal: 10.w),
+                                                  decoration: BoxDecoration(
+                                                      color:
+                                                          Colors.grey.shade200,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.r),
+                                                      border: Border.all(
+                                                          color: isMonthly
+                                                              ? Constants
+                                                                  .themeBgColor
+                                                              : Colors
+                                                                  .transparent)),
+                                                  child: Text(
+                                                    "Per month",
+                                                    style: GoogleFonts.varela(
+                                                        color: Constants
+                                                            .themeBgColor),
+                                                  ),
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    isMonthly = false;
+                                                    isYearly = true;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  margin: EdgeInsets.only(
+                                                      left: 4.w),
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 2.h,
+                                                      horizontal: 10.w),
+                                                  decoration: BoxDecoration(
+                                                      color:
+                                                          Colors.grey.shade200,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.r),
+                                                      border: Border.all(
+                                                          color: isYearly
+                                                              ? Constants
+                                                                  .themeBgColor
+                                                              : Colors
+                                                                  .transparent)),
+                                                  child: Text(
+                                                    "Per annum",
+                                                    style: GoogleFonts.varela(
+                                                        color: Constants
+                                                            .themeBgColor),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 5.h),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2.3,
-                                            height: 35,
-                                            color: Colors.white,
-                                            child: TextFormField(
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return "This Text field Cant be empty";
-                                                }
-                                                return null;
-                                              },
+                                        ),
+                                        prefixIcon: const Icon(
+                                          Icons.currency_rupee_outlined,
+                                          color: Constants.themeBgColor,
+                                        ),
+                                        prefixIconColor: Constants.themeBgColor,
+                                        //label: Text("Reside at"),
+                                        hintText: "10000",
+                                        hintStyle: GoogleFonts.varela(
+                                          color: Constants.subtitleclr,
+                                          fontSize: 14.sp,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Constants.themeBgColor),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                            color: Color(0xffff0eceb),
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.only(left: 15),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
 
-                                              // focusNode: titleFocus,
-                                              // maxLength: 3,
-                                              onFieldSubmitted: (value) {
-                                                currentSalaryController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isCurrentSalary = true;
-                                                        // _showContainer1 = value.isEmpty;
-                                                      })
-                                                    : null;
-                                              },
-                                              onChanged: (value) {
-                                                setState(() {});
-                                              },
-                                              onTapOutside: (event) {
-                                                currentSalaryController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isCurrentSalary = true;
-                                                        // _showContainer1 = value.isEmpty;
-                                                      })
-                                                    : null;
-                                              },
-                                              onEditingComplete: () {
-                                                currentSalaryController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isCompanyLocation =
-                                                            true;
-                                                        // _showContainer1 = value.isEmpty;
-                                                      })
-                                                    : null;
-                                              },
-                                              keyboardType: TextInputType.text,
-                                              controller:
-                                                  currentSalaryController,
-                                              // enabled: enableShortListFor,
-                                              onTap: (() {}),
-                                              decoration: InputDecoration(
+                        /* Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Joining Date",
+                                  style: GoogleFonts.sourceSansPro(
+                                      fontSize: 18.sp,
+                                      // color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                isJoiningDate
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          customContainerSelect(
+                                            isVacancy: true,
+                                            isCross: true,
+                                            isAnother: false,
+                                            isEmails: false,
+                                            isNumOfOpening: true,
+                                            onPressed: () async {
+                                              setState(() {
+                                                isJoiningDate = false;
+                                              });
+                                              DateTime? pickedDate =
+                                                  await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime.now().add(
+                                                  const Duration(
+                                                      days: -(365 * 50)),
+                                                ),
+                                                lastDate: DateTime.now(),
+                                                currentDate: joiningDateValue,
+                                                firstDate: DateTime.now(),
+                                              );
+
+                                              if (pickedDate != null) {
+                                                String formattedDate =
+                                                    DateFormat('dd-MM-yyyy')
+                                                        .format(pickedDate);
+                                                joiningDateValue = pickedDate;
+                                                setState(() {
+                                                  joiningDataController.text =
+                                                      formattedDate;
+                                                  dt = DateFormat(
+                                                          'yyyy-MM-dd HH:mm:ss')
+                                                      .format(pickedDate);
+                                                  year = (dt - DateTime.now());
+                                                  isJoiningDate = false;
+                                                  joiningDataController.clear();
+                                                });
+                                              } else {
+                                                print("Date is not selected");
+                                              }
+                                            },
+                                            isSelect: true,
+                                            title: joiningDataController.text,
+                                          ),
+                                        ],
+                                      )
+                                    : Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        // height: 55,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              margin:
+                                                  EdgeInsets.only(bottom: 5.h),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3,
+                                              height: 35,
+                                              color: Colors.white,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
+                                                // focusNode: firstNameFocus,
+                                                onFieldSubmitted: (value) {
+                                                  joiningDataController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isJoiningDate = true;
+                                                        })
+                                                      : null;
+                                                },
+                                                onTapOutside: (event) {
+                                                  joiningDataController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isJoiningDate = true;
+                                                        })
+                                                      : null;
+                                                },
+                                                onEditingComplete: () {
+                                                  joiningDataController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isJoiningDate = true;
+                                                        })
+                                                      : null;
+                                                },
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                controller:
+                                                    joiningDataController,
+                                                onTap: () {
+                                                  selectDate();
+                                                },
+                                                decoration: InputDecoration(
                                                   counterText: '',
+                                                  contentPadding:
+                                                      const EdgeInsets.only(
+                                                          top: 8,
+                                                          bottom: 8,
+                                                          left: 10,
+                                                          right: 10),
                                                   border: OutlineInputBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -1063,371 +1887,212 @@ class _Screen3State extends State<Screen3> {
                                                                     113,
                                                                     111)),
                                                   ),
-                                                  hintText: "Enter salary",
+                                                  hintText:
+                                                      "Enter joining date ",
                                                   hintStyle:
                                                       GoogleFonts.sourceSansPro(
                                                           color: Constants
                                                               .subtitleclr,
-                                                          fontSize: 15.sp)
-                                                  //  prefixIcon: Icon(Icons.list)
-                                                  ),
+                                                          fontSize: 15.sp),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      )),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Radio(
-                                    value: true,
-                                    groupValue: isMonthly,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isMonthly = true;
-                                      });
-                                    },
-                                  ),
-                                  Text("PM"),
-                                  Radio(
-                                    value: false,
-                                    groupValue: isMonthly,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isMonthly = false;
-                                      });
-                                    },
-                                  ),
-                                  Text("PA"),
-                                ],
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Joining Date",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
-                                // color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          isJoiningDate
-                              ? Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    customContainerSelect(
-                                      isVacancy: true,
-                                      isCross: true,
-                                      isAnother: false,
-                                      isEmails: false,
-                                      isNumOfOpening: true,
-                                      onPressed: () async {
-                                        setState(() {
-                                          isJoiningDate = false;
-                                        });
-                                        DateTime? pickedDate =
-                                            await showDatePicker(
-                                          context: context,
-                                          initialDate: DateTime.now().add(
-                                            const Duration(days: -(365 * 50)),
-                                          ),
-                                          lastDate: DateTime.now(),
-                                          currentDate: joiningDateValue,
-                                          firstDate: DateTime.now(),
-                                        );
-
-                                        if (pickedDate != null) {
-                                          String formattedDate =
-                                              DateFormat('dd-MM-yyyy')
-                                                  .format(pickedDate);
-                                          joiningDateValue = pickedDate;
-                                          setState(() {
-                                            joiningDataController.text =
-                                                formattedDate;
-                                            dt = DateFormat(
-                                                    'yyyy-MM-dd HH:mm:ss')
-                                                .format(pickedDate);
-                                            year = (dt - DateTime.now());
-                                            isJoiningDate = false;
-                                            joiningDataController.clear();
-                                          });
-                                        } else {
-                                          print("Date is not selected");
-                                        }
-                                      },
-                                      isSelect: true,
-                                      title: joiningDataController.text,
-                                    ),
-                                  ],
-                                )
-                              : Container(
-                                  width: MediaQuery.of(context).size.width / 3,
-                                  // height: 55,
-                                  margin: const EdgeInsets.only(bottom: 5),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(bottom: 5.h),
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                3,
-                                        height: 35,
-                                        color: Colors.white,
-                                        child: TextFormField(
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty) {
-                                              return "This Text field Cant be empty";
-                                            }
-                                            return null;
-                                          },
-                                          // focusNode: firstNameFocus,
-                                          onFieldSubmitted: (value) {
-                                            joiningDataController
-                                                    .text.isNotEmpty
-                                                ? setState(() {
-                                                    isJoiningDate = true;
-                                                  })
-                                                : null;
-                                          },
-                                          onTapOutside: (event) {
-                                            joiningDataController
-                                                    .text.isNotEmpty
-                                                ? setState(() {
-                                                    isJoiningDate = true;
-                                                  })
-                                                : null;
-                                          },
-                                          onEditingComplete: () {
-                                            joiningDataController
-                                                    .text.isNotEmpty
-                                                ? setState(() {
-                                                    isJoiningDate = true;
-                                                  })
-                                                : null;
-                                          },
-                                          keyboardType: TextInputType.text,
-                                          controller: joiningDataController,
-                                          onTap: () {
-                                            selectDate();
-                                          },
-                                          decoration: InputDecoration(
-                                            counterText: '',
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                    left: 10,
-                                                    right: 10),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb)),
-                                            ),
-                                            focusColor:
-                                                const Color(0xffff0eceb),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111)),
-                                            ),
-                                            hintText: "Enter joining date ",
-                                            hintStyle:
-                                                GoogleFonts.sourceSansPro(
-                                                    color:
-                                                        Constants.subtitleclr,
-                                                    fontSize: 15.sp),
-                                          ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                        ],
-                      ),
-                      const SizedBox(width: 10),
-                      if (!isPresent)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Last Working Date",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 18.sp,
-                                  // color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w600),
+                              ],
                             ),
-                            isLastWorkingDate
-                                ? Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      customContainerSelect(
-                                        isVacancy: true,
-                                        isCross: true,
-                                        isAnother: false,
-                                        isEmails: false,
-                                        isNumOfOpening: true,
-                                        onPressed: () async {
-                                          setState(() {
-                                            isLastWorkingDate = false;
-                                          });
-                                          DateTime? pickedDate =
-                                              await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now().add(
-                                              const Duration(days: -(365 * 50)),
-                                            ),
-                                            lastDate: DateTime.now(),
-                                            currentDate: lastWorkingDateValue,
-                                            firstDate: DateTime.now(),
-                                          );
+                            const SizedBox(width: 10),
+                            if (!isPresent && no)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Last Working Date",
+                                    style: GoogleFonts.sourceSansPro(
+                                        fontSize: 18.sp,
+                                        // color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  isLastWorkingDate
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            customContainerSelect(
+                                              isVacancy: true,
+                                              isCross: true,
+                                              isAnother: false,
+                                              isEmails: false,
+                                              isNumOfOpening: true,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  isLastWorkingDate = false;
+                                                });
+                                                DateTime? pickedDate =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate:
+                                                      DateTime.now().add(
+                                                    const Duration(
+                                                        days: -(365 * 50)),
+                                                  ),
+                                                  lastDate: DateTime.now(),
+                                                  currentDate:
+                                                      lastWorkingDateValue,
+                                                  firstDate: DateTime.now(),
+                                                );
 
-                                          if (pickedDate != null) {
-                                            String formattedDate =
-                                                DateFormat('dd-MM-yyyy')
-                                                    .format(pickedDate);
-                                            lastWorkingDateValue = pickedDate;
-                                            setState(() {
-                                              lastWorkingController.text =
-                                                  formattedDate;
-                                              dt = DateFormat(
-                                                      'yyyy-MM-dd HH:mm:ss')
-                                                  .format(pickedDate);
-                                              year = (dt - DateTime.now());
-                                              isJoiningDate = false;
-                                              lastWorkingController.clear();
-                                            });
-                                          } else {
-                                            print("Date is not selected");
-                                          }
-                                        },
-                                        isSelect: true,
-                                        title: lastWorkingController.text,
-                                      ),
-                                    ],
-                                  )
-                                : Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 3,
-                                    // height: 55,
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 5.h),
+                                                if (pickedDate != null) {
+                                                  String formattedDate =
+                                                      DateFormat('dd-MM-yyyy')
+                                                          .format(pickedDate);
+                                                  lastWorkingDateValue =
+                                                      pickedDate;
+                                                  setState(() {
+                                                    lastWorkingController.text =
+                                                        formattedDate;
+                                                    dt = DateFormat(
+                                                            'yyyy-MM-dd HH:mm:ss')
+                                                        .format(pickedDate);
+                                                    year =
+                                                        (dt - DateTime.now());
+                                                    isJoiningDate = false;
+                                                    lastWorkingController
+                                                        .clear();
+                                                  });
+                                                } else {
+                                                  print("Date is not selected");
+                                                }
+                                              },
+                                              isSelect: true,
+                                              title: lastWorkingController.text,
+                                            ),
+                                          ],
+                                        )
+                                      : Container(
                                           width: MediaQuery.of(context)
                                                   .size
                                                   .width /
                                               3,
-                                          height: 35,
-                                          color: Colors.white,
-                                          child: TextFormField(
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return "This Text field Cant be empty";
-                                              }
-                                              return null;
-                                            },
-                                            // focusNode: firstNameFocus,
-                                            onFieldSubmitted: (value) {
-                                              lastWorkingController
-                                                      .text.isNotEmpty
-                                                  ? setState(() {
-                                                      isLastWorkingDate = true;
-                                                    })
-                                                  : null;
-                                            },
-                                            onTapOutside: (event) {
-                                              lastWorkingController
-                                                      .text.isNotEmpty
-                                                  ? setState(() {
-                                                      isLastWorkingDate = true;
-                                                    })
-                                                  : null;
-                                            },
-                                            onEditingComplete: () {
-                                              lastWorkingController
-                                                      .text.isNotEmpty
-                                                  ? setState(() {
-                                                      isLastWorkingDate = true;
-                                                    })
-                                                  : null;
-                                            },
-                                            keyboardType: TextInputType.text,
-                                            controller: lastWorkingController,
-                                            onTap: () {
-                                              selectDate();
-                                            },
-                                            decoration: InputDecoration(
-                                              counterText: '',
-                                              contentPadding:
-                                                  const EdgeInsets.only(
-                                                      top: 8,
-                                                      bottom: 8,
-                                                      left: 10,
-                                                      right: 10),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                borderSide: const BorderSide(
-                                                    color: Color(0xffff0eceb)),
+                                          // height: 55,
+                                          margin:
+                                              const EdgeInsets.only(bottom: 5),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(
+                                                height: 5,
                                               ),
-                                              focusColor:
-                                                  const Color(0xffff0eceb),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Color.fromARGB(
-                                                        255, 122, 113, 111)),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 5.h),
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                                height: 35,
+                                                color: Colors.white,
+                                                child: TextFormField(
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return "This Text field Cant be empty";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  // focusNode: firstNameFocus,
+                                                  onFieldSubmitted: (value) {
+                                                    lastWorkingController
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isLastWorkingDate =
+                                                                true;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  onTapOutside: (event) {
+                                                    lastWorkingController
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isLastWorkingDate =
+                                                                true;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  onEditingComplete: () {
+                                                    lastWorkingController
+                                                            .text.isNotEmpty
+                                                        ? setState(() {
+                                                            isLastWorkingDate =
+                                                                true;
+                                                          })
+                                                        : null;
+                                                  },
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                  controller:
+                                                      lastWorkingController,
+                                                  onTap: () {
+                                                    selectDate();
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    counterText: '',
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 8,
+                                                            left: 10,
+                                                            right: 10),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color(
+                                                                  0xffff0eceb)),
+                                                    ),
+                                                    focusColor: const Color(
+                                                        0xffff0eceb),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      122,
+                                                                      113,
+                                                                      111)),
+                                                    ),
+                                                    hintText:
+                                                        "Enter last working date ",
+                                                    hintStyle: GoogleFonts
+                                                        .sourceSansPro(
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                            fontSize: 15.sp),
+                                                  ),
+                                                ),
                                               ),
-                                              hintText:
-                                                  "Enter last working date ",
-                                              hintStyle:
-                                                  GoogleFonts.sourceSansPro(
-                                                      color:
-                                                          Constants.subtitleclr,
-                                                      fontSize: 15.sp),
-                                            ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
+                                ],
+                              ),
                           ],
-                        ),
-                    ],
-                  ),
-                  SizedBox(
-                    // width: MediaQuery.of(context).size.width / 2.2.w,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                        ), */
+                        SizedBox(
+                          // width: MediaQuery.of(context).size.width / 2.2.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              /* Row(
                           children: [
                             InkWell(
                               onTap: () {
@@ -1470,182 +2135,465 @@ class _Screen3State extends State<Screen3> {
                                     ),
                                   ),
                           ],
-                        ),
-                        if (isPresent)
-                          Container(
-                            padding: EdgeInsets.only(top: 10.h),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      apportunities = !apportunities;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      apportunities
-                                          ? Image.asset(
-                                              "assets/images/currentworking.png",
-                                              height: 15.h,
-                                            )
-                                          : Icon(
-                                              Icons.circle_outlined,
-                                              color: Colors.grey,
-                                              size: 16.h,
-                                            ),
-                                      SizedBox(
-                                        width: 5.w,
-                                      ),
-                                      apportunities
-                                          ? Text(
-                                              "Looking for better opportunities.",
-                                              style: GoogleFonts.varela(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            )
-                                          : Text(
-                                              "Looking for better opportunities?",
-                                              style: GoogleFonts.varela(
-                                                color: Colors.grey.shade400,
-                                              ),
-                                            ),
-                                    ],
-                                  ),
-                                ),
-                                if (apportunities)
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: 10.h,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Availability to join?",
-                                            style: GoogleFonts.varela(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      Wrap(
-                                        children: [
-                                          customContainerSelect(
-                                            isAnother: true,
-                                            onPressed: () {
-                                              setState(() {
-                                                working = "Imediate";
-                                                day15 = true;
-                                                day30 = false;
-                                                day60 = false;
-                                                day90 = false;
-                                              });
-                                            },
-                                            isSelect: day15,
-                                            title: "Imediate",
-                                          ),
-                                          customContainerSelect(
-                                            isAnother: true,
-                                            onPressed: () {
-                                              setState(() {
-                                                working = "15 Days or less";
-                                                imd = true;
-                                                day15 = false;
-                                                day30 = false;
-                                                day60 = false;
-                                                day90 = false;
-                                              });
-                                            },
-                                            isSelect: day15,
-                                            title: "Imediate",
-                                          ),
-                                          customContainerSelect(
-                                            isAnother: true,
-                                            onPressed: () {
-                                              setState(() {
-                                                working = "1 Month";
-                                                day15 = false;
-                                                day30 = true;
-                                                day60 = false;
-                                                day90 = false;
-                                              });
-                                            },
-                                            isSelect: day30,
-                                            title: "1 Month",
-                                          ),
-                                          customContainerSelect(
-                                            isAnother: true,
-                                            onPressed: () {
-                                              setState(() {
-                                                working = "2 Months";
-                                                day15 = false;
-                                                day30 = false;
-                                                day60 = true;
-                                                day90 = false;
-                                              });
-                                            },
-                                            isSelect: day60,
-                                            title: "2 Months",
-                                          ),
-                                          customContainerSelect(
-                                            isAnother: true,
-                                            onPressed: () {
-                                              setState(() {
-                                                working = "2 Months";
-                                                day15 = false;
-                                                day30 = false;
-                                                day60 = false;
-                                                day90 = true;
-                                              });
-                                            },
-                                            isSelect: day90,
-                                            title: "2 Months",
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
+                        ), */
+                              //   if (isPresent)
+                            ],
                           ),
+                        ),
                       ],
                     ),
-                  ),
-
-                  SizedBox(
-                    child: Column(
+                  if ((jobTitleController.text.isNotEmpty &&
+                          companyController.text.isNotEmpty) &&
+                      (yes || no))
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Documnets related to work experience",
-                          style: GoogleFonts.varela(
-                              fontSize: 14.sp, fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width / 1.6,
+                                child: const Divider(
+                                  thickness: 1.5,
+                                )),
+                            const Spacer(),
+                            Text(
+                              "Career Assets",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        customDocumnet(
-                          "Offer / Appointment letter.",
+                        Wrap(
+                          children: [
+                            offerLetter != null
+                                ? customContainerSelectToViewDoc(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomPDFViewerDialog(
+                                            pdfUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$offerLetter",
+                                            onRemove: () {
+                                              setState(() {
+                                                offerLetter = null;
+                                              });
+                                              // Add your logic for removing here
+                                            },
+                                            onReplace: () async {
+                                              setState(() async {
+                                                offerLetter = await uploadFile(
+                                                    allowExt: ['pdf'],
+                                                    isoffer: true);
+
+                                                // Add your logic for replacing here
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: "Offer Letter")
+                                : customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        // offerletter = true;
+                                        offerLetter = await uploadFile(
+                                            allowExt: ["pdf"], isoffer: true);
+                                      });
+                                    },
+                                    isSelect: offerletter,
+                                    title: offerLetter != null
+                                        ? offerLetter.toString()
+                                        : "Offer letter"),
+                            appointmentLetter != null
+                                ? customContainerSelectToViewDoc(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomPDFViewerDialog(
+                                            pdfUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$appointmentLetter",
+                                            onRemove: () {
+                                              setState(() {
+                                                appointmentLetter = null;
+                                              });
+                                              // Add your logic for removing here
+                                            },
+                                            onReplace: () async {
+                                              setState(() async {
+                                                appointmentLetter =
+                                                    await uploadFile(
+                                                        allowExt: ['pdf'],
+                                                        isappointment: true);
+
+                                                // Add your logic for replacing here
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: "Appointment letter")
+                                : customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        // appontment = true;
+                                        appointmentLetter = await uploadFile(
+                                            allowExt: ["pdf"],
+                                            isappointment: true);
+                                      });
+                                    },
+                                    isSelect: appontment,
+                                    title: "Appointment letter"),
+                            alarySlip != null
+                                ? customContainerSelectToViewDoc(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomPDFViewerDialog(
+                                            pdfUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$alarySlip",
+                                            onRemove: () {
+                                              setState(() {
+                                                alarySlip = null;
+                                              });
+                                              // Add your logic for removing here
+                                            },
+                                            onReplace: () async {
+                                              setState(() async {
+                                                alarySlip = await uploadFile(
+                                                    allowExt: ['pdf'],
+                                                    issalry: true);
+
+                                                // Add your logic for replacing here
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: "Salary Slip")
+                                : customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        // salrysleep = true;
+                                        alarySlip = await uploadFile(
+                                            allowExt: ['pdf'], issalry: true);
+                                      });
+                                    },
+                                    isSelect: salrysleep,
+                                    title: "Salary slips"),
+                            incrementLetter != null
+                                ? customContainerSelectToViewDoc(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomPDFViewerDialog(
+                                            pdfUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$incrementLetter",
+                                            onRemove: () {
+                                              setState(() {
+                                                incrementLetter = null;
+                                              });
+                                              // Add your logic for removing here
+                                            },
+                                            onReplace: () async {
+                                              setState(() async {
+                                                incrementLetter =
+                                                    await uploadFile(
+                                                        allowExt: ['pdf'],
+                                                        isincrement: true);
+
+                                                // Add your logic for replacing here
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: "Increment letter")
+                                : customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        //  increament = true;
+                                        incrementLetter = await uploadFile(
+                                            allowExt: ['pdf'],
+                                            isincrement: true);
+                                      });
+                                    },
+                                    isSelect: increament,
+                                    title: "Increment letter"),
+                            if (no)
+                              experienceLetter != null
+                                  ? customContainerSelectToViewDoc(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return CustomPDFViewerDialog(
+                                              pdfUrl:
+                                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$experienceLetter",
+                                              onRemove: () {
+                                                setState(() {
+                                                  experienceLetter = null;
+                                                });
+                                                // Add your logic for removing here
+                                              },
+                                              onReplace: () async {
+                                                setState(() async {
+                                                  experienceLetter =
+                                                      await uploadFile(
+                                                          allowExt: ['pdf'],
+                                                          isexperience: true);
+
+                                                  // Add your logic for replacing here
+                                                });
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                      title: "Experience letter")
+                                  : customContainerSelect(
+                                      isAnother: true,
+                                      onPressed: () async {
+                                        setState(() async {
+                                          //   experienceletter = true;
+                                          experienceLetter = await uploadFile(
+                                              allowExt: ['pdf'],
+                                              isexperience: true);
+                                        });
+                                      },
+                                      isSelect: experienceletter,
+                                      title: "Experience / Relieving letter"),
+                          ],
                         ),
                         SizedBox(
-                          height: 5.h,
+                          height: 20.h,
                         ),
-                        customDocumnet1("6 months Salary Slip. "),
-                        SizedBox(
-                          height: 5.h,
+                        Container(
+                          padding: EdgeInsets.only(top: 6.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Looking for better opportunities.",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black,
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.w400,
+                                      )),
+                                  const Spacer(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color:
+                                            // selectedKeyResponsible.contains(item)
+                                            Colors.grey,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    height: 16,
+                                    width: 20,
+                                    child: Theme(
+                                      data: ThemeData(
+                                        unselectedWidgetColor:
+                                            Colors.transparent,
+                                      ),
+                                      child: Checkbox(
+                                        activeColor: Colors.white,
+                                        checkColor: Constants.themeBgColor,
+                                        visualDensity: VisualDensity.compact,
+                                        value: apportunities,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            if (newValue!) {
+                                              // Add the item to the list
+                                              apportunities = true;
+                                            } else {
+                                              apportunities = false;
+                                              imd = false;
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                              // Remove the item from the list
+                                            }
+                                          });
+                                          // Notify Flutter that the state has changed
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              /* InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          apportunities = !apportunities;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          apportunities
+                                              ? Image.asset(
+                                                  "assets/images/currentworking.png",
+                                                  height: 15.h,
+                                                )
+                                              : Icon(
+                                                  Icons.circle_outlined,
+                                                  color: Colors.grey,
+                                                  size: 16.h,
+                                                ),
+                                          SizedBox(
+                                            width: 5.w,
+                                          ),
+                                          apportunities
+                                              ? Text(
+                                                  "Looking for better opportunities.",
+                                                  style: GoogleFonts.varela(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                )
+                                              : Text(
+                                                  "Looking for better opportunities?",
+                                                  style: GoogleFonts.varela(
+                                                    color: Colors.grey.shade400,
+                                                  ),
+                                                ),
+                                        ],
+                                      ),
+                                    ), */
+                              if (apportunities)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 10.h,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Availability to join?",
+                                          style: GoogleFonts.varela(
+                                              color: Constants.themeBgColor),
+                                        ),
+                                      ],
+                                    ),
+                                    Wrap(
+                                      children: [
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "Immediate";
+                                              imd = !imd;
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: imd,
+                                          title: "Immediate",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "15 Days or less";
+                                              imd = false;
+                                              day15 = !day15;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day15,
+                                          title: "15 Days or less",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "1 Month";
+                                              day15 = false;
+                                              day30 = !day30;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day30,
+                                          title: "1 Month",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = !day60;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day60,
+                                          title: "2 Months",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = !day90;
+                                            });
+                                          },
+                                          isSelect: day90,
+                                          title: "3 Months or more",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
-                        customDocumnet2("6 months Bank statement. "),
-                        SizedBox(
-                          height: 5.h,
-                        ),
-                        customDocumnet3("Experience / Relieving letter."),
+
+                        /* customDocumnet(
+                              "Offer / Appointment letter.",
+                            ),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            customDocumnet1("6 months Salary Slip. "),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            customDocumnet2("6 months Bank statement. "),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            if (no)
+                              customDocumnet3(
+                                  "Experience / Relieving letter."), */
                       ],
-                    ),
-                  )
+                    )
                   // const SizedBox(height: 200),
                 ],
               ),
@@ -1864,76 +2812,167 @@ class _Screen3State extends State<Screen3> {
     );
   }
 
+  bool isPartTime = false,
+      isFullTime = false,
+      isContract = false,
+      isIntern = false,
+      temporary = false;
+
+  InkWell customContainerSelectForEmpType({
+    required final VoidCallback onPressed,
+    required bool isSelect,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            //width: MediaQuery.of(context).size.width / 2.2,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color:
+                      isSelect ? Constants.themeBgColor : Colors.transparent),
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Text(title,
+                style: GoogleFonts.sourceSansPro(
+                    color: Constants.themeBgColor, fontSize: 15.sp))));
+  }
+
   save() async {
     // Retrieve the form data
-
-    String companyName = companyController.text;
-    String companyLocation = companyLocationController.text;
-    String companyWebsite = companyWebsiteController.text;
-    String currentSalary = currentSalaryController.text;
-    String joiningDate = joiningDataController.text;
-    String lastWorkingDate = lastWorkingController.text;
-    String workType = '';
-    if (isOnsite) {
-      workType = 'On-Site';
-    } else if (isHybrid) {
-      workType = 'Hybrid';
-    } else if (isWfh) {
-      workType = 'WFH';
-    }
-    String jobTitle = jobTitleController.text;
-    String availability = '';
-    if (imd) {
-      availability = 'Imediate';
-    } else if (day15) {
-      availability = '15 Days or less';
-    } else if (day30) {
-      availability = '1 Month';
-    } else if (day60) {
-      availability = '2 Months';
-    } else if (day90) {
-      availability = '3 Months';
-    }
-    String working = '';
-    if (isPresent) {
-      working = "I am currently working";
-    }
-    // bool ismonthly;
-    if (isMonthly) {
-      isMonthly = true;
-    }
-    if (!isMonthly) {
-      isMonthly = false;
-    }
-    List<String> skills = fetchApiskill;
 
     // Create a new instance of the model and assign the values
     Experience experience = Experience(
       id: expID,
       userId: profilemodel.id,
-      company_name: companyName,
-      company_location: companyLocation,
-      company_website: companyWebsite,
-      salary: currentSalary,
-      joining_date: DateTime.parse(joiningDate),
-      last_working_date: DateTime.parse(lastWorkingDate),
-      work_type: workType,
-      job_title: jobTitle,
-      availability: availability,
-      ismonthly: isMonthly,
-      skills_exp: skills,
-      working: working,
+      job_title: jobTitleController.text,
+      company_name: companyController.text,
+      isCurrent: yes ? 1 : 0,
+      description: description.text,
+      skills_exp: fetchApiskill,
+      work_type: isOnsite
+          ? "OnSite"
+          : isHybrid
+              ? "Hybrid"
+              : isWfh
+                  ? "WFH"
+                  : "",
+      company_location: companyLocationController.text,
+      emptype: isFullTime
+          ? "FullTime"
+          : isPartTime
+              ? "PartTime"
+              : isContract
+                  ? "Contractual"
+                  : isIntern
+                      ? "Internship"
+                      : null,
+      joining_date: selectedJoiningDate,
+      last_working_date: no ? selectedLastWorkingDate : null,
+      salary: yes ? currentSalaryController.text : null,
+      ismonthly: yes ? 1 : 0,
+      offer_letter: offerLetter,
+      appointment_letter: appointmentLetter,
+      salary_slip: alarySlip,
+      increment_letter: incrementLetter,
+      experience_letter: experienceLetter,
+
+      availability: apportunities
+          ? imd
+              ? "Immediate"
+              : day15
+                  ? "15Days or less"
+                  : day30
+                      ? "1 Month"
+                      : day60
+                          ? "2 Month"
+                          : day90
+                              ? "3 month or more"
+                              : null
+          : null,
+
+      // working: working,
     );
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
 
     // Call the saveUserExperience method on the instance
-    await userDataService.saveUserExperience(experience.toMap());
+    await userDataService.saveUserExperience(experience.toJson());
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Form data saved successfully')),
+      const SnackBar(content: Text('Form data saved successfully')),
     );
+    Navigator.pop(context);
+  }
+
+  InkWell customContainerSelectForWorkingType({
+    required final VoidCallback onPressed,
+    required bool isSelect,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            width: MediaQuery.of(context).size.width / 3.5,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: isSelect
+                        ? Constants.themeBgColor
+                        : Colors.transparent)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Center(
+              child: Text(title,
+                  style: GoogleFonts.sourceSansPro(
+                      color: Constants.themeBgColor, fontSize: 15.sp)),
+            )));
+  }
+
+  InkWell customContainerSelectToViewDoc({
+    required final VoidCallback onPressed,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+
+            //height: MediaQuery.of(context).size.height / 30,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp)),
+                SizedBox(
+                  width: 6.w,
+                ),
+                Icon(
+                  Icons.visibility_outlined,
+                  color: Constants.themeBgColor,
+                  size: 18.h,
+                )
+              ],
+            )));
   }
 
   InkWell customContainerSelect(
@@ -1957,14 +2996,17 @@ class _Screen3State extends State<Screen3> {
                     : isEmails
                         ? MediaQuery.of(context).size.width / 2.437
                         : MediaQuery.of(context).size.width,
-
+            //height: MediaQuery.of(context).size.height / 30,
             // height: MediaQuery.of(context).size.height / 26.h,
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
             decoration: BoxDecoration(
-              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: isSelect
+                        ? Constants.themeBgColor
+                        : Colors.transparent)),
             // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             child: isSelect
                 ? Row(
@@ -1980,13 +3022,10 @@ class _Screen3State extends State<Screen3> {
                           : const SizedBox(),
                       Text(title,
                           style: GoogleFonts.sourceSansPro(
-                              color: Colors.white, fontSize: 15.sp)),
-                      isVacancy
-                          ? const Spacer()
-                          : const SizedBox(
-                              width: 5,
-                            ),
-                      isCross
+                              color: Constants.themeBgColor, fontSize: 15.sp)),
+                      isVacancy ? const Spacer() : const SizedBox(),
+
+                      /*  isCross
                           ? Image.asset(
                               "assets/images/cross.png",
                               height: 12,
@@ -1995,11 +3034,12 @@ class _Screen3State extends State<Screen3> {
                               Icons.check,
                               size: 15,
                               color: Colors.white,
-                            )
+                            ) */
                     ],
                   )
                 : Text(title,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp))));
   }
 
   InkWell customContainerSelect1(
@@ -2114,5 +3154,191 @@ class _Screen3State extends State<Screen3> {
         totalOfExpController.text = pickedDate.toString();
       });
     }
+  }
+
+  String? offerLetter;
+  String? appointmentLetter;
+  String? alarySlip;
+  String? incrementLetter;
+  String? experienceLetter;
+
+  Future<String?> uploadFile(
+      {allowExt,
+      bool isoffer = false,
+      isappointment = false,
+      issalry = false,
+      isincrement = false,
+      isexperience = false}) async {
+    Utils.showLoaderDialog(context, "");
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: allowExt,
+      withReadStream: true,
+    );
+
+    if (result != null) {
+      String? customValue;
+      try {
+        // Default value
+        // Check if you need to replace "offerLetter" with another value
+        if (isoffer) {
+          setState(() {
+            customValue = "offerLetter";
+          });
+        } else if (isappointment) {
+          setState(() {
+            customValue = "appointmentLetter";
+          });
+        } else if (issalry) {
+          setState(() {
+            customValue = "salarySlip";
+          });
+        } else if (isincrement) {
+          setState(() {
+            customValue = "incrementLetter";
+          });
+        } else if (isexperience) {
+          setState(() {
+            customValue = "experienceLetter";
+          });
+        } else {
+          setState(() {
+            customValue = "cv";
+          });
+        }
+        var res = await FileUploadService()
+            .uploadSingleFile(customValue.toString(), result.files.single);
+        var resultD = Utils.parseResponse(res);
+
+        if (resultD.resultKey == 'SUCCESS') {
+          String filePath = result.files.single.path ?? '';
+          String filename = resultD.resultData[0]["fileName"];
+          print(filename);
+          print("Filename: $filePath");
+
+          // Close the loading dialog when the upload is successful
+          Navigator.pop(context);
+          //save(filename, data);
+          setState(() {});
+          return filename;
+        } else {
+          // Close the loading dialog when there is an error
+          Navigator.pop(context);
+
+          // Handle the case where the server returns an error
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Error while uploading cv"),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
+          return null;
+        }
+      } catch (e) {
+        // Close the loading dialog in case of exceptions
+        Navigator.pop(context);
+
+        // Handle any exceptions that occur during the upload
+        print("Error during file upload: $e");
+        return null;
+      }
+    } else {
+      // Close the loading dialog when the user cancels file selection
+      Navigator.pop(context);
+      setState(() {});
+      // Handle the case where the user cancels file selection
+      return null;
+    }
+  }
+
+  Widget CustomTextField(
+      {Icon? icon,
+      required String hint,
+      required String label,
+      required FocusNode focusNode,
+      bool? isPrimaryNumber = false,
+      String? img,
+      bool? isImage = false,
+      int? maxLength,
+      bool? isdescription,
+      bool isNumber = false,
+      bool? keyboardType,
+      bool? isDisabled = true,
+      bool? isOptional = false,
+      required TextEditingController controller}) {
+    int _maxLines = 1;
+    // bool isError = false;
+    return SizedBox(
+      // height: isdescription! ? MediaQuery.of(context).size.height / 24 : null,
+      child: TextFormField(
+        enabled: isDisabled,
+        // autofocus: focusNode.canRequestFocus,
+        focusNode: focusNode,
+
+        /*  validator: (value) {
+          if (value == null || value.isEmpty) {
+            //return "This Text field Cant be empty";
+          }
+          return null;
+        }, */
+        //  maxLength: maxLength,
+
+        maxLines: null,
+        keyboardType:
+            isdescription! ? TextInputType.multiline : TextInputType.name,
+        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+        textCapitalization: TextCapitalization.sentences,
+        controller: controller,
+        onFieldSubmitted: (value) {
+          setState(() {
+            // Increase maxLines when the "Enter" key is pressed
+            _maxLines += 1;
+          });
+        },
+
+        onTap: (() {}),
+        style: GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+        decoration: InputDecoration(
+            /*  filled: isPrimaryNumber! ? true : false,
+            fillColor:
+                isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent, */
+            prefixIcon: icon,
+            prefixIconColor: Constants.themeBgColor,
+            suffix: isOptional != null && isOptional
+                ? const Text("(Optional)")
+                : const SizedBox(),
+            contentPadding:
+                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+            counterText: '',
+            labelText: label,
+            labelStyle: const TextStyle(
+              color: Constants.themeBgColor,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(color: Color(0xffff0eceb)),
+            ),
+            focusColor: const Color(0xffff0eceb),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(
+                color: Constants.themeBgColor,
+              ),
+            ),
+            hintText: hint,
+            hintStyle: GoogleFonts.sourceSansPro(
+                color: Constants.hintColor, fontSize: 15.sp)),
+      ),
+    );
   }
 }

@@ -124,7 +124,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
       var userData = dataResult["users"];
       var educationData = dataResult["educations"] as List<dynamic>;
       var experienceData = dataResult["experiences"] as List<dynamic>;
-    //  print(userData);
+      //  print(userData);
       //print(educationData);
       //print(experienceData);
       profilemodel = ProfileSummaryModel.fromJson(userData);
@@ -142,9 +142,21 @@ class _ProfileSummaryState extends State<ProfileSummary>
         experienceList = experienceData
             .map((item) => Experience.fromMap(item))
             .toList(); // Convert list of experienceData into List<Experience>
+
+        // Sort the experienceList based on joining date in descending order
+        experienceList
+            .sort((a, b) => b.joining_date!.compareTo(a.joining_date!));
       } else {
         experienceList = []; // Empty list if experienceData is empty
       }
+
+      /* if (experienceData.isNotEmpty) {   //TODO: old experience data list withou filter data
+        experienceList = experienceData
+            .map((item) => Experience.fromMap(item))
+            .toList(); // Convert list of experienceData into List<Experience>
+      } else {
+        experienceList = []; // Empty list if experienceData is empty
+      } */
 
       // if (profilemodel.profile_pic != null) {
       //   profile_final_pic = Utils.resolveImage(profilemodel.profile_pic);
@@ -160,9 +172,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
 
   bool visible = true;
   bool notvisible = false;
+  String? icon_data;
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
     return GestureDetector(
       // onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       onTap: () {
@@ -179,39 +194,48 @@ class _ProfileSummaryState extends State<ProfileSummary>
 
       child: Scaffold(
           extendBodyBehindAppBar: true,
-          // appBar: AppBar(
-          //   iconTheme: const IconThemeData(color: Colors.black),
-          //   backgroundColor: Constants.themeBgColorLight,
-          //   elevation: 0,
-          //   actions: [
-          // Row(
-          //   children: [
-          //     Container(
-          //         width: MediaQuery.of(context).size.width / 1.1,
-          //         height: 40,
-          //         // color: Colors.red,
-          //         padding: const EdgeInsets.only(left: 20, right: 30),
-          //         child: TextField(
-          //             decoration: InputDecoration(
-          //           fillColor: Colors.white,
-          //           focusedBorder: OutlineInputBorder(
-          //               borderSide: const BorderSide(),
-          //               borderRadius: BorderRadius.circular(15)),
-          //           filled: true,
-          //           contentPadding:
-          //               const EdgeInsets.only(bottom: 10, left: 5, top: 10),
-          //           border: OutlineInputBorder(
-          //               /* borderSide:
-          //                   const BorderSide(color: Constants.borderColor), */
-          //               borderRadius: BorderRadius.circular(15)),
-          //           hintText: "${profilemodel.first_name}",
-          //         )))
-          //   ],
-          // )
-          //   ],
-          // ),
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            iconTheme: const IconThemeData(color: Colors.black),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              Row(
+                children: [
+                  SizedBox(
+                      width: width / 1.16.w,
+                      height: 40,
+                      // color: Colors.red,
 
-          backgroundColor: Constants.themeBgColorLight,
+                      child: TextField(
+                          decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(),
+                            borderRadius: BorderRadius.circular(8.r)),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.search),
+                        contentPadding:
+                            const EdgeInsets.only(bottom: 10, left: 5, top: 10),
+                        border: OutlineInputBorder(
+                            /* borderSide:
+                            const BorderSide(color: Constants.borderColor), */
+                            borderRadius: BorderRadius.circular(8.r)),
+                        hintText:
+                            "${profilemodel.first_name} ${profilemodel.last_name}",
+                      ))),
+                  Padding(
+                    padding: EdgeInsets.only(right: 10.w, left: 10.w),
+                    child: Image.asset(
+                      "assets/images/alert.png",
+                      height: height / 50.h,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+          // backgroundColor: Constants.themeBgColorLight,
           body: Column(
             children: [
               Expanded(
@@ -220,726 +244,688 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : Column(children: [
-                          Stack(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  // Handle tap on the parent widget (outside the Row)
-                                  // if (isSearchVisible) {
-                                  //   toggleSearchVisibility();
-                                  // }
-                                },
-                                child: Container(
-                                  height: 200, // Set the height as needed
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: profilemodel.cover_pic != null
-                                          ? NetworkImage(
-                                              profilemodel.cover_pic!)
-                                          : const NetworkImage(
-                                              "https://media.sproutsocial.com/uploads/2018/04/Facebook-Cover-Photo-Size.png"),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                child: SafeArea(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(height: 140),
-                                      Container(
-                                        padding: const EdgeInsets.only(top: 17),
-                                        decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(20),
-                                            topRight: Radius.circular(20),
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20, top: 10),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  /*  IconButton(
-                                                      onPressed: () {},
-                                                      icon: const Icon(
-                                                        Icons.edit_outlined,
-                                                        color:
-                                                            Colors.transparent,
-                                                      )), */
-                                                  Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.end,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween, // Adjust the alignment here
-                                                    children: [
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                "${profilemodel.first_name.toString().toTitleCase()} ",
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  fontSize:
-                                                                      18.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                // ignore: unnecessary_string_interpolations
-                                                                "${profilemodel.last_name.toString().toTitleCase()}",
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  fontSize:
-                                                                      18.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              if (profilemodel
-                                                                          .dateofbirth !=
-                                                                      null &&
-                                                                  profilemodel
-                                                                      .dateofbirth!
-                                                                      .isNotEmpty)
-                                                                Text(
-                                                                  "(${calculateAge(profilemodel.dateofbirth)} yr's)",
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        13.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    color: Colors
-                                                                        .grey,
-                                                                  ),
-                                                                ),
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              if (profilemodel
-                                                                          .bio !=
-                                                                      null &&
-                                                                  profilemodel
-                                                                      .bio!
-                                                                      .isNotEmpty)
-                                                                Row(
-                                                                  children: [
-                                                                    Text(
-                                                                      profilemodel
-                                                                          .bio!,
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            12.sp,
-                                                                        fontWeight:
-                                                                            FontWeight.w400,
-                                                                      ),
-                                                                    )
-                                                                  ],
-                                                                ),
-                                                              if (experienceList
-                                                                  .isNotEmpty)
-                                                                Row(
-                                                                  children: [
-                                                                    Text(
-                                                                      experienceList
-                                                                          .last
-                                                                          .job_title
-                                                                          .toString(),
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            12.sp,
-                                                                        fontWeight:
-                                                                            FontWeight.w400,
-                                                                      ),
-                                                                    ),
-                                                                    Text(
-                                                                      " at ",
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            12.sp,
-                                                                        fontWeight:
-                                                                            FontWeight.w400,
-                                                                      ),
-                                                                    ),
-                                                                    Text(
-                                                                      experienceList
-                                                                          .last
-                                                                          .company_name
-                                                                          .toString(),
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            12.sp,
-                                                                        fontWeight:
-                                                                            FontWeight.w400,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                      // Edit Icon Column
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .end, // Align the icon to the right
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end, // Adjust vertical alignment here
-                                                        children: [
-                                                          IconButton(
-                                                            onPressed: () {
-                                                              sendToBasicInfo();
-                                                            },
-                                                            icon: Icon(
-                                                              Icons
-                                                                  .edit_outlined,
-                                                              size: 18.h,
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            height: 12.h,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            if (profilemodel.cv_link == null ||
-                                                profilemodel.skills!.isEmpty ||
-                                                (profilemodel
-                                                    .languages!.isEmpty) ||
-                                                educationList.isEmpty ||
-                                                experienceList.isEmpty)
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(12.0),
-                                                child: Container(
-                                                  height: 102,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                    color: Colors.brown.shade50,
-                                                  ),
-                                                  //  padding: const EdgeInsets.all(10.0),
-                                                  child: ListView(
-                                                    shrinkWrap: true,
-                                                    physics:
-                                                        const BouncingScrollPhysics(),
-                                                    scrollDirection:
-                                                        Axis.horizontal,
-                                                    children: [
-                                                      if (profilemodel
-                                                              .cv_link ==
-                                                          null)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8,
-                                                                  right: 8.0),
-                                                          child:
-                                                              CustomFieldBlock(
-                                                            iconColor:
-                                                                const Color.fromRGBO(
-                                                                    37,
-                                                                    150,
-                                                                    190,
-                                                                    0),
-                                                            imageUrl:
-                                                                "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
-                                                            description:
-                                                                "Recruiters identify prospective candidates through their CV.",
-                                                            buttonText:
-                                                                "+ Upload Resume",
-                                                            onPressed: () {
-                                                              setState(
-                                                                  () async {
-                                                                var data =
-                                                                    await uploadFile([
-                                                                  'pdf',
-                                                                  'doc'
-                                                                ]);
-                                                                var payload = {
-                                                                  "stage":
-                                                                      "upload_cv",
-                                                                  "data": {
-                                                                    "id": await Utils
-                                                                        .getPreferencesValue(
-                                                                      null,
-                                                                      ESharedPreferences
-                                                                          .user_id
-                                                                          .name,
-                                                                    ),
-                                                                    "cv_link": data[
-                                                                        'fileName'],
-                                                                  },
-                                                                };
-                                                                await save(
-                                                                    data[
-                                                                        'fileName'],
-                                                                    payload);
-                                                              });
-                                                            },
-                                                          ),
-                                                        ),
-
-                                                      // Block 2: Email
-                                                      // Block 2: Email
-                                                      // CustomFieldBlock(
-                                                      //   imageUrl:
-                                                      //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
-                                                      //   description:
-                                                      //       "Ensure your contact email",
-                                                      //   buttonText: "Verify Now",
-                                                      //   onPressed: () {
-                                                      //     sendToBasicInfo();
-                                                      //   },
-                                                      // ),
-
-                                                      // Block 3: Skills
-                                                      if (profilemodel
-                                                          .skills!.isEmpty)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8.0,
-                                                                  right: 8.0),
-                                                          child:
-                                                              CustomFieldBlock(
-                                                            imageUrl:
-                                                                "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                                                            description:
-                                                                "Your Skills Will Connect You with Relevant Job Opportunities",
-                                                            buttonText:
-                                                                "+ Add Skills",
-                                                            onPressed: () {
-                                                              List<String>
-                                                                  skills = [];
-                                                              sendToSkills(
-                                                                  skills);
-                                                            },
-                                                          ),
-                                                        ),
-
-                                                      // Block 4: Language
-
-                                                      if (profilemodel
-                                                          .languages!.isEmpty)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8.0,
-                                                                  right: 8.0),
-                                                          child:
-                                                              CustomFieldBlock(
-                                                            imageUrl:
-                                                                "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
-                                                            description:
-                                                                "Specify the languages",
-                                                            buttonText:
-                                                                "+ Add Languages",
-                                                            onPressed: () {
-                                                              sendToLanguges();
-                                                            },
-                                                          ),
-                                                        ),
-                                                      if (experienceList
-                                                          .isEmpty)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8.0,
-                                                                  right: 8.0),
-                                                          child:
-                                                              CustomFieldBlock(
-                                                            imageUrl:
-                                                                "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
-                                                            description:
-                                                                "Keep your profile updated with your recent work experience.",
-                                                            buttonText:
-                                                                "+ Add Experience",
-                                                            onPressed: () {
-                                                              Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          Screen3(),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ),
-                                                        ),
-                                                      if (educationList.isEmpty)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 8.0,
-                                                                  right: 8.0),
-                                                          child:
-                                                              CustomFieldBlock(
-                                                            imageUrl:
-                                                                "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                                                            description:
-                                                                "Share Educational detail to maximize your potential.",
-                                                            buttonText:
-                                                                "+ Add Education",
-                                                            onPressed: () {
-                                                              Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          Screen2(),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            Visibility(
-                                              visible: (usertype == 1
-                                                  ? true
-                                                  : false),
-                                              child: experience(
-                                                  experienceList ?? []),
-                                            ),
-                                            Visibility(
-                                              visible: (usertype == 1
-                                                  ? true
-                                                  : false),
-                                              child: education(
-                                                  educationList ?? []),
-                                            ),
-                                            Visibility(
-                                              visible: usertype == 1,
-                                              child: skills(experienceList),
-                                            ),
-                                            Visibility(
-                                              visible: (usertype == 1
-                                                  ? true
-                                                  : false),
-                                              child: languages(
-                                                  profilemodel.languages ?? []),
-                                            ),
-                                            Visibility(
-                                              visible: (usertype == 1
-                                                  ? true
-                                                  : false),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 3, right: 3),
-                                                child: cardCustom(
-                                                  icon: Icons.file_copy,
-                                                  isedit: false,
-                                                  isresume: true,
-                                                  title: "",
-                                                  child: CVWidget(
-                                                    profileCv: ProfileCv(
-                                                      cv_link:
-                                                          profilemodel.cv_link,
-                                                      cv_upladted_date:
-                                                          profilemodel
-                                                              .cv_upladted_date,
-                                                      profile_cv_file: profilemodel
-                                                          .cv_link, // Use the same value as cv_link
-                                                      profile_cv_link:
-                                                          profile_cv_link,
-                                                    ),
-                                                    onUpload: (fileName,
-                                                            payload) async =>
-                                                        await save(
-                                                            fileName, payload),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  // Handle tap on the parent widget (outside the Row)
-                                  if (isSearchVisible) {
-                                    setState(() {
-                                      isSearchVisible = false;
-                                      _animationController
-                                          .reverse(); // Reverse the animation
-                                      _searchFocusNode
-                                          .unfocus(); // Clear focus when it becomes invisible
-                                    });
-                                  }
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                      : SafeArea(
+                          child: Container(
+                            //  padding: const EdgeInsets.only(top: 20),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          // Handle tap inside the search container (Expanded)
-                                          // if (!isSearchVisible) {
-                                          //   setState(() {
-                                          //     isSearchVisible = true;
-                                          //     _animationController
-                                          //         .forward(); // Start the animation
-                                          //     _searchFocusNode
-                                          //         .requestFocus(); // Request focus on the search field when it becomes visible
-                                          //   });
-                                          // }
-                                        },
-                                        child: AnimatedOpacity(
-                                          duration:
-                                              const Duration(milliseconds: 500),
-                                          opacity: isSearchVisible
-                                              ? 1.0
-                                              : 0.0, // Fade in/out the search container
-                                          child: SlideTransition(
-                                            position: Tween<Offset>(
-                                              begin: const Offset(-1,
-                                                  0), // Start from the left side of the screen
-                                              end: const Offset(0,
-                                                  0), // Slide to the center of the screen
-                                            ).animate(CurvedAnimation(
-                                              parent:
-                                                  _animationController, // Use the same animation controller from your code
-                                              curve: Curves
-                                                  .easeInOut, // Set the desired animation curve
-                                            )),
-                                            child: Container(
-                                              height: 85,
-                                              padding: const EdgeInsets.only(
-                                                  left: 8, right: 12, top: 45),
-                                              child: TextField(
-                                                focusNode: _searchFocusNode,
-                                                style: GoogleFonts.varela(
-                                                  color: Colors.black,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  filled: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.only(
-                                                    bottom: 10,
-                                                    left: 5,
-                                                    top: 10,
-                                                  ),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  hintText:
-                                                      "${profilemodel.first_name.toString().toTitleCase()} "
-                                                      "${profilemodel.last_name.toString().toTitleCase()}",
-                                                  suffixIcon: GestureDetector(
-                                                    onTap: () {
-                                                      // Handle tap on the search icon inside the search container
-                                                      setState(() {
-                                                        isSearchVisible = false;
-                                                        _animationController
-                                                            .reverse(); // Reverse the animation
-                                                        _searchFocusNode
-                                                            .unfocus(); // Clear focus on the search field when it becomes invisible
-                                                      });
-                                                    },
-                                                    child: const Icon(
-                                                      Icons.search,
-                                                      size: 24,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
+                                    Stack(
+                                      children: [
+                                        InkWell(
+                                          onTap:
+                                              profilemodel.profile_pic != null
+                                                  ? () {
+                                                      showDialog(
+                                                        context: context,
+                                                        // Set this property to true
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            elevation: 0,
+                                                            content: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .center,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                CircleAvatar(
+                                                                  radius:
+                                                                      height /
+                                                                          6.r,
+                                                                  backgroundImage: profilemodel
+                                                                              .profile_pic !=
+                                                                          null
+                                                                      ? Image.network(
+                                                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
+                                                                          .image
+                                                                      : Image
+                                                                          .asset(
+                                                                          "assets/images/adduser.png",
+                                                                          // height: .h,
+                                                                        ).image,
+                                                                ),
+                                                                CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Constants
+                                                                          .themeBgColor,
+                                                                  child:
+                                                                      IconButton(
+                                                                          onPressed:
+                                                                              () async {
+                                                                            setState(() async {
+                                                                              var data = await Delete();
+                                                                              var payload = {
+                                                                                "stage": "profile_pic",
+                                                                                "data": {
+                                                                                  "id": await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                                  "profile_pic": null
+                                                                                }
+                                                                              };
+                                                                              save(data, payload);
+                                                                              if (data != null) {
+                                                                                setState(() {
+                                                                                  icon_data = data;
+                                                                                });
+                                                                              }
+                                                                            });
+                                                                          },
+                                                                          icon:
+                                                                              const Icon(
+                                                                            Icons.delete_outline,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          )),
+                                                                )
+                                                                /* Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 6.h,
+                                                                horizontal:
+                                                                    12.w),
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 10),
+                                                        decoration: BoxDecoration(
+                                                            color: Constants
+                                                                .themeBgColor,
+                                                            border: Border.all(
+                                                                color: Constants
+                                                                    .themeBgColor),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.r)),
+                                                        child: Text(
+                                                            "Remove Profile pic"),
+                                                      ) */
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    }
+                                                  : () {},
+                                          child: CircleAvatar(
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 190, 190, 190),
+                                              radius: 45,
+                                              /* onBackgroundImageError: ((error,
+                                          stackTrace) =>
+                                      Image.asset(
+                                          "assets/images/company.png",
+                                          height: 80,
+                                          width: 80,
+                                          fit: BoxFit.contain)), */
+                                              backgroundImage: profilemodel
+                                                          .profile_pic !=
+                                                      null
+                                                  ?
+                                                  // ignore: unnecessary_null_comparison
+                                                  Image.network(
+                                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
+                                                      .image
+                                                  : Image.asset(
+                                                      "assets/images/adduser.png",
+                                                      // height: .h,
+                                                    ).image
+                                              /*  : Image.asset(
+                                              "assets/images/man.png",
+                                              height: 80,
+                                              width: 80,
+                                              fit: BoxFit.contain,
+                                            ).image, */
+                                              ),
+                                        ),
+                                        Positioned(
+                                          right: width / 160.w,
+                                          bottom: height / 85.h,
+                                          child: InkWell(
+                                            onTap: () async {
+                                              setState(() async {
+                                                var data = await uploadFile(
+                                                  ['jpeg', 'jpg'],
+                                                );
+                                                var payload = {
+                                                  "stage": "profile_pic",
+                                                  "data": {
+                                                    "id": await Utils
+                                                        .getPreferencesValue(
+                                                            null,
+                                                            ESharedPreferences
+                                                                .user_id.name),
+                                                    "profile_pic": data
+                                                  }
+                                                };
+                                                save(data, payload);
+                                                if (data != null) {
+                                                  setState(() {
+                                                    icon_data = data;
+                                                  });
+                                                }
+                                                Navigator.pop(context);
+                                              });
+                                            },
+                                            child: CircleAvatar(
+                                              radius: 9,
+                                              backgroundColor: Colors.white,
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                radius: 8.r,
+                                                child: Icon(
+                                                  Icons.add,
+                                                  size: 15.h,
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        // Handle tap on the search icon outside the search container
-                                        if (!isSearchVisible) {
-                                          setState(() {
-                                            isSearchVisible = true;
-                                            _animationController
-                                                .forward(); // Start the animation
-                                            _searchFocusNode
-                                                .requestFocus(); // Request focus on the search field when it becomes visible
-                                          });
-                                        }
-                                      },
-                                      child: Visibility(
-                                        visible: !isSearchVisible,
-                                        child: const Padding(
-                                          padding: EdgeInsets.only(
-                                              right: 20, top: 55),
-                                          child: Icon(
-                                            Icons.search,
-                                            size: 24,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, top: 128),
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Stack(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      SizedBox(
-                                        height: 90,
-                                        width: 90,
-                                        child: CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Colors.white,
-                                          child: CircleAvatar(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                    255, 190, 190, 190),
-                                            radius: 43,
-                                            onBackgroundImageError: ((error,
-                                                    stackTrace) =>
-                                                Image.asset(
-                                                    "assets/images/company.png",
-                                                    height: 80,
-                                                    width: 80,
-                                                    fit: BoxFit.contain)),
-                                            backgroundImage:
-                                                // ignore: unnecessary_null_comparison
-                                                profile_final_pic == null
-                                                    ? Image.network(
-                                                            profile_final_pic)
-                                                        .image
-                                                    : Image.asset(
-                                                        "assets/images/man.png",
-                                                        height: 80,
-                                                        width: 80,
-                                                        fit: BoxFit.contain,
-                                                      ).image,
+                                      /*  IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color:
+                                            Colors.transparent,
+                                      )), */
+                                      InkWell(
+                                        child: Container(
+                                          child: Icon(
+                                            Icons.edit_outlined,
+                                            size: 18.h,
+                                            color: Colors.transparent,
                                           ),
                                         ),
                                       ),
-                                      Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: InkWell(
-                                          onTap: () async {
-                                            setState(() async {
-                                              var data = await uploadFile(
-                                                  ['jpeg', 'jpg']);
-                                              var payload = {
-                                                "stage": "profile_pic",
-                                                "data": {
-                                                  "id": await Utils
-                                                      .getPreferencesValue(
-                                                          null,
-                                                          ESharedPreferences
-                                                              .user_id.name),
-                                                  "profile_pic":
-                                                      data['fileName']
-                                                }
-                                              };
-                                              await save(
-                                                  data['fileName'], payload);
-                                            });
-                                          },
-                                          child: CircleAvatar(
-                                            radius: 17,
-                                            backgroundColor: Colors.white,
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  Constants.borderColor,
-                                              radius: 12.r,
-                                              child: const Icon(Icons.add),
+                                      profilemodel.experience == "Experience"
+                                          ? Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "${profilemodel.first_name.toString().toTitleCase()} ",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      // ignore: unnecessary_string_interpolations
+                                                      "${profilemodel.last_name.toString().toTitleCase()}",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    /* const SizedBox(
+                                              width: 5),
+                                          if (profilemodel
+                                                      .dateofbirth !=
+                                                  null &&
+                                              profilemodel
+                                                  .dateofbirth!
+                                                  .isNotEmpty)
+                                            Text(
+                                              "(${calculateAge(profilemodel.dateofbirth)} yr's)",
+                                              style: GoogleFonts
+                                                  .varela(
+                                                fontSize: 13.sp,
+                                                fontWeight:
+                                                    FontWeight
+                                                        .w500,
+                                                color:
+                                                    Colors.grey,
+                                              ),
+                                            ), */
+                                                  ],
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    if (experienceList
+                                                        .isNotEmpty)
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            experienceList
+                                                                .last.job_title
+                                                                .toString(),
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            " at ",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            experienceList.last
+                                                                .company_name
+                                                                .toString(),
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                                if (profilemodel.bio != null &&
+                                                    profilemodel
+                                                        .bio!.isNotEmpty)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        profilemodel.bio!,
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 12.sp,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                if (profilemodel.bio == null ||
+                                                    profilemodel.bio == "" ||
+                                                    profilemodel.bio!.isEmpty)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                        style: TextStyle(
+                                                          fontSize: 12.sp,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                              ],
+                                            )
+                                          : Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "${profilemodel.first_name.toString().toTitleCase()} ",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      // ignore: unnecessary_string_interpolations
+                                                      "${profilemodel.last_name.toString().toTitleCase()}",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    /* const SizedBox(
+                                              width: 5),
+                                          if (profilemodel
+                                                      .dateofbirth !=
+                                                  null &&
+                                              profilemodel
+                                                  .dateofbirth!
+                                                  .isNotEmpty)
+                                            Text(
+                                              "(${calculateAge(profilemodel.dateofbirth)} yr's)",
+                                              style: GoogleFonts
+                                                  .varela(
+                                                fontSize: 13.sp,
+                                                fontWeight:
+                                                    FontWeight
+                                                        .w500,
+                                                color:
+                                                    Colors.grey,
+                                              ),
+                                            ), */
+                                                  ],
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    if (experienceList
+                                                        .isNotEmpty)
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            educationList
+                                                                .last.degree_spc
+                                                                .toString(),
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            " from ",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            educationList
+                                                                .last.university
+                                                                .toString(),
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                                if (profilemodel.bio != null &&
+                                                    profilemodel
+                                                        .bio!.isNotEmpty)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        profilemodel.bio!,
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 12.sp,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                if (profilemodel.bio == null ||
+                                                    profilemodel.bio == "" ||
+                                                    profilemodel.bio!.isEmpty)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                        style: TextStyle(
+                                                          fontSize: 12.sp,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                              ],
                                             ),
+                                      InkWell(
+                                        onTap: () {
+                                          sendToBasicInfo();
+                                        },
+                                        child: Container(
+                                          child: Icon(
+                                            Icons.edit_outlined,
+                                            size: 18.h,
+                                            color: Colors.black,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                            ],
+                                if (profilemodel.cv_link == null ||
+                                    profilemodel.skills!.isEmpty ||
+                                    (profilemodel.languages!.isEmpty) ||
+                                    educationList.isEmpty ||
+                                    experienceList.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Container(
+                                      height: 102,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.brown.shade50,
+                                      ),
+                                      //  padding: const EdgeInsets.all(10.0),
+                                      child: ListView(
+                                        shrinkWrap: true,
+                                        physics: const BouncingScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        children: [
+                                          if (profilemodel.cv_link == null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8, right: 8.0),
+                                              child: CustomFieldBlock(
+                                                iconColor: const Color.fromRGBO(
+                                                    37, 150, 190, 0),
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
+                                                description:
+                                                    "Recruiters identify prospective candidates through their CV.",
+                                                buttonText: "+ Upload Resume",
+                                                onPressed: () {
+                                                  setState(() async {
+                                                    var data = await uploadFile(
+                                                      'pdf',
+                                                    );
+                                                    if (data != null) {
+                                                      setState(() {
+                                                        icon_data = data;
+                                                      });
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                            ),
+
+                                          // Block 2: Email
+                                          // Block 2: Email
+                                          // CustomFieldBlock(
+                                          //   imageUrl:
+                                          //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
+                                          //   description:
+                                          //       "Ensure your contact email",
+                                          //   buttonText: "Verify Now",
+                                          //   onPressed: () {
+                                          //     sendToBasicInfo();
+                                          //   },
+                                          // ),
+
+                                          // Block 3: Skills
+                                          if (profilemodel.skills!.isEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8.0, right: 8.0),
+                                              child: CustomFieldBlock(
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                                                description:
+                                                    "Your Skills Will Connect You with Relevant Job Opportunities",
+                                                buttonText: "+ Add Skills",
+                                                onPressed: () {
+                                                  List<String> skills = [];
+                                                  sendToSkills(skills);
+                                                },
+                                              ),
+                                            ),
+
+                                          // Block 4: Language
+
+                                          if (profilemodel.languages != null &&
+                                              profilemodel.languages!.isEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8.0, right: 8.0),
+                                              child: CustomFieldBlock(
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
+                                                description:
+                                                    "Specify the languages",
+                                                buttonText: "+ Add Languages",
+                                                onPressed: () {
+                                                  sendToLanguges();
+                                                },
+                                              ),
+                                            ),
+                                          if (experienceList.isEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8.0, right: 8.0),
+                                              child: CustomFieldBlock(
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
+                                                description:
+                                                    "Keep your profile updated with your recent work experience.",
+                                                buttonText: "+ Add Experience",
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Screen3(),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          if (educationList.isEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8.0, right: 8.0),
+                                              child: CustomFieldBlock(
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+                                                description:
+                                                    "Share Educational detail to maximize your potential.",
+                                                buttonText: "+ Add Education",
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Screen2(),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                Visibility(
+                                  visible: (usertype == 1 ? true : false),
+                                  child: experience(experienceList ?? []),
+                                ),
+                                Visibility(
+                                  visible: (usertype == 1 ? true : false),
+                                  child: education(educationList ?? []),
+                                ),
+                                Visibility(
+                                  visible: usertype == 1,
+                                  child: skills(experienceList),
+                                ),
+                                Visibility(
+                                  visible: (usertype == 1 ? true : false),
+                                  child:
+                                      languages(profilemodel.languages ?? []),
+                                ),
+                                Visibility(
+                                  visible: (usertype == 1 ? true : false),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 3, right: 3),
+                                    child: cardCustom(
+                                      icon: Icons.file_copy,
+                                      isedit: false,
+                                      isresume: true,
+                                      title: "",
+                                      child: CVWidget(
+                                        profileCv: ProfileCv(
+                                          cv_link: profilemodel.cv_link,
+                                          cv_upladted_date:
+                                              profilemodel.cv_upladted_date,
+                                          profile_cv_file: profilemodel
+                                              .cv_link, // Use the same value as cv_link
+                                          profile_cv_link: profile_cv_link,
+                                        ),
+                                        onUpload: (fileName, payload) async =>
+                                            await save(fileName, payload),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ]),
+                        ),
                 ),
               )
             ],
@@ -1134,8 +1120,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
               return Column(
                 children: [
                   ListTile(
-                    contentPadding:
-                        const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+                    contentPadding: const EdgeInsets.only(
+                        left: 10, right: 10, top: 0, bottom: 0),
                     leading: SizedBox(
                       width: 70.w,
                       height: 70.h,
@@ -1205,8 +1191,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         sendToEducation(education);
                       },
                       child: Container(
-                        padding:
-                            const EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 4, bottom: 10),
                         child: Icon(Icons.edit_outlined, size: 18.h),
                       ),
                     ),
@@ -1218,8 +1204,15 @@ class _ProfileSummaryState extends State<ProfileSummary>
         ),
       );
     } else {
-      return const SizedBox.shrink(); // Return an empty widget if the list is empty
+      return const SizedBox
+          .shrink(); // Return an empty widget if the list is empty
     }
+  }
+
+  int calculateMonthDifference(DateTime startDate, DateTime endDate) {
+    int yearsDifference = endDate.year - startDate.year;
+    int monthsDifference = endDate.month - startDate.month;
+    return (yearsDifference * 12) + monthsDifference;
   }
 
   Widget experience(List<Experience> experienceList) {
@@ -1295,34 +1288,70 @@ class _ProfileSummaryState extends State<ProfileSummary>
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: experienceList.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8.0),
+            separatorBuilder: (context, index) {
+              if (index == experienceList.length - 1) {
+                // Don't add a separator after the last item
+                return const SizedBox.shrink();
+              } else {
+                // Add a separator between other items
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(
+                    thickness: 0.5,
+                  ),
+                ); // You can customize the separator height here
+              }
+            },
             itemBuilder: (context, index) {
-              final experience = experienceList[index];
+              int monthsDifference = 0;
+              if (experienceList[index].joining_date != null &&
+                  experienceList[index].last_working_date != null) {
+                monthsDifference = calculateMonthDifference(
+                    experienceList[index].joining_date!,
+                    experienceList[index].last_working_date!);
+              }
+
+              /*  final experience = experienceList[index];
               final joiningDate = experience.joining_date;
               final lastWorkingDate = experience.last_working_date;
 
-              final formattedJoiningDate =
-                  DateFormat('MMM yyyy').format(joiningDate!);
-              final formattedLastWorkingDate =
-                  DateFormat('MMM yyyy').format(lastWorkingDate!);
-              final duration = lastWorkingDate.difference(joiningDate);
-              var totalYears = duration.inDays ~/ 365;
-              final totalMonths = (duration.inDays % 365) ~/ 30;
+              final formattedJoiningDate = joiningDate != null
+                  ? DateFormat('MM yyyy').format(joiningDate)
+                  : null;
+
+              final formattedLastWorkingDate = lastWorkingDate != null
+                  ? DateFormat('MM yyyy')
+                      .format(lastWorkingDate ?? DateTime.now())
+                  : null;
+              final duration = joiningDate != null && lastWorkingDate != null
+                  ? lastWorkingDate.difference(joiningDate)
+                  : null;
+              var totalYears = joiningDate != null && lastWorkingDate != null
+                  ? duration!.inDays ~/ 365
+                  : null;
+              final totalMonths = joiningDate != null && lastWorkingDate != null
+                  ? (duration!.inDays % 365) ~/ 30
+                  : null; */
 
               String experienceText;
-              if (totalYears > 0 && totalMonths > 0) {
-                experienceText = "${totalYears}y, ${totalMonths}m";
-              } else if (totalYears > 0) {
-                experienceText = "${totalYears}y";
-              } else {
-                experienceText = "${totalMonths}m";
+              /*  if (joiningDate != null && lastWorkingDate != null) {
+                if (totalYears! > 0 && totalMonths! > 0) {
+                  experienceText = "${totalYears}y, ${totalMonths}m";
+                } else if (totalYears > 0) {
+                  experienceText = "${totalYears}y";
+                } else {
+                  experienceText = "${totalMonths}m";
+                }
               }
 
+              
+
 // Additional logic to increment totalYears if totalMonths >= 12
-              if (totalMonths >= 12) {
-                totalYears += 1;
+
+              if (totalMonths != null && totalMonths >= 12) {
+                totalYears = 1;
                 experienceText = "${totalYears}y";
-              }
+              } */
 
               return ListTile(
                 contentPadding: const EdgeInsets.only(
@@ -1339,12 +1368,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   //   ),
                   // ),
                   child: Image.network(
-                    "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
-                    fit: BoxFit.cover,
+                    "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+                    //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                    fit: BoxFit.contain,
                   ),
                 ),
                 title: Text(
-                  experience.job_title.toString(),
+                  experienceList[index].job_title.toString(),
+                  // experience.job_title.toString(),
                   style: GoogleFonts.varela(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w500,
@@ -1354,37 +1385,124 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      experience.company_name.toString(),
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          experienceList[index].shortname != null
+                              ? experienceList[index].shortname.toString()
+                              : experienceList[index].company_name.toString(),
+                          // experience.company_name.toString(),
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Text(" · "),
+                        Text(
+                          experienceList[index].emptype.toString(),
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        )
+                      ],
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      '$formattedJoiningDate - $formattedLastWorkingDate ($experienceText)',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          experienceList[index].joining_date != null
+                              ? DateFormat('MMM-yyyy')
+                                  .format(experienceList[index].joining_date!)
+                              : "",
+                          /*  experienceList[index].joining_date != null
+                              ? experienceList[index].joining_date.toString()
+                              : "", */
+                          // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        if (experienceList[index].last_working_date != null)
+                          SizedBox(
+                            child: Row(
+                              children: [
+                                const Text(" - "),
+                                Text(
+                                  DateFormat('MMM-yyyy').format(
+                                      experienceList[index].last_working_date!),
+
+                                  /*  experienceList[index].joining_date != null
+                                    ? experienceList[index].joining_date.toString()
+                                    : "", */
+                                  // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (experienceList[index].last_working_date == null)
+                          SizedBox(
+                            child: Row(
+                              children: [
+                                const Text(" - "),
+                                Text(
+                                  "Present",
+                                  style: GoogleFonts.varela(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (experienceList[index].joining_date != null &&
+                            experienceList[index].last_working_date != null)
+                          Text(
+                            " (${monthsDifference.toString()}m)",
+                            style: GoogleFonts.varela(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          )
+                      ],
                     ),
-                    Text(
-                      experience.company_location.toString(),
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          experienceList[index].company_location.toString(),
+                          // experience.company_location.toString(),
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Text(" · "),
+                        Text(
+                          experienceList[index].work_type.toString(),
+                          // experience.company_location.toString(),
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
                 trailing: InkWell(
                     onTap: () {
-                      sendToExperience(
-                          experience); // Pass the selected experience object
+                      sendToExperience(experienceList[index]
+                          // experience
+                          ); // Pass the selected experience object
                     },
                     child: Container(
-                      padding: const EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                      padding:
+                          const EdgeInsets.only(left: 10, right: 4, bottom: 10),
                       child: Icon(Icons.edit_outlined, size: 18.h),
                     )),
               );
@@ -1393,7 +1511,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
         ),
       );
     } else {
-      return const SizedBox.shrink(); // Return an empty widget if the list is empty
+      return const SizedBox
+          .shrink(); // Return an empty widget if the list is empty
     }
   }
 
@@ -1750,7 +1869,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
     bool shouldShowEducationAddButton = educationList.isNotEmpty;
 
     return Container(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 5, bottom: 5),
+      padding: const EdgeInsets.only(top: 5, bottom: 5),
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1770,11 +1889,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
                 ),
               SizedBox(width: 2.h),
               if (imageUrl != null) // Check if the icon is not null
-                Image.network(
-                  imageUrl,
-                  width: 20,
-                  height: 20,
-                  fit: BoxFit.contain,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
+                  child: Image.network(
+                    imageUrl,
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               const SizedBox(width: 5),
               if (isresume == false)
@@ -1816,8 +1938,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         },
                         child: Container(
                           padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 14,
+                            // left: 10,
+                            //right: 14,
                             bottom: 0,
                             top: 0,
                           ),
@@ -1842,7 +1964,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
           if (isresume == false)
             Divider(
               color: Constants.borderColor,
-              thickness: 2.5.w,
+              thickness: 2.w,
             ),
           Container(
             padding: const EdgeInsets.only(top: 0),
@@ -1948,26 +2070,85 @@ class _ProfileSummaryState extends State<ProfileSummary>
   //   }
   // }
 
-  uploadFile(allowExt) async {
-    Utils.showLoaderDialog(context, "Uploading...");
+  Future<String?> Delete() async {
+    try {
+      var res = await FileUploadService()
+          .deleteSingleFile(profilemodel.profile_pic.toString());
+    } catch (e) {
+      // Close the loading dialog in case of exceptions
+      Navigator.pop(context);
+
+      // Handle any exceptions that occur during the upload
+      print("Error during file upload: $e");
+      return null;
+    }
+    return null;
+  }
+
+  Future<String?> uploadFile(
+    allowExt,
+  ) async {
+    Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: allowExt,
-        withReadStream: true);
+      type: FileType.custom,
+      allowedExtensions: allowExt,
+      withReadStream: true,
+    );
 
     if (result != null) {
-      var res =
-          await FileUploadService().uploadSingleFile("cv", result.files.single);
-      var resultD = Utils.parseResponse(res);
-      Navigator.pop(context);
-      if (resultD.resultKey == 'SUCCESS') {
-        return resultD.resultData[0];
+      try {
+        var res = await FileUploadService()
+            .uploadSingleFile("icon", result.files.single);
+        var resultD = Utils.parseResponse(res);
+
+        if (resultD.resultKey == 'SUCCESS') {
+          String filePath = result.files.single.path ?? '';
+          String filename = resultD.resultData[0]["fileName"];
+          print(filename);
+          print("Filename: $filePath");
+
+          // Close the loading dialog when the upload is successful
+          Navigator.pop(context);
+          //save(filename, data);
+
+          return filename;
+        } else {
+          // Close the loading dialog when there is an error
+          Navigator.pop(context);
+
+          // Handle the case where the server returns an error
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Error while uploading cv"),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
+          return null;
+        }
+      } catch (e) {
+        // Close the loading dialog in case of exceptions
+        Navigator.pop(context);
+
+        // Handle any exceptions that occur during the upload
+        print("Error during file upload: $e");
+        return null;
       }
-      // File file = File(result.files.single.readStream.first!);
     } else {
+      // Close the loading dialog when the user cancels file selection
       Navigator.pop(context);
-      return null;
-      // User canceled the picker
+
+      // Handle the case where the user cancels file selection
+      return profilemodel.profile_pic;
     }
   }
 

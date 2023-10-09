@@ -23,7 +23,7 @@ class Utils {
   }
 
   static setPreference(
-      SharedPreferences? pref, String key, dynamic value)   async {
+      SharedPreferences? pref, String key, dynamic value) async {
     SharedPreferences pref1 = (pref ?? await Utils.getSharedPreferences());
     switch (value.runtimeType) {
       case String:
@@ -84,7 +84,7 @@ class Utils {
       var index = fileName.lastIndexOf("_");
       fileNamea = fileName.substring(fileName.lastIndexOf("/") + 1, index);
       extention = Utils.getExtention(fileName);
-    // ignore: empty_catches
+      // ignore: empty_catches
     } catch (ex) {}
     return fileNamea + extention;
   }

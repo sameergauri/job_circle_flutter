@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customButton.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/models/job_location_model.dart';
 import 'package:job_circle/models/job_title_model.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/nature_of_work.dart';
@@ -898,7 +899,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   Future<List<JobTitleModel>> getSuggestions(String pattern) async {
     // 2 min wait
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/allClientCompany?pageNumber=1&pageSize=100'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -2805,24 +2806,1155 @@ class _CustomJobFormTextFieldJobRespoState
   }
 }
 
+class CustomJobFormTextFieldRespOneProfile extends StatefulWidget {
+  final TextEditingController? controller;
+  //final bool isEdit;
+  // final FocusNode focusNode;
+  final String hintText;
+  // List<String>? selectedValuesList = [];
+  final bool isCompany;
+  BuildContext contextIn;
+  final bool isIndustry;
+  final String title;
+  final Function(String)? getSuggestions;
+  final String? firstText;
+  final Function(bool) onChanged;
+  final String name;
+  final String? pId;
+  final void Function(String)? onSubmit;
+  final void Function(String)? onCitySubmit;
 
+  final FocusNode? focusNode;
+  final String role;
+  // final void Function(String)? onJobTitle;
+  var onIDSelected;
+  // final Function(FocusNode) onFocusNodeRequested;
 
+  CustomJobFormTextFieldRespOneProfile({
+    Key? key,
+    this.controller,
+    required this.isIndustry,
+    this.onSubmit,
+    this.focusNode,
+    required this.role,
+    //  this.onJobTitle,
+    // required this.isEdit,
+    // required this.focusNode,
+    // this.selectedValuesList,
+    required this.contextIn,
+    required this.isCompany,
+    required this.title,
+    required this.hintText,
+    required this.name,
+    this.getSuggestions,
+    this.onCitySubmit,
+    this.pId,
+    required this.onChanged,
+    required this.onIDSelected,
+    this.firstText,
+    // required this.onFocusNodeRequested
+  }) : super(key: key);
 
+  @override
+  _CustomJobFormTextFieldRespoOneProfileState createState() =>
+      _CustomJobFormTextFieldRespoOneProfileState();
+}
 
+class _CustomJobFormTextFieldRespoOneProfileState
+    extends State<CustomJobFormTextFieldRespOneProfile> {
+  List<dynamic>? suggestion;
+  bool isEdit = false;
+  List<dynamic> suggestions = [];
+  List<dynamic> ParentId = [];
+  //FocusNode focusNode = FocusNode();
+// Example usage of the handleFocusNodeChange method
+  late TextEditingController? controller = widget.controller;
+  // late bool isEdit = widget.isEdit;
+  // final FocusNode focusNode = widget.focusNode;
+  late String hintText = widget.hintText;
+  late String title = widget.title;
 
+  late String? firstText = widget.firstText;
+  late String? cityname;
 
+  late String selectedID;
 
+  //List<String> selectedValuesList = [];
 
+  void handleBoolChange(bool newValue) {
+    setState(() {
+      isEdit = newValue;
+    });
+    widget.onChanged(newValue);
+  }
 
+  final FocusNode _focusNode = FocusNode();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _focusNode.requestFocus();
 
+    // getJobIndustry();
+  }
 
+  InkWell customContainerSelect(bool isSelect) {
+    return InkWell(
+        onTap: () {
+          //  log("Requesting Focus");
+          //widget.focusNode?.requestFocus();
 
+          setState(() {
+            controller!.clear();
+            handleBoolChange(false);
+            // widget.focusNode.requestFocus;
+            // handleFocusNodeRequest();
+            //focusNode.requestFocus();
+            // handleFocusNodeChange();
+            //focusNode.requestFocus();
+          });
+        },
+        child: Container(
+            width: double.maxFinite,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            /* decoration: BoxDecoration(
+                //310D44   color code for dark purple
+                //3D3635   color code for greybrown
+                color: isSelect ? const Color(0xfff310d44) : null,
+                border: isSelect
+                    ? null
+                    : Border.all(
+                        color: isSelect
+                            ? Colors.deepOrange.shade400
+                            : Colors.grey),
+                borderRadius: BorderRadius.circular(18)), */
+            //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: isSelect
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(controller!.text,
+                          style: GoogleFonts.varela(
+                              // fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 15.sp)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 15.h,
+                      )
+                    ],
+                  )
+                : Text(widget.controller!.text,
+                    style: GoogleFonts.varela(fontSize: 15.sp))));
+  }
 
+  Future<List> getSuggestions(String pattern) async {
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
 
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      suggestions = data['resultData']['content']
+          .map((e) => e['name'].toString())
+          .where((name) =>
+              name.toString().toLowerCase().startsWith(pattern.toLowerCase()))
+          .toList();
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
 
+  Future<List<RoleModel>> getJobTitle(
+      String pattern, String name, String role) async {
+    final response = await http.get(Uri.parse(
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctRolename?companyid=$name&process=$role"));
 
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<RoleModel> suggestions = [];
+      List<int> uniqueValues = [];
 
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      RoleResponseModel? roleResponseModel;
+      try {
+        roleResponseModel = RoleResponseModel.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          RoleModel role = RoleModel.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id);
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List<ProcessModel>> getJobProcess(
+    String pattern,
+    String name,
+  ) async {
+    final response = await http.get(Uri.parse(
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctProcess?companyid=$name"));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<ProcessModel> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      ProcessResponseModel? roleResponseModel;
+      try {
+        roleResponseModel = ProcessResponseModel.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['process']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          ProcessModel role = ProcessModel.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id);
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  Future<List<JobLocationModel>> getJobIndustry(
+    String pattern,
+  ) async {
+    //old Working code of job title
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByLocation?pageNumber=1&pageSize=10000'));
+
+    /*   if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Parse the response and return the filtered suggestions
+      final suggestions = (data['resultData']['content'] as List)
+          .where((e) => e['value']
+              .toString()
+              .toLowerCase()
+              .startsWith(pattern.toLowerCase()))
+          .map((e) => JobTitleModel.fromJson(e))
+          .toList();
+
+      print(suggestions);
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    } */
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobLocationModel> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      JobTitleModel1? roleResponseModel;
+      try {
+        roleResponseModel = JobTitleModel1.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      //  String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = "${entry['value']?.toString()}";
+        if (value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          JobLocationModel role = JobLocationModel.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id!.toInt());
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  /* void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      FocusScope.of(context).requestFocus(widget.focusNode);
+     ab Try kr zara
+      ha  ek min
+    }
+  } */
+
+/*   void handleFocusNodeRequest() {
+    widget.onFocusNodeRequested; // Pass the focusNode itself
+  } */
+
+  List<dynamic> _filterData(String query) {
+    // Implement your filtering logic here based on the query
+    // For demo purposes, this performs a case-insensitive filter.
+    return suggestion!
+        .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
+
+  late final Function(String) onIDSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    _focusNode.requestFocus();
+    return SizedBox(
+      child: InkWell(
+        onTap: () {
+          showModalBottomSheet(
+              isScrollControlled: true,
+              isDismissible: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              context: context,
+              builder: (BuildContext context) {
+                return Container(
+                  decoration:
+                      const BoxDecoration(borderRadius: BorderRadius.only()),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  height: MediaQuery.of(context).size.height / 1.16,
+                  child: Padding(
+                    padding: const EdgeInsets.only(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Icon(
+                                  Icons.arrow_back,
+                                  color: Constants.themeBgColor,
+                                )),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            Text(
+                              "Reside at",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.sp),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 15.h,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 24,
+                              child: TypeAheadFormField<dynamic>(
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "This Text field Cant be empty";
+                                  }
+                                  return null;
+                                },
+                                suggestionsBoxDecoration:
+                                    SuggestionsBoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  elevation: 4.0,
+                                ),
+                                textFieldConfiguration: TextFieldConfiguration(
+                                  style: GoogleFonts.varela(
+                                      color: Constants.subtitleclr),
+                                  onChanged: (value) {
+                                    suggestion = null;
+                                  },
+                                  //autofocus: true,
+                                  focusNode: _focusNode,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  controller: controller,
+                                  decoration: InputDecoration(
+                                    labelStyle: const TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    prefixIcon: const Icon(Icons.home_outlined),
+                                    prefixIconColor: Constants.themeBgColor,
+                                    //label: Text("Reside at"),
+                                    hintText: hintText,
+                                    hintStyle: GoogleFonts.varela(
+                                      color: Constants.subtitleclr,
+                                      fontSize: 15.sp,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                          color: Constants.themeBgColor),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                        color: Color(0xffff0eceb),
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    contentPadding:
+                                        const EdgeInsets.only(left: 15),
+                                  ),
+                                ),
+                                suggestionsCallback: (pattern) async {
+                                  if (pattern.isNotEmpty) {
+                                    if (widget.role.isNotEmpty) {
+                                      suggestion = widget.isIndustry
+                                          ? await getJobIndustry(pattern)
+                                          : await getJobTitle(pattern,
+                                              widget.name, widget.role);
+                                    } else {
+                                      suggestion = widget.isIndustry
+                                          ? await getJobIndustry(pattern)
+                                          : await getJobProcess(
+                                              pattern, widget.name);
+                                    }
+
+                                    return suggestion!;
+                                  } else {
+                                    return <dynamic>[];
+                                  }
+                                },
+                                itemBuilder: (context, suggestion) {
+                                  final isOdd = suggestionIndex % 2 == 0;
+                                  final backgroundColor = isOdd
+                                      ? Colors.grey.shade200
+                                      : Colors.white;
+
+                                  // Increment the suggestion index counter
+                                  suggestionIndex++;
+
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: backgroundColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: ListTile(
+                                      title: Text(
+                                        "${suggestion.value.toString()}, ${suggestion.city.toString()}",
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                onSuggestionSelected: (suggestion) {
+                                  // widget.focusNode!.nextFocus();
+                                  setState(() {
+                                    /* controller!.text =
+                                        "${suggestion.value.toString()}, ${suggestion.city.toString()}"; */
+                                    firstText = suggestion.value.toString();
+                                    handleBoolChange(true);
+                                    var selectedId = suggestion.id;
+                                    cityname = suggestion.city.toString();
+
+                                    widget.onSubmit!(firstText.toString());
+
+                                    widget.onCitySubmit!(cityname.toString());
+                                    Navigator.pop(context);
+
+                                    //FocusScope.of(context).nextFocus();
+                                  });
+                                },
+                                noItemsFoundBuilder: (value) {
+                                  final message = suggestion != null &&
+                                          suggestion!.isEmpty
+                                      ? 'No result found. Search again and select from suggestion.'
+                                      : 'Searching';
+
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      message,
+                                      style: const TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            /* Container(
+                              height: MediaQuery.of(context).size.height / 24,
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    suggestion = _filterData(value);
+                                  });
+                                },
+                                // enabled: isDisabled,
+                                // autofocus: focusNode.canRequestFocus,
+                                focusNode: widget.focusNode,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter
+                                      .singleLineFormatter,
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "This Text field Cant be empty";
+                                  }
+                                  return null;
+                                },
+                                // maxLength: maxLength,
+                                // keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
+                                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                                textCapitalization: TextCapitalization.words,
+                                controller: controller,
+                                onTap: (() {}),
+                                style: GoogleFonts.varela(
+                                    color: Constants.subtitleclr),
+                                decoration: InputDecoration(
+                                    // filled: isPrimaryNumber! ? true : false,
+
+                                    // prefixIcon: icon,
+                                    prefixIconColor: Constants.themeBgColor,
+                                    contentPadding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, left: 10, right: 10),
+                                    counterText: '',
+                                    // labelText: label,
+                                    labelStyle: TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb)),
+                                    ),
+                                    focusColor: const Color(0xffff0eceb),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                    ),
+                                    //hintText: hint,
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.hintColor,
+                                        fontSize: 15.sp)),
+                              ),
+                            ),
+                            /* Align(
+                              alignment: Alignment.topLeft,
+                              child: Text.rich(
+                                TextSpan(
+                                    text: 'optional',
+                                    style: GoogleFonts.varela()),
+                              ),
+                            ), */
+                            const Divider(),
+                            SizedBox(
+                              height: 20.h,
+                            ),
+                            if (suggestion != null)
+                              Expanded(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: suggestion!.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      title: Text(suggestion![index]),
+                                      onTap: () {
+                                        // Store the selected item in 'selectedValue'
+                                        setState(() {
+                                          var selectedValue = suggestion![index]
+                                              .value
+                                              .toString();
+                                        });
+                                        Navigator.of(context)
+                                            .pop(); // Close the bottom sheet
+                                      },
+                                    );
+                                  },
+                                ), 
+                              ),*/
+                          ],
+                        ),
+                        /* Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ThemeButton(
+                              width: 100.w,
+                              radious: 30,
+                              themeButtonSize: ThemeButtonSize.small,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              text: "Cancel",
+                            ),
+                            SizedBox(
+                              width: 5.w,
+                            ),
+                            ThemeButton(
+                              width: 100.w,
+                              radious: 30,
+                              themeButtonSize: ThemeButtonSize.small,
+                              onPressed: () {
+                                // searchAgain();
+                                Navigator.pop(context);
+                              },
+                              text: "Submit",
+                            ),
+                          ],
+                        ), */
+                      ],
+                    ),
+                  ),
+                );
+              });
+        },
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height / 24,
+          child: TextFormField(
+            controller: controller,
+            enabled: false,
+            // autofocus: focusNode.canRequestFocus,
+            //focusNode: focusNode,
+
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "This Text field Cant be empty";
+              }
+              return null;
+            },
+
+            //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+            textCapitalization: TextCapitalization.words,
+
+            onTap: (() {}),
+            style: GoogleFonts.varela(color: Constants.subtitleclr),
+            decoration: InputDecoration(
+                prefixIconColor: Constants.themeBgColor,
+                prefixIcon: const Icon(Icons.home_outlined),
+                contentPadding: const EdgeInsets.only(
+                    top: 8, bottom: 8, left: 10, right: 10),
+                counterText: '',
+                labelText: firstText != null
+                    ? "$firstText, $cityname"
+                    : widget.hintText,
+                labelStyle: const TextStyle(
+                  color: Constants.themeBgColor,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                ),
+                focusColor: const Color(0xffff0eceb),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(
+                    color: Constants.themeBgColor,
+                  ),
+                ),
+                hintText: "Thane",
+                hintStyle: GoogleFonts.sourceSansPro(
+                    color: Constants.hintColor, fontSize: 15.sp)),
+          ), /* TypeAheadFormField<dynamic>(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "This Text field Cant be empty";
+              }
+              return null;
+            },
+            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              elevation: 4.0,
+            ),
+            textFieldConfiguration: TextFieldConfiguration(
+              style: GoogleFonts.varela(color: Constants.subtitleclr),
+              onChanged: (value) {
+                suggestion = null;
+              },
+              //autofocus: true,
+              //focusNode: widget.focusNode,
+              textCapitalization: TextCapitalization.sentences,
+              controller: controller,
+              decoration: InputDecoration(
+                labelStyle: TextStyle(
+                  color: Constants.themeBgColor,
+                ),
+                prefixIcon: Icon(Icons.pin_drop_outlined),
+                prefixIconColor: Constants.themeBgColor,
+                label: Text("Reside at"),
+                hintText: hintText,
+                hintStyle: GoogleFonts.varela(
+                  color: Constants.subtitleclr,
+                  fontSize: 15.sp,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 122, 113, 111),
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color(0xffff0eceb),
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.only(left: 15),
+              ),
+            ),
+            suggestionsCallback: (pattern) async {
+              if (pattern.isNotEmpty) {
+                if (widget.role.isNotEmpty) {
+                  suggestion = widget.isIndustry
+                      ? await getJobIndustry(pattern, widget.name)
+                      : await getJobTitle(pattern, widget.name, widget.role);
+                } else {
+                  suggestion = widget.isIndustry
+                      ? await getJobIndustry(pattern, widget.name)
+                      : await getJobProcess(pattern, widget.name);
+                }
+      
+                return suggestion!;
+              } else {
+                return <dynamic>[];
+              }
+            },
+            itemBuilder: (context, suggestion) {
+              final isOdd = suggestionIndex % 2 == 0;
+              final backgroundColor = isOdd ? Colors.grey.shade200 : Colors.white;
+      
+              // Increment the suggestion index counter
+              suggestionIndex++;
+      
+              return Container(
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  title: Text(
+                    "${suggestion.value.toString()}, ${suggestion.city.toString()}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              );
+            },
+            onSuggestionSelected: (suggestion) {
+              // widget.focusNode!.nextFocus();
+              setState(() {
+                controller!.text =
+                    "${suggestion.value.toString()}, ${suggestion.city.toString()}";
+                firstText = suggestion.value.toString();
+                handleBoolChange(true);
+                var selectedId = suggestion.id;
+                var cityname = suggestion.city.toString();
+      
+                widget.onSubmit!(firstText.toString());
+      
+                widget.onCitySubmit!(cityname.toString());
+      
+                //FocusScope.of(context).nextFocus();
+              });
+            },
+            noItemsFoundBuilder: (value) {
+              final message = suggestion != null && suggestion!.isEmpty
+                  ? 'No result found. Search again and select from suggestion.'
+                  : 'Searching';
+      
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  message,
+                  style: const TextStyle(fontStyle: FontStyle.italic),
+                ),
+              );
+            },
+          ), */
+        ),
+      ),
+    );
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
+///
+///
+
+class CustomJobTitleForExperience extends StatefulWidget {
+  final TextEditingController? controller;
+  //final bool isEdit;
+  // final FocusNode focusNode;
+  final String hintText;
+  // List<String>? selectedValuesList = [];
+  final bool isCompany;
+  BuildContext contextIn;
+  final bool isIndustry;
+  final String title;
+  final Function(String)? getSuggestions;
+  final String? firstText;
+  final Function(bool) onChanged;
+  final String name;
+  final String? pId;
+  final void Function(String)? onSubmit;
+  final FocusNode? focusNode;
+  final String role;
+  // final void Function(String)? onJobTitle;
+  var onIDSelected;
+  // final Function(FocusNode) onFocusNodeRequested;
+
+  CustomJobTitleForExperience({
+    Key? key,
+    this.controller,
+    required this.isIndustry,
+    this.onSubmit,
+    this.focusNode,
+    required this.role,
+    //  this.onJobTitle,
+    // required this.isEdit,
+    // required this.focusNode,
+    // this.selectedValuesList,
+    required this.contextIn,
+    required this.isCompany,
+    required this.title,
+    required this.hintText,
+    required this.name,
+    this.getSuggestions,
+    this.pId,
+    required this.onChanged,
+    required this.onIDSelected,
+    this.firstText,
+    // required this.onFocusNodeRequested
+  }) : super(key: key);
+
+  @override
+  _CustomJobTitleForExperienceState createState() =>
+      _CustomJobTitleForExperienceState();
+}
+
+class _CustomJobTitleForExperienceState
+    extends State<CustomJobTitleForExperience> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    widget.focusNode!.addListener(() {
+      setState(() {
+        suggestionSelected =
+            widget.focusNode!.hasFocus && controller!.text.isEmpty
+                ? false
+                : true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
+    super.dispose();
+  }
+
+  List<dynamic>? suggestion;
+  bool isEdit = false;
+  List<dynamic> suggestions = [];
+  bool suggestionSelected = false;
+
+  late TextEditingController? controller = widget.controller;
+
+  late String hintText = widget.hintText;
+
+  Future<List<JobTitleModel1>> getJobIndustry(
+      String pattern, String name) async {
+    //old Working code of job title
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobTitleModel1> suggestions = [];
+      List<int> uniqueValues = [];
+
+      Map<String, dynamic> jsonMap;
+      try {
+        jsonMap = data as Map<String, dynamic>;
+      } catch (e) {
+        throw Exception('Failed to parse response data as JSON');
+      }
+
+      JobTitleModel1? roleResponseModel;
+      try {
+        roleResponseModel = JobTitleModel1.fromJson(jsonMap);
+      } catch (e) {
+        throw Exception('Failed to parse JSON data into RoleResponseModel');
+      }
+
+      //  String resultKey = roleResponseModel.resultKey;
+
+      // suggestions = roleResponseModel.getRoles();
+      /*  String firstRoleName =
+          suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
+      List<dynamic> content = data['resultData']['content'];
+
+      /*  for (var entry in content) {
+        String? value = entry['rolename']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            RoleModel jobTitle = RoleModel.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      } */
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          JobTitleModel1 role = JobTitleModel1.fromJson(entry);
+          if (!uniqueValues.contains(role.id)) {
+            uniqueValues.add(role.id!.toInt());
+            suggestions.add(role);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  late final Function(String) onIDSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height / 25.h,
+        margin: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: TypeAheadFormField<dynamic>(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return "This Text field Cant be empty";
+            }
+            return null;
+          },
+          suggestionsBoxDecoration: SuggestionsBoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            elevation: 4.0,
+          ),
+          textFieldConfiguration: TextFieldConfiguration(
+            onTapOutside: (event) {
+              setState(() {
+                suggestionSelected = true;
+              });
+            },
+            onSubmitted: (value) {
+              setState(() {
+                suggestionSelected = true;
+              });
+            },
+            enabled: !suggestionSelected,
+            onChanged: (value) {
+              suggestion = null;
+            },
+            autofocus: true,
+            focusNode: widget.focusNode,
+            textCapitalization: TextCapitalization.sentences,
+            controller: controller,
+            style:
+                GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+            decoration: InputDecoration(
+              label: const Text("Job Title"),
+              labelStyle: GoogleFonts.varela(
+                  color: Constants.themeBgColor, fontSize: 15.sp),
+              prefixIcon: const Icon(
+                Icons.perm_contact_calendar_sharp,
+                color: Constants.themeBgColor,
+              ),
+              prefixIconColor: Constants.themeBgColor,
+              //label: Text("Reside at"),
+              hintText: hintText,
+              hintStyle: GoogleFonts.varela(
+                color: Constants.subtitleclr,
+                fontSize: 14.sp,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Constants.themeBgColor),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              border: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Color(0xffff0eceb),
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.only(
+                left: 15,
+              ),
+            ),
+          ),
+          suggestionsCallback: (pattern) async {
+            if (pattern.isNotEmpty) {
+              suggestion = await getJobIndustry(pattern, widget.name);
+
+              return suggestion!;
+            } else {
+              return <dynamic>[];
+            }
+          },
+          itemBuilder: (context, suggestion) {
+            final isOdd = suggestionIndex % 2 == 0;
+            final backgroundColor = isOdd ? Colors.grey.shade200 : Colors.white;
+
+            // Increment the suggestion index counter
+            suggestionIndex++;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ListTile(
+                title: Text(
+                  widget.isIndustry
+                      ? suggestion.value.toString()
+                      : widget.role.isNotEmpty
+                          ? suggestion.roleName.toString()
+                          : suggestion.process.toString(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            );
+          },
+          onSuggestionSelected: (suggestion) {
+            // widget.focusNode!.nextFocus();
+            setState(() {
+              controller!.text = suggestion.value.toString();
+              suggestionSelected = true;
+              //FocusScope.of(context).nextFocus();
+            });
+          },
+          noItemsFoundBuilder: (value) {
+            final message =
+                suggestion != null && suggestion!.isEmpty ? '' : 'Searching';
+
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                message,
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

@@ -86,40 +86,40 @@ class ProfileSummaryModel with Searchable {
         languagesList = List<String>.from(json['languages']);
       }
       return ProfileSummaryModel(
-          id: json['id'],
-          first_name: json['first_name'],
-          middle_name: json['middle_name'],
-          last_name: json['last_name'],
-          gender: json['gender'],
-          email: json['email'],
-          martial_status: json['martial_status'],
-          dateofbirth: json['dateofbirth'],
-          user_location: json['user_location'],
-          languages: languagesList,
-          /*  languages: List<String>.from(
+        id: json['id'],
+        first_name: json['first_name'],
+        middle_name: json['middle_name'],
+        last_name: json['last_name'],
+        gender: json['gender'],
+        email: json['email'],
+        martial_status: json['martial_status'],
+        dateofbirth: json['dateofbirth'],
+        user_location: json['user_location'],
+        languages: languagesList,
+        /*  languages: List<String>.from(
               json['languages'] != null ? jsonDecode(json['languages']) : []), */
-          skills: List<String>.from(json['skills'] ?? []),
-          cv_link: json['cv_link'],
-          profile_pic: json['profile_pic'],
-          cv_upladted_date: json['cv_upladted_date'],
-          partner_request: json['partner_request'],
-          mobile: json['mobile'],
-          alternate_no: json['alternate_no'],
-          user_zone: json['user_zone'],
-          vaccination_certificate: json['vaccination_certificate'],
-          blood_group: json['blood_group'],
-          vaccination: json['vaccination'],
-          user_locality: json['user_locality'],
-          education: json['education'],
-          experience: json['experience'],
-          updated_date: json['updated_date'],
-          createdon: json['createdon'],
-          // isActive: json['active'],
-          // lastActiveDate: json["lastActive"]
-          cover_pic: json['cover_pic'],
-          bio: json['bio'],
-          report_to:json['report_to'],
-          );
+        skills: List<String>.from(json['skills'] ?? []),
+        cv_link: json['cv_link'],
+        profile_pic: json['profile_pic'],
+        cv_upladted_date: json['cv_upladted_date'],
+        partner_request: json['partner_request'],
+        mobile: json['mobile'],
+        alternate_no: json['alternate_no'],
+        user_zone: json['user_zone'],
+        vaccination_certificate: json['vaccination_certificate'],
+        blood_group: json['blood_group'],
+        vaccination: json['vaccination'],
+        user_locality: json['user_locality'],
+        education: json['education'],
+        experience: json['experience'],
+        updated_date: json['updated_date'],
+        createdon: json['createdon'],
+        // isActive: json['active'],
+        // lastActiveDate: json["lastActive"]
+        cover_pic: json['cover_pic'],
+        bio: json['bio'],
+        report_to: json['report_to'],
+      );
     } catch (e) {
       print("Error parsing JSON: $e");
       return ProfileSummaryModel(); // Return a default instance or handle the error accordingly
@@ -337,43 +337,46 @@ class Experience with Searchable {
   final dynamic userId;
   String? job_title;
   String? company_name;
-  String? company_location;
-  String? company_website;
+  int? isCurrent;
+  String? description;
+  List<String>? skills_exp;
   String? work_type;
-  bool? ismonthly;
-  bool? isworking;
-  String? salary;
+  String? company_location;
+  String? emptype;
   DateTime? joining_date;
   DateTime? last_working_date;
-  String? availability;
+  String? salary;
+  int? ismonthly;
+  String? offer_letter;
   String? appointment_letter;
   String? salary_slip;
-  String? bank_statement;
   String? experience_letter;
-  List<String>? skills_exp;
-  String? working;
+  String? increment_letter;
+  String? availability;
+  String? shortname;
 
-  Experience({
-    this.id,
-    this.userId,
-    this.job_title,
-    this.company_name,
-    this.company_location,
-    this.company_website,
-    this.work_type,
-    this.ismonthly,
-    this.isworking,
-    this.salary,
-    this.joining_date,
-    this.last_working_date,
-    this.availability,
-    this.appointment_letter,
-    this.salary_slip,
-    this.bank_statement,
-    this.experience_letter,
-    this.skills_exp,
-    this.working,
-  });
+  Experience(
+      {this.id,
+      this.userId,
+      this.job_title,
+      this.company_name,
+      this.isCurrent,
+      this.description,
+      this.skills_exp,
+      this.work_type,
+      this.company_location,
+      this.emptype,
+      this.joining_date,
+      this.last_working_date,
+      this.salary,
+      this.ismonthly,
+      this.offer_letter,
+      this.appointment_letter,
+      this.salary_slip,
+      this.experience_letter,
+      this.increment_letter,
+      this.availability,
+      this.shortname});
 
   static Experience fromMap(Map<String, dynamic> map) {
     return Experience(
@@ -382,10 +385,8 @@ class Experience with Searchable {
       job_title: map['job_title'] as String?,
       company_name: map['company_name'] as String?,
       company_location: map['company_location'] as String?,
-      company_website: map['company_website'] as String?,
       work_type: map['work_type'] as String?,
-      ismonthly: map['ismonthly'] as bool?,
-      isworking: map['isworking'] as bool?,
+      ismonthly: map['ismonthly'] as int?,
       salary: map['salary'] as String?,
       joining_date: map['joining_date'] != null
           ? DateTime.parse(map['joining_date'] as String)
@@ -396,10 +397,14 @@ class Experience with Searchable {
       availability: map['availability'],
       appointment_letter: map['appointment_letter'] as String?,
       salary_slip: map['salary_slip'] as String?,
-      bank_statement: map['bank_statement'] as String?,
       experience_letter: map['experience_letter'] as String?,
       skills_exp: List<String>.from(map['skills_exp'] ?? []),
-      working: map['working'] as String?,
+      description: map['description'],
+      emptype: map['emptype'],
+      increment_letter: map['increment_letter'],
+      isCurrent: map['isCurrent'],
+      offer_letter: map['offer_letter'],
+      shortname: map['shortname'],
     );
   }
 
@@ -418,48 +423,52 @@ class Experience with Searchable {
       'job_title': job_title,
       'company_name': company_name,
       'company_location': company_location,
-      'company_website': company_website,
       'work_type': work_type,
       'ismonthly': ismonthly,
-      'isworking': isworking,
       'salary': salary,
       'joining_date': joining_date?.toIso8601String(),
       'last_working_date': last_working_date?.toIso8601String(),
       'availability': availability,
       'appointment_letter': appointment_letter,
       'salary_slip': salary_slip,
-      'bank_statement': bank_statement,
       'experience_letter': experience_letter,
       'skills_exp': skills_exp,
-      'working': working,
+      'description': description,
+      'emptype': emptype,
+      'increment_letter': increment_letter,
+      'offer_letter': offer_letter,
+      'isCurrent': isCurrent,
+      'shortname': shortname,
     };
   }
 
   factory Experience.fromJson(Map<String, dynamic> json) {
     return Experience(
-      id: json['id'],
+      id: json['id'] as int?,
       userId: json['userId'],
-      job_title: json['job_title'],
-      company_name: json['company_name'],
-      company_location: json['company_location'],
-      company_website: json['company_website'],
-      work_type: json['work_type'],
-      ismonthly: json['ismonthly'],
-      isworking: json['isworking'],
-      salary: json['salary'],
+      job_title: json['job_title'] as String?,
+      company_name: json['company_name'] as String?,
+      company_location: json['company_location'] as String?,
+      work_type: json['work_type'] as String?,
+      ismonthly: json['ismonthly'] as int?,
+      salary: json['salary'] as String?,
       joining_date: json['joining_date'] != null
-          ? DateTime.parse(json['joining_date'])
+          ? DateTime.parse(json['joining_date'] as String)
           : null,
       last_working_date: json['last_working_date'] != null
-          ? DateTime.parse(json['last_working_date'])
+          ? DateTime.parse(json['last_working_date'] as String)
           : null,
       availability: json['availability'],
-      appointment_letter: json['appointment_letter'],
-      salary_slip: json['salary_slip'],
-      bank_statement: json['bank_statement'],
-      experience_letter: json['experience_letter'],
+      appointment_letter: json['appointment_letter'] as String?,
+      salary_slip: json['salary_slip'] as String?,
+      experience_letter: json['experience_letter'] as String?,
       skills_exp: List<String>.from(json['skills_exp'] ?? []),
-      working: json['working'],
+      description: json['description'],
+      emptype: json['emptype'],
+      increment_letter: json['increment_letter'],
+      isCurrent: json['isCurrent'],
+      offer_letter: json['offer_letter'],
+      shortname: json['shortname'],
     );
   }
 
@@ -470,26 +479,28 @@ class Experience with Searchable {
       'job_title': job_title,
       'company_name': company_name,
       'company_location': company_location,
-      'company_website': company_website,
       'work_type': work_type,
       'ismonthly': ismonthly,
-      'isworking': isworking,
       'salary': salary,
       'joining_date': joining_date?.toIso8601String(),
       'last_working_date': last_working_date?.toIso8601String(),
       'availability': availability,
       'appointment_letter': appointment_letter,
       'salary_slip': salary_slip,
-      'bank_statement': bank_statement,
       'experience_letter': experience_letter,
       'skills_exp': skills_exp,
-      'working': working,
+      'description': description,
+      'emptype': emptype,
+      'increment_letter': increment_letter,
+      'offer_letter': offer_letter,
+      'isCurrent': isCurrent,
+      'shortname': shortname,
     };
   }
 
   @override
   String toString() {
-    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location, company_website: $company_website, work_type: $work_type, ismonthly: $ismonthly, isworking: $isworking, salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip, bank_statement: $bank_statement, experience_letter: $experience_letter, skills_exp: $skills_exp, working: $working)';
+    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location,ismonthly: $ismonthly,  salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip,  experience_letter: $experience_letter, skills_exp: $skills_exp,work_type:$work_type,description:$description,emptype:$emptype,increment_letter:$increment_letter,offer_letter:$offer_letter,isCurrent:$isCurrent)';
   }
 
   @override

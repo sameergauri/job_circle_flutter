@@ -235,4 +235,60 @@ class JobPostApiService {
       );
     }
   }
+
+  static Future<void> PostUserInfo(Map<dynamic, dynamic> jsonData) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/saveStages';
+
+    try {
+      var response = await http.post(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print('Data posted successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  static Future<void> AddCompanytoMom(String name) async {
+    final apiUrl = Uri.parse('http://${GlobalConstants.API_Host}/company/v1');
+
+    // Define the data you want to send as a Map
+    final requestData = {
+      "active": 0,
+      "id": 0,
+      "isClient": 0,
+      "name": name,
+    };
+
+    try {
+      // Make the POST request
+      final response = await http.post(
+        apiUrl,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Request was successful, you can handle the response here
+        print('Data sent successfully!');
+        print('Response: ${response.body}');
+      } else {
+        // Request failed
+        print('Failed to send data. Status code: ${response.statusCode}');
+        print('Response: ${response.body}');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the request
+      print('Error sending data: $e');
+    }
+  }
 }

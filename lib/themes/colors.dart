@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class Constants {
   static const bgPanelColor = Colors.white; //Color(0xfffef1e9);
   static const bgColorWhite = Color(0xffffffff);
-  static const themeBgColor = Color(0xffce3538);
+  static const themeBgColor = Color(0xfff729995);
   static const themeBgColorLight = Color(0xffffdf7f6);
   // static const borderColor = Color(0xffffbefed);
   static const borderColor = Color(0xfffedf6f9);
   static const subtitleclr = Color(0xfff898d8c);
+  static const hintColor = Color(0xfffA8A3A3);
+  static const maintheme_light_color = Color(0xffb3caca);
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

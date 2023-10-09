@@ -13,24 +13,36 @@ class CardModel {
   String? email;
   String? role;
   String? alternate_no;
+  String? vacination_certificate;
+  String? dateofbirth;
+  String? bio;
+  int? vaccination;
+  String? vaccination_certificate;
+  String? middle_name;
 
   String? userLocation;
-  CardModel(
-      {this.cardName,
-      this.firstName,
-      this.lastName,
-      this.gender,
-      this.martial_status,
-      this.jobTitle,
-      this.education,
-      this.exprince,
-      this.location,
-      this.university,
-      this.mobile,
-      this.email,
-      this.userLocation,
-      this.role,
-      this.alternate_no});
+  CardModel({
+    this.cardName,
+    this.firstName,
+    this.lastName,
+    this.gender,
+    this.martial_status,
+    this.jobTitle,
+    this.education,
+    this.exprince,
+    this.location,
+    this.university,
+    this.mobile,
+    this.email,
+    this.userLocation,
+    this.role,
+    this.alternate_no,
+    this.dateofbirth,
+    this.bio,
+    this.vaccination,
+    this.vaccination_certificate,
+    this.middle_name,
+  });
   factory CardModel.fromJson(dynamic json) {
     return CardModel(
         cardName: json['cardName'],
@@ -41,7 +53,12 @@ class CardModel {
         gender: json['gender'] ?? '',
         martial_status: json['martial_status'] ?? '',
         userLocation: json['userLocation'] ?? '',
-        alternate_no: json['alternate_no']);
+        alternate_no: json['alternate_no'] ?? '',
+        dateofbirth: json['dateofbirth'] ?? '',
+        bio: json['bio'] ?? '',
+        vaccination: json['vaccination'] ?? 0,
+        vaccination_certificate: json['vaccination_certificate'] ?? '',
+        middle_name: json['middle_name']);
   }
 
   Map toJson() => {
@@ -53,6 +70,11 @@ class CardModel {
         'gender': gender,
         'martial_status': martial_status,
         'userLocation': userLocation,
-        'alternate_no': alternate_no
+        'alternate_no': alternate_no,
+        'dateofbirth': dateofbirth,
+        'bio': bio,
+        'vaccination': vaccination,
+        'vaccination_certificate': vaccination_certificate,
+        'middle_name': middle_name
       };
 }
