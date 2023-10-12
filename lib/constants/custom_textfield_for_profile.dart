@@ -34,6 +34,8 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   final String? pId;
   final void Function(String)? onSubmit;
   final FocusNode? focusNode;
+  final String? labelText;
+  final Icon icon;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -45,6 +47,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     this.onSubmit,
     this.focusNode,
     required this.isCity,
+    required this.icon,
 
     // required this.isEdit,
     // required this.focusNode,
@@ -58,6 +61,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     this.pId,
     required this.onChanged,
     this.firstText,
+    this.labelText,
     // required this.onFocusNodeRequested
   }) : super(key: key);
 
@@ -268,13 +272,14 @@ class _CustomTextFieldComapanyLocationState
           style:
               GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            label: const Text("City"),
+            label: Text(widget.labelText.toString()),
             labelStyle: GoogleFonts.varela(
                 color: Constants.themeBgColor, fontSize: 15.sp),
-            prefixIcon: const Icon(
-              Icons.pin_drop_outlined,
+            prefixIcon: widget.icon,
+            /*  const Icon(
+             widget.icon,
               color: Constants.themeBgColor,
-            ),
+            ), */
             prefixIconColor: Constants.themeBgColor,
             //label: Text("Reside at"),
             hintText: hintText,
@@ -348,7 +353,8 @@ class _CustomTextFieldComapanyLocationState
             var selectedId = suggestion.id;
             // onIDSelected(suggestion.id.toString());
             // widget.onJobTitle!(firstText.toString());
-            widget.onSubmit!(selectedId.toString());
+
+            // widget.onSubmit??(selectedId.toString());
 
             //FocusScope.of(context).nextFocus();
           });
@@ -451,25 +457,28 @@ class _CustomFormTextFieldMultiSelectForProfileState
     // widget.onChanged!(newValue);
   }
 
-  Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
+  Future<List<Skill>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=100'
+
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
+        ));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      List<JobTitleModel1> suggestions = [];
+      List<Skill> suggestions = [];
       Set<String> uniqueValues = {};
 
       List<dynamic> content = data['resultData']['content'];
 
       for (var entry in content) {
-        String? value = entry['value']?.toString();
+        String? value = entry['skills']?.toString();
         if (value != null &&
             value.toLowerCase().startsWith(pattern.toLowerCase())) {
           if (!uniqueValues.contains(value)) {
             uniqueValues.add(value);
-            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
-            suggestions.add(jobTitle);
+            Skill skill = Skill.fromJson(entry);
+            suggestions.add(skill);
           }
         }
       }
@@ -713,14 +722,14 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         ),
                         child: ListTile(
                           title: Text(
-                            suggestion.value.toString(),
+                            suggestion.skills.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       );
                     },
                     onSuggestionSelected: (suggestion) {
-                      if (selectedValuesList!.contains(suggestion.value)) {
+                      if (selectedValuesList!.contains(suggestion.skills)) {
                         // Dialog for duplicate value
                         showDialog(
                           context: context,
@@ -745,7 +754,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                           selectedValuesList!.add(suggestion.value);
                           isDuplicate = false;
                           showAddButton = true;
-                          controller!.text = suggestion.value.toString();
+                          controller!.text = suggestion.skills.toString();
                           controller!.clear();
                           selectedValuesList != null
                               ? widget.selectedSkillsChangeCallback ??

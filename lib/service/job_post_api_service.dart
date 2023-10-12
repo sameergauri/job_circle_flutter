@@ -256,6 +256,26 @@ class JobPostApiService {
     }
   }
 
+  static Future<void> DeletExperience(
+      int id, BuildContext context, String urlcode) async {
+    String apiurl =
+        'http://${GlobalConstants.API_Host}/$urlcode/v1/delete?id=$id';
+    try {
+      var respopnse = await http.delete(
+        Uri.parse(apiurl),
+      );
+      if (respopnse.statusCode == 200) {
+        print('Data deleted successfully.');
+        Navigator.pop(context);
+      } else {
+        print('Failed to delete data. Status code: ${respopnse.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors that occurred during the request
+      print('Error: $e');
+    }
+  }
+
   static Future<void> AddCompanytoMom(String name) async {
     final apiUrl = Uri.parse('http://${GlobalConstants.API_Host}/company/v1');
 

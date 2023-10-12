@@ -131,9 +131,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
 
       // Check if educationData and experienceData are not empty before converting them
       if (educationData.isNotEmpty) {
-        educationList = educationData
-            .map((item) => Education.fromMap(item))
-            .toList(); // Convert list of educationData into List<Education>
+        educationList =
+            educationData.map((item) => Education.fromMap(item)).toList();
+        educationList.sort((a, b) => b.firstYear!.compareTo(a.firstYear!));
+        // Convert list of educationData into List<Education>
       } else {
         educationList = []; // Empty list if educationData is empty
       }
@@ -150,7 +151,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
         experienceList = []; // Empty list if experienceData is empty
       }
 
-      /* if (experienceData.isNotEmpty) {   //TODO: old experience data list withou filter data
+      /* if (experienceData.isNotEmpty) {   //TODO: old experience data list without filter data
         experienceList = experienceData
             .map((item) => Experience.fromMap(item))
             .toList(); // Convert list of experienceData into List<Experience>
@@ -230,7 +231,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       "assets/images/alert.png",
                       height: height / 50.h,
                     ),
-                  )
+                  ),
                 ],
               )
             ],
@@ -849,7 +850,11 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (context) =>
-                                                          Screen3(),
+                                                          Screen3(
+                                                        experiencelist:
+                                                            experienceList,
+                                                        isEdit: false,
+                                                      ),
                                                     ),
                                                   );
                                                 },
@@ -1074,8 +1079,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Screen2(selectedLevel: profilemodel.education),
+                        builder: (context) => Screen2(
+                            selectedLevel: profilemodel.education,
+                            educationList: educationList),
                       ),
                     );
                   },
@@ -1246,7 +1252,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Screen3(),
+                        builder: (context) => Screen3(
+                          experiencelist: experienceList,
+                          isEdit: false,
+                        ),
                       ),
                     );
                   },
@@ -1760,23 +1769,23 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       runSpacing:
                           0.0, // Remove the spacing between the rows of chips
                       children: skills.map((skill) {
-                        return Chip(
-                          label: Text(
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 5, top: 5),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
                             skill,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                            style: GoogleFonts.varela(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
                             ),
                           ),
-                          backgroundColor: Colors
-                              .grey.shade200, // Set the grey background color
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                              color: Colors.grey
-                                  .shade200, // Set the same color as the background color
-                            ),
-                          ),
+                          // Set the grey background color
                         );
                       }).toList(),
                     ),
@@ -1827,7 +1836,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Screen2(selectedLevel: profilemodel.education),
+        builder: (context) => Screen2(
+            selectedLevel: profilemodel.education,
+            educationList: educationList),
       ),
     );
   }
@@ -1924,14 +1935,18 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Screen3(),
+                                builder: (context) => Screen3(
+                                  experiencelist: experienceList,
+                                  isEdit: false,
+                                ),
                               ),
                             );
                           } else if (title == "Education") {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Screen2(),
+                                builder: (context) =>
+                                    Screen2(educationList: educationList),
                               ),
                             );
                           }
@@ -2013,6 +2028,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
       MaterialPageRoute(
         builder: (context) => Screen2(
           prevPageModel: education,
+          educationList: educationList,
         ),
       ),
     );
@@ -2042,6 +2058,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
       MaterialPageRoute(
         builder: (context) => Screen3(
           prevPageModel: experience,
+          experiencelist: experienceList,
+          isEdit: true,
         ),
       ),
     );

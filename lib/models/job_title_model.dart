@@ -121,3 +121,20 @@ class RoleResponseModel {
     return roles;
   }
 }
+
+class Skill {
+  final String? skills;
+  final int? id;
+
+  Skill({
+    required this.skills,
+    required this.id,
+  });
+
+  factory Skill.fromJson(Map<String, dynamic> json) {
+    return Skill(
+      skills: json['skills'] as String? ?? 'Default Skill',
+      id: json['id'] as int? ?? 0,
+    );
+  }
+}

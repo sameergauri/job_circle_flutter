@@ -2333,8 +2333,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                 : Text(title,
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
-
-  Future<String?> uploadFile(
+ Future<String?> uploadFile(
     allowExt,
   ) async {
     Utils.showLoaderDialog(context, "");
@@ -2400,6 +2399,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       return null;
     }
   }
+ 
 
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();

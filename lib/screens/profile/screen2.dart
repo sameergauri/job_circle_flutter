@@ -1,26 +1,32 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/constants/custom_textfield_for_profile.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/service/FileUploadService.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
-import '../../components/autolistviewmodal.dart';
 import '../../constants/customTextfield.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 
 class Screen2 extends StatefulWidget {
-  Screen2({Key? key, this.prevPageModel, this.selectedLevel}) : super(key: key);
+  Screen2(
+      {Key? key, this.prevPageModel, this.selectedLevel, this.educationList})
+      : super(key: key);
   late Education? prevPageModel;
   late String? selectedLevel;
+  late List<Education>? educationList;
 
   @override
   State<Screen2> createState() => _Screen2State();
@@ -199,20 +205,23 @@ class _Screen2State extends State<Screen2> {
       if (widget.selectedLevel == "Graduate") {
         graduate = true;
       }
-      if (widget.prevPageModel!.level == "HSC") {
+      /*   if (widget.prevPageModel!.level == "HSC") {
         hsc = true;
         boardController.text = widget.prevPageModel!.board!;
         passingYearController.text =
             widget.prevPageModel!.passingYear.toString();
-      } else if (widget.prevPageModel!.level == "Graduate") {
-        graduate = true;
+      } else if (widget.prevPageModel!.level == "Graduate") { */
+      setState(() {
+        // graduate = true;
         universityController.text = widget.prevPageModel!.university!;
         degreeController.text = widget.prevPageModel!.degree_spc!;
         fieldOfStudyController.text = widget.prevPageModel!.fieldOfStudy!;
         firstYearController.text = widget.prevPageModel!.firstYear.toString();
         passingYearController.text =
             widget.prevPageModel!.passingYear.toString();
-      } else if (widget.prevPageModel!.level == "Post Graduate") {
+        marksheet = widget.prevPageModel!.marksheet.toString();
+      });
+      /*  } else if (widget.prevPageModel!.level == "Post Graduate") {
         undergraduate = true;
         universityController.text = widget.prevPageModel!.university!;
         degreeController.text = widget.prevPageModel!.degree_spc!;
@@ -236,7 +245,7 @@ class _Screen2State extends State<Screen2> {
         firstYearController.text = widget.prevPageModel!.firstYear.toString();
         passingYearController.text =
             widget.prevPageModel!.passingYear.toString();
-      }
+      } */
     }
   }
 
@@ -326,7 +335,74 @@ class _Screen2State extends State<Screen2> {
     });
   }
 
-  customFilePicker() async {
+  Future<String?> customFilePicker(
+    allowExt,
+  ) async {
+    Utils.showLoaderDialog(context, "");
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: allowExt,
+      withReadStream: true,
+    );
+
+    if (result != null) {
+      try {
+        var res = await FileUploadService()
+            .uploadSingleFile("marksheet", result.files.single);
+        var resultD = Utils.parseResponse(res);
+
+        if (resultD.resultKey == 'SUCCESS') {
+          String filePath = result.files.single.path ?? '';
+          String filename = resultD.resultData[0]["fileName"];
+          print(filename);
+          print("Filename: $filePath");
+
+          // Close the loading dialog when the upload is successful
+          Navigator.pop(context);
+          //save(filename, data);
+
+          return filename;
+        } else {
+          // Close the loading dialog when there is an error
+          Navigator.pop(context);
+
+          // Handle the case where the server returns an error
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Error while uploading cv"),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
+          return null;
+        }
+      } catch (e) {
+        // Close the loading dialog in case of exceptions
+        Navigator.pop(context);
+
+        // Handle any exceptions that occur during the upload
+        print("Error during file upload: $e");
+        return null;
+      }
+    } else {
+      // Close the loading dialog when the user cancels file selection
+      Navigator.pop(context);
+
+      // Handle the case where the user cancels file selection
+      return null;
+    }
+  }
+
+  /*  customFilePicker() async { //TODO: old code to upload the file
     result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -347,79 +423,157 @@ class _Screen2State extends State<Screen2> {
       print("No file selected");
     }
   }
+ */
+
+  SnackBar customSnackbar(String title) {
+    return SnackBar(
+      backgroundColor:
+          Colors.transparent, // Set background color to transparent
+      elevation: 0, // Remove shadow
+      content: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16.0), // Add horizontal padding
+        decoration: BoxDecoration(
+          color: Colors.white, // White background
+          borderRadius: BorderRadius.circular(8.0), // Border radius
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 15.h,
+            ), // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black, // Text color
+                fontSize: 14.0, // Text size
+              ),
+            ),
+          ],
+        ),
+      ),
+      duration: const Duration(seconds: 3),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Scaffold(
-          bottomNavigationBar: InkWell(
-            onTap: () {
-              save();
-            },
-            child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-              decoration: BoxDecoration(
-                  color: Constants.themeBgColor,
-                  borderRadius: BorderRadius.circular(15)),
-              width: double.maxFinite,
-              padding: const EdgeInsets.symmetric(vertical: 7),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Save",
-                    style: GoogleFonts.varela(
-                        fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.prevPageModel == null
-                    ? Text(
-                        "Add Education",
+    return Stack(
+      children: [
+        isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : const SizedBox(),
+        GestureDetector(
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Scaffold(
+              bottomNavigationBar: InkWell(
+                onTap: () {
+                  if (widget.educationList != null)
+                    for (Education education in widget.educationList!) {
+                      if (education.degree_spc == degreeController.text &&
+                          widget.prevPageModel == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            customSnackbar("The Degree is already added"));
+                        // break;
+                      } else {
+                        save();
+                      }
+                    }
+                },
+                child: Container(
+                  margin:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                  decoration: BoxDecoration(
+                      color: Constants.themeBgColor,
+                      borderRadius: BorderRadius.circular(15)),
+                  width: double.maxFinite,
+                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Save",
                         style: GoogleFonts.varela(
-                          fontSize: 18.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      )
-                    : Text(
-                        "Edit Education ",
-                        style: GoogleFonts.varela(
-                          fontSize: 18.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
+                            fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                Text(
-                  "Let recruiter know your value as a potential candidate",
-                  style: GoogleFonts.varela(
-                      color: Colors.grey.shade600,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.normal),
-                )
-              ],
-            ),
-          ),
-          extendBodyBehindAppBar: true,
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              child: _education(),
-            ),
-          )),
+                    ],
+                  ),
+                ),
+              ),
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                iconTheme: const IconThemeData(color: Colors.black),
+                title: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        widget.prevPageModel == null
+                            ? Text(
+                                "Add Education",
+                                style: GoogleFonts.varela(
+                                  fontSize: 18.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )
+                            : Text(
+                                "Edit Education ",
+                                style: GoogleFonts.varela(
+                                  fontSize: 18.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                        Text(
+                          "Let recruiter know your value as a\n potential",
+                          style: GoogleFonts.varela(
+                              color: Colors.grey.shade600,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.normal),
+                        )
+                      ],
+                    ),
+                    const Spacer(),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0),
+                          child: InkWell(
+                              onTap: () {
+                                JobPostApiService.DeletExperience(
+                                    widget.prevPageModel!.id!.toInt(),
+                                    context,
+                                    "edu");
+                              },
+                              child: const Icon(
+                                Icons.delete_outlined,
+                                color: Colors.red,
+                              )),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              extendBodyBehindAppBar: true,
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                bottom: false,
+                child: SingleChildScrollView(
+                  child: _education(),
+                ),
+              )),
+        ),
+      ],
     );
   }
 
@@ -433,193 +587,20 @@ class _Screen2State extends State<Screen2> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
+                /*    Text(
                   "Level of Education : ${widget.prevPageModel!.level}",
                   style: GoogleFonts.varela(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
+                ), */
                 const SizedBox(height: 10),
-                // Wrap(
-                //   children: [
-                //     if (selectedLevel == "HSC")
-                //       InkWell(
-                //         onTap: () {
-                //           setState(() {
-                //             graduate = false;
-                //             undergraduate = false;
-                //             mba = false;
-                //             hsc = true;
-                //             other = false;
-                //             degreeController.clear();
-                //           });
-                //         },
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             color: hsc ? Constants.borderColor : Colors.white,
-                //             borderRadius: BorderRadius.circular(15),
-                //             border: Border.all(color: Colors.grey),
-                //           ),
-                //           padding: const EdgeInsets.symmetric(
-                //               horizontal: 14, vertical: 4),
-                //           margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                //           child: Text(
-                //             "H.S.C / 10+2",
-                //             style: GoogleFonts.varela(
-                //               fontSize: 13.sp,
-                //               fontWeight: FontWeight.bold,
-                //               color: hsc ? Colors.black : Colors.grey.shade400,
-                //             ),
-                //             textAlign: TextAlign.center,
-                //           ),
-                //         ),
-                //       ),
-                //     if (selectedLevel == "Graduate")
-                //       InkWell(
-                //         onTap: () {
-                //           setState(() {
-                //             graduate = true;
-                //             undergraduate = false;
-                //             hsc = false;
-                //             other = false;
-                //             mba = false;
-                //           });
-                //         },
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             color:
-                //                 graduate ? Constants.borderColor : Colors.white,
-                //             borderRadius: BorderRadius.circular(15),
-                //             border: Border.all(color: Colors.grey),
-                //           ),
-                //           padding: const EdgeInsets.symmetric(
-                //               horizontal: 14, vertical: 4),
-                //           margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                //           child: Text(
-                //             "Graduate",
-                //             style: GoogleFonts.varela(
-                //               fontSize: 13.sp,
-                //               fontWeight: FontWeight.bold,
-                //               color: graduate
-                //                   ? Colors.black
-                //                   : Colors.grey.shade400,
-                //             ),
-                //             textAlign: TextAlign.center,
-                //           ),
-                //         ),
-                //       ),
-                //     if (selectedLevel == "Post Graduate")
-                //       InkWell(
-                //         onTap: () {
-                //           setState(() {
-                //             graduate = false;
-                //             undergraduate = true;
-                //             mba = false;
-                //             hsc = false;
-                //             other = false;
-                //           });
-                //         },
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             color: undergraduate
-                //                 ? Constants.borderColor
-                //                 : Colors.white,
-                //             borderRadius: BorderRadius.circular(15),
-                //             border: Border.all(color: Colors.grey),
-                //           ),
-                //           padding: const EdgeInsets.symmetric(
-                //               horizontal: 14, vertical: 4),
-                //           margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                //           child: Text(
-                //             "Post Graduate",
-                //             style: GoogleFonts.varela(
-                //               fontSize: 13.sp,
-                //               fontWeight: FontWeight.bold,
-                //               color: undergraduate
-                //                   ? Colors.black
-                //                   : Colors.grey.shade400,
-                //             ),
-                //             textAlign: TextAlign.center,
-                //           ),
-                //         ),
-                //       ),
-                //     if (selectedLevel == "MBA")
-                //       InkWell(
-                //         onTap: () {
-                //           setState(() {
-                //             graduate = false;
-                //             undergraduate = false;
-                //             hsc = false;
-                //             mba = true;
-                //             other = false;
-                //           });
-                //         },
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             color: mba ? Constants.borderColor : Colors.white,
-                //             borderRadius: BorderRadius.circular(15),
-                //             border: Border.all(color: Colors.grey),
-                //           ),
-                //           padding: const EdgeInsets.symmetric(
-                //               horizontal: 14, vertical: 4),
-                //           margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                //           child: Text(
-                //             "MBA",
-                //             style: GoogleFonts.varela(
-                //               fontSize: 13.sp,
-                //               fontWeight: FontWeight.bold,
-                //               color: mba ? Colors.black : Colors.grey.shade400,
-                //             ),
-                //             textAlign: TextAlign.center,
-                //           ),
-                //         ),
-                //       ),
-                //     if (selectedLevel == "other")
-                //       InkWell(
-                //         onTap: () {
-                //           setState(() {
-                //             graduate = false;
-                //             undergraduate = false;
-                //             hsc = false;
-                //             mba = false;
-                //             degreeController.clear();
-                //             other = true;
-                //           });
-                //         },
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             color: other ? Constants.borderColor : Colors.white,
-                //             borderRadius: BorderRadius.circular(15),
-                //             border: Border.all(color: Colors.grey),
-                //           ),
-                //           padding: const EdgeInsets.symmetric(
-                //               horizontal: 14, vertical: 4),
-                //           margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                //           child: Text(
-                //             "Other's",
-                //             style: GoogleFonts.varela(
-                //               fontSize: 13.sp,
-                //               fontWeight: FontWeight.bold,
-                //               color:
-                //                   other ? Colors.black : Colors.grey.shade400,
-                //             ),
-                //             textAlign: TextAlign.center,
-                //           ),
-                //         ),
-                //       ),
-                //   ],
-                // ),
-                // SizedBox(height: 10.h),
-                // const Divider(
-                //   thickness: 1.5,
-                // ),
-                const SizedBox(height: 10),
-                if (hsc) customWidgetHSC(),
-                if (graduate) customWidgetGraduation(),
-                if (undergraduate) customWidgetPost(),
-                if (mba) customWidgetMBA(),
-                if (other) customWidgetOther(),
+                // if (hsc) customWidgetHSC(),
+                // if (graduate)
+                customWidgetGraduation(),
+                // if (undergraduate) customWidgetPost(),
+                // if (mba) customWidgetMBA(),
+                // if (other) customWidgetOther(),
               ],
             ),
           )
@@ -629,12 +610,12 @@ class _Screen2State extends State<Screen2> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                /* Text(
                   "Level of Education",
                   style: GoogleFonts.varela(
                       fontSize: 14.sp, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
+                ), */
+                /* const SizedBox(height: 10),
                 Wrap(
                   children: [
                     InkWell(
@@ -903,21 +884,17 @@ class _Screen2State extends State<Screen2> {
                       ),
                     ),
                   ],
-                ),
+                ), */
                 SizedBox(
                   height: 10.h,
                 ),
-                const Divider(
-                  thickness: 1.5,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                if (hsc == true) customWidgetHSC(),
-                if (graduate == true) customWidgetGraduation(),
-                if (undergraduate == true) customWidgetPost(),
+
+                // if (hsc == true) customWidgetHSC(),
+                // if (graduate == true)
+                customWidgetGraduation(),
+                /*   if (undergraduate == true) customWidgetPost(),
                 if (mba == true) customWidgetMBA(),
-                if (other == true) customWidgetOther(),
+                if (other == true) customWidgetOther(), */
               ],
             ),
           );
@@ -1345,34 +1322,49 @@ class _Screen2State extends State<Screen2> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                /*  customButton("Digi Locker",
-                                    "assets/images/digilocker.png", 70, false), */
-                                customButton("Manual",
-                                    "assets/images/file_exp.png", 70, false),
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: customButton("Upload Marksheet", "", 0, true),
-              ),
+              marksheet != null
+                  ? customContainerSelectToViewDoc(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomPDFViewerDialog(
+                              pdfUrl:
+                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$marksheet",
+                              onRemove: () {
+                                setState(() {
+                                  marksheet = null;
+                                });
+                                // Add your logic for removing here
+                              },
+                              onReplace: () async {
+                                setState(() async {
+                                  marksheet = await customFilePicker(
+                                    ['pdf'],
+                                  );
+
+                                  // Add your logic for replacing here
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                      title: "Upload Marksheet")
+                  : customContainerSelectMarksheet(
+                      isAnother: true,
+                      isSelect: false,
+                      onPressed: () async {
+                        setState(() async {
+                          // offerletter = true;
+                          marksheet = await customFilePicker(
+                            ["pdf"],
+                          );
+                        });
+                      },
+                      title: marksheet != null
+                          ? marksheet.toString()
+                          : "Upload Marksheet"),
             ],
           )
         ],
@@ -1835,19 +1827,26 @@ class _Screen2State extends State<Screen2> {
     );
   }
 
+  FocusNode boardFocus = FocusNode();
+  FocusNode passingyearfocus = FocusNode();
+  FocusNode univerrsityfocus = FocusNode();
+  FocusNode degreefocus = FocusNode();
+  FocusNode filedofstudyfocus = FocusNode();
+  FocusNode firstyearfocus = FocusNode();
+  FocusNode finalyearfocus = FocusNode();
+
   SizedBox customWidgetHSC() {
     return SizedBox(
       child: Column(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Board",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isBoard
+          CustomTextField(
+              icon: const Icon(Icons.school_outlined),
+              context: context,
+              hint: "Maharashtra Board",
+              label: "Board",
+              focusNode: boardFocus,
+              controller: boardController),
+          /* isBoard  //TODO: old code board
                   ? customContainerSelect(
                       isVacancy: true,
                       isCross: true,
@@ -1942,11 +1941,17 @@ class _Screen2State extends State<Screen2> {
                             ),
                           ),
                         ],
-                      )),
-            ],
-          ),
+                      )), */
+
           const SizedBox(height: 10),
-          Column(
+          CustomTextField(
+              context: context,
+              hint: "2023",
+              label: "Passing Year",
+              focusNode: passingyearfocus,
+              icon: const Icon(Icons.edit_calendar_outlined),
+              controller: passingYearController),
+/*           Column(  //TODOD: old code of passing year
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -2051,7 +2056,7 @@ class _Screen2State extends State<Screen2> {
                         ],
                       )),
             ],
-          ),
+          ), */
           const SizedBox(
             height: 20,
           ),
@@ -2093,37 +2098,138 @@ class _Screen2State extends State<Screen2> {
     );
   }
 
+  String? marksheet;
+
+  InkWell customContainerSelectMarksheet(
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      bool isHalf = false,
+      bool isVacancy = false,
+      bool isNumOfOpening = false,
+      bool isAnother = false,
+      bool isEmails = false,
+      bool isCross = false,
+      bool? isSalary = false}) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            width: isAnother
+                ? null
+                : isNumOfOpening
+                    ? MediaQuery.of(context).size.width / 2.449
+                    : isEmails
+                        ? MediaQuery.of(context).size.width / 2.437
+                        : MediaQuery.of(context).size.width,
+            //height: MediaQuery.of(context).size.height / 30,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: isSelect
+                        ? Constants.themeBgColor
+                        : Colors.transparent)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: isSelect
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      isSalary!
+                          ? const Icon(
+                              Icons.currency_rupee_rounded,
+                              color: Colors.white,
+                              size: 15,
+                            )
+                          : const SizedBox(),
+                      Text(title,
+                          style: GoogleFonts.sourceSansPro(
+                              color: Constants.themeBgColor, fontSize: 15.sp)),
+                      isVacancy ? const Spacer() : const SizedBox(),
+
+                      /*  isCross
+                          ? Image.asset(
+                              "assets/images/cross.png",
+                              height: 12,
+                            )
+                          : const Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            ) */
+                    ],
+                  )
+                : Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp))));
+  }
+
+  InkWell customContainerSelectToViewDoc({
+    required final VoidCallback onPressed,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+
+            //height: MediaQuery.of(context).size.height / 30,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp)),
+                SizedBox(
+                  width: 6.w,
+                ),
+                Icon(
+                  Icons.visibility_outlined,
+                  color: Constants.themeBgColor,
+                  size: 18.h,
+                )
+              ],
+            )));
+  }
+
   Widget customButton(String title, String? img, int? conSize, bool dlg) {
     return InkWell(
       onTap: () async {
-        customFilePicker();
+        // data = await uploadFile(['pdf']);
+        setState(() async {
+          marksheet = await customFilePicker(['pdf']);
+        });
       },
       child: Container(
         decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(8.r),
             border:
                 Border.all(color: dlg ? Constants.themeBgColor : Colors.white)),
-        child: img!.isNotEmpty
-            ? Image.asset(
-                img,
-                height: conSize!.h,
-              )
-            : Row(
-                children: [
-                  const Icon(
-                    Icons.add,
-                    size: 16,
-                    color: Constants.themeBgColor,
-                  ),
-                  Text(
-                    title,
-                    style: GoogleFonts.varela(
-                        fontWeight: FontWeight.bold,
-                        color: Constants.themeBgColor),
-                  )
-                ],
-              ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.add,
+              size: 16,
+              color: Constants.themeBgColor,
+            ),
+            Text(
+              title,
+              style: GoogleFonts.varela(
+                  fontWeight: FontWeight.bold, color: Constants.themeBgColor),
+            )
+          ],
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       ),
     );
@@ -2155,7 +2261,7 @@ class _Screen2State extends State<Screen2> {
     return SizedBox(
       child: Column(
         children: [
-          SizedBox(
+          /* SizedBox(
             width: MediaQuery.of(context).size.width,
             child: isGraduateUni
                 ? Column(
@@ -2198,9 +2304,40 @@ class _Screen2State extends State<Screen2> {
                     contextIn: context,
                     hintText: "Mumbai University",
                   ),
+          ), */
+
+          CustomTextFieldComapanyLocation(
+            labelText: "Degree / Specialization",
+            title: "",
+            isCity: true,
+            contextIn: context,
+            role: "",
+            hintText: "Bachelor of Commerce",
+            name: "degree",
+            isCompany: false,
+            controller: degreeController,
+            onChanged: (p0) {
+              isGraduateDeg = true;
+            },
+            icon: const Icon(Icons.workspace_premium_outlined),
           ),
           const SizedBox(height: 10),
-          SizedBox(
+          CustomTextFieldComapanyLocation(
+            labelText: "University / Institute",
+            title: "",
+            isCity: true,
+            contextIn: context,
+            role: "",
+            hintText: "Mumbai University",
+            name: "university",
+            isCompany: false,
+            controller: universityController,
+            onChanged: (p0) {
+              isUniG = true;
+            },
+            icon: const Icon(Icons.school_outlined),
+          ),
+          /* SizedBox(
             width: MediaQuery.of(context).size.width,
             child: isGraduateDeg
                 ? Column(
@@ -2243,9 +2380,16 @@ class _Screen2State extends State<Screen2> {
                     contextIn: context,
                     hintText: "Bachelor of Commerce",
                   ),
-          ),
+          ), */
           const SizedBox(height: 10),
-          Column(
+          CustomTextField(
+              context: context,
+              hint: "Account and Finance",
+              label: "Field of Study",
+              focusNode: filedofstudyfocus,
+              controller: fieldOfStudyController,
+              icon: const Icon(Icons.auto_stories_outlined)),
+          /* Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -2350,11 +2494,18 @@ class _Screen2State extends State<Screen2> {
                         ],
                       )),
             ],
-          ),
+          ), */
           const SizedBox(
-            height: 20,
+            height: 10,
           ),
-          Column(
+          CustomTextField(
+              context: context,
+              hint: "2017",
+              label: "First Year",
+              focusNode: firstyearfocus,
+              controller: firstYearController,
+              icon: const Icon(Icons.edit_calendar)),
+          /* Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -2459,9 +2610,16 @@ class _Screen2State extends State<Screen2> {
                         ],
                       )),
             ],
-          ),
-          const SizedBox(height: 20),
-          Column(
+          ), */
+          const SizedBox(height: 10),
+          CustomTextField(
+              context: context,
+              hint: "2023",
+              label: "Final Year",
+              focusNode: finalyearfocus,
+              controller: passingYearController,
+              icon: const Icon(Icons.edit_calendar)),
+          /* Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -2566,7 +2724,7 @@ class _Screen2State extends State<Screen2> {
                         ],
                       )),
             ],
-          ),
+          ), */
           const SizedBox(
             height: 20,
           ),
@@ -2574,7 +2732,7 @@ class _Screen2State extends State<Screen2> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               InkWell(
-                onTap: () {
+                /* onTap: () {
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -2598,8 +2756,50 @@ class _Screen2State extends State<Screen2> {
                       );
                     },
                   );
-                },
-                child: customButton("Upload Marksheet", "", 0, true),
+                }, */
+                child: marksheet != null
+                    ? customContainerSelectToViewDoc(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomPDFViewerDialog(
+                                pdfUrl:
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/$marksheet",
+                                onRemove: () {
+                                  setState(() {
+                                    marksheet = null;
+                                  });
+                                  // Add your logic for removing here
+                                },
+                                onReplace: () async {
+                                  setState(() async {
+                                    marksheet = await customFilePicker(
+                                      ['pdf'],
+                                    );
+
+                                    // Add your logic for replacing here
+                                  });
+                                },
+                              );
+                            },
+                          );
+                        },
+                        title: "Upload Marksheet")
+                    : customContainerSelectMarksheet(
+                        isAnother: true,
+                        isSelect: false,
+                        onPressed: () async {
+                          setState(() async {
+                            // offerletter = true;
+                            marksheet = await customFilePicker(
+                              ["pdf"],
+                            );
+                          });
+                        },
+                        title: marksheet != null
+                            ? marksheet.toString()
+                            : "Upload Marksheet"), //customButton("Upload Marksheet", "", 0, true),
               ),
             ],
           )
@@ -3091,7 +3291,7 @@ class _Screen2State extends State<Screen2> {
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              color: isSelect ? Constants.themeBgColor : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
@@ -3131,78 +3331,116 @@ class _Screen2State extends State<Screen2> {
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
+  bool isLoading = false;
+
   save() async {
+    setState(() {
+      isLoading = true;
+    });
     Education model = Education();
 
-    if (hsc == true) {
-      model = Education(
-        id: eduID,
-        userId: profilemodel.id,
-        level: "HSC",
-        board: boardController.text,
-        passingYear: int.parse(passingYearController.text),
-        marksheet: "marksheet.pdf",
-      );
-    } else if (graduate == true) {
-      model = Education(
-        id: eduID,
-        userId: profilemodel.id,
-        level: "Graduate",
-        university: universityController.text,
-        degree_spc: degreeController.text,
-        fieldOfStudy: fieldOfStudyController.text,
-        firstYear: int.parse(firstYearController.text),
-        passingYear: int.parse(passingYearController.text),
-        marksheet: "marksheet.pdf",
-      );
-    } else if (undergraduate == true) {
-      model = Education(
-        id: eduID,
-        userId: profilemodel.id,
-        level: "Post Graduate",
-        university: universityController.text,
-        degree_spc: degreeController.text,
-        fieldOfStudy: fieldOfStudyController.text,
-        firstYear: int.parse(firstYearController.text),
-        passingYear: int.parse(passingYearController.text),
-        marksheet: "marksheet.pdf",
-      );
-    } else if (other == true) {
-      model = Education(
-        id: eduID,
-        userId: profilemodel.id,
-        level: "other",
-        university: universityController.text,
-        degree_spc: degreeController.text,
-        fieldOfStudy: fieldOfStudyController.text,
-        firstYear: int.parse(firstYearController.text),
-        passingYear: int.parse(passingYearController.text),
-        marksheet: "marksheet.pdf",
-      );
-    } else if (mba == true) {
-      model = Education(
-        id: eduID,
-        userId: profilemodel.id,
-        level: "MBA",
-        university: universityController.text,
-        degree_spc: degreeController.text,
-        fieldOfStudy: fieldOfStudyController.text,
-        firstYear: int.parse(firstYearController.text),
-        passingYear: int.parse(passingYearController.text),
-        marksheet: "marksheet.pdf",
-      );
-    }
+    model = Education(
+      id: eduID,
+      userId: profilemodel.id,
+      //level: "Graduate",
+      university: universityController.text,
+      degree_spc: degreeController.text,
+      fieldOfStudy: fieldOfStudyController.text,
+      firstYear: int.parse(firstYearController.text),
+      passingYear: int.parse(passingYearController.text),
+      marksheet: marksheet,
+    );
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
 
     // Call the saveUserExperience method on the instance
     await userDataService.saveUserEducation(model.toMap());
-
+    Navigator.pop(context);
+    setState(() {
+      isLoading = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Education saved successfully')),
+      const SnackBar(content: Text('Education saved successfully')),
     );
   }
+}
+
+Widget CustomTextField(
+    {Icon? icon,
+    required BuildContext context,
+    required String hint,
+    required String label,
+    required FocusNode focusNode,
+    bool? isPrimaryNumber = false,
+    String? img,
+    bool? isImage = false,
+    int? maxLength,
+    bool isNumber = false,
+    bool? keyboardType,
+    bool? isDisabled = true,
+    bool? isOptional = false,
+    required TextEditingController controller}) {
+  // bool isError = false;
+  return SizedBox(
+    height: MediaQuery.of(context).size.height / 24,
+    child: TextFormField(
+      enabled: isDisabled,
+      // autofocus: focusNode.canRequestFocus,
+      focusNode: focusNode,
+      inputFormatters: isNumber
+          ? <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+            ]
+          : <TextInputFormatter>[
+              FilteringTextInputFormatter.singleLineFormatter,
+            ],
+
+      /*  validator: (value) {
+          if (value == null || value.isEmpty) {
+            //return "This Text field Cant be empty";
+          }
+          return null;
+        }, */
+      maxLength: maxLength,
+      keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
+      //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+      textCapitalization: TextCapitalization.sentences,
+      controller: controller.text != "0" ? controller : null,
+      onTap: (() {}),
+      style: GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
+      decoration: InputDecoration(
+          filled: isPrimaryNumber! ? true : false,
+          fillColor:
+              isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent,
+          prefixIcon: icon,
+          prefixIconColor: Constants.themeBgColor,
+          suffix: isOptional != null && isOptional
+              ? const Text("(Optional)")
+              : const SizedBox(),
+          contentPadding:
+              const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+          counterText: '',
+          labelText: label,
+          labelStyle: const TextStyle(
+            color: Constants.themeBgColor,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: Color(0xffff0eceb)),
+          ),
+          focusColor: const Color(0xffff0eceb),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(
+              color: Constants.themeBgColor,
+            ),
+          ),
+          hintText: hint,
+          hintStyle: GoogleFonts.sourceSansPro(
+              color: Constants.hintColor, fontSize: 15.sp)),
+    ),
+  );
 }
 
 InkWell customContainerSelect1(
