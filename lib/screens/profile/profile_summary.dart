@@ -1,3 +1,4 @@
+import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/components/cv.dart';
+import 'package:job_circle/constants/assets_images_url.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
@@ -175,6 +176,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
   bool notvisible = false;
   String? icon_data;
 
+  String? resume;
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -194,6 +197,169 @@ class _ProfileSummaryState extends State<ProfileSummary>
       },
 
       child: Scaffold(
+          backgroundColor: Colors.white,
+          floatingActionButton: usertype == 1 && profilemodel.cv_link != null
+              ? FloatingActionButton(
+                  backgroundColor: Constants.themeBgColor,
+                  onPressed: () {
+                    //  log("message");
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Scaffold(
+                          floatingActionButton: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () async {
+                                  resume = await Delete(true);
+                                  var payload = {
+                                    "stage": "upload_cv",
+                                    "data": {
+                                      "id": await Utils.getPreferencesValue(
+                                          null,
+                                          ESharedPreferences.user_id.name),
+                                      "cv_link": null
+                                    }
+                                  };
+                                  save(null, payload);
+                                  Navigator.pop(context);
+                                  setState(() {});
+
+                                  /*  setState(() {
+                                    resume = Delete(true).toString();
+                                  }); */
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4.h, horizontal: 8.r),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      border: Border.all(
+                                          color: Constants.themeBgColor)),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.cancel_outlined,
+                                        size: 15.h,
+                                        color: Constants.themeBgColor,
+                                      ),
+                                      SizedBox(
+                                        width: 4.w,
+                                      ),
+                                      const Text("Remove"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  resume = await uploadFile(['pdf'], "cv");
+                                  var payload = {
+                                    "stage": "upload_cv",
+                                    "data": {
+                                      "id": await Utils.getPreferencesValue(
+                                          null,
+                                          ESharedPreferences.user_id.name),
+                                      "cv_link": resume
+                                    }
+                                  };
+                                  save(resume, payload);
+                                  Navigator.pop(context);
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 20.w),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4.h, horizontal: 8.r),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      border: Border.all(
+                                          color: Constants.themeBgColor)),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.upload_file,
+                                        size: 15.h,
+                                        color: Constants.themeBgColor,
+                                      ),
+                                      SizedBox(
+                                        width: 4.w,
+                                      ),
+                                      const Text("Replace"),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          body: Container(
+                            child: FutureBuilder<PDFDocument>(
+                              future: PDFDocument.fromURL(
+                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$resume"),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  if (snapshot.hasData) {
+                                    return PDFViewer(
+                                      scrollDirection: Axis.vertical,
+                                      panLimit: 1.1,
+                                      document: snapshot.data!,
+                                      zoomSteps: 3,
+                                      showNavigation: false,
+                                      showPicker: false,
+
+                                      // numberPickerConfirmWidget: f,
+                                    );
+                                  } else {
+                                    return const Center(
+                                        child: Text('Failed to load PDF'));
+                                  }
+                                } else {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  /*  onPressed: () async {
+                    resume = await uploadFile(['pdf'], "cv");
+                    var payload = {
+                      "stage": "upload_cv",
+                      "data": {
+                        "id": await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_id.name),
+                        "cv_link": resume
+                      }
+                    };
+                    save(resume, payload);
+                    setState(() {});
+                  }, */
+                  child: Image.network(
+                    ConstImageUrl.cv,
+                    height: 30.h,
+                    color: Colors.white,
+                  ),
+                )
+              /* FloatingActionButton(
+                  onPressed: () {},
+                  child: CVWidget(
+                    profileCv: ProfileCv(
+                      cv_link: profilemodel.cv_link,
+                      cv_upladted_date: profilemodel.cv_upladted_date,
+                      profile_cv_file:
+                          profilemodel.cv_link, // Use the same value as cv_link
+                      profile_cv_link: profile_cv_link,
+                    ),
+                    onUpload: (fileName, payload) async =>
+                        await save(fileName, payload),
+                  ),
+                ) */
+              : const SizedBox(),
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -308,7 +474,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                                           onPressed:
                                                                               () async {
                                                                             setState(() async {
-                                                                              var data = await Delete();
+                                                                              var data = await Delete(false);
                                                                               var payload = {
                                                                                 "stage": "profile_pic",
                                                                                 "data": {
@@ -399,8 +565,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                             onTap: () async {
                                               setState(() async {
                                                 var data = await uploadFile(
-                                                  ['jpeg', 'jpg'],
-                                                );
+                                                    ['jpeg', 'jpg'], "icon");
                                                 var payload = {
                                                   "stage": "profile_pic",
                                                   "data": {
@@ -748,10 +913,11 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                   Padding(
                                     padding: const EdgeInsets.all(12.0),
                                     child: Container(
+                                      width: double.infinity,
                                       height: 102,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(15),
-                                        color: Colors.brown.shade50,
+                                        // color: Colors.brown.shade50,
                                       ),
                                       //  padding: const EdgeInsets.all(10.0),
                                       child: ListView(
@@ -771,16 +937,30 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                 description:
                                                     "Recruiters identify prospective candidates through their CV.",
                                                 buttonText: "+ Upload Resume",
-                                                onPressed: () {
-                                                  setState(() async {
-                                                    var data = await uploadFile(
-                                                      'pdf',
-                                                    );
+                                                onPressed: () async {
+                                                  resume = await uploadFile(
+                                                      ['pdf'], "cv");
+                                                  var payload = {
+                                                    "stage": "upload_cv",
+                                                    "data": {
+                                                      "id": await Utils
+                                                          .getPreferencesValue(
+                                                              null,
+                                                              ESharedPreferences
+                                                                  .user_id
+                                                                  .name),
+                                                      "cv_link": resume
+                                                    }
+                                                  };
+                                                  save(resume, payload);
+                                                  setState(() {
+                                                    /* var data = await uploadFile(
+                                                        'pdf', "icon");
                                                     if (data != null) {
                                                       setState(() {
                                                         icon_data = data;
                                                       });
-                                                    }
+                                                    } */
                                                   });
                                                 },
                                               ),
@@ -831,7 +1011,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     "Specify the languages",
                                                 buttonText: "+ Add Languages",
                                                 onPressed: () {
-                                                  sendToLanguges();
+                                                  sendToLanguges([]);
                                                 },
                                               ),
                                             ),
@@ -902,7 +1082,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                   child:
                                       languages(profilemodel.languages ?? []),
                                 ),
-                                Visibility(
+                                SizedBox(
+                                  height: 20.h,
+                                )
+                                /*  Visibility(  //TODO: previous add cv button at the bottom.
                                   visible: (usertype == 1 ? true : false),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
@@ -926,7 +1109,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                       ),
                                     ),
                                   ),
-                                ),
+                                ), */
                               ],
                             ),
                           ),
@@ -1139,8 +1322,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       //   ),
                       // ),
                       child: Image.network(
-                        "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                        fit: BoxFit.cover,
+                        "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
+                        fit: BoxFit.contain,
+                        color: Constants.themeBgColor,
                       ),
                     ),
                     title: Padding(
@@ -1528,12 +1712,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
   Widget languages(List<dynamic> languages) {
     // Filter out languages other than English, Hindi, and Marathi
     //print(profilemodel.languages);
-    List filteredLanguages = languages
-        .where((language) =>
+    List filteredLanguages = languages;
+    /* .where((language) =>  //TODO: hide language for recruiter when recruiter view use profile.
             language != "English" &&
             language != "Hindi" &&
             language != "Marathi")
-        .toList();
+        .toList(); */
 
     return Padding(
       padding: const EdgeInsets.only(left: 3, right: 3),
@@ -1552,7 +1736,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
             ),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Constants.borderColor),
+              // border: Border.all(color: Constants.borderColor),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
@@ -1588,28 +1772,29 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         ),
                       ],
                     ),
-                    InkWell(
-                      onTap: () {
-                        sendToLanguges();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 18,
-                          bottom: 0,
+                    if (filteredLanguages.length <= 11)
+                      InkWell(
+                        onTap: () {
+                          sendToLanguges(filteredLanguages);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 18,
+                            bottom: 0,
+                          ),
+                          child: const Icon(Icons.edit_outlined, size: 18),
                         ),
-                        child: const Icon(Icons.add, size: 18),
                       ),
-                    ),
                   ],
                 ),
-                const Divider(
+                /*  const Divider(
                   color: Constants.borderColor,
                   thickness: 2.5,
                   indent: 10,
                   endIndent: 18,
                   height: 4,
-                ),
+                ), */
                 if (filteredLanguages.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
@@ -1625,6 +1810,61 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   Padding(
                     padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
                     child: Wrap(
+                      spacing: 3, // Adjust the spacing between the skills chips
+                      runSpacing:
+                          0.0, // Remove the spacing between the rows of chips
+                      children: filteredLanguages.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final skill = entry.value;
+
+                        if (index < 11) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              skill,
+                              style: GoogleFonts.varela(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13.sp,
+                              ),
+                            ),
+                          );
+                        } else if (index == 11) {
+                          return InkWell(
+                            onTap: () {
+                              sendToLanguges(filteredLanguages);
+                              // sendToSkills(skills);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 5, top: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'View More',
+                                style: GoogleFonts.varela(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox(); // Return an empty container for the remaining items
+                      }).toList(),
+                    ),
+
+                    /* Wrap(  //TODO: previous language without limit and different ui.
                       spacing:
                           3, // Adjust the spacing between the language chips
                       runSpacing:
@@ -1649,7 +1889,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           ),
                         );
                       }).toList(),
-                    ),
+                    ), */
                   ),
               ],
             ),
@@ -1694,7 +1934,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
             ),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Constants.borderColor),
+              // border: Border.all(color: Constants.borderColor),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
@@ -1728,19 +1968,21 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         ),
                       ],
                     ),
-                    InkWell(
-                      onTap: () {
-                        sendToSkills(skills);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 18,
-                          bottom: 0,
+                    if (skills.length <= 12)
+                      InkWell(
+                        //TODO: previous add button which is use to send to the skills page using sendToSkills.
+                        onTap: () {
+                          sendToSkills(skills);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 18,
+                            bottom: 0,
+                          ),
+                          child: const Icon(Icons.edit_outlined, size: 18),
                         ),
-                        child: const Icon(Icons.add, size: 18),
                       ),
-                    ),
                   ],
                 ),
                 const Divider(
@@ -1768,7 +2010,61 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       spacing: 3, // Adjust the spacing between the skills chips
                       runSpacing:
                           0.0, // Remove the spacing between the rows of chips
-                      children: skills.map((skill) {
+                      children: skills.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final skill = entry.value;
+
+                        if (index < 12) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              skill,
+                              style: GoogleFonts.varela(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13.sp,
+                              ),
+                            ),
+                          );
+                        } else if (index == 12) {
+                          return InkWell(
+                            onTap: () {
+                              sendToSkills(skills);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 5, top: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'View More',
+                                style: GoogleFonts.varela(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox(); // Return an empty container for the remaining items
+                      }).toList(),
+                    ),
+
+                    /* Wrap(  //TODO: previous all skill without any condition
+                      spacing: 3, // Adjust the spacing between the skills chips
+                      runSpacing:
+                          0.0, // Remove the spacing between the rows of chips
+                      children: skills.take(13).map((skill) {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 5, top: 5),
                           padding: const EdgeInsets.symmetric(
@@ -1788,7 +2084,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           // Set the grey background color
                         );
                       }).toList(),
-                    ),
+                    ), */
                   ),
               ],
             ),
@@ -1815,13 +2111,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
     }
   }
 
-  void sendToLanguges() async {
+  void sendToLanguges(List<dynamic> language) async {
     // ignore: unused_local_variable
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => LanguageMulti(
           prevPageModel: profilemodel,
+          languageList: language,
           // experienceList: experienceList,
         ),
       ),
@@ -1884,7 +2181,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Constants.borderColor),
+        // border: Border.all(color: Constants.borderColor),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -2088,10 +2385,11 @@ class _ProfileSummaryState extends State<ProfileSummary>
   //   }
   // }
 
-  Future<String?> Delete() async {
+  Future<String?> Delete(bool iscv) async {
     try {
-      var res = await FileUploadService()
-          .deleteSingleFile(profilemodel.profile_pic.toString());
+      var res = await FileUploadService().deleteSingleFile(iscv
+          ? profilemodel.cv_link.toString()
+          : profilemodel.profile_pic.toString());
     } catch (e) {
       // Close the loading dialog in case of exceptions
       Navigator.pop(context);
@@ -2103,9 +2401,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
     return null;
   }
 
-  Future<String?> uploadFile(
-    allowExt,
-  ) async {
+  Future<String?> uploadFile(allowExt, String folder) async {
     Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -2116,7 +2412,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
     if (result != null) {
       try {
         var res = await FileUploadService()
-            .uploadSingleFile("icon", result.files.single);
+            .uploadSingleFile(folder, result.files.single);
         var resultD = Utils.parseResponse(res);
 
         if (resultD.resultKey == 'SUCCESS') {

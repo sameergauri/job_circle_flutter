@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/routes/router.dart';
 import 'package:job_circle/themes/colors.dart';
+
+import 'interceptors/no_internet.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,7 +60,8 @@ class MyApp extends StatelessWidget {
             //     });
             //   }
             // },
-            initialRoute: ERoute.jobs.toString(),
+            initialRoute:
+                const NoInternet().toString(), //ERoute.jobs.toString(),
           );
         });
   }

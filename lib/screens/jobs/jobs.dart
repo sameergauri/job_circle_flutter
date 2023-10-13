@@ -17,8 +17,10 @@ import 'package:intl/intl.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
+import 'package:job_circle/constants/assets_images_url.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/interceptors/no_internet.dart';
 import 'package:job_circle/models/active_state_model.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/location_model.dart';
@@ -203,7 +205,7 @@ class _JobsState extends ConsumerState<Jobs>
     setState(() {
       Utils.setPreference(
           null,
-          ESharedPreferences
+          user_selected_lcoation = ESharedPreferences
               .user_selected_lcoation.name, // set job location at jobs page.
           user_selected_lcoation);
       searchAgain();
@@ -1024,7 +1026,11 @@ class _JobsState extends ConsumerState<Jobs>
                               );
                             }); */
                       }),
-                      child: Text(user_selected_lcoation ?? 'Select Location',
+                      child: Text(
+                          user_selected_lcoation == "" &&
+                                  user_selected_lcoation == null
+                              ? 'Select Location'
+                              : user_selected_lcoation,
                           style: GoogleFonts.varela(
                             color: Constants.themeBgColor,
                             fontSize: 14.sp,
@@ -2371,8 +2377,8 @@ class _JobsState extends ConsumerState<Jobs>
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              "assets/images/wallet.png",
+                            Image.network(
+                              ConstImageUrl.wallet,
                               height: 14.h,
                             ),
                             /* Icon(
@@ -2715,10 +2721,14 @@ class _JobsState extends ConsumerState<Jobs>
                       visible: usertype == 1,
                       child: InkWell(
                         onTap: () {
-                          JobPostApiService.postJobApply(
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => NoInternet()));
+                          /*  JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),
-                              context: context);
+                              context: context); */
                           /*  Navigator.pushNamed(context, ERoute.application.name,
                               arguments: {
                                 "isnew": false,

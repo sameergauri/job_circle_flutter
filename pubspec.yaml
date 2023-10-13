@@ -83,6 +83,8 @@ dependencies:
   syncfusion_flutter_datagrid: ^23.1.36
   flutter_full_pdf_viewer: ^1.0.6
   pdf: ^3.5.0
+  connectivity_plus: ^5.0.0
+  
   
   
  
