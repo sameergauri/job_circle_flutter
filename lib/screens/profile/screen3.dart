@@ -9,6 +9,7 @@ import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -26,11 +27,13 @@ class Screen3 extends StatefulWidget {
       this.prevPageModel,
       this.expirieanceFlag,
       this.experiencelist,
-      this.isEdit})
+      this.isEdit,
+      required this.isFirst})
       : super(key: key);
   final bool? expirieanceFlag;
   // final dynamic prevPageModel;
   bool? isEdit;
+  final bool isFirst;
   late Experience? prevPageModel;
   late List<Experience>? experiencelist;
 
@@ -629,18 +632,21 @@ class _Screen3State extends State<Screen3> {
                   ],
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(right: 0),
-                  child: InkWell(
-                      onTap: () {
-                        JobPostApiService.DeletExperience(
-                            widget.prevPageModel!.id!.toInt(), context, "exp");
-                      },
-                      child: const Icon(
-                        Icons.delete_outlined,
-                        color: Colors.red,
-                      )),
-                )
+                if (!widget.isFirst)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: InkWell(
+                        onTap: () {
+                          JobPostApiService.DeletExperience(
+                              widget.prevPageModel!.id!.toInt(),
+                              context,
+                              "exp");
+                        },
+                        child: const Icon(
+                          Icons.delete_outlined,
+                          color: Colors.red,
+                        )),
+                  )
               ],
             ),
           ),
@@ -3374,7 +3380,16 @@ class _Screen3State extends State<Screen3> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Form data saved successfully')),
     );
-    Navigator.pop(context);
+    if (widget.prevPageModel == null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Screen2(
+                    isFirst: false,
+                  )));
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   InkWell customContainerSelectForWorkingType({

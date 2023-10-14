@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -22,11 +23,16 @@ import '../../service/UserDataService.dart';
 
 class Screen2 extends StatefulWidget {
   Screen2(
-      {Key? key, this.prevPageModel, this.selectedLevel, this.educationList})
+      {Key? key,
+      this.prevPageModel,
+      this.selectedLevel,
+      this.educationList,
+      required this.isFirst})
       : super(key: key);
   late Education? prevPageModel;
   late String? selectedLevel;
   late List<Education>? educationList;
+  final bool isFirst;
 
   @override
   State<Screen2> createState() => _Screen2State();
@@ -499,7 +505,7 @@ class _Screen2State extends State<Screen2> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Save",
+                        widget.isFirst ? "Save & next" : "Save",
                         style: GoogleFonts.varela(
                             fontWeight: FontWeight.bold, color: Colors.white),
                       ),
@@ -508,6 +514,7 @@ class _Screen2State extends State<Screen2> {
                 ),
               ),
               appBar: AppBar(
+                automaticallyImplyLeading: widget.isFirst ? false : true,
                 backgroundColor: Colors.white,
                 elevation: 0,
                 iconTheme: const IconThemeData(color: Colors.black),
@@ -543,24 +550,25 @@ class _Screen2State extends State<Screen2> {
                       ],
                     ),
                     const Spacer(),
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 0),
-                          child: InkWell(
-                              onTap: () {
-                                JobPostApiService.DeletExperience(
-                                    widget.prevPageModel!.id!.toInt(),
-                                    context,
-                                    "edu");
-                              },
-                              child: const Icon(
-                                Icons.delete_outlined,
-                                color: Colors.red,
-                              )),
-                        )
-                      ],
-                    )
+                    if (!widget.isFirst)
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 0),
+                            child: InkWell(
+                                onTap: () {
+                                  JobPostApiService.DeletExperience(
+                                      widget.prevPageModel!.id!.toInt(),
+                                      context,
+                                      "edu");
+                                },
+                                child: const Icon(
+                                  Icons.delete_outlined,
+                                  color: Colors.red,
+                                )),
+                          )
+                        ],
+                      )
                   ],
                 ),
               ),
@@ -3356,7 +3364,13 @@ class _Screen2State extends State<Screen2> {
 
     // Call the saveUserExperience method on the instance
     await userDataService.saveUserEducation(model.toMap());
-    Navigator.pop(context);
+    if (widget.prevPageModel == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    } else {
+      Navigator.pop(context);
+    }
+
     setState(() {
       isLoading = false;
     });

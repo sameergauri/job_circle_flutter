@@ -13,7 +13,8 @@ import '../common/utils.dart';
 import '../service/UserDataService.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({Key? key}) : super(key: key);
+  const OTPScreen({Key? key,this.no}) : super(key: key);
+ final String? no;
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -320,7 +321,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
         await Utils.setPreference(
             pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
-        Utils.gotoScreen(context, data);
+        Utils.gotoScreen(context, data, model.mobile);
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("OTP Verified Successfully"),

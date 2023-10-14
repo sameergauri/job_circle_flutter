@@ -669,6 +669,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
       MaterialPageRoute(
         builder: (context) => Screen1(
           prevPageModel: profilemodel,
+          isfirst:  false,
         ),
       ),
     );

@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/profile/screen1.dart';
+import 'package:job_circle/screens/profile/screen2.dart';
+import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -133,23 +137,42 @@ class Utils {
     );
   }
 
-  static gotoScreen(context, data) {
+  static gotoScreen(context, data, String? primNumber) {
     if (data['usertype'] != null) {
       final String usertype = data['usertype'].toString();
 
       if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-        ERoute nextRoute = ERoute.screen1;
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Screen1(
+                      isfirst: true,
+                    )));
         if (data['firstName'] == '') {
-          nextRoute = ERoute.screen1;
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Screen1(
+                        isfirst: true,
+                      )));
+          //nextRoute = ERoute.screen1;
         } else if (data['education'] == null || data['education'] == 0) {
-          nextRoute = ERoute.screen2;
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Screen2(isFirst: true,)));
         } else if (data['experience'] == null || data['experience'] != 1) {
-          nextRoute = ERoute.screen3;
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Screen3(
+                     isFirst: true,
+                      )));
         } else {
-          nextRoute = ERoute.home;
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()));
+          // nextRoute = ERoute.home;
         }
-        Navigator.pushNamedAndRemoveUntil(
-            context, nextRoute.value, (Route<dynamic> route) => false);
+        /*   Navigator.pushNamedAndRemoveUntil(
+            context, nextRoute.value, (Route<dynamic> route) => false); */
         // Future.delayed(const Duration(seconds: 1), () {
         //   // Navigator.pushReplacementNamed(context, nextRoute.value);
         // });
@@ -172,9 +195,15 @@ class Utils {
       // }
 
       else {
-        Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pushNamedAndRemoveUntil(
-              context, ERoute.logintype.name, (Route<dynamic> route) => false);
+        Future.delayed(const Duration(seconds: 1), () async {
+          await Utils.setPreference(null, ESharedPreferences.user_type.name,
+              EUserType.jobSeeker.value);
+          Utils.setCacheData("usertype", EUserType.jobSeeker.value);
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => Screen1(isfirst: true)));
+          // Navigator.pushNamed(context, ERoute.screen1.value);
+          /*        Navigator.pushNamedAndRemoveUntil(    //TODO: code to send user to the usertype selection page.
+              context, ERoute.logintype.name, (Route<dynamic> route) => false); */
           //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
         });
       }

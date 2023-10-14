@@ -23,8 +23,6 @@ import 'package:job_circle/screens/profile/profile_summary.dart'
     deferred as profileSummary;
 import 'package:job_circle/screens/profile/profile_summary_partner.dart'
     deferred as profileSummaryPartner;
-import 'package:job_circle/screens/profile/screen1.dart' deferred as screen1;
-import 'package:job_circle/screens/profile/screen2.dart' deferred as screen2;
 import 'package:job_circle/screens/profile/screen3.dart' deferred as screen3;
 import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/statistics/statistic.dart'
@@ -35,8 +33,8 @@ import 'package:job_circle/screens/statistics/statistic.dart'
 Future<void> get lazyHome => home.loadLibrary();
 Future<void> get lazyPartnerHome => partnerhome.loadLibrary();
 Future<void> get lazyProfile => profile.loadLibrary();
-Future<void> get lazyScreen1 => screen1.loadLibrary();
-Future<void> get lazyScreen2 => screen2.loadLibrary();
+//Future<void> get lazyScreen1 => screen1.loadLibrary();
+//Future<void> get lazyScreen2 => screen2.loadLibrary();
 Future<void> get lazyScreen3 => screen3.loadLibrary();
 Future<void> get lazyLogin => login.loadLibrary();
 Future<void> get lazyOTP => otp.loadLibrary();
@@ -83,23 +81,23 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return profile.ProfileScreen();
         }),
-    ERoute.screen1.value: (context) => FutureBuilder(
+    /* ERoute.screen1.value: (context) => FutureBuilder(
         future: lazyScreen1,
         builder: (snapshot, context) {
-          return screen1.Screen1();
-        }),
-    ERoute.screen2.value: (context) => FutureBuilder(
+          return screen1.Screen1(isfirst: false,);
+        }), */
+    /*  ERoute.screen2.value: (context) => FutureBuilder(
         future: lazyScreen2,
         builder: (snapshot, context) {
           return screen2.Screen2();
-        }),
-    ERoute.screen3.value: (context) => FutureBuilder(
+        }), */
+  /*   ERoute.screen3.value: (context) => FutureBuilder(
         future: lazyScreen3,
         builder: (snapshot, context) {
           return screen3.Screen3(
             expirieanceFlag: false,
           );
-        }),
+        }), */
     ERoute.jobs.name: (context) => FutureBuilder(
         future: lazyJobs,
         builder: (snapshot, context) {

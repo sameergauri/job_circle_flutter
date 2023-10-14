@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/interceptors/no_internet.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -21,7 +23,32 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    check();
+  }
+
+  void check() async {
+    await _checkInternetConnectivity();
     checkSession();
+  }
+
+  bool _isConnected = false;
+  Future<void> _checkInternetConnectivity() async {
+    try {
+      final response = await http.get(Uri.parse('https://www.google.com'));
+      if (response.statusCode == 200) {
+        setState(() {
+          _isConnected = true;
+        });
+      } else {
+        setState(() {
+          _isConnected = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isConnected = false;
+      });
+    }
   }
 
   checkSession() async {
@@ -30,18 +57,23 @@ class _SplashScreenState extends State<SplashScreen> {
 
       var userId = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_id.name);
-      if (userId != null) {
-        var userRawData = await Utils.getPreferencesValue(
-            null, ESharedPreferences.user_rawData.name);
-        if (userRawData != null) {
-          var data = jsonDecode(userRawData);
-          Timer(const Duration(seconds: 2),
-              () => {Utils.gotoScreen(context, data)});
+      if (_isConnected) {
+        if (userId != null) {
+          var userRawData = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_rawData.name);
+          if (userRawData != null) {
+            var data = jsonDecode(userRawData);
+            Timer(const Duration(seconds: 2),
+                () => {Utils.gotoScreen(context, data, "")});
+          } else {
+            gotoLogin();
+          }
         } else {
           gotoLogin();
         }
       } else {
-        gotoLogin();
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const NoInternet()));
       }
     } catch (e) {
       gotoLogin();

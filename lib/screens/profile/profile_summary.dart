@@ -1033,7 +1033,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                           Screen3(
                                                         experiencelist:
                                                             experienceList,
-                                                        isEdit: false,
+                                                        isEdit: false, isFirst: false,
                                                       ),
                                                     ),
                                                   );
@@ -1055,7 +1055,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (context) =>
-                                                          Screen2(),
+                                                          Screen2(isFirst: false,),
                                                     ),
                                                   );
                                                 },
@@ -1263,8 +1263,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       context,
                       MaterialPageRoute(
                         builder: (context) => Screen2(
-                            selectedLevel: profilemodel.education,
-                            educationList: educationList),
+                          selectedLevel: profilemodel.education,
+                          educationList: educationList,
+                          isFirst: false,
+                        ),
                       ),
                     );
                   },
@@ -1439,7 +1441,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         builder: (context) => Screen3(
                           experiencelist: experienceList,
                           isEdit: false,
+                          isFirst: false,
                         ),
+
                       ),
                     );
                   },
@@ -2111,14 +2115,15 @@ class _ProfileSummaryState extends State<ProfileSummary>
     }
   }
 
-  void sendToLanguges(List<dynamic> language) async {
+  void sendToLanguges(List<dynamic>? language) async {
     // ignore: unused_local_variable
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => LanguageMulti(
           prevPageModel: profilemodel,
-          languageList: language,
+          languageList: language!,
+          isFirst: false,
           // experienceList: experienceList,
         ),
       ),
@@ -2134,8 +2139,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
       context,
       MaterialPageRoute(
         builder: (context) => Screen2(
-            selectedLevel: profilemodel.education,
-            educationList: educationList),
+          selectedLevel: profilemodel.education,
+          educationList: educationList,
+          isFirst: false,
+        ),
       ),
     );
   }
@@ -2235,6 +2242,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                 builder: (context) => Screen3(
                                   experiencelist: experienceList,
                                   isEdit: false,
+                                  isFirst: false,
                                 ),
                               ),
                             );
@@ -2242,8 +2250,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    Screen2(educationList: educationList),
+                                builder: (context) => Screen2(
+                                  educationList: educationList,
+                                  isFirst: false,
+                                ),
                               ),
                             );
                           }
@@ -2306,6 +2316,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
       MaterialPageRoute(
         builder: (context) => Screen1(
           prevPageModel: profilemodel,
+          isfirst: false,
         ),
       ),
     );
@@ -2326,6 +2337,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
         builder: (context) => Screen2(
           prevPageModel: education,
           educationList: educationList,
+          isFirst: false,
         ),
       ),
     );
@@ -2357,6 +2369,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
           prevPageModel: experience,
           experiencelist: experienceList,
           isEdit: true,
+          isFirst: false,
         ),
       ),
     );

@@ -1,11 +1,11 @@
-import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/momsView.dart';
+import 'package:job_circle/screens/otp.dart';
+
 import '../common/utils.dart';
 import '../service/UserDataService.dart';
 
@@ -20,7 +20,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   bool isManual = true;
   TextEditingController otpcontroller = TextEditingController();
-  String _mobileNumber = '';
+  final String _mobileNumber = '';
   //List<SimCard> _simCard = <SimCard>[];
   FocusNode mobileFocus = FocusNode();
 
@@ -394,7 +394,7 @@ class _LoginState extends State<Login> {
         ThemeButton(
           text: "Confirm",
           onPressed: () {
-            saveOTP();
+            saveOTP(otpcontroller.text);
 
             // setState(() {
             //   isManual = true;
@@ -408,7 +408,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  saveOTP() async {
+  saveOTP(String no) async {
     bool validate = _formKey.currentState!.validate();
     if (!validate) {
       return;
@@ -417,7 +417,6 @@ class _LoginState extends State<Login> {
         await UserDataService().authenticate({"mobile": otpcontroller.text});
     var res = Utils.parseResponse(result);
     if (res.resultKey == 'SUCCESS') {
-      
       if (res.resultData['val'] == 0) {
         Widget continueButton = TextButton(
           child: const Text("Ok"),
@@ -445,7 +444,8 @@ class _LoginState extends State<Login> {
         // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
         Utils.setPreference(
             null, ESharedPreferences.user_mobile.name, otpcontroller.text);
-        Navigator.pushNamed(context, ERoute.otpscreen.name);
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => OTPScreen(no: no,)));
       }
       // Navigator.pushNamedAndRemoveUntil(
       //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);

@@ -16,6 +16,7 @@ import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/profile/screen6.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -30,9 +31,16 @@ import '../../service/FileUploadService.dart';
 import '../../service/job_post_api_service.dart';
 
 class Screen1 extends StatefulWidget {
-  Screen1({Key? key, this.prevPageModel}) : super(key: key);
+  Screen1(
+      {Key? key,
+      this.prevPageModel,
+      required this.isfirst,
+      this.primaryNumberValue})
+      : super(key: key);
   late ProfileSummaryModel? prevPageModel;
-  // ProfileSummaryModel profilemodel;
+  final bool isfirst;
+  final String? primaryNumberValue;
+  // Pr ofileSummaryModel profilemodel;
   @override
   State<Screen1> createState() => _Screen1State();
 }
@@ -97,8 +105,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
 
   String gender = "";
   String martialStatus = "";
-  String Localityfinal = '';
-  String cityname = '';
+  String? Localityfinal;
+  String? cityname;
   List<dynamic> selectedValuesList = [];
   List<String> selectedValues = [];
   FocusNode industryFocus = FocusNode();
@@ -190,7 +198,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 18));
+  DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 35));
+  DateTime firstDate = DateTime.now().subtract(const Duration(days: 365 * 18));
 
   @override
   void initState() {
@@ -198,7 +207,12 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // primaryNumber = await Utils.getPreferencesValue(
       //     null, ESharedPreferences.user_mobile.name);
-      setState(() {});
+
+      setState(() {
+        primaryNumber.text = widget.isfirst
+            ? widget.primaryNumberValue.toString()
+            : primaryNumber.text;
+      });
     });
 
     primaryNumberFocus.addListener(() {
@@ -341,14 +355,24 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   DateTime? selectedDate;
 
   void selectDate() async {
+    DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 18));
+    DateTime firstDate =
+        DateTime.now().subtract(const Duration(days: 365 * 35));
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: dateFormat.parse(dateOfBirth.text) ?? lastDate,
-      firstDate: DateTime(1975),
-      lastDate: lastDate,
-    );
 
+    DateTime? pickedDate = DateTime.now();
+    try {
+      DateTime initialDate = dateFormat.parse(dateOfBirth.text);
+
+      pickedDate = await showDatePicker(
+        context: context,
+        initialDate: firstDate,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      );
+    } catch (e) {
+      print("Error while parsing the data");
+    }
     String formatDate(DateTime date) {
       final formatter = DateFormat('dd-MM-yyyy');
       return formatter.format(date);
@@ -357,8 +381,14 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     if (pickedDate != null) {
       setState(() {
         selectedDate = pickedDate;
-        dateOfBirth.text = formatDate(pickedDate);
-        dataOfBirthValue = pickedDate; // Update the TextFormField text
+        if (pickedDate != null) {
+          dateOfBirth.text = formatDate(pickedDate);
+          dataOfBirthValue = pickedDate;
+        } else {
+          // Handle the case when pickedDate is null (e.g., set a default value or show an error message).
+        }
+        // dateOfBirth.text = formatDate(pickedDate);
+        // Update the TextFormField text
       });
     }
   }
@@ -390,7 +420,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       //   languageList.sort((a, b) => a['order'].compareTo(b['order']));
       // } catch (e) {}
 
-      setState(() {});
+      //setState(() {});
       // jobLocationList =
       //     .map<AutoCompleteModel>(
       //         (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
@@ -448,6 +478,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         backgroundColor: Colors.white,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+          automaticallyImplyLeading: widget.isfirst ? false : true,
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
@@ -455,7 +486,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Edit Intro",
+                widget.isfirst ? "Add Introduction" : "Edit Intro",
                 style: GoogleFonts.varela(
                   fontSize: 18.sp,
                   color: Constants.themeBgColor,
@@ -486,28 +517,29 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               ScaffoldMessenger.of(context).showSnackBar(
                   customSnackbar("Primary number is compalsory."));
             } else if (ismale == false && isfemale == false) {
-            } else if (dateOfBirth.text.isEmpty) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Select Gender."));
-            } else if (resideAt!.isEmpty) {
+            } else if (dateOfBirth.text.isEmpty) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(customSnackbar("Select DOB."));
+            } else if (resideAt != null && resideAt!.isEmpty) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Current Residence Town?"));
             } else if (secondaryNumber.text.isNotEmpty &&
-                secondaryNumber.text.length < 10) {
+                secondaryNumber.text.length < 10 &&
+                !widget.isfirst) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Incorrect alternate number."));
-            } else if (!isEmailValid(emailadr.text)) {
+            } else if (!isEmailValid(emailadr.text) && !widget.isfirst) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Invalid email"));
-            }
-            /* else if (emailadr.text.isNotEmpty) {
+            } else if (emailadr.text.isNotEmpty && !widget.isfirst) {
               if (emailadr.text.contains("@")) {
               } else {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(customSnackbar("Invalid email"));
               }
-            } */
-            else {
+            } else {
               save();
             }
 
@@ -529,7 +561,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Save",
+                  widget.isfirst ? "Save & Next" : "Save",
                   style: GoogleFonts.varela(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
@@ -669,74 +701,89 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                       hint: "I am software developer",
                       label: "About me",
                       icon: const Icon(Icons.info_outline)),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.7.w,
-                        child: const Divider(
-                          thickness: 1.5,
+                  widget.isfirst
+                      ? const SizedBox()
+                      : SizedBox(
+                          height: 10.h,
                         ),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      Text(
-                        "Contact Detail",
-                        style: GoogleFonts.varela(
-                            color: Constants.themeBgColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 20.w,
-                        child: const Divider(
-                          thickness: 1.5,
+                  widget.isfirst
+                      ? const SizedBox()
+                      : Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 1.7.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "Contact Detail",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 20.w,
+                              child: const Divider(
+                                thickness: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  CustomTextField(
-                      isDisabled: false,
-                      isPrimaryNumber: true,
-                      focusNode: primaryNumberFocus,
-                      controller: primaryNumber,
-                      hint: "844******2",
-                      label: "Primary Number",
-                      maxLength: 10,
-                      isNumber: true,
-                      icon: const Icon(Icons.phone_android_rounded)),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomTextField(
-                      focusNode: secondaryNumberFocus,
-                      controller: secondaryNumber,
-                      hint: "844******2",
-                      label: "Alternate Number",
-                      maxLength: 10,
-                      isNumber: true,
-                      isOptional: true,
-                      icon: const Icon(Icons.phone_android_rounded)),
-
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomTextField(
-                      focusNode: emailfocus,
-                      controller: emailadr,
-                      hint: "sameer***@gmail.com",
-                      label: "Email ID",
-                      // maxLength: 10,
-                      // isNumber: true,
-                      icon: const Icon(Icons.email_outlined)),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : SizedBox(
+                          height: 10.h,
+                        ),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : CustomTextField(
+                          isDisabled: false,
+                          isPrimaryNumber: true,
+                          focusNode: primaryNumberFocus,
+                          controller: primaryNumber,
+                          hint: "844******2",
+                          label: "Primary Number",
+                          maxLength: 10,
+                          isNumber: true,
+                          icon: const Icon(Icons.phone_android_rounded)),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : SizedBox(
+                          height: 20.h,
+                        ),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : CustomTextField(
+                          focusNode: secondaryNumberFocus,
+                          controller: secondaryNumber,
+                          hint: "844******2",
+                          label: "Alternate Number",
+                          maxLength: 10,
+                          isNumber: true,
+                          isOptional: true,
+                          icon: const Icon(Icons.phone_android_rounded)),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : SizedBox(
+                          height: 20.h,
+                        ),
+                  widget.isfirst
+                      ? const SizedBox()
+                      : CustomTextField(
+                          focusNode: emailfocus,
+                          controller: emailadr,
+                          hint: "sameer***@gmail.com",
+                          label: "Email ID",
+                          // maxLength: 10,
+                          // isNumber: true,
+                          icon: const Icon(Icons.email_outlined)),
                   SizedBox(
                     height: 10.h,
                   ),
@@ -1017,7 +1064,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                       });
                     },
                     contextIn: context,
-                    hintText: resideAt.toString(),
+                    hintText:
+                        widget.isfirst ? "Thane, Mumbai" : resideAt.toString(),
                   ),
 
                   /* Flexible(
@@ -2118,7 +2166,14 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   } */
   int calculateAge(String dateOfBirthText) {
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-    final DateTime dateOfBirth = dateFormat.parse(dateOfBirthText);
+    DateTime dateOfBirth = DateTime.now();
+    try {
+      dateOfBirth = dateFormat.parse(dateOfBirthText);
+      print('Parsed date: $dateOfBirth');
+    } catch (e) {
+      print('Error parsing date: $e');
+    }
+    // final DateTime dateOfBirth = dateFormat.parse(dateOfBirthText);
     final DateTime currentDate = DateTime.now();
 
     final int years = currentDate.year - dateOfBirth.year;
@@ -2333,7 +2388,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                 : Text(title,
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
- Future<String?> uploadFile(
+
+  Future<String?> uploadFile(
     allowExt,
   ) async {
     Utils.showLoaderDialog(context, "");
@@ -2399,7 +2455,6 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       return null;
     }
   }
- 
 
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
@@ -2490,7 +2545,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
       await Utils.setPreference(
           prefs, ESharedPreferences.user_data.name, jsonEncode(model)); */
     if (widget.prevPageModel == null) {
-      Navigator.pushNamed(context, ERoute.screen2.name);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const LanguageMulti(isFirst: true,)));
+      // Navigator.pushNamed(context, ERoute.screen2.name);
     } else {
       /* widget.prevPageModel!.first_name = firstName.text;
         widget.prevPageModel!.last_name = lastName.text;

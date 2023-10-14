@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/screens/profile/screen3.dart';
 
 import '../../constants/gobal.dart';
 import '../../models/autocompleteCheckBoxModel.dart';
@@ -13,16 +14,15 @@ import '../../themes/colors.dart';
 
 class LanguageMulti extends StatefulWidget {
   final ProfileSummaryModel? prevPageModel;
-  final List<dynamic> languageList;
+  final List<dynamic>? languageList;
+  final bool isFirst;
 
   // final bool? expirieanceFlag;
   // final List<Experience> experienceList;
 
-  const LanguageMulti({
-    Key? key,
-    required this.prevPageModel,
-    required this.languageList,
-  }) : super(key: key);
+  const LanguageMulti(
+      {Key? key, this.prevPageModel, this.languageList, required this.isFirst})
+      : super(key: key);
   @override
   State<LanguageMulti> createState() => _LanguageMultiState();
 }
@@ -51,7 +51,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
           widget.prevPageModel!.languages!.contains(suggestion));
       expID = widget.prevPageModel!.id;
     }
-    for (var language in widget.languageList) {
+    for (var language in widget.languageList!) {
       if (language != null) {
         selectedValues.addAll(language);
       }
@@ -157,7 +157,16 @@ class _LanguageMultiState extends State<LanguageMulti> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('language saved successfully')),
     );
-    Navigator.pop(context);
+    if (widget.prevPageModel == null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Screen3(
+                    isFirst: false,
+                  )));
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -176,7 +185,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Save",
+                widget.isFirst ? "Save & next" : "Save",
                 style: GoogleFonts.varela(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
@@ -188,6 +197,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
       ),
       backgroundColor: Constants.themeBgColorLight,
       appBar: AppBar(
+        automaticallyImplyLeading: widget.isFirst?false:true,
         backgroundColor: Constants.themeBgColorLight,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),

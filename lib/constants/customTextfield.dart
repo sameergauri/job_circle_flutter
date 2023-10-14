@@ -3240,7 +3240,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                               width: 10.w,
                             ),
                             Text(
-                              "Reside at",
+                              "Reside City",
                               style: GoogleFonts.varela(
                                   color: Constants.themeBgColor,
                                   fontWeight: FontWeight.bold,
