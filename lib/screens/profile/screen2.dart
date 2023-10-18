@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -481,7 +480,7 @@ class _Screen2State extends State<Screen2> {
           child: Scaffold(
               bottomNavigationBar: InkWell(
                 onTap: () {
-                  if (widget.educationList != null)
+                  if (widget.educationList!.isNotEmpty) {
                     for (Education education in widget.educationList!) {
                       if (education.degree_spc == degreeController.text &&
                           widget.prevPageModel == null) {
@@ -492,6 +491,9 @@ class _Screen2State extends State<Screen2> {
                         save();
                       }
                     }
+                  } else {
+                    save();
+                  } // ignore: curly_braces_in_flow_control_structures
                 },
                 child: Container(
                   margin:
@@ -505,7 +507,7 @@ class _Screen2State extends State<Screen2> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        widget.isFirst ? "Save & next" : "Save",
+                        "Save",
                         style: GoogleFonts.varela(
                             fontWeight: FontWeight.bold, color: Colors.white),
                       ),
@@ -3364,12 +3366,12 @@ class _Screen2State extends State<Screen2> {
 
     // Call the saveUserExperience method on the instance
     await userDataService.saveUserEducation(model.toMap());
-    if (widget.prevPageModel == null) {
+    /*  if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-    } else {
-      Navigator.pop(context);
-    }
+    } else { */
+    Navigator.pop(context);
+    //  }
 
     setState(() {
       isLoading = false;

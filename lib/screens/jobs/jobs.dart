@@ -426,6 +426,11 @@ class _JobsState extends ConsumerState<Jobs>
     'spoc': '${profilemodel.report_to}',
   };
 
+  void closeDrawer() {
+    Scaffold.of(context)
+        .closeDrawer(); // openEndDrawer() should close the drawer
+  }
+
   @override
   Widget build(BuildContext context) {
     //var _selectedIndex = 1;
@@ -467,12 +472,45 @@ class _JobsState extends ConsumerState<Jobs>
                     accountEmail: const Text(""),
                     currentAccountPictureSize: const Size.square(40),
                     currentAccountPicture: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(
+                        onTap: () async {
+                          Navigator.of(context).pop();
+                          await Navigator.pushNamed(
                               context, ERoute.profile_summary.name);
+
+                          closeDrawer(); // Call the function to close the drawer
                         },
-                        child: profile_final_pic == ""
+                        child: profilemodel.profile_pic == null
                             ? CircleAvatar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 190, 190, 190),
+                                radius: 43,
+                                onBackgroundImageError: ((error, stackTrace) =>
+                                    Image.asset("assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)),
+                                backgroundImage: Image.asset(
+                                        "assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)
+                                    .image)
+                            : CircleAvatar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 190, 190, 190),
+                                radius: 43,
+                                onBackgroundImageError: ((error, stackTrace) =>
+                                    Image.network(
+                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)),
+                                backgroundImage: Image.network(
+                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                                ).image,
+                              )),
+
+                    /* CircleAvatar(
                                 backgroundColor:
                                     const Color.fromARGB(255, 190, 190, 190),
                                 radius: 43,
@@ -499,7 +537,7 @@ class _JobsState extends ConsumerState<Jobs>
                                 backgroundImage: Image.network(
                                   profile_final_pic,
                                 ).image,
-                              )), //circleAvatar
+                              )),  */ //circleAvatar
                   ),
                 ), //DrawerHeader
                 ListTile(
@@ -595,8 +633,24 @@ class _JobsState extends ConsumerState<Jobs>
                 },
                 child: CircleAvatar(
                   radius: 2.r,
-                  child: profile_final_pic != null
+                  child: profilemodel.profile_pic != null
                       ? CircleAvatar(
+                          backgroundColor:
+                              const Color.fromARGB(255, 190, 190, 190),
+                          radius: 43,
+                          onBackgroundImageError: ((error, stackTrace) =>
+                              Image.asset("assets/images/company.png",
+                                  height: 80, width: 80, fit: BoxFit.contain)),
+                          backgroundImage: Image.network(
+                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                          ).image,
+                        )
+                      : Icon(
+                          Icons.person,
+                          size: 14.h,
+                        ),
+
+                  /* CircleAvatar(
                           backgroundColor:
                               const Color.fromARGB(255, 190, 190, 190),
                           radius: 43,
@@ -610,7 +664,7 @@ class _JobsState extends ConsumerState<Jobs>
                       : Icon(
                           Icons.person,
                           size: 14.h,
-                        ),
+                        ), */
                   /* IconButton(
                     icon: profileSummaryModel.profile_pic != null
                         ? Image.network(
@@ -2724,7 +2778,7 @@ class _JobsState extends ConsumerState<Jobs>
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => NoInternet()));
+                                  builder: (context) => const NoInternet()));
                           /*  JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),

@@ -9,7 +9,7 @@ import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
+import 'package:job_circle/screens/onboarding/add_education.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -21,27 +21,22 @@ import '../../constants/customTextfield.dart';
 import '../../models/autocompleteModel.dart';
 import '../../service/UserDataService.dart';
 
-class Screen3 extends StatefulWidget {
-  Screen3(
-      {Key? key,
-      this.prevPageModel,
-      this.expirieanceFlag,
-      this.experiencelist,
-      this.isEdit,
-      required this.isFirst})
-      : super(key: key);
-  final bool? expirieanceFlag;
-  // final dynamic prevPageModel;
-  bool? isEdit;
-  final bool isFirst;
-  late Experience? prevPageModel;
-  late List<Experience>? experiencelist;
+class AddExperience extends StatefulWidget {
+  const AddExperience({
+    required this.languageModel,
+    required this.userID,
+    required this.introData,
+    Key? key,
+  }) : super(key: key);
+  final Map<String, dynamic> languageModel;
+  final int userID;
+  final Map<String, dynamic> introData;
 
   @override
-  State<Screen3> createState() => _Screen3State();
+  State<AddExperience> createState() => _AddExperienceState();
 }
 
-class _Screen3State extends State<Screen3> {
+class _AddExperienceState extends State<AddExperience> {
   late Widget previousWidget;
   // CardModel model = CardModel();
   //bool expirieanceFlag = false;
@@ -109,6 +104,7 @@ class _Screen3State extends State<Screen3> {
   bool isYearly = false;
   bool yes = false; // Set the initial value based on your logic
   bool no = false;
+  bool currentlyWorking = false;
   var dt;
   bool apportunities = false;
 
@@ -156,31 +152,12 @@ class _Screen3State extends State<Screen3> {
 
     bool isDateLess = false;
 
-    if (pickedDate != null && widget.experiencelist != null) {
-      for (Experience experience in widget.experiencelist!) {
-        if (pickedDate.isBefore(experience.joining_date!) ||
-            pickedDate.isAtSameMomentAs(experience.joining_date!)) {
-          isDateLess = true;
-          break;
-        }
-      }
-    }
-
-    if (isDateLess) {
-      // Snackbar dikhao yeh wali date ya previous wali mai isse kam hai
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Yeh wali date ya previous wali date se kam hai.'),
-        ),
-      );
-    } else {
-      setState(() {
-        selectedJoiningDate = pickedDate;
-        joiningDataController.text = formatDate(pickedDate!);
-        //  dataOfBirthValue = pickedDate; // Update the TextFormField text
-      });
-      // Agar koi match nahi mila toh aap kuch aur kar sakte hain
-    }
+    setState(() {
+      selectedJoiningDate = pickedDate;
+      joiningDataController.text = formatDate(pickedDate!);
+      //  dataOfBirthValue = pickedDate; // Update the TextFormField text
+    });
+    // Agar koi match nahi mila toh aap kuch aur kar sakte hain
 
     /* if (pickedDate != null &&
         pickedDate != widget.experiencelist!.map((e) => e.joining_date)) {
@@ -301,210 +278,9 @@ class _Screen3State extends State<Screen3> {
 
     final DateFormat dateFormatter = DateFormat('dd,MMM,yyyy');
 
-    if (widget.prevPageModel != null) {
-      companyController.text = widget.prevPageModel!.company_name ?? '';
-      setState(() {
-        expID = widget.prevPageModel!.id;
-      });
-      setState(() {
-        //  userID = widget.prevPageModel!.userId;
-      });
-      if (companyController.text.isNotEmpty) {
-        setState(() {
-          isCompanyName = true;
-        });
-      }
-      companyLocationController.text =
-          widget.prevPageModel!.company_location ?? '';
-      if (companyLocationController.text.isNotEmpty) {
-        setState(() {
-          isCompanyLocation = true;
-        });
-      }
-
-      if (companyWebsiteController.text.isNotEmpty) {
-        setState(() {
-          isCOmpanyWebsite = true;
-        });
-      }
-
-      if (widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          yes = true;
-        });
-      } else {
-        setState(() {
-          no = true;
-        });
-      }
-      if (widget.prevPageModel!.description != null) {
-        description.text = widget.prevPageModel!.description!;
-      }
-      setState(() {
-        widget.prevPageModel!.work_type == "OnSite"
-            ? isOnsite = true
-            : widget.prevPageModel!.work_type == "Hybrid"
-                ? isHybrid = true
-                : widget.prevPageModel!.work_type == "WFH"
-                    ? isWfh = true
-                    : null;
-      });
-      if (widget.prevPageModel!.joining_date != null) {
-        setState(() {
-          selectedJoiningDate = widget.prevPageModel!.joining_date;
-        });
-      }
-      if (no && widget.prevPageModel!.last_working_date != null) {
-        setState(() {
-          selectedLastWorkingDate = widget.prevPageModel!.last_working_date;
-        });
-      }
-      setState(() {
-        widget.prevPageModel!.emptype == "FullTime"
-            ? isFullTime = true
-            : widget.prevPageModel!.emptype == "PartTime"
-                ? isPartTime = true
-                : widget.prevPageModel!.emptype == "Contractual"
-                    ? isContract = true
-                    : widget.prevPageModel!.emptype == "Internship"
-                        ? isIntern = true
-                        : null;
-      });
-      if (widget.prevPageModel!.offer_letter != null) {
-        setState(() {
-          offerLetter = widget.prevPageModel!.offer_letter;
-        });
-      }
-      if (widget.prevPageModel!.appointment_letter != null) {
-        setState(() {
-          appointmentLetter = widget.prevPageModel!.appointment_letter;
-        });
-      }
-      if (widget.prevPageModel!.salary_slip != null) {
-        setState(() {
-          alarySlip = widget.prevPageModel!.salary_slip;
-        });
-      }
-      if (widget.prevPageModel!.increment_letter != null) {
-        setState(() {
-          incrementLetter = widget.prevPageModel!.increment_letter;
-        });
-      }
-      if (widget.prevPageModel!.experience_letter != null) {
-        setState(() {
-          experienceLetter = widget.prevPageModel!.experience_letter;
-        });
-      }
-
-      currentSalaryController.text = widget.prevPageModel!.salary ?? '';
-      if (currentSalaryController.text.isNotEmpty) {
-        setState(() {
-          isCurrentSalary = true;
-        });
-      }
-
-      joiningDataController.text = widget.prevPageModel!.joining_date != null
-          ? dateFormatter.format(widget.prevPageModel!.joining_date!)
-          : '';
-      setState(() {
-        widget.prevPageModel!.availability == "Immediate"
-            ? imd = true
-            : widget.prevPageModel!.availability == "15Days or less"
-                ? day15 = true
-                : widget.prevPageModel!.availability == "1 Month"
-                    ? day30 = true
-                    : widget.prevPageModel!.availability == "2 Month"
-                        ? day60 = true
-                        : widget.prevPageModel!.availability ==
-                                "3 month or more"
-                            ? day90 = true
-                            : null;
-      });
-      if (widget.prevPageModel!.availability != null) {
-        setState(() {
-          apportunities = true;
-        });
-      }
-
-      if (widget.prevPageModel!.ismonthly == 1 &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          isMonthly = true;
-        });
-      } else {
-        setState(() {
-          isYearly = true;
-        });
-      }
-
-      lastWorkingController.text =
-          widget.prevPageModel!.last_working_date != null
-              ? dateFormatter.format(widget.prevPageModel!.last_working_date!)
-              : '';
-
-      work_type = widget.prevPageModel!.work_type.toString();
-      jobTitleController.text = widget.prevPageModel!.job_title.toString();
-      if (widget.prevPageModel!.job_title!.isNotEmpty) {
-        isJobTitlle = true;
-      }
-      if (widget.prevPageModel!.work_type == "On-Site") {
-        setState(() {
-          isOnsite = true;
-        });
-      } else if (widget.prevPageModel!.work_type == "Hybrid") {
-        setState(() {
-          isHybrid = true;
-        });
-      } else if (widget.prevPageModel!.work_type == "WFH") {
-        setState(() {
-          isWfh = true;
-        });
-      }
-
-      // Check if "I am currently working" is selected
-      if (widget.prevPageModel!.isCurrent == "I am currently working") {
-        setState(() {
-          isPresent = true;
-          working = "I am currently working";
-        });
-      }
-
-      if (widget.prevPageModel!.availability == "Imediate") {
-        setState(() {
-          imd = true;
-        });
-      } else if (widget.prevPageModel!.availability == "15 Days or less") {
-        setState(() {
-          day15 = true;
-          apportunities = true;
-        });
-      } else if (widget.prevPageModel!.availability == "1 Month") {
-        setState(() {
-          day30 = true;
-          apportunities = true;
-        });
-      } else if (widget.prevPageModel!.availability == "2 Months") {
-        setState(() {
-          day60 = true;
-        });
-      } else if (widget.prevPageModel!.availability == "3 Months") {
-        setState(() {
-          day90 = true;
-        });
-      }
-
-      setState(() {
-        if (widget.prevPageModel!.ismonthly == true) {
-          isMonthly = true;
-        } else if (widget.prevPageModel!.ismonthly == false) {
-          isMonthly = false;
-        }
-      });
-
-      jobTitleController.text = widget.prevPageModel!.job_title ?? '';
-      fetchApiskill = widget.prevPageModel!.skills_exp!;
-      selectedValuesList = widget.prevPageModel!.skills_exp!;
-    }
+    setState(() {
+      //  userID = widget.prevPageModel!.userId;
+    });
 
     super.initState();
   }
@@ -597,6 +373,7 @@ class _Screen3State extends State<Screen3> {
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
             elevation: 0,
             iconTheme: const IconThemeData(color: Constants.themeBgColor),
             title: Row(
@@ -604,23 +381,15 @@ class _Screen3State extends State<Screen3> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    widget.prevPageModel == null
-                        ? Text(
-                            "Add Experience",
-                            style: GoogleFonts.varela(
-                              fontSize: 18.sp,
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        : Text(
-                            "Edit Experience",
-                            style: GoogleFonts.varela(
-                              fontSize: 18.sp,
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                    Text(
+                      "Add Experience",
+                      style: GoogleFonts.varela(
+                        fontSize: 18.sp,
+                        color: Constants.themeBgColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
                     Text(
                       "Introduce your experience to the recruiters",
                       style: GoogleFonts.varela(
@@ -631,29 +400,12 @@ class _Screen3State extends State<Screen3> {
                     //const Spacer(),
                   ],
                 ),
-                const Spacer(),
-                if (!widget.isFirst)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 0),
-                    child: InkWell(
-                        onTap: () {
-                          JobPostApiService.DeletExperience(
-                              widget.prevPageModel!.id!.toInt(),
-                              context,
-                              "exp");
-                        },
-                        child: const Icon(
-                          Icons.delete_outlined,
-                          color: Colors.red,
-                        )),
-                  )
               ],
             ),
           ),
           extendBodyBehindAppBar: true,
           bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
-                      companyController.text.isNotEmpty) &&
-                  (yes || no)
+                  companyController.text.isNotEmpty)
               ? InkWell(
                   onTap: () {
                     if (jobTitleController.text.isEmpty) {
@@ -662,9 +414,6 @@ class _Screen3State extends State<Screen3> {
                     } else if (companyController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Company is not optional"));
-                    } else if (!yes && !no) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from yes and no"));
                     } else if (!isPartTime &&
                         !isFullTime &&
                         !isContract &&
@@ -683,12 +432,12 @@ class _Screen3State extends State<Screen3> {
                     } else if (joiningDataController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Provide your joining dare"));
-                    } else if (no && lastWorkingController.text.isEmpty) {
+                    } else if (!currentlyWorking &&
+                        lastWorkingController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Provide last working date"));
                     } else if (currentSalaryController.text.isNotEmpty &&
-                        (!isMonthly && !isYearly) &&
-                        yes) {
+                        (!isMonthly && !isYearly)) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
                           "Select any one option from salry type."));
                     } else {
@@ -707,7 +456,7 @@ class _Screen3State extends State<Screen3> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Save",
+                          "Next",
                           style: GoogleFonts.varela(
                               fontWeight: FontWeight.bold, color: Colors.white),
                         ),
@@ -775,6 +524,48 @@ class _Screen3State extends State<Screen3> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color:
+                                // selectedKeyResponsible.contains(item)
+                                Colors.grey,
+                            width: 1.5,
+                          ),
+                        ),
+                        height: 16,
+                        width: 20,
+                        child: Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.transparent,
+                          ),
+                          child: Checkbox(
+                            activeColor: Colors.white,
+                            checkColor: Constants.themeBgColor,
+                            visualDensity: VisualDensity.compact,
+                            value: yes,
+                            onChanged: (newValue) {
+                              setState(() {
+                                yes = !yes;
+                              });
+                              // Notify Flutter that the state has changed
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      const Text("I am fresher.")
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: CustomJobTitleForExperience(
@@ -931,8 +722,7 @@ class _Screen3State extends State<Screen3> {
 
                   if (jobTitleController.text.isNotEmpty &&
                       companyController.text.isNotEmpty &&
-                      widget.isEdit != null &&
-                      !widget.isEdit!)
+                      1 == 2)
                     Column(
                       children: [
                         Row(
@@ -972,390 +762,6 @@ class _Screen3State extends State<Screen3> {
                           children: [
                             InkWell(
                               onTap: () async {
-                                for (var e in widget.experiencelist!) {
-                                  if (e.last_working_date == null) {
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          contentPadding: EdgeInsets.only(
-                                              top: 10.h,
-                                              left: 14,
-                                              right: 14,
-                                              bottom: 8),
-                                          content: StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter setState) {
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "Add",
-                                                      style:
-                                                          GoogleFonts.varela(),
-                                                    ),
-                                                    Text(
-                                                      " End Date",
-                                                      style: GoogleFonts.varela(
-                                                          color: Colors.blue),
-                                                    ),
-                                                    Text(
-                                                      " of previous company",
-                                                      style:
-                                                          GoogleFonts.varela(),
-                                                    )
-                                                  ],
-                                                ),
-                                                ListTile(
-                                                  contentPadding:
-                                                      const EdgeInsets.only(
-                                                          top: 0, bottom: 0),
-                                                  // ignore: sized_box_for_whitespace
-                                                  leading: Container(
-                                                    width: 70.w,
-                                                    height: 70.h,
-                                                    // decoration: BoxDecoration(
-                                                    //   color: Colors.white,
-                                                    //   borderRadius: BorderRadius.circular(15),
-                                                    //   border: Border.all(
-                                                    //     color: Colors.transparent,
-                                                    //   ),
-                                                    // ),
-                                                    child: Image.network(
-                                                      "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
-                                                      //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
-                                                      fit: BoxFit.contain,
-                                                    ),
-                                                  ),
-                                                  title: Text(
-                                                    e.job_title.toString(),
-                                                    // experience.job_title.toString(),
-                                                    style: GoogleFonts.varela(
-                                                      fontSize: 15.sp,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  subtitle: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            e.shortname != null
-                                                                ? e.shortname
-                                                                    .toString()
-                                                                : e.company_name
-                                                                    .toString(),
-                                                            // experience.company_name.toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          const Text(" · "),
-                                                          Text(
-                                                            e.emptype
-                                                                .toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      const SizedBox(height: 2),
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            e.joining_date !=
-                                                                    null
-                                                                ? DateFormat(
-                                                                        'MMM-yyyy')
-                                                                    .format(e
-                                                                        .joining_date!)
-                                                                : "",
-                                                            /*  experienceList[index].joining_date != null
-                              ? experienceList[index].joining_date.toString()
-                              : "", */
-                                                            // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
-                                                            style: TextStyle(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          if (e.last_working_date !=
-                                                              null)
-                                                            SizedBox(
-                                                              child: Row(
-                                                                children: [
-                                                                  const Text(
-                                                                      " - "),
-                                                                  Text(
-                                                                    DateFormat(
-                                                                            'MMM-yyyy')
-                                                                        .format(
-                                                                            e.last_working_date!),
-
-                                                                    /*  experienceList[index].joining_date != null
-                                    ? experienceList[index].joining_date.toString()
-                                    : "", */
-                                                                    // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          12.sp,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          if (e.last_working_date ==
-                                                              null)
-                                                            SizedBox(
-                                                              child: Row(
-                                                                children: [
-                                                                  const Text(
-                                                                      " - "),
-                                                                  InkWell(
-                                                                    onTap: () {
-                                                                      selectDateForLastWorkingDayForPResent();
-                                                                    },
-                                                                    child:
-                                                                        Container(
-                                                                      padding: const EdgeInsets
-                                                                              .only(
-                                                                          left:
-                                                                              6,
-                                                                          right:
-                                                                              6,
-                                                                          top:
-                                                                              4,
-                                                                          bottom:
-                                                                              4),
-                                                                      child:
-                                                                          Text(
-                                                                        selectedLastDateofPrevious !=
-                                                                                null
-                                                                            ? DateFormat('MMM-yyyy').format(selectedLastDateofPrevious!)
-                                                                            : "Select End Date",
-                                                                        style: GoogleFonts
-                                                                            .varela(
-                                                                          color:
-                                                                              Colors.blue,
-                                                                          fontSize:
-                                                                              12.sp,
-                                                                          fontWeight:
-                                                                              FontWeight.w400,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          /* if (experienceList[index].joining_date != null &&
-                            experienceList[index].last_working_date != null)
-                          Text(
-                            " (${monthsDifference.toString()}m)",
-                            style: GoogleFonts.varela(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ) */
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            e.company_location
-                                                                .toString(),
-                                                            // experience.company_location.toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          const Text(" · "),
-                                                          Text(
-                                                            e.work_type
-                                                                .toString(),
-                                                            // experience.company_location.toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end,
-                                                        children: [
-                                                          InkWell(
-                                                            onTap: () async {
-                                                              // Retrieve the form data
-
-                                                              // Create a new instance of the model and assign the values
-                                                              Experience
-                                                                  experience =
-                                                                  Experience(
-                                                                id: e.id,
-                                                                userId:
-                                                                    e.userId,
-                                                                job_title:
-                                                                    e.job_title,
-                                                                company_name: e
-                                                                    .company_name,
-                                                                isCurrent: 0,
-                                                                description: e
-                                                                    .description,
-                                                                skills_exp: e
-                                                                    .skills_exp,
-                                                                work_type:
-                                                                    e.work_type,
-                                                                company_location:
-                                                                    e.company_location,
-                                                                emptype:
-                                                                    e.emptype,
-                                                                joining_date: e
-                                                                    .joining_date,
-                                                                last_working_date:
-                                                                    selectedLastDateofPrevious,
-                                                                salary:
-                                                                    e.salary,
-                                                                ismonthly:
-                                                                    e.ismonthly,
-                                                                offer_letter: e
-                                                                    .offer_letter,
-                                                                appointment_letter:
-                                                                    e.appointment_letter,
-                                                                salary_slip: e
-                                                                    .salary_slip,
-                                                                increment_letter:
-                                                                    e.increment_letter,
-                                                                experience_letter:
-                                                                    e.experience_letter,
-
-                                                                availability: e
-                                                                    .availability,
-
-                                                                // working: working,
-                                                              );
-
-                                                              // Create an instance of UserDataService
-                                                              UserDataService
-                                                                  userDataService =
-                                                                  UserDataService();
-                                                              //  selectedLastDateofPrevious,
-                                                              if (selectedLastDateofPrevious !=
-                                                                  null) {
-                                                                await userDataService
-                                                                    .saveUserExperience(
-                                                                        experience
-                                                                            .toJson());
-
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                  const SnackBar(
-                                                                      content: Text(
-                                                                          'end date of previous company updated successfully')),
-                                                                );
-                                                                Navigator.pop(
-                                                                    context);
-                                                              } else {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                  const SnackBar(
-                                                                      content: Text(
-                                                                          'Select end date')),
-                                                                );
-                                                              }
-                                                              // Call the saveUserExperience method on the instance
-                                                            },
-                                                            child: Container(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      vertical:
-                                                                          6.h,
-                                                                      horizontal:
-                                                                          10.w),
-                                                              child: Text(
-                                                                "Submit",
-                                                                style: GoogleFonts.varela(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              ),
-                                                            ),
-                                                          )
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                  /* trailing: InkWell(
-                    onTap: () {
-                      sendToExperience(experienceList[index]
-                          // experience
-                          ); // Pass the selected experience object
-                    },
-                    child: Container(
-                      padding:
-                          const EdgeInsets.only(left: 10, right: 4, bottom: 10),
-                      child: Icon(Icons.edit_outlined, size: 18.h),
-                    )), */
-                                                ),
-                                              ],
-                                            );
-                                          }),
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    setState(() {
-                                      yes = true;
-                                      no = false;
-                                    });
-                                    // Do something when last_working_date is not null
-                                    // For example, display a different message or perform a different action
-                                    print('Last working date is not null.');
-                                    // You can replace the above line with your desired action.
-                                  }
-                                }
-                                widget.experiencelist!
-                                    .map((e) => e.last_working_date == null);
-
-                                if (someid == null) {
-                                  await JobPostApiService.AddCompanytoMom(
-                                      companyController.text.toString());
-                                }
                                 setState(() {
                                   yes = true;
                                   no = false;
@@ -1417,7 +823,8 @@ class _Screen3State extends State<Screen3> {
 
 //TODO: All the details view only when any one option from current company is selected.
 
-                  if (yes || no)
+                  if (jobTitleController.text.isNotEmpty &&
+                      companyController.text.isNotEmpty)
                     Column(
                       children: [
                         // QuillEditorPage(),
@@ -1958,11 +1365,13 @@ class _Screen3State extends State<Screen3> {
                         SizedBox(
                           height: 6.h,
                         ),
-                        if (no)
+                        if (!currentlyWorking)
                           InkWell(
-                            onTap: () {
-                              selectDateForLastWorkingDay();
-                            },
+                            onTap: !currentlyWorking
+                                ? () {
+                                    selectDateForLastWorkingDay();
+                                  }
+                                : () {},
                             child: Container(
                               // width: MediaQuery.of(context).size.width / 2.5,
                               height: MediaQuery.of(context).size.height / 25,
@@ -2017,187 +1426,223 @@ class _Screen3State extends State<Screen3> {
                               ),
                             ),
                           ),
-                        if (yes)
-                          Container(
 
-                              // height: 55,
-                              margin: const EdgeInsets.only(bottom: 5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(bottom: 5.h),
-                                    height:
-                                        MediaQuery.of(context).size.height / 25,
-                                    color: Colors.white,
-                                    child: TextFormField(
-                                      maxLength: 8,
-                                      focusNode: salaryFocus,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "This Text field Cant be empty";
-                                        }
-                                        return null;
-                                      },
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text("I am currently working."),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      // selectedKeyResponsible.contains(item)
+                                      Colors.grey,
+                                  width: 1.5,
+                                ),
+                              ),
+                              height: 16,
+                              width: 20,
+                              child: Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.transparent,
+                                ),
+                                child: Checkbox(
+                                  activeColor: Colors.white,
+                                  checkColor: Constants.themeBgColor,
+                                  visualDensity: VisualDensity.compact,
+                                  value: currentlyWorking,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      currentlyWorking = !currentlyWorking;
+                                    });
+                                    // Notify Flutter that the state has changed
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
 
-                                      // focusNode: titleFocus,
-                                      // maxLength: 3,
-                                      onFieldSubmitted: (value) {
-                                        currentSalaryController.text.isNotEmpty
-                                            ? setState(() {
-                                                isCurrentSalary = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
+                        Container(
 
-                                      onChanged: (value) {
-                                        setState(() {
-                                          currentSalaryController.text.isEmpty
-                                              ? isMonthly = false
-                                              : isYearly = false;
-                                        });
-                                      },
-                                      onTapOutside: (event) {
-                                        currentSalaryController.text.isNotEmpty
-                                            ? setState(() {
-                                                isCurrentSalary = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
-                                      onEditingComplete: () {
-                                        currentSalaryController.text.isNotEmpty
-                                            ? setState(() {
-                                                isCompanyLocation = true;
-                                                // _showContainer1 = value.isEmpty;
-                                              })
-                                            : null;
-                                      },
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      controller: currentSalaryController,
-                                      // enabled: enableShortListFor,
-                                      onTap: (() {}),
-                                      style: GoogleFonts.varela(
-                                          color: Constants.hintColor,
-                                          fontSize: 14.sp),
-                                      decoration: InputDecoration(
-                                        counterText: '',
-                                        label: const Text("Salary"),
-                                        labelStyle: GoogleFonts.varela(
-                                            color: Constants.themeBgColor,
-                                            fontSize: 15.sp),
-                                        suffixIcon: Padding(
-                                          padding: EdgeInsets.only(right: 6.w),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    isMonthly = true;
-                                                    isYearly = false;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 2.h,
-                                                      horizontal: 10.w),
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          Colors.grey.shade200,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.r),
-                                                      border: Border.all(
-                                                          color: isMonthly
-                                                              ? Constants
-                                                                  .themeBgColor
-                                                              : Colors
-                                                                  .transparent)),
-                                                  child: Text(
-                                                    "Per month",
-                                                    style: GoogleFonts.varela(
-                                                        color: Constants
-                                                            .themeBgColor),
-                                                  ),
-                                                ),
-                                              ),
-                                              InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    isMonthly = false;
-                                                    isYearly = true;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      left: 4.w),
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 2.h,
-                                                      horizontal: 10.w),
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          Colors.grey.shade200,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.r),
-                                                      border: Border.all(
-                                                          color: isYearly
-                                                              ? Constants
-                                                                  .themeBgColor
-                                                              : Colors
-                                                                  .transparent)),
-                                                  child: Text(
-                                                    "Per annum",
-                                                    style: GoogleFonts.varela(
-                                                        color: Constants
-                                                            .themeBgColor),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        prefixIcon: const Icon(
-                                          Icons.currency_rupee_outlined,
+                            // height: 55,
+                            margin: const EdgeInsets.only(bottom: 5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 5.h),
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  color: Colors.white,
+                                  child: TextFormField(
+                                    maxLength: 8,
+                                    focusNode: salaryFocus,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "This Text field Cant be empty";
+                                      }
+                                      return null;
+                                    },
+
+                                    // focusNode: titleFocus,
+                                    // maxLength: 3,
+                                    onFieldSubmitted: (value) {
+                                      currentSalaryController.text.isNotEmpty
+                                          ? setState(() {
+                                              isCurrentSalary = true;
+                                              // _showContainer1 = value.isEmpty;
+                                            })
+                                          : null;
+                                    },
+
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentSalaryController.text.isEmpty
+                                            ? isMonthly = false
+                                            : isYearly = false;
+                                      });
+                                    },
+                                    onTapOutside: (event) {
+                                      currentSalaryController.text.isNotEmpty
+                                          ? setState(() {
+                                              isCurrentSalary = true;
+                                              // _showContainer1 = value.isEmpty;
+                                            })
+                                          : null;
+                                    },
+                                    onEditingComplete: () {
+                                      currentSalaryController.text.isNotEmpty
+                                          ? setState(() {
+                                              isCompanyLocation = true;
+                                              // _showContainer1 = value.isEmpty;
+                                            })
+                                          : null;
+                                    },
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    controller: currentSalaryController,
+                                    // enabled: enableShortListFor,
+                                    onTap: (() {}),
+                                    style: GoogleFonts.varela(
+                                        color: Constants.hintColor,
+                                        fontSize: 14.sp),
+                                    decoration: InputDecoration(
+                                      counterText: '',
+                                      label: const Text("Salary"),
+                                      labelStyle: GoogleFonts.varela(
                                           color: Constants.themeBgColor,
+                                          fontSize: 15.sp),
+                                      suffixIcon: Padding(
+                                        padding: EdgeInsets.only(right: 6.w),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  isMonthly = true;
+                                                  isYearly = false;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 2.h,
+                                                    horizontal: 10.w),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r),
+                                                    border: Border.all(
+                                                        color: isMonthly
+                                                            ? Constants
+                                                                .themeBgColor
+                                                            : Colors
+                                                                .transparent)),
+                                                child: Text(
+                                                  "Per month",
+                                                  style: GoogleFonts.varela(
+                                                      color: Constants
+                                                          .themeBgColor),
+                                                ),
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  isMonthly = false;
+                                                  isYearly = true;
+                                                });
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    EdgeInsets.only(left: 4.w),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 2.h,
+                                                    horizontal: 10.w),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey.shade200,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r),
+                                                    border: Border.all(
+                                                        color: isYearly
+                                                            ? Constants
+                                                                .themeBgColor
+                                                            : Colors
+                                                                .transparent)),
+                                                child: Text(
+                                                  "Per annum",
+                                                  style: GoogleFonts.varela(
+                                                      color: Constants
+                                                          .themeBgColor),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        prefixIconColor: Constants.themeBgColor,
-                                        //label: Text("Reside at"),
-                                        hintText: "10000",
-                                        hintStyle: GoogleFonts.varela(
-                                          color: Constants.subtitleclr,
-                                          fontSize: 14.sp,
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Constants.themeBgColor),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                            color: Color(0xffff0eceb),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.only(left: 15),
                                       ),
+                                      prefixIcon: const Icon(
+                                        Icons.currency_rupee_outlined,
+                                        color: Constants.themeBgColor,
+                                      ),
+                                      prefixIconColor: Constants.themeBgColor,
+                                      //label: Text("Reside at"),
+                                      hintText: "10000",
+                                      hintStyle: GoogleFonts.varela(
+                                        color: Constants.subtitleclr,
+                                        fontSize: 14.sp,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: Constants.themeBgColor),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb),
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.only(left: 15),
                                     ),
                                   ),
-                                ],
-                              )),
+                                ),
+                              ],
+                            )),
 
                         /* Row(
                           children: [
@@ -2614,8 +2059,7 @@ class _Screen3State extends State<Screen3> {
                       ],
                     ),
                   if ((jobTitleController.text.isNotEmpty &&
-                          companyController.text.isNotEmpty) &&
-                      (yes || no))
+                      companyController.text.isNotEmpty))
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -2804,49 +2248,48 @@ class _Screen3State extends State<Screen3> {
                                     },
                                     isSelect: increament,
                                     title: "Increment letter"),
-                            if (no)
-                              experienceLetter != null
-                                  ? customContainerSelectToViewDoc(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return CustomPDFViewerDialog(
-                                              pdfUrl:
-                                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$experienceLetter",
-                                              onRemove: () {
-                                                setState(() {
-                                                  experienceLetter = null;
-                                                });
-                                                // Add your logic for removing here
-                                              },
-                                              onReplace: () async {
-                                                setState(() async {
-                                                  experienceLetter =
-                                                      await uploadFile(
-                                                          allowExt: ['pdf'],
-                                                          isexperience: true);
+                            experienceLetter != null
+                                ? customContainerSelectToViewDoc(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return CustomPDFViewerDialog(
+                                            pdfUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$experienceLetter",
+                                            onRemove: () {
+                                              setState(() {
+                                                experienceLetter = null;
+                                              });
+                                              // Add your logic for removing here
+                                            },
+                                            onReplace: () async {
+                                              setState(() async {
+                                                experienceLetter =
+                                                    await uploadFile(
+                                                        allowExt: ['pdf'],
+                                                        isexperience: true);
 
-                                                  // Add your logic for replacing here
-                                                });
-                                              },
-                                            );
-                                          },
-                                        );
-                                      },
-                                      title: "Experience letter")
-                                  : customContainerSelect(
-                                      isAnother: true,
-                                      onPressed: () async {
-                                        setState(() async {
-                                          //   experienceletter = true;
-                                          experienceLetter = await uploadFile(
-                                              allowExt: ['pdf'],
-                                              isexperience: true);
-                                        });
-                                      },
-                                      isSelect: experienceletter,
-                                      title: "Experience / Relieving letter"),
+                                                // Add your logic for replacing here
+                                              });
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    title: "Experience letter")
+                                : customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        //   experienceletter = true;
+                                        experienceLetter = await uploadFile(
+                                            allowExt: ['pdf'],
+                                            isexperience: true);
+                                      });
+                                    },
+                                    isSelect: experienceletter,
+                                    title: "Experience / Relieving letter"),
                           ],
                         ),
                         SizedBox(
@@ -3320,11 +2763,11 @@ class _Screen3State extends State<Screen3> {
 
     // Create a new instance of the model and assign the values
     Experience experience = Experience(
-      id: expID,
-      userId: profilemodel.id,
+      // id: expID,
+      userId: widget.userID,
       job_title: jobTitleController.text,
       company_name: companyController.text,
-      isCurrent: yes ? 1 : 0,
+      isCurrent: currentlyWorking ? 1 : 0,
       description: description.text,
       skills_exp: fetchApiskill,
       work_type: isOnsite
@@ -3345,9 +2788,9 @@ class _Screen3State extends State<Screen3> {
                       ? "Internship"
                       : null,
       joining_date: selectedJoiningDate,
-      last_working_date: no ? selectedLastWorkingDate : null,
-      salary: yes ? currentSalaryController.text : null,
-      ismonthly: yes ? 1 : 0,
+      last_working_date: !currentlyWorking ? selectedLastWorkingDate : null,
+      salary: currentSalaryController.text,
+      ismonthly: year ? 0 : 1,
       offer_letter: offerLetter,
       appointment_letter: appointmentLetter,
       salary_slip: alarySlip,
@@ -3372,14 +2815,24 @@ class _Screen3State extends State<Screen3> {
     );
 
     // Create an instance of UserDataService
-    UserDataService userDataService = UserDataService();
+    /*  UserDataService userDataService = UserDataService();
 
     // Call the saveUserExperience method on the instance
-    await userDataService.saveUserExperience(experience.toJson());
+    await userDataService.saveUserExperience(experience.toJson()); */
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*  ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Form data saved successfully')),
-    );
+    ); */
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AddEducation(
+                  experience: experience,
+                  introData: widget.introData,
+                  languageModel: widget.languageModel,
+                  userID: widget.userID,
+                  isexperience: currentlyWorking,
+                )));
     /* if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context,
@@ -3388,8 +2841,8 @@ class _Screen3State extends State<Screen3> {
                     isFirst: false,
                   )));
     } else { */
-      Navigator.pop(context);
-   // }
+
+    // }
   }
 
   InkWell customContainerSelectForWorkingType({

@@ -406,542 +406,172 @@ class _ProfileSummaryState extends State<ProfileSummary>
           body: Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  child: profilemodel.first_name == null
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : SafeArea(
-                          child: Container(
-                            //  padding: const EdgeInsets.only(top: 20),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        InkWell(
-                                          onTap:
-                                              profilemodel.profile_pic != null
-                                                  ? () {
-                                                      showDialog(
-                                                        context: context,
-                                                        // Set this property to true
-                                                        builder: (context) {
-                                                          return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            elevation: 0,
-                                                            content: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .center,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                CircleAvatar(
-                                                                  radius:
-                                                                      height /
-                                                                          6.r,
-                                                                  backgroundImage: profilemodel
-                                                                              .profile_pic !=
-                                                                          null
-                                                                      ? Image.network(
-                                                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
-                                                                          .image
-                                                                      : Image
-                                                                          .asset(
-                                                                          "assets/images/adduser.png",
-                                                                          // height: .h,
-                                                                        ).image,
-                                                                ),
-                                                                CircleAvatar(
-                                                                  backgroundColor:
-                                                                      Constants
-                                                                          .themeBgColor,
-                                                                  child:
-                                                                      IconButton(
-                                                                          onPressed:
-                                                                              () async {
-                                                                            setState(() async {
-                                                                              var data = await Delete(false);
-                                                                              var payload = {
-                                                                                "stage": "profile_pic",
-                                                                                "data": {
-                                                                                  "id": await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
-                                                                                  "profile_pic": null
-                                                                                }
-                                                                              };
-                                                                              save(data, payload);
-                                                                              if (data != null) {
-                                                                                setState(() {
-                                                                                  icon_data = data;
-                                                                                });
-                                                                              }
-                                                                            });
-                                                                          },
-                                                                          icon:
-                                                                              const Icon(
-                                                                            Icons.delete_outline,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          )),
-                                                                )
-                                                                /* Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 6.h,
-                                                                horizontal:
-                                                                    12.w),
-                                                        margin: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 10),
-                                                        decoration: BoxDecoration(
-                                                            color: Constants
-                                                                .themeBgColor,
-                                                            border: Border.all(
-                                                                color: Constants
-                                                                    .themeBgColor),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8.r)),
-                                                        child: Text(
-                                                            "Remove Profile pic"),
-                                                      ) */
-                                                              ],
-                                                            ),
-                                                          );
-                                                        },
-                                                      );
-                                                    }
-                                                  : () {},
-                                          child: CircleAvatar(
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      255, 190, 190, 190),
-                                              radius: 45,
-                                              /* onBackgroundImageError: ((error,
-                                          stackTrace) =>
-                                      Image.asset(
-                                          "assets/images/company.png",
-                                          height: 80,
-                                          width: 80,
-                                          fit: BoxFit.contain)), */
-                                              backgroundImage: profilemodel
-                                                          .profile_pic !=
-                                                      null
-                                                  ?
-                                                  // ignore: unnecessary_null_comparison
-                                                  Image.network(
-                                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
-                                                      .image
-                                                  : Image.asset(
-                                                      "assets/images/adduser.png",
-                                                      // height: .h,
-                                                    ).image
-                                              /*  : Image.asset(
-                                              "assets/images/man.png",
-                                              height: 80,
-                                              width: 80,
-                                              fit: BoxFit.contain,
-                                            ).image, */
-                                              ),
-                                        ),
-                                        Positioned(
-                                          right: width / 160.w,
-                                          bottom: height / 85.h,
-                                          child: InkWell(
-                                            onTap: () async {
-                                              setState(() async {
-                                                var data = await uploadFile(
-                                                    ['jpeg', 'jpg'], "icon");
-                                                var payload = {
-                                                  "stage": "profile_pic",
-                                                  "data": {
-                                                    "id": await Utils
-                                                        .getPreferencesValue(
-                                                            null,
-                                                            ESharedPreferences
-                                                                .user_id.name),
-                                                    "profile_pic": data
-                                                  }
-                                                };
-                                                save(data, payload);
-                                                if (data != null) {
-                                                  setState(() {
-                                                    icon_data = data;
-                                                  });
-                                                }
-                                                Navigator.pop(context);
-                                              });
-                                            },
-                                            child: CircleAvatar(
-                                              radius: 9,
-                                              backgroundColor: Colors.white,
-                                              child: CircleAvatar(
-                                                backgroundColor: Colors.white,
-                                                radius: 8.r,
-                                                child: Icon(
-                                                  Icons.add,
-                                                  size: 15.h,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                child: Scrollbar(
+                  thickness: 10,
+                  radius: Radius.circular(8.r),
+                  child: SingleChildScrollView(
+                    child: profilemodel.first_name == null
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : SafeArea(
+                            child: Container(
+                              //  padding: const EdgeInsets.only(top: 20),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      /*  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(
-                                        Icons.edit_outlined,
-                                        color:
-                                            Colors.transparent,
-                                      )), */
-                                      InkWell(
-                                        child: Container(
-                                          child: Icon(
-                                            Icons.edit_outlined,
-                                            size: 18.h,
-                                            color: Colors.transparent,
-                                          ),
-                                        ),
-                                      ),
-                                      profilemodel.experience == "Experience"
-                                          ? Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "${profilemodel.first_name.toString().toTitleCase()} ",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      // ignore: unnecessary_string_interpolations
-                                                      "${profilemodel.last_name.toString().toTitleCase()}",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    /* const SizedBox(
-                                              width: 5),
-                                          if (profilemodel
-                                                      .dateofbirth !=
-                                                  null &&
-                                              profilemodel
-                                                  .dateofbirth!
-                                                  .isNotEmpty)
-                                            Text(
-                                              "(${calculateAge(profilemodel.dateofbirth)} yr's)",
-                                              style: GoogleFonts
-                                                  .varela(
-                                                fontSize: 13.sp,
-                                                fontWeight:
-                                                    FontWeight
-                                                        .w500,
-                                                color:
-                                                    Colors.grey,
-                                              ),
-                                            ), */
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    if (experienceList
-                                                        .isNotEmpty)
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            experienceList
-                                                                .last.job_title
-                                                                .toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            " at ",
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            experienceList.last
-                                                                .company_name
-                                                                .toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                  ],
-                                                ),
-                                                if (profilemodel.bio != null &&
-                                                    profilemodel
-                                                        .bio!.isNotEmpty)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        profilemodel.bio!,
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                if (profilemodel.bio == null ||
-                                                    profilemodel.bio == "" ||
-                                                    profilemodel.bio!.isEmpty)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                        style: TextStyle(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                              ],
-                                            )
-                                          : Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "${profilemodel.first_name.toString().toTitleCase()} ",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      // ignore: unnecessary_string_interpolations
-                                                      "${profilemodel.last_name.toString().toTitleCase()}",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    /* const SizedBox(
-                                              width: 5),
-                                          if (profilemodel
-                                                      .dateofbirth !=
-                                                  null &&
-                                              profilemodel
-                                                  .dateofbirth!
-                                                  .isNotEmpty)
-                                            Text(
-                                              "(${calculateAge(profilemodel.dateofbirth)} yr's)",
-                                              style: GoogleFonts
-                                                  .varela(
-                                                fontSize: 13.sp,
-                                                fontWeight:
-                                                    FontWeight
-                                                        .w500,
-                                                color:
-                                                    Colors.grey,
-                                              ),
-                                            ), */
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    if (experienceList
-                                                        .isNotEmpty)
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            educationList
-                                                                .last.degree_spc
-                                                                .toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            " from ",
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            educationList
-                                                                .last.university
-                                                                .toString(),
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                  ],
-                                                ),
-                                                if (profilemodel.bio != null &&
-                                                    profilemodel
-                                                        .bio!.isNotEmpty)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        profilemodel.bio!,
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                if (profilemodel.bio == null ||
-                                                    profilemodel.bio == "" ||
-                                                    profilemodel.bio!.isEmpty)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                        style: TextStyle(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                              ],
-                                            ),
-                                      InkWell(
-                                        onTap: () {
-                                          sendToBasicInfo();
-                                        },
-                                        child: Container(
-                                          child: Icon(
-                                            Icons.edit_outlined,
-                                            size: 18.h,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (profilemodel.cv_link == null ||
-                                    profilemodel.skills!.isEmpty ||
-                                    (profilemodel.languages!.isEmpty) ||
-                                    educationList.isEmpty ||
-                                    experienceList.isEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: 102,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        // color: Colors.brown.shade50,
-                                      ),
-                                      //  padding: const EdgeInsets.all(10.0),
-                                      child: ListView(
-                                        shrinkWrap: true,
-                                        physics: const BouncingScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
+                                      Stack(
                                         children: [
-                                          if (profilemodel.cv_link == null)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8, right: 8.0),
-                                              child: CustomFieldBlock(
-                                                iconColor: const Color.fromRGBO(
-                                                    37, 150, 190, 0),
-                                                imageUrl:
-                                                    "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
-                                                description:
-                                                    "Recruiters identify prospective candidates through their CV.",
-                                                buttonText: "+ Upload Resume",
-                                                onPressed: () async {
-                                                  resume = await uploadFile(
-                                                      ['pdf'], "cv");
+                                          InkWell(
+                                            onTap:
+                                                profilemodel.profile_pic != null
+                                                    ? () {
+                                                        showDialog(
+                                                          context: context,
+                                                          // Set this property to true
+                                                          builder: (context) {
+                                                            return AlertDialog(
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              elevation: 0,
+                                                              content: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  CircleAvatar(
+                                                                    radius:
+                                                                        height /
+                                                                            6.r,
+                                                                    backgroundImage: profilemodel.profile_pic !=
+                                                                            null
+                                                                        ? Image.network("https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
+                                                                            .image
+                                                                        : Image
+                                                                            .asset(
+                                                                            "assets/images/adduser.png",
+                                                                            // height: .h,
+                                                                          ).image,
+                                                                  ),
+                                                                  CircleAvatar(
+                                                                    backgroundColor:
+                                                                        Constants
+                                                                            .themeBgColor,
+                                                                    child: IconButton(
+                                                                        onPressed: () async {
+                                                                          setState(
+                                                                              () async {
+                                                                            var data =
+                                                                                await Delete(false);
+                                                                            var payload =
+                                                                                {
+                                                                              "stage": "profile_pic",
+                                                                              "data": {
+                                                                                "id": await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                                "profile_pic": null
+                                                                              }
+                                                                            };
+                                                                            save(data,
+                                                                                payload);
+                                                                            if (data !=
+                                                                                null) {
+                                                                              setState(() {
+                                                                                icon_data = data;
+                                                                              });
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                        icon: const Icon(
+                                                                          Icons
+                                                                              .delete_outline,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        )),
+                                                                  )
+                                                                  /* Container(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 6.h,
+                                                                  horizontal:
+                                                                      12.w),
+                                                          margin: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 10),
+                                                          decoration: BoxDecoration(
+                                                              color: Constants
+                                                                  .themeBgColor,
+                                                              border: Border.all(
+                                                                  color: Constants
+                                                                      .themeBgColor),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.r)),
+                                                          child: Text(
+                                                              "Remove Profile pic"),
+                                                        ) */
+                                                                ],
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                      }
+                                                    : () {},
+                                            child: CircleAvatar(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 190, 190, 190),
+                                                radius: 45,
+                                                /* onBackgroundImageError: ((error,
+                                            stackTrace) =>
+                                        Image.asset(
+                                            "assets/images/company.png",
+                                            height: 80,
+                                            width: 80,
+                                            fit: BoxFit.contain)), */
+                                                backgroundImage: profilemodel
+                                                            .profile_pic !=
+                                                        null
+                                                    ?
+                                                    // ignore: unnecessary_null_comparison
+                                                    Image.network(
+                                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
+                                                        .image
+                                                    : Image.asset(
+                                                        "assets/images/adduser.png",
+                                                        // height: .h,
+                                                      ).image
+                                                /*  : Image.asset(
+                                                "assets/images/man.png",
+                                                height: 80,
+                                                width: 80,
+                                                fit: BoxFit.contain,
+                                              ).image, */
+                                                ),
+                                          ),
+                                          Positioned(
+                                            right: width / 160.w,
+                                            bottom: height / 85.h,
+                                            child: InkWell(
+                                              onTap: () async {
+                                                setState(() async {
+                                                  var data = await uploadFile(
+                                                      ['jpeg', 'jpg'], "icon");
                                                   var payload = {
-                                                    "stage": "upload_cv",
+                                                    "stage": "profile_pic",
                                                     "data": {
                                                       "id": await Utils
                                                           .getPreferencesValue(
@@ -949,171 +579,592 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                               ESharedPreferences
                                                                   .user_id
                                                                   .name),
-                                                      "cv_link": resume
+                                                      "profile_pic": data
                                                     }
                                                   };
-                                                  save(resume, payload);
-                                                  setState(() {
-                                                    /* var data = await uploadFile(
-                                                        'pdf', "icon");
-                                                    if (data != null) {
-                                                      setState(() {
-                                                        icon_data = data;
-                                                      });
-                                                    } */
-                                                  });
-                                                },
+                                                  save(data, payload);
+                                                  if (data != null) {
+                                                    setState(() {
+                                                      icon_data = data;
+                                                    });
+                                                  }
+                                                  Navigator.pop(context);
+                                                });
+                                              },
+                                              child: CircleAvatar(
+                                                radius: 9,
+                                                backgroundColor: Colors.white,
+                                                child: CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 8.r,
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    size: 15.h,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-
-                                          // Block 2: Email
-                                          // Block 2: Email
-                                          // CustomFieldBlock(
-                                          //   imageUrl:
-                                          //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
-                                          //   description:
-                                          //       "Ensure your contact email",
-                                          //   buttonText: "Verify Now",
-                                          //   onPressed: () {
-                                          //     sendToBasicInfo();
-                                          //   },
-                                          // ),
-
-                                          // Block 3: Skills
-                                          if (profilemodel.skills!.isEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8.0, right: 8.0),
-                                              child: CustomFieldBlock(
-                                                imageUrl:
-                                                    "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                                                description:
-                                                    "Your Skills Will Connect You with Relevant Job Opportunities",
-                                                buttonText: "+ Add Skills",
-                                                onPressed: () {
-                                                  List<String> skills = [];
-                                                  sendToSkills(skills);
-                                                },
-                                              ),
-                                            ),
-
-                                          // Block 4: Language
-
-                                          if (profilemodel.languages != null &&
-                                              profilemodel.languages!.isEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8.0, right: 8.0),
-                                              child: CustomFieldBlock(
-                                                imageUrl:
-                                                    "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
-                                                description:
-                                                    "Specify the languages",
-                                                buttonText: "+ Add Languages",
-                                                onPressed: () {
-                                                  sendToLanguges([]);
-                                                },
-                                              ),
-                                            ),
-                                          if (experienceList.isEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8.0, right: 8.0),
-                                              child: CustomFieldBlock(
-                                                imageUrl:
-                                                    "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
-                                                description:
-                                                    "Keep your profile updated with your recent work experience.",
-                                                buttonText: "+ Add Experience",
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          Screen3(
-                                                        experiencelist:
-                                                            experienceList,
-                                                        isEdit: false, isFirst: false,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          if (educationList.isEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8.0, right: 8.0),
-                                              child: CustomFieldBlock(
-                                                imageUrl:
-                                                    "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                                                description:
-                                                    "Share Educational detail to maximize your potential.",
-                                                buttonText: "+ Add Education",
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          Screen2(isFirst: false,),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
+                                          ),
                                         ],
                                       ),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        /*  IconButton(
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          color:
+                                              Colors.transparent,
+                                        )), */
+                                        InkWell(
+                                          child: Container(
+                                            child: Icon(
+                                              Icons.edit_outlined,
+                                              size: 18.h,
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        profilemodel.experience == "Experience"
+                                            ? Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "${profilemodel.first_name.toString().toTitleCase()} ",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 18.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        // ignore: unnecessary_string_interpolations
+                                                        "${profilemodel.last_name.toString().toTitleCase()}",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 18.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      /* const SizedBox(
+                                                width: 5),
+                                            if (profilemodel
+                                                        .dateofbirth !=
+                                                    null &&
+                                                profilemodel
+                                                    .dateofbirth!
+                                                    .isNotEmpty)
+                                              Text(
+                                                "(${calculateAge(profilemodel.dateofbirth)} yr's)",
+                                                style: GoogleFonts
+                                                    .varela(
+                                                  fontSize: 13.sp,
+                                                  fontWeight:
+                                                      FontWeight
+                                                          .w500,
+                                                  color:
+                                                      Colors.grey,
+                                                ),
+                                              ), */
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      if (experienceList
+                                                          .isNotEmpty)
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              experienceList
+                                                                  .last
+                                                                  .job_title
+                                                                  .toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              " at ",
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              experienceList
+                                                                  .last
+                                                                  .company_name
+                                                                  .toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  if (profilemodel.bio !=
+                                                          null &&
+                                                      profilemodel
+                                                          .bio!.isNotEmpty)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          profilemodel.bio!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  if (profilemodel.bio ==
+                                                          null ||
+                                                      profilemodel.bio == "" ||
+                                                      profilemodel.bio!.isEmpty)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                ],
+                                              )
+                                            : Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "${profilemodel.first_name.toString().toTitleCase()} ",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 18.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        // ignore: unnecessary_string_interpolations
+                                                        "${profilemodel.last_name.toString().toTitleCase()}",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 18.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      /* const SizedBox(
+                                                width: 5),
+                                            if (profilemodel
+                                                        .dateofbirth !=
+                                                    null &&
+                                                profilemodel
+                                                    .dateofbirth!
+                                                    .isNotEmpty)
+                                              Text(
+                                                "(${calculateAge(profilemodel.dateofbirth)} yr's)",
+                                                style: GoogleFonts
+                                                    .varela(
+                                                  fontSize: 13.sp,
+                                                  fontWeight:
+                                                      FontWeight
+                                                          .w500,
+                                                  color:
+                                                      Colors.grey,
+                                                ),
+                                              ), */
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      if (experienceList
+                                                          .isNotEmpty)
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              educationList.last
+                                                                  .degree_spc
+                                                                  .toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              " from ",
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              educationList.last
+                                                                  .university
+                                                                  .toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  if (profilemodel.bio !=
+                                                          null &&
+                                                      profilemodel
+                                                          .bio!.isNotEmpty)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          profilemodel.bio!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  if (profilemodel.bio ==
+                                                          null ||
+                                                      profilemodel.bio == "" ||
+                                                      profilemodel.bio!.isEmpty)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                ],
+                                              ),
+                                        InkWell(
+                                          onTap: () {
+                                            sendToBasicInfo();
+                                          },
+                                          child: Container(
+                                            child: Icon(
+                                              Icons.edit_outlined,
+                                              size: 18.h,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                Visibility(
-                                  visible: (usertype == 1 ? true : false),
-                                  child: experience(experienceList ?? []),
-                                ),
-                                Visibility(
-                                  visible: (usertype == 1 ? true : false),
-                                  child: education(educationList ?? []),
-                                ),
-                                Visibility(
-                                  visible: usertype == 1,
-                                  child: skills(experienceList),
-                                ),
-                                Visibility(
-                                  visible: (usertype == 1 ? true : false),
-                                  child:
-                                      languages(profilemodel.languages ?? []),
-                                ),
-                                SizedBox(
-                                  height: 20.h,
-                                )
-                                /*  Visibility(  //TODO: previous add cv button at the bottom.
-                                  visible: (usertype == 1 ? true : false),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 3, right: 3),
-                                    child: cardCustom(
-                                      icon: Icons.file_copy,
-                                      isedit: false,
-                                      isresume: true,
-                                      title: "",
-                                      child: CVWidget(
-                                        profileCv: ProfileCv(
-                                          cv_link: profilemodel.cv_link,
-                                          cv_upladted_date:
-                                              profilemodel.cv_upladted_date,
-                                          profile_cv_file: profilemodel
-                                              .cv_link, // Use the same value as cv_link
-                                          profile_cv_link: profile_cv_link,
+                                  if (profilemodel.cv_link == null ||
+                                      profilemodel.skills!.isEmpty ||
+                                      (profilemodel.languages!.isEmpty) ||
+                                      educationList.isEmpty ||
+                                      experienceList.isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 102,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          // color: Colors.brown.shade50,
                                         ),
-                                        onUpload: (fileName, payload) async =>
-                                            await save(fileName, payload),
+                                        //  padding: const EdgeInsets.all(10.0),
+                                        child: Scrollbar(
+                                          child: ListView(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const BouncingScrollPhysics(),
+                                            scrollDirection: Axis.horizontal,
+                                            children: [
+                                              if (profilemodel.cv_link == null)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8, right: 8.0),
+                                                  child: CustomFieldBlock(
+                                                    iconColor:
+                                                        const Color.fromRGBO(
+                                                            37, 150, 190, 0),
+                                                    imageUrl:
+                                                        "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
+                                                    description:
+                                                        "Recruiters identify prospective candidates through their CV.",
+                                                    buttonText:
+                                                        "+ Upload Resume",
+                                                    onPressed: () async {
+                                                      resume = await uploadFile(
+                                                          ['pdf'], "cv");
+                                                      var payload = {
+                                                        "stage": "upload_cv",
+                                                        "data": {
+                                                          "id": await Utils
+                                                              .getPreferencesValue(
+                                                                  null,
+                                                                  ESharedPreferences
+                                                                      .user_id
+                                                                      .name),
+                                                          "cv_link": resume
+                                                        }
+                                                      };
+                                                      save(resume, payload);
+                                                      setState(() {
+                                                        /* var data = await uploadFile(
+                                                            'pdf', "icon");
+                                                        if (data != null) {
+                                                          setState(() {
+                                                            icon_data = data;
+                                                          });
+                                                        } */
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+
+                                              // Block 2: Email
+                                              // Block 2: Email
+                                              // CustomFieldBlock(
+                                              //   imageUrl:
+                                              //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
+                                              //   description:
+                                              //       "Ensure your contact email",
+                                              //   buttonText: "Verify Now",
+                                              //   onPressed: () {
+                                              //     sendToBasicInfo();
+                                              //   },
+                                              // ),
+
+                                              // Block 3: Skills
+                                              if (profilemodel.skills!.isEmpty)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0,
+                                                          right: 8.0),
+                                                  child: CustomFieldBlock(
+                                                    imageUrl:
+                                                        "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                                                    description:
+                                                        "Your Skills Will Connect You with Relevant Job Opportunities",
+                                                    buttonText: "+ Add Skills",
+                                                    onPressed: () {
+                                                      List<String> skills = [];
+                                                      sendToSkills(skills);
+                                                    },
+                                                  ),
+                                                ),
+
+                                              // Block 4: Language
+
+                                              if (profilemodel.languages !=
+                                                      null &&
+                                                  profilemodel
+                                                      .languages!.isEmpty)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0,
+                                                          right: 8.0),
+                                                  child: CustomFieldBlock(
+                                                    imageUrl:
+                                                        "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
+                                                    description:
+                                                        "Specify the languages",
+                                                    buttonText:
+                                                        "+ Add Languages",
+                                                    onPressed: () {
+                                                      sendToLanguges([]);
+                                                    },
+                                                  ),
+                                                ),
+                                              if (experienceList.isEmpty)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0,
+                                                          right: 8.0),
+                                                  child: CustomFieldBlock(
+                                                    imageUrl:
+                                                        "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
+                                                    description:
+                                                        "Keep your profile updated with your recent work experience.",
+                                                    buttonText:
+                                                        "+ Add Experience",
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Screen3(
+                                                            experiencelist:
+                                                                experienceList,
+                                                            isEdit: false,
+                                                            isFirst: false,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              if (educationList.isEmpty)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0,
+                                                          right: 8.0),
+                                                  child: CustomFieldBlock(
+                                                    imageUrl:
+                                                        "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+                                                    description:
+                                                        "Share Educational detail to maximize your potential.",
+                                                    buttonText:
+                                                        "+ Add Education",
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Screen2(
+                                                            isFirst: false,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                  Visibility(
+                                    visible: (usertype == 1 ? true : false),
+                                    child: experience(experienceList ?? []),
                                   ),
-                                ), */
-                              ],
+                                  Visibility(
+                                    visible: (usertype == 1 ? true : false),
+                                    child: education(educationList ?? []),
+                                  ),
+                                  Visibility(
+                                    visible: usertype == 1,
+                                    child: skills(experienceList),
+                                  ),
+                                  Visibility(
+                                    visible: (usertype == 1 ? true : false),
+                                    child:
+                                        languages(profilemodel.languages ?? []),
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  /*  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 150.w),
+                                    child: const Divider(
+                                      color: Constants.borderColor,
+                                      thickness: 2.5,
+                                    ),
+                                  ) */
+                                  /*  Visibility(  //TODO: previous add cv button at the bottom.
+                                    visible: (usertype == 1 ? true : false),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 3, right: 3),
+                                      child: cardCustom(
+                                        icon: Icons.file_copy,
+                                        isedit: false,
+                                        isresume: true,
+                                        title: "",
+                                        child: CVWidget(
+                                          profileCv: ProfileCv(
+                                            cv_link: profilemodel.cv_link,
+                                            cv_upladted_date:
+                                                profilemodel.cv_upladted_date,
+                                            profile_cv_file: profilemodel
+                                                .cv_link, // Use the same value as cv_link
+                                            profile_cv_link: profile_cv_link,
+                                          ),
+                                          onUpload: (fileName, payload) async =>
+                                              await save(fileName, payload),
+                                        ),
+                                      ),
+                                    ),
+                                  ), */
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                  ),
                 ),
               )
             ],
@@ -1122,105 +1173,104 @@ class _ProfileSummaryState extends State<ProfileSummary>
   }
 
   Widget basicInfo() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, top: 120, right: 3),
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: cardCustom(
-              // icon: Icons.account_circle_outlined,
-              title: "",
-              onPress: (() {
-                // Navigator.pushNamed(context, ERoute.screen1.value,
-                //     arguments: 1);
-                sendToBasicInfo();
-              }),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profilemodel.first_name.toString().toTitleCase() +
-                        ' ' +
-                        profilemodel.last_name.toString().toTitleCase(),
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w300),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Location",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
+    return Column(
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: cardCustom(
+            // icon: Icons.account_circle_outlined,
+            title: "",
+            onPress: (() {
+              // Navigator.pushNamed(context, ERoute.screen1.value,
+              //     arguments: 1);
+              sendToBasicInfo();
+            }),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profilemodel.first_name.toString().toTitleCase() +
+                      ' ' +
+                      profilemodel.last_name.toString().toTitleCase(),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w300),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Location",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+                    ),
+                    Text(
+                      profilemodel.user_location.toString(),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w400),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Gender",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+                    ),
+                    Text(
+                      profilemodel.gender.toString(),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w400),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Languages",
+                      style: GoogleFonts.varela(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
                       ),
-                      Text(
-                        profilemodel.user_location.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Gender",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        profilemodel.gender.toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Languages",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        profilemodel.languages!.join(',').toString(),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Date Of Birth",
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w300),
-                      ),
-                      Text(
-                        DateFormat('MMMM dd,yyyy').format(DateTime.parse(
-                            profilemodel.dateofbirth.toString())),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
-                      )
-                    ],
-                  )
-                ],
-              ),
+                    ),
+                    Text(
+                      profilemodel.languages!.join(',').toString(),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w400),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Date Of Birth",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+                    ),
+                    Text(
+                      DateFormat('MMMM dd,yyyy').format(
+                          DateTime.parse(profilemodel.dateofbirth.toString())),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w400),
+                    )
+                  ],
+                )
+              ],
             ),
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
   }
 
@@ -1311,6 +1361,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
               return Column(
                 children: [
                   ListTile(
+                    onTap: () {
+                      sendToEducation(education);
+                    },
                     contentPadding: const EdgeInsets.only(
                         left: 10, right: 10, top: 0, bottom: 0),
                     leading: SizedBox(
@@ -1336,7 +1389,6 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         children: [
                           Text(
                             education.university.toString(),
-                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.varela(
                               fontSize: 15.sp,
@@ -1344,11 +1396,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             ),
                           ),
                           Text(
-                            education.level.toString(),
+                            education.degree_spc.toString(),
                             style: GoogleFonts.varela(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w400,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -1378,7 +1431,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         ),
                       ],
                     ),
-                    trailing: InkWell(
+                    /*   trailing: InkWell(
                       onTap: () {
                         sendToEducation(education);
                       },
@@ -1387,7 +1440,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             left: 10, right: 4, bottom: 10),
                         child: Icon(Icons.edit_outlined, size: 18.h),
                       ),
-                    ),
+                    ), */
                   ),
                 ],
               );
@@ -1443,7 +1496,6 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           isEdit: false,
                           isFirst: false,
                         ),
-
                       ),
                     );
                   },
@@ -1551,6 +1603,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
               } */
 
               return ListTile(
+                onTap: () {
+                  sendToExperience(experienceList[index]);
+                },
                 contentPadding: const EdgeInsets.only(
                     left: 10, right: 10, top: 0, bottom: 0),
                 // ignore: sized_box_for_whitespace
@@ -1691,7 +1746,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     ),
                   ],
                 ),
-                trailing: InkWell(
+                /* trailing: InkWell(
                     onTap: () {
                       sendToExperience(experienceList[index]
                           // experience
@@ -1701,7 +1756,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       padding:
                           const EdgeInsets.only(left: 10, right: 4, bottom: 10),
                       child: Icon(Icons.edit_outlined, size: 18.h),
-                    )),
+                    )), */
               );
             },
           ),
@@ -1723,31 +1778,22 @@ class _ProfileSummaryState extends State<ProfileSummary>
             language != "Marathi")
         .toList(); */
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, right: 3),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 2,
-              bottom: 4,
-            ),
-            margin: const EdgeInsets.symmetric(
-              vertical: 3,
-              horizontal: 10,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              // border: Border.all(color: Constants.borderColor),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 3, bottom: 3, left: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            // border: Border.all(color: Constants.borderColor),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 5.w),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
@@ -1759,7 +1805,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         // // Icon(image.assets()),
                         Image.asset(
                           "assets/images/languages.png",
-                          height: 16,
+                          height: 20,
                           // width: 16,
                           fit: BoxFit
                               .contain, // or BoxFit.cover, depending on your requirement
@@ -1770,8 +1816,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         Text(
                           "Languages",
                           style: GoogleFonts.varela(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -1784,122 +1830,136 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         child: Container(
                           padding: const EdgeInsets.only(
                             left: 10,
-                            right: 18,
+                            right: 15,
                             bottom: 0,
                           ),
-                          child: const Icon(Icons.edit_outlined, size: 18),
+                          child: Icon(
+                            Icons
+                                .add, // Replace this with the icon of your choice
+                            size:
+                                20.h, // Replace this with the size of the icon
+                            // color: Colors.greenAccent,
+                          ),
                         ),
                       ),
                   ],
                 ),
-                /*  const Divider(
-                  color: Constants.borderColor,
-                  thickness: 2.5,
-                  indent: 10,
-                  endIndent: 18,
-                  height: 4,
-                ), */
-                if (filteredLanguages.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      "Please add additional language that you know.",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+              ),
+              /*  const Divider(
+                color: Constants.borderColor,
+                thickness: 2.5,
+                indent: 10,
+                endIndent: 18,
+                height: 4,
+              ), */
+              SizedBox(
+                height: 4.h,
+              ),
+              const Divider(
+                color: Constants.borderColor,
+                thickness: 2.0,
+                height: 4,
+              ),
+              if (filteredLanguages.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    "Please add additional language that you know.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
                     ),
                   ),
-                if (filteredLanguages.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
-                    child: Wrap(
-                      spacing: 3, // Adjust the spacing between the skills chips
-                      runSpacing:
-                          0.0, // Remove the spacing between the rows of chips
-                      children: filteredLanguages.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final skill = entry.value;
+                ),
+              if (filteredLanguages.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
+                  child: Wrap(
+                    spacing: 3, // Adjust the spacing between the skills chips
+                    runSpacing:
+                        0.0, // Remove the spacing between the rows of chips
+                    children: filteredLanguages.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final skill = entry.value;
 
-                        if (index < 11) {
-                          return Container(
+                      if (index < 11) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 5, top: 5),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            skill,
+                            style: GoogleFonts.varela(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                        );
+                      } else if (index == 11) {
+                        return InkWell(
+                          onTap: () {
+                            sendToLanguges(filteredLanguages);
+                            // sendToSkills(skills);
+                          },
+                          child: Container(
                             margin: const EdgeInsets.only(bottom: 5, top: 5),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
+                              color: Colors.blue,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              skill,
+                              'View More',
                               style: GoogleFonts.varela(
-                                color: Colors.black54,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13.sp,
                               ),
                             ),
-                          );
-                        } else if (index == 11) {
-                          return InkWell(
-                            onTap: () {
-                              sendToLanguges(filteredLanguages);
-                              // sendToSkills(skills);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 5, top: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'View More',
-                                style: GoogleFonts.varela(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox(); // Return an empty container for the remaining items
-                      }).toList(),
-                    ),
-
-                    /* Wrap(  //TODO: previous language without limit and different ui.
-                      spacing:
-                          3, // Adjust the spacing between the language chips
-                      runSpacing:
-                          0.0, // Remove the spacing between the rows of chips
-                      children: filteredLanguages.map((language) {
-                        return Chip(
-                          label: Text(
-                            language,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          backgroundColor: Colors
-                              .grey.shade200, // Set the grey background color
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                              color: Colors.grey
-                                  .shade200, // Set the same color as the background color
-                            ),
                           ),
                         );
-                      }).toList(),
-                    ), */
+                      }
+                      return const SizedBox(); // Return an empty container for the remaining items
+                    }).toList(),
                   ),
-              ],
-            ),
+
+                  /* Wrap(  //TODO: previous language without limit and different ui.
+                    spacing:
+                        3, // Adjust the spacing between the language chips
+                    runSpacing:
+                        0.0, // Remove the spacing between the rows of chips
+                    children: filteredLanguages.map((language) {
+                      return Chip(
+                        label: Text(
+                          language,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        backgroundColor: Colors
+                            .grey.shade200, // Set the grey background color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: Colors.grey
+                                .shade200, // Set the same color as the background color
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ), */
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1921,31 +1981,27 @@ class _ProfileSummaryState extends State<ProfileSummary>
     // Remove duplicates and convert to a list
     skills = skills.toSet().toList();
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, right: 3),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 2,
-              bottom: 4,
-            ),
-            margin: const EdgeInsets.symmetric(
-              vertical: 3,
-              horizontal: 10,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              // border: Border.all(color: Constants.borderColor),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Column(
+      children: [
+        Container(
+          // padding: const EdgeInsets.only(left: 6),
+          margin: const EdgeInsets.only(
+            top: 3,
+            bottom: 3,
+            left: 10,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            // border: Border.all(color: Constants.borderColor),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 9.w),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
@@ -1956,18 +2012,16 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         // ),
                         Image.network(
                           "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                          height: 16,
-                          // width: 16,
-                          fit: BoxFit
-                              .contain, // or BoxFit.cover, depending on your requirement
-                          colorBlendMode: BlendMode.clear,
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.contain,
                         ),
-                        const SizedBox(width: 5),
+                        SizedBox(width: 10.w),
                         Text(
                           "Skills",
                           style: GoogleFonts.varela(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -1981,94 +2035,52 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         child: Container(
                           padding: const EdgeInsets.only(
                             left: 10,
-                            right: 18,
+                            right: 15,
                             bottom: 0,
                           ),
-                          child: const Icon(Icons.edit_outlined, size: 18),
+                          child: Icon(
+                            Icons
+                                .add, // Replace this with the icon of your choice
+                            size:
+                                20.h, // Replace this with the size of the icon
+                            // color: Colors.greenAccent,
+                          ),
                         ),
                       ),
                   ],
                 ),
-                const Divider(
-                  color: Constants.borderColor,
-                  thickness: 2.5,
-                  indent: 10,
-                  endIndent: 18,
-                  height: 4,
-                ),
-                if (skills.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      "Recruiters look for candidates with specific skills.",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+              ),
+              SizedBox(
+                height: 4.h,
+              ),
+              const Divider(
+                color: Constants.borderColor,
+                thickness: 2.0,
+                height: 4,
+              ),
+              if (skills.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    "Recruiters look for candidates with specific skills.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
                     ),
                   ),
-                if (skills.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
-                    child: Wrap(
-                      spacing: 3, // Adjust the spacing between the skills chips
-                      runSpacing:
-                          0.0, // Remove the spacing between the rows of chips
-                      children: skills.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final skill = entry.value;
+                ),
+              if (skills.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
+                  child: Wrap(
+                    spacing: 3, // Adjust the spacing between the skills chips
+                    runSpacing:
+                        0.0, // Remove the spacing between the rows of chips
+                    children: skills.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final skill = entry.value;
 
-                        if (index < 12) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 5, top: 5),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              skill,
-                              style: GoogleFonts.varela(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.sp,
-                              ),
-                            ),
-                          );
-                        } else if (index == 12) {
-                          return InkWell(
-                            onTap: () {
-                              sendToSkills(skills);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 5, top: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'View More',
-                                style: GoogleFonts.varela(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox(); // Return an empty container for the remaining items
-                      }).toList(),
-                    ),
-
-                    /* Wrap(  //TODO: previous all skill without any condition
-                      spacing: 3, // Adjust the spacing between the skills chips
-                      runSpacing:
-                          0.0, // Remove the spacing between the rows of chips
-                      children: skills.take(13).map((skill) {
+                      if (index < 12) {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 5, top: 5),
                           padding: const EdgeInsets.symmetric(
@@ -2085,16 +2097,65 @@ class _ProfileSummaryState extends State<ProfileSummary>
                               fontSize: 13.sp,
                             ),
                           ),
-                          // Set the grey background color
                         );
-                      }).toList(),
-                    ), */
+                      } else if (index == 12) {
+                        return InkWell(
+                          onTap: () {
+                            sendToSkills(skills);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'View More',
+                              style: GoogleFonts.varela(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13.sp,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox(); // Return an empty container for the remaining items
+                    }).toList(),
                   ),
-              ],
-            ),
+
+                  /* Wrap(  //TODO: previous all skill without any condition
+                    spacing: 3, // Adjust the spacing between the skills chips
+                    runSpacing:
+                        0.0, // Remove the spacing between the rows of chips
+                    children: skills.take(13).map((skill) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 5, top: 5),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          skill,
+                          style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                        // Set the grey background color
+                      );
+                    }).toList(),
+                  ), */
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -2218,8 +2279,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                 Text(
                   title.toString(),
                   style: GoogleFonts.varela(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               Expanded(
@@ -2266,13 +2327,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             top: 0,
                           ),
                           // child: Icon(Icons.add, size: 18.h),
-                          child: const Padding(
-                            padding: EdgeInsets.only(right: 4),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4),
                             child: Icon(
                               Icons
                                   .add, // Replace this with the icon of your choice
-                              size:
-                                  16, // Replace this with the size of the icon
+                              size: 20
+                                  .h, // Replace this with the size of the icon
                               // color: Colors.greenAccent,
                             ),
                           ),
@@ -2289,7 +2350,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
               thickness: 2.w,
             ),
           Container(
-            padding: const EdgeInsets.only(top: 0),
+            // padding: const EdgeInsets.only(top: 0),
             child: child,
           ),
         ],

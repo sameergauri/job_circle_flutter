@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/home.dart';
-import 'package:job_circle/screens/profile/screen1.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
-import 'package:job_circle/screens/profile/screen3.dart';
+import 'package:job_circle/screens/onboarding/add_intoduction.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,30 +141,19 @@ class Utils {
 
       if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Screen1(
-                      isfirst: true,
-                    )));
+            context, MaterialPageRoute(builder: (context) => AddIntoduction()));
         if (data['firstName'] == '') {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Screen1(
-                        isfirst: true,
-                      )));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => AddIntoduction()));
           //nextRoute = ERoute.screen1;
-        } else if (data['education'] == null || data['education'] == 0) {
+        } /* else if (data['education'] == null || data['education'] == 0) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Screen2(isFirst: true,)));
+              context, MaterialPageRoute(builder: (context) => AddEducation()));
         } else if (data['experience'] == null || data['experience'] != 1) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Screen3(
-                     isFirst: true,
-                      )));
-        } else {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => AddIntoduction()));
+        } */
+        else {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const HomeScreen()));
           // nextRoute = ERoute.home;
@@ -200,7 +187,7 @@ class Utils {
               EUserType.jobSeeker.value);
           Utils.setCacheData("usertype", EUserType.jobSeeker.value);
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => Screen1(isfirst: true)));
+              MaterialPageRoute(builder: (context) => AddIntoduction()));
           // Navigator.pushNamed(context, ERoute.screen1.value);
           /*        Navigator.pushNamedAndRemoveUntil(    //TODO: code to send user to the usertype selection page.
               context, ERoute.logintype.name, (Route<dynamic> route) => false); */

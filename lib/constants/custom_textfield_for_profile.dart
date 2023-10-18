@@ -751,7 +751,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         );
                       } else {
                         setState(() {
-                          selectedValuesList!.add(suggestion.value);
+                          selectedValuesList!.add(suggestion.skills);
                           isDuplicate = false;
                           showAddButton = true;
                           controller!.text = suggestion.skills.toString();
