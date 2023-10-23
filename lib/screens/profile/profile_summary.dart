@@ -296,7 +296,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                           body: Container(
                             child: FutureBuilder<PDFDocument>(
                               future: PDFDocument.fromURL(
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$resume"),
+                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.cv_link}"),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.done) {
@@ -368,6 +368,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
             elevation: 0,
             actions: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
                       width: width / 1.16.w,
@@ -391,13 +392,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
                         hintText:
                             "${profilemodel.first_name} ${profilemodel.last_name}",
                       ))),
-                  Padding(
+                  /* Padding(
                     padding: EdgeInsets.only(right: 10.w, left: 10.w),
                     child: Image.asset(
                       "assets/images/alert.png",
                       height: height / 50.h,
                     ),
-                  ),
+                  ), */
                 ],
               )
             ],
@@ -738,6 +739,29 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                         ),
                                                     ],
                                                   ),
+                                                  if (profilemodel.bio ==
+                                                          null ||
+                                                      profilemodel.bio == "" ||
+                                                      profilemodel.bio!.isEmpty)
+                                                    InkWell(
+                                                      onTap: () {
+                                                        sendToBasicInfo(true);
+                                                      },
+                                                      child: Text(
+                                                        "Add Bio",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize: 12.sp,
+                                                                color:
+                                                                    Colors.blue,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic),
+                                                      ),
+                                                    ),
                                                   if (profilemodel.bio !=
                                                           null &&
                                                       profilemodel
@@ -762,8 +786,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                          style: TextStyle(
+                                                          '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                          style: GoogleFonts
+                                                              .varela(
                                                             fontSize: 12.sp,
                                                             fontWeight:
                                                                 FontWeight.w400,
@@ -874,6 +899,29 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                         ),
                                                     ],
                                                   ),
+                                                  if (profilemodel.bio ==
+                                                          null ||
+                                                      profilemodel.bio == "" ||
+                                                      profilemodel.bio!.isEmpty)
+                                                    InkWell(
+                                                      onTap: () {
+                                                        sendToBasicInfo(true);
+                                                      },
+                                                      child: Text(
+                                                        "Add Bio",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize: 12.sp,
+                                                                color:
+                                                                    Colors.blue,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic),
+                                                      ),
+                                                    ),
                                                   if (profilemodel.bio !=
                                                           null &&
                                                       profilemodel
@@ -898,7 +946,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          '${capitalizeFirstLetter(profilemodel.user_locality)} ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                          '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
                                                           style: TextStyle(
                                                             fontSize: 12.sp,
                                                             fontWeight:
@@ -911,7 +959,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                               ),
                                         InkWell(
                                           onTap: () {
-                                            sendToBasicInfo();
+                                            sendToBasicInfo(false);
                                           },
                                           child: Container(
                                             child: Icon(
@@ -927,8 +975,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                   if (profilemodel.cv_link == null ||
                                       profilemodel.skills!.isEmpty ||
                                       (profilemodel.languages!.isEmpty) ||
-                                      educationList.isEmpty ||
-                                      experienceList.isEmpty)
+                                      educationList
+                                          .isEmpty /* ||
+                                      experienceList.isEmpty */
+                                  )
                                     Padding(
                                       padding: const EdgeInsets.all(12.0),
                                       child: Container(
@@ -951,7 +1001,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          left: 8, right: 8.0),
+                                                          left: 4, right: 4.0),
                                                   child: CustomFieldBlock(
                                                     iconColor:
                                                         const Color.fromRGBO(
@@ -1005,17 +1055,19 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                               // ),
 
                                               // Block 3: Skills
-                                              if (profilemodel.skills!.isEmpty)
+                                              if (profilemodel
+                                                      .skills!.isEmpty &&
+                                                  profilemodel.experience ==
+                                                      "Fresher")
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          left: 8.0,
-                                                          right: 8.0),
+                                                          left: 4, right: 4.0),
                                                   child: CustomFieldBlock(
                                                     imageUrl:
                                                         "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
                                                     description:
-                                                        "Your Skills Will Connect You with Relevant Job Opportunities",
+                                                        "Your skills will connect you with relevant job opportunities",
                                                     buttonText: "+ Add Skills",
                                                     onPressed: () {
                                                       List<String> skills = [];
@@ -1033,8 +1085,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          left: 8.0,
-                                                          right: 8.0),
+                                                          left: 4.0,
+                                                          right: 4.0),
                                                   child: CustomFieldBlock(
                                                     imageUrl:
                                                         "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
@@ -1047,7 +1099,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                     },
                                                   ),
                                                 ),
-                                              if (experienceList.isEmpty)
+                                              /* if (experienceList.isEmpty)
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(
@@ -1075,13 +1127,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                       );
                                                     },
                                                   ),
-                                                ),
+                                                ), */
                                               if (educationList.isEmpty)
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          left: 8.0,
-                                                          right: 8.0),
+                                                          right: 4.0, left: 4),
                                                   child: CustomFieldBlock(
                                                     imageUrl:
                                                         "https://cdn-icons-png.flaticon.com/128/123/123402.png",
@@ -1186,7 +1237,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
             onPress: (() {
               // Navigator.pushNamed(context, ERoute.screen1.value,
               //     arguments: 1);
-              sendToBasicInfo();
+              sendToBasicInfo(false);
             }),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -1295,50 +1346,102 @@ class _ProfileSummaryState extends State<ProfileSummary>
           // icons: Icons.school_outlined, // Education icon for the card
           imageUrl: "https://cdn-icons-png.flaticon.com/128/123/123402.png",
           title: "Education",
-          child: Row(
-            children: [
-              Text(
-                "Highest Education ",
-                style: GoogleFonts.varela(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Screen2(
-                          selectedLevel: profilemodel.education,
-                          educationList: educationList,
-                          isFirst: false,
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 1,
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Screen2(
+                            selectedLevel: profilemodel.education,
+                            educationList: educationList,
+                            isFirst: false,
+                          ),
                         ),
+                      );
+                    },
+                    contentPadding: const EdgeInsets.only(
+                        left: 10, right: 10, top: 0, bottom: 0),
+                    leading: SizedBox(
+                      width: 70.w,
+                      height: 70.h,
+                      // decoration: BoxDecoration(
+                      //   color: Colors.white,
+                      //   borderRadius: BorderRadius.circular(15),
+                      //   border: Border.all(
+                      //     color: Colors.transparent,
+                      //   ),
+                      // ),
+                      child: Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
+                        fit: BoxFit.contain,
+                        color: Constants.themeBgColor,
                       ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        "${profilemodel.education}",
-                        style: GoogleFonts.varela(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                    ),
+                    title: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            profilemodel.education == "Graduate"
+                                ? "Graduate"
+                                : "Under Graduate / 10+2",
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.varela(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    subtitle: Row(
+                      children: [
+                        Text(
+                          "Add Detail",
+                          style: GoogleFonts.varela(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.blue),
                         ),
+                        /*  Text(
+                          " - ",
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          education.passingYear.toString(),
+                          style: GoogleFonts.varela(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ), */
+                      ],
+                    ),
+                    /*   trailing: InkWell(
+                      onTap: () {
+                        sendToEducation(education);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 4, bottom: 10),
+                        child: Icon(Icons.edit_outlined, size: 18.h),
                       ),
-                      const SizedBox(width: 3),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                      ),
-                    ],
+                    ), */
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ),
       );
@@ -1474,7 +1577,64 @@ class _ProfileSummaryState extends State<ProfileSummary>
           // icons: Icons.work_outline,
           imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
           title: "Employment Details",
-          child: Row(
+          child: ListTile(
+            onTap: profilemodel.experience == "Experience"
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Screen3(
+                          experiencelist: experienceList,
+                          isEdit: false,
+                          isFirst: false,
+                        ),
+                      ),
+                    );
+                  }
+                : () {},
+            contentPadding:
+                const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+            // ignore: sized_box_for_whitespace
+            leading: Container(
+              width: 70.w,
+              height: 70.h,
+              // decoration: BoxDecoration(
+              //   color: Colors.white,
+              //   borderRadius: BorderRadius.circular(15),
+              //   border: Border.all(
+              //     color: Colors.transparent,
+              //   ),
+              // ),
+              child: Image.network(
+                "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+
+                //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                fit: BoxFit.contain,
+              ),
+            ),
+            title: Text(
+              "Fresher",
+              // experience.job_title.toString(),
+              style: GoogleFonts.varela(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+
+            /* trailing: InkWell(
+                    onTap: () {
+                      sendToExperience(experienceList[index]
+                          // experience
+                          ); // Pass the selected experience object
+                    },
+                    child: Container(
+                      padding:
+                          const EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                      child: Icon(Icons.edit_outlined, size: 18.h),
+                    )), */
+          ),
+
+          /*  Row(
             children: [
               Text(
                 "Work Status ",
@@ -1520,7 +1680,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                 ),
               ),
             ],
-          ),
+          ), */
         ),
       );
     } else if (shouldShowAddButton) {
@@ -1620,7 +1780,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                   //   ),
                   // ),
                   child: Image.network(
-                    "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+                    experienceList[index].icon == ""
+                        ? "https://cdn-icons-png.flaticon.com/128/2098/2098316.png"
+                        : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].icon}",
                     //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
                     fit: BoxFit.contain,
                   ),
@@ -2241,12 +2403,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
       bool? isedit = true,
       Function()? onPress,
       String? imageUrl}) {
-    bool shouldShowExperienceAddButton = experienceList.isNotEmpty;
+    bool shouldShowExperienceAddButton =
+        experienceList.isNotEmpty || profilemodel.experience == "Fresher";
     bool shouldShowEducationAddButton = educationList.isNotEmpty;
 
     return Container(
-      padding: const EdgeInsets.only(top: 5, bottom: 5),
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      padding: const EdgeInsets.only(bottom: 5),
+      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         // border: Border.all(color: Constants.borderColor),
@@ -2371,12 +2534,13 @@ class _ProfileSummaryState extends State<ProfileSummary>
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  sendToBasicInfo() async {
+  sendToBasicInfo(bool isBio) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen1(
           prevPageModel: profilemodel,
+          isbio: isBio,
           isfirst: false,
         ),
       ),

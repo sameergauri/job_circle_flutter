@@ -170,25 +170,67 @@ class _AddLanguageState extends State<AddLanguage> {
                 )));
   }
 
+  SnackBar customSnackbar(String title) {
+    return SnackBar(
+      backgroundColor:
+          Colors.transparent, // Set background color to transparent
+      elevation: 0, // Remove shadow
+      content: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16.0), // Add horizontal padding
+        decoration: BoxDecoration(
+          color: Colors.white, // White background
+          borderRadius: BorderRadius.circular(8.0), // Border radius
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 15.h,
+            ), // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black, // Text color
+                fontSize: 14.0, // Text size
+              ),
+            ),
+          ],
+        ),
+      ),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: InkWell(
-        onTap: save,
+        onTap: () {
+          if (selectedlist.isEmpty) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(customSnackbar("Select atleast one language."));
+          } else {
+            save();
+          }
+        },
         child: Container(
-          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+          margin:
+              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
           decoration: BoxDecoration(
               color: Constants.themeBgColor,
               borderRadius: BorderRadius.circular(8.r)),
           width: double.maxFinite,
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: const EdgeInsets.only(bottom: 8, top: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 "Next",
                 style: GoogleFonts.varela(
-                    fontSize: 14.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
@@ -196,29 +238,37 @@ class _AddLanguageState extends State<AddLanguage> {
           ),
         ),
       ),
-      backgroundColor: Constants.themeBgColorLight,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Constants.themeBgColorLight,
+        backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Add Languages",
+              "Languages known",
               style: GoogleFonts.varela(
                 fontSize: 18.sp,
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              "Let recruiter know your value as a potential candidate",
-              style: GoogleFonts.varela(
-                  color: Colors.grey.shade600,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.normal),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "Let recruiter know you can communicate in multiple languages.",
+                    softWrap: true,
+                    maxLines: 2,
+                    style: GoogleFonts.varela(
+                        color: Colors.grey.shade600,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.normal),
+                  ),
+                ),
+              ],
             )
           ],
         ),
@@ -229,12 +279,15 @@ class _AddLanguageState extends State<AddLanguage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(
+                height: kToolbarHeight / 6.h,
+              ),
               CustomTextField(
                   icon: const Icon(
-                    Icons.lightbulb_outline,
+                    Icons.language_outlined,
                   ),
-                  hint: "Advance Excel",
-                  label: "Skills",
+                  hint: "English",
+                  label: "Language",
                   focusNode: FocusNode(),
                   controller: LanguageController),
               const SizedBox(

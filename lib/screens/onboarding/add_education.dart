@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/onboarding/add_cv.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -335,7 +335,36 @@ class _AddEducationState extends State<AddEducation> {
         Scaffold(
             bottomNavigationBar: GestureDetector(
               onTap: () async {
-                await save();
+                if (isgraduate == false && isundergradute == false) {
+                  ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                      "Select one option from graduate and under-graduate."));
+                } else if (degreeController.text.isEmpty) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(customSnackbar("Select or add Degree."));
+                } else if (universityController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      customSnackbar("Select or add University."));
+                } else if (fieldOfStudyController.text.isEmpty) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(customSnackbar("Provide field of study."));
+                } else if (firstYearController.text.isEmpty) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(customSnackbar("Provide first year."));
+                } else if (passingYearController.text.isEmpty) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(customSnackbar("Provide final year."));
+                } else {
+                  var payload = {
+                    "stage": "education",
+                    "data": {
+                      "id": await Utils.getPreferencesValue(
+                          null, ESharedPreferences.user_id.name),
+                      "education": isgraduate ? 1 : 0,
+                    }
+                  };
+                  await saveEducation(payload);
+                  save(false);
+                }
               },
               child: Container(
                 margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -385,13 +414,74 @@ class _AddEducationState extends State<AddEducation> {
                   ),
                 ],
               ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(left: 20.w),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          if (isgraduate == false && isundergradute == false) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(customSnackbar(
+                              "Select atleast one option garduate or under-gradute",
+                            ));
+                          } else {
+                            var payload = {
+                              "stage": "education",
+                              "data": {
+                                "id": await Utils.getPreferencesValue(
+                                    null, ESharedPreferences.user_id.name),
+                                "education": isgraduate ? 1 : 0,
+                              }
+                            };
+                            await saveEducation(payload);
+
+                            save(true);
+                          }
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(left: 20.w),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 8.r),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              border:
+                                  Border.all(color: Constants.themeBgColor)),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 15.h,
+                                color: Constants.themeBgColor,
+                              ),
+                              SizedBox(
+                                width: 4.w,
+                              ),
+                              Text(
+                                "Skip",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
             extendBodyBehindAppBar: true,
             backgroundColor: Colors.white,
             body: SafeArea(
               bottom: false,
-              child: SingleChildScrollView(
-                child: _education(),
+              child: Padding(
+                padding: EdgeInsets.only(top: kToolbarHeight / 6.h),
+                child: SingleChildScrollView(
+                  child: _education(),
+                ),
               ),
             )),
       ],
@@ -406,41 +496,86 @@ class _AddEducationState extends State<AddEducation> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color:
-                        // selectedKeyResponsible.contains(item)
-                        Colors.grey,
-                    width: 1.5,
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color:
+                            // selectedKeyResponsible.contains(item)
+                            Colors.grey,
+                        width: 1.5,
+                      ),
+                    ),
+                    height: 16,
+                    width: 20,
+                    child: Theme(
+                      data: ThemeData(
+                        unselectedWidgetColor: Colors.transparent,
+                      ),
+                      child: Checkbox(
+                        activeColor: Colors.white,
+                        checkColor: Constants.themeBgColor,
+                        visualDensity: VisualDensity.compact,
+                        value: isgraduate,
+                        onChanged: (newValue) {
+                          setState(() {
+                            isgraduate = true;
+                            isundergradute = false;
+                          });
+                          // Notify Flutter that the state has changed
+                        },
+                      ),
+                    ),
                   ),
-                ),
-                height: 16,
-                width: 20,
-                child: Theme(
-                  data: ThemeData(
-                    unselectedWidgetColor: Colors.transparent,
+                  SizedBox(
+                    width: 10.w,
                   ),
-                  child: Checkbox(
-                    activeColor: Colors.white,
-                    checkColor: Constants.themeBgColor,
-                    visualDensity: VisualDensity.compact,
-                    value: isgraduate,
-                    onChanged: (newValue) {
-                      setState(() {
-                        isgraduate = !isgraduate;
-                      });
-                      // Notify Flutter that the state has changed
-                    },
-                  ),
-                ),
+                  const Text("I am Graduate.")
+                ],
               ),
-              SizedBox(
-                width: 10.w,
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color:
+                            // selectedKeyResponsible.contains(item)
+                            Colors.grey,
+                        width: 1.5,
+                      ),
+                    ),
+                    height: 16,
+                    width: 20,
+                    child: Theme(
+                      data: ThemeData(
+                        unselectedWidgetColor: Colors.transparent,
+                      ),
+                      child: Checkbox(
+                        activeColor: Colors.white,
+                        checkColor: Constants.themeBgColor,
+                        visualDensity: VisualDensity.compact,
+                        value: isundergradute,
+                        onChanged: (newValue) {
+                          setState(() {
+                            isgraduate = false;
+                            isundergradute = true;
+                          });
+                          // Notify Flutter that the state has changed
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10.w,
+                  ),
+                  const Text("I am Under-Graduate.")
+                ],
               ),
-              const Text("I am Graduate.")
             ],
           ),
           const SizedBox(height: 10),
@@ -595,7 +730,7 @@ class _AddEducationState extends State<AddEducation> {
     );
   }
 
-  bool isgraduate = false;
+  bool isgraduate = false, isundergradute = false;
 
   Widget customWidgetGraduation() {
     return SizedBox(
@@ -716,25 +851,35 @@ class _AddEducationState extends State<AddEducation> {
     );
   }
 
+  saveEducation(data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      print("done");
+    }
+    setState(() {});
+  }
+
   bool isLoading = false;
 
-  save() async {
+  save(bool isSkip) async {
     setState(() {
       isLoading = true;
     });
     Education model = Education();
 
-    model = Education(
-      id: eduID,
-      userId: widget.userID,
-      //level: "Graduate",
-      university: universityController.text,
-      degree_spc: degreeController.text,
-      fieldOfStudy: fieldOfStudyController.text,
-      firstYear: int.parse(firstYearController.text),
-      passingYear: int.parse(passingYearController.text),
-      marksheet: marksheet,
-    );
+    if (!isSkip) {
+      model = Education(
+        id: eduID,
+        userId: widget.userID,
+        //level: "Graduate",
+        university: universityController.text,
+        degree_spc: degreeController.text,
+        fieldOfStudy: fieldOfStudyController.text,
+        firstYear: int.parse(firstYearController.text),
+        passingYear: int.parse(passingYearController.text),
+        marksheet: marksheet,
+      );
+    }
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
@@ -742,13 +887,16 @@ class _AddEducationState extends State<AddEducation> {
     await JobPostApiService.PostUserInfo(widget.introData);
     await JobPostApiService.updateLanguages(
         widget.languageModel, widget.userID);
-    await userDataService.saveUserExperience(widget.experience.toJson());
+    if (widget.experience.userId != null) {
+      await userDataService.saveUserExperience(widget.experience.toJson());
+    }
+
     if (!isSkip) {
       await userDataService.saveUserEducation(model.toMap());
     }
 
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+        context, MaterialPageRoute(builder: (context) => const AddCv()));
     /* if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));

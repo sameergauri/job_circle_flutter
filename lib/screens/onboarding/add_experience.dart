@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:job_circle/constants/custom_snackbar';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -88,6 +91,7 @@ class _AddExperienceState extends State<AddExperience> {
   int? userID;
 
   bool isEdit1 = false;
+  bool isEdit2 = false;
   bool isCompanyName = false;
   bool isCompanyLocation = false;
   bool isCOmpanyWebsite = false;
@@ -371,6 +375,7 @@ class _AddExperienceState extends State<AddExperience> {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
             automaticallyImplyLeading: false,
@@ -382,7 +387,7 @@ class _AddExperienceState extends State<AddExperience> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Add Experience",
+                      "Employement Detail",
                       style: GoogleFonts.varela(
                         fontSize: 18.sp,
                         color: Constants.themeBgColor,
@@ -404,35 +409,44 @@ class _AddExperienceState extends State<AddExperience> {
             ),
           ),
           extendBodyBehindAppBar: true,
-          bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
-                  companyController.text.isNotEmpty)
+          bottomNavigationBar: ((jobTitleController.text.isNotEmpty &&
+                      companyController.text.isNotEmpty) ||
+                  yes)
               ? InkWell(
-                  onTap: () {
-                    if (jobTitleController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Job title is not optional"));
-                    } else if (companyController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Company is not optional"));
+                  onTap: () async {
+                    if (jobTitleController.text.isEmpty && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: CustomSnackBar(
+                              title: "Job title is not optional")));
+                    } else if (companyController.text.isEmpty && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: CustomSnackBar(
+                              title: "Company is not optional")));
                     } else if (!isPartTime &&
                         !isFullTime &&
                         !isContract &&
-                        !isIntern) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from emp type."));
-                    } else if (companyLocationController.text.isEmpty) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(customSnackbar("Enter your location"));
-                    } else if (!isOnsite && !isHybrid && !isWfh) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option form work mode"));
-                    } else if (fetchApiskill.isEmpty) {
+                        !isIntern &&
+                        !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: CustomSnackBar(
+                              title: "Select any one option from emp type.")));
+                    } else if (companyLocationController.text.isEmpty && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content:
+                              CustomSnackBar(title: "Enter your location")));
+                    } else if (!isOnsite && !isHybrid && !isWfh && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: CustomSnackBar(
+                              title: "Select any one option form work mode")));
+                    } /* else if (fetchApiskill.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Add atleast one skill"));
-                    } else if (joiningDataController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Provide your joining dare"));
-                    } else if (!currentlyWorking &&
+                    } */
+                    else if (joiningDataController.text.isEmpty && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: CustomSnackBar(
+                              title: "Provide your joining dare")));
+                    } /*  else if (!currentlyWorking &&
                         lastWorkingController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Provide last working date"));
@@ -440,25 +454,37 @@ class _AddExperienceState extends State<AddExperience> {
                         (!isMonthly && !isYearly)) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
                           "Select any one option from salry type."));
-                    } else {
+                    } */
+                    else {
+                      var payload = {
+                        "stage": "experience",
+                        "data": {
+                          "id": await Utils.getPreferencesValue(
+                              null, ESharedPreferences.user_id.name),
+                          "experience": yes ? 0 : 1,
+                        }
+                      };
+                      await saveExperience(payload);
                       save();
                     }
                   },
                   child: Container(
-                    margin:
-                        const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    margin: const EdgeInsets.only(
+                        top: 10, left: 20, right: 20, bottom: 10),
                     decoration: BoxDecoration(
                         color: Constants.themeBgColor,
                         borderRadius: BorderRadius.circular(8.r)),
                     width: double.maxFinite,
-                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Next",
                           style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, color: Colors.white),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ],
                     ),
@@ -475,7 +501,7 @@ class _AddExperienceState extends State<AddExperience> {
     );
   }
 
-  SnackBar customSnackbar(String title) {
+  /* SnackBar customSnackbar(String title) {
     return SnackBar(
       backgroundColor:
           Colors.transparent, // Set background color to transparent
@@ -507,7 +533,9 @@ class _AddExperienceState extends State<AddExperience> {
       ),
       duration: const Duration(seconds: 3),
     );
-  }
+  } */
+
+  bool Enable = false;
 
   Widget _education() {
     return Container(
@@ -525,6 +553,7 @@ class _AddExperienceState extends State<AddExperience> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -551,6 +580,49 @@ class _AddExperienceState extends State<AddExperience> {
                               setState(() {
                                 yes = !yes;
                               });
+                              if (yes) {
+                                setState(() {
+                                  Enable = true;
+                                });
+                              } else {
+                                Enable = false;
+                              }
+
+                              setState(() {
+                                isEdit1 = false;
+                                isEdit2 = false;
+                                jobTitleController.clear();
+                                companyController.clear();
+                                description.clear();
+                                fetchApiskill.clear();
+                                isOnsite = false;
+                                isHybrid = false;
+                                isWfh = false;
+                                companyLocationController.clear();
+                                isFullTime = false;
+                                isPartTime = false;
+                                isContract = false;
+                                isIntern = false;
+                                joiningDataController.clear();
+                                lastWorkingController.clear();
+                                currentlyWorking = false;
+                                currentSalaryController.clear();
+                                year = false;
+                                month = false;
+                                offerLetter = null;
+                                appointmentLetter = null;
+                                alarySlip = null;
+                                incrementLetter = null;
+                                experienceLetter = null;
+                                imd = false;
+                                day15 = false;
+                                day30 = false;
+                                day60 = false;
+                                day90 = false;
+                                apportunities = false;
+                              });
+
+                              log(yes.toString());
                               // Notify Flutter that the state has changed
                             },
                           ),
@@ -563,49 +635,236 @@ class _AddExperienceState extends State<AddExperience> {
                     ],
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
-
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: CustomJobTitleForExperience(
-                      onIDSelected: () {},
-                      // isSelected: isIndustry,
-                      focusNode: titleFocus,
-                      role: "",
-                      isCompany: false,
-                      isIndustry: true,
-                      name: "job_title",
-                      title: "Job Title",
-                      controller: jobTitleController,
-                      onChanged: (p0) {
-                        isEdit1 = true;
-                      },
-                      contextIn: context,
-                      hintText: "Sales Manager",
-                    ),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      const Divider(
+                        color: Colors.black, // Customize the Divider as needed
+                      ),
+                      Container(
+                        color: Colors.white, // Background color of the text
+                        padding: const EdgeInsets.all(
+                            8.0), // Adjust padding as needed
+                        child: Text(
+                          "OR",
+                          style:
+                              GoogleFonts.varela(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-
-                  customCompanyforExperience(
-                      onTapCallback: () {},
-                      focusNode: cmpnyFocusNode,
-                      isCompany: true,
-                      name: "company",
-                      getid: getSuggestionList,
-                      /* onFocusNodeRequested: (p0) {
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Enable
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 25.h,
+                              child: TextField(
+                                enabled: false,
+                                decoration: InputDecoration(
+                                    prefixIcon:
+                                        const Icon(Icons.badge_outlined),
+                                    prefixIconColor: Constants.themeBgColor,
+                                    contentPadding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, left: 10, right: 10),
+                                    counterText: '',
+                                    labelText: "Job Title",
+                                    labelStyle: const TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb)),
+                                    ),
+                                    focusColor: const Color(0xffff0eceb),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                    ),
+                                    // hintText: hint,
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.hintColor,
+                                        fontSize: 15.sp)),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 25.h,
+                              child: TextField(
+                                enabled: false,
+                                decoration: InputDecoration(
+                                    prefixIcon:
+                                        const Icon(Icons.badge_outlined),
+                                    prefixIconColor: Constants.themeBgColor,
+                                    contentPadding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, left: 10, right: 10),
+                                    counterText: '',
+                                    labelText: "Company",
+                                    labelStyle: const TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb)),
+                                    ),
+                                    focusColor: const Color(0xffff0eceb),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                    ),
+                                    // hintText: hint,
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.hintColor,
+                                        fontSize: 15.sp)),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: isEdit2
+                                  ? SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              25.h,
+                                      child: TextField(
+                                        enabled: false,
+                                        decoration: InputDecoration(
+                                            prefixIcon: const Icon(
+                                                Icons.badge_outlined),
+                                            prefixIconColor:
+                                                Constants.themeBgColor,
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 8,
+                                                    left: 10,
+                                                    right: 10),
+                                            counterText: '',
+                                            labelText: jobTitleController.text,
+                                            labelStyle: const TextStyle(
+                                              color: Constants.themeBgColor,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              borderSide: const BorderSide(
+                                                  color: Color(0xffff0eceb)),
+                                            ),
+                                            focusColor:
+                                                const Color(0xffff0eceb),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              borderSide: const BorderSide(
+                                                color: Constants.themeBgColor,
+                                              ),
+                                            ),
+                                            // hintText: hint,
+                                            hintStyle:
+                                                GoogleFonts.sourceSansPro(
+                                                    color: Constants.hintColor,
+                                                    fontSize: 15.sp)),
+                                      ),
+                                    )
+                                  : CustomJobTitleForExperience(
+                                      onIDSelected: () {},
+                                      // isSelected: isIndustry,
+                                      //focusNode: titleFocus,
+                                      role: "",
+                                      isCompany: false,
+                                      isIndustry: true,
+                                      name: "job_title",
+                                      title: "Job Title",
+                                      controller: jobTitleController,
+                                      onChanged: (p0) {
+                                        setState(() {
+                                          isEdit1 = p0;
+                                        });
+                                      },
+                                      contextIn: context,
+                                      hintText: "Sales Manager",
+                                    ),
+                            ),
+                            const SizedBox(height: 10),
+                            isEdit2
+                                ? SizedBox(
+                                    height: MediaQuery.of(context).size.height /
+                                        25.h,
+                                    child: TextField(
+                                      enabled: false,
+                                      decoration: InputDecoration(
+                                          prefixIcon: const Icon(
+                                              Icons.domain_add_outlined),
+                                          prefixIconColor:
+                                              Constants.themeBgColor,
+                                          contentPadding: const EdgeInsets.only(
+                                              top: 8,
+                                              bottom: 8,
+                                              left: 10,
+                                              right: 10),
+                                          counterText: '',
+                                          labelText: companyController.text,
+                                          labelStyle: const TextStyle(
+                                            color: Constants.themeBgColor,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                                color: Color(0xffff0eceb)),
+                                          ),
+                                          focusColor: const Color(0xffff0eceb),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                              color: Constants.themeBgColor,
+                                            ),
+                                          ),
+                                          // hintText: hint,
+                                          hintStyle: GoogleFonts.sourceSansPro(
+                                              color: Constants.hintColor,
+                                              fontSize: 15.sp)),
+                                    ),
+                                  )
+                                : customCompanyforExperience(
+                                    onTapCallback: () {},
+                                    focusNode: cmpnyFocusNode,
+                                    isCompany: true,
+                                    name: "company",
+                                    getid: getSuggestionList,
+                                    /* onFocusNodeRequested: (p0) {
                                   focusNode.requestFocus();
                                 }, */
-                      title: "Client Name",
-                      controller: companyController,
-                      // isEdit: isEdit,
-                      //  focusNode: focusNode,
-                      onChanged: (p0) {},
-                      contextIn: context,
-                      //  onSubmit: (p0) {},
-                      hintText: "Aditya birla Health Insurance",
-                      // getSuggestions: getSuggestions,
-                      onIDSelected: () {}),
+                                    title: "Client Name",
+                                    controller: companyController,
+                                    // isEdit: isEdit,
+                                    //  focusNode: focusNode,
+                                    onChanged: (p0) {
+                                      setState(() {
+                                        isEdit2 = true;
+                                      });
+                                    },
+                                    contextIn: context,
+                                    //  onSubmit: (p0) {},
+                                    hintText: "Aditya birla Health Insurance",
+                                    // getSuggestions: getSuggestions,
+                                    onIDSelected: () {}),
+                          ],
+                        ),
 
                   /*                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -831,8 +1090,8 @@ class _AddExperienceState extends State<AddExperience> {
                         CustomTextField(
                             focusNode: descriptionFocus,
                             controller: description,
-                            hint: "About you",
-                            label: "Description",
+                            hint: "My Job profile is......",
+                            label: "Job Responsibilities",
                             isdescription: true,
                             icon: const Icon(Icons.description)),
                         SizedBox(
@@ -1209,8 +1468,9 @@ class _AddExperienceState extends State<AddExperience> {
                           },
                           contextIn: context,
                           onSubmit: (p0) {},
-                          hintText: "Thane",
-                          icon: const Icon(Icons.pin_drop_outlined),
+                          hintText: "Mumbai",
+                          labelText: "Work location",
+                          icon: const Icon(Icons.add_location_alt_outlined),
                           //  onIDSelected: handleSelectedID,
                           //   getSuggestions: getJobTitle,
                         ),
@@ -1309,163 +1569,212 @@ class _AddExperienceState extends State<AddExperience> {
                           onTap: () {
                             selectDateForJoiningDay();
                           },
-                          child: Container(
-                            // width: MediaQuery.of(context).size.width / 2.5,
-                            height: MediaQuery.of(context).size.height / 25,
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            // width: MediaQuery.of(context).size.width / 1.8,
-                            // height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              focusNode: joiningDateFocus,
-                              enabled: false,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: joiningDataController,
-                              /* onTap: () {
-                          selectDate();
+                          child: Stack(
+                            children: [
+                              Container(
+                                // width: MediaQuery.of(context).size.width / 2.5,
+                                height: MediaQuery.of(context).size.height / 25,
+                                margin: EdgeInsets.only(bottom: 5.h),
+                                // width: MediaQuery.of(context).size.width / 1.8,
+                                // height: 35,
+                                color: Colors.white,
+                                child: TextFormField(
+                                  focusNode: joiningDateFocus,
+                                  enabled: false,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "This Text field Cant be empty";
+                                    }
+                                    return null;
+                                  },
+                                  keyboardType: TextInputType.text,
+                                  controller: joiningDataController,
+                                  /* onTap: () {
+                              selectDate();
                         }, */
-                              style: GoogleFonts.varela(
-                                  color: Constants.hintColor, fontSize: 14.sp),
-                              decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.calendar_month_outlined),
-                                  prefixIconColor: Constants.themeBgColor,
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  counterText: '',
-                                  labelText: "Joining Date",
-                                  labelStyle: const TextStyle(
-                                    color: Constants.themeBgColor,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    borderSide: const BorderSide(
-                                        color: Constants.themeBgColor),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    borderSide: const BorderSide(
-                                      color: Constants.themeBgColor,
-                                    ),
-                                  ),
-                                  hintText: "26-Jan-2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
+                                  style: GoogleFonts.varela(
                                       color: Constants.hintColor,
-                                      fontSize: 15.sp)),
-                            ),
+                                      fontSize: 14.sp),
+                                  decoration: InputDecoration(
+                                      prefixIcon: const Icon(
+                                          Icons.edit_calendar_outlined),
+                                      prefixIconColor: Constants.themeBgColor,
+                                      contentPadding: const EdgeInsets.only(
+                                          top: 8,
+                                          bottom: 8,
+                                          left: 10,
+                                          right: 10),
+                                      counterText: '',
+                                      labelText: "Joining Date",
+                                      labelStyle: const TextStyle(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        borderSide: const BorderSide(
+                                            color: Constants.themeBgColor),
+                                      ),
+                                      focusColor: const Color(0xffff0eceb),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        borderSide: const BorderSide(
+                                          color: Constants.themeBgColor,
+                                        ),
+                                      ),
+                                      hintText: "26-Jan-2023",
+                                      hintStyle: GoogleFonts.sourceSansPro(
+                                          color: Constants.hintColor,
+                                          fontSize: 15.sp)),
+                                ),
+                              ),
+                              if (joiningDataController.text.isNotEmpty)
+                                Positioned(
+                                  right: 0,
+                                  child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          joiningDataController.clear();
+                                          lastWorkingController.clear();
+                                        });
+                                      },
+                                      child: Icon(Icons.close,
+                                          size: 20.h,
+                                          color: Constants.themeBgColor)),
+                                ),
+                            ],
                           ),
                         ),
                         SizedBox(
                           height: 6.h,
                         ),
-                        if (!currentlyWorking)
+                        if (!currentlyWorking &&
+                            joiningDataController.text.isNotEmpty)
                           InkWell(
                             onTap: !currentlyWorking
                                 ? () {
                                     selectDateForLastWorkingDay();
                                   }
                                 : () {},
-                            child: Container(
-                              // width: MediaQuery.of(context).size.width / 2.5,
-                              height: MediaQuery.of(context).size.height / 25,
-                              margin: EdgeInsets.only(bottom: 5.h),
-                              // width: MediaQuery.of(context).size.width / 1.8,
-                              // height: 35,
-                              color: Colors.white,
-                              child: TextFormField(
-                                focusNode: joiningDateFocus,
-                                enabled: false,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "This Text field Cant be empty";
-                                  }
-                                  return null;
-                                },
-                                keyboardType: TextInputType.text,
-                                controller: lastWorkingController,
-                                /* onTap: () {
+                            child: Stack(
+                              children: [
+                                Container(
+                                  // width: MediaQuery.of(context).size.width / 2.5,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  margin: EdgeInsets.only(bottom: 5.h),
+                                  // width: MediaQuery.of(context).size.width / 1.8,
+                                  // height: 35,
+                                  color: Colors.white,
+                                  child: TextFormField(
+                                    focusNode: joiningDateFocus,
+                                    enabled: false,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "This Text field Cant be empty";
+                                      }
+                                      return null;
+                                    },
+                                    keyboardType: TextInputType.text,
+                                    controller: lastWorkingController,
+                                    /* onTap: () {
                           selectDate();
                         }, */
-                                style: GoogleFonts.varela(
-                                    color: Constants.hintColor,
-                                    fontSize: 14.sp),
-                                decoration: InputDecoration(
-                                    prefixIcon: const Icon(
-                                        Icons.calendar_month_outlined),
-                                    prefixIconColor: Constants.themeBgColor,
-                                    contentPadding: const EdgeInsets.only(
-                                        top: 8, bottom: 8, left: 10, right: 10),
-                                    counterText: '',
-                                    labelText: "Last Working Date",
-                                    labelStyle: const TextStyle(
-                                      color: Constants.themeBgColor,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                          color: Constants.themeBgColor),
-                                    ),
-                                    focusColor: const Color(0xffff0eceb),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                        color: Constants.themeBgColor,
-                                      ),
-                                    ),
-                                    hintText: "26-Jan-2023",
-                                    hintStyle: GoogleFonts.sourceSansPro(
+                                    style: GoogleFonts.varela(
                                         color: Constants.hintColor,
-                                        fontSize: 15.sp)),
-                              ),
+                                        fontSize: 14.sp),
+                                    decoration: InputDecoration(
+                                        prefixIcon: const Icon(
+                                            Icons.edit_calendar_outlined),
+                                        prefixIconColor: Constants.themeBgColor,
+                                        contentPadding: const EdgeInsets.only(
+                                            top: 8,
+                                            bottom: 8,
+                                            left: 10,
+                                            right: 10),
+                                        counterText: '',
+                                        labelText: "Last Working Date",
+                                        labelStyle: const TextStyle(
+                                          color: Constants.themeBgColor,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: const BorderSide(
+                                              color: Constants.themeBgColor),
+                                        ),
+                                        focusColor: const Color(0xffff0eceb),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: const BorderSide(
+                                            color: Constants.themeBgColor,
+                                          ),
+                                        ),
+                                        hintText: "26-Jan-2023",
+                                        hintStyle: GoogleFonts.sourceSansPro(
+                                            color: Constants.hintColor,
+                                            fontSize: 15.sp)),
+                                  ),
+                                ),
+                                if (lastWorkingController.text.isNotEmpty)
+                                  Positioned(
+                                    right: 0,
+                                    child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            lastWorkingController.clear();
+                                          });
+                                        },
+                                        child: Icon(Icons.close,
+                                            size: 20.h,
+                                            color: Constants.themeBgColor)),
+                                  ),
+                              ],
                             ),
                           ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Text("I am currently working."),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      // selectedKeyResponsible.contains(item)
-                                      Colors.grey,
-                                  width: 1.5,
+                        if (joiningDataController.text.isNotEmpty &&
+                            lastWorkingController.text.isEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Text("I am currently working."),
+                              SizedBox(
+                                width: 10.w,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color:
+                                        // selectedKeyResponsible.contains(item)
+                                        Colors.grey,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                height: 16,
+                                width: 20,
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.transparent,
+                                  ),
+                                  child: Checkbox(
+                                    activeColor: Colors.white,
+                                    checkColor: Constants.themeBgColor,
+                                    visualDensity: VisualDensity.compact,
+                                    value: currentlyWorking,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        currentlyWorking = !currentlyWorking;
+                                      });
+                                      // Notify Flutter that the state has changed
+                                    },
+                                  ),
                                 ),
                               ),
-                              height: 16,
-                              width: 20,
-                              child: Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
-                                ),
-                                child: Checkbox(
-                                  activeColor: Colors.white,
-                                  checkColor: Constants.themeBgColor,
-                                  visualDensity: VisualDensity.compact,
-                                  value: currentlyWorking,
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      currentlyWorking = !currentlyWorking;
-                                    });
-                                    // Notify Flutter that the state has changed
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
 
                         Container(
 
@@ -2726,6 +3035,14 @@ class _AddExperienceState extends State<AddExperience> {
     );
   }
 
+  saveExperience(data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      print("done");
+    }
+    setState(() {});
+  }
+
   bool isPartTime = false,
       isFullTime = false,
       isContract = false,
@@ -2827,7 +3144,7 @@ class _AddExperienceState extends State<AddExperience> {
         context,
         MaterialPageRoute(
             builder: (context) => AddEducation(
-                  experience: experience,
+                  experience: yes ? Experience() : experience,
                   introData: widget.introData,
                   languageModel: widget.languageModel,
                   userID: widget.userID,

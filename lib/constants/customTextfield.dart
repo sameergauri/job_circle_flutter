@@ -2875,7 +2875,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
   late String title = widget.title;
 
   late String? firstText = widget.firstText;
-  late String? cityname;
+  String? cityname = '';
 
   late String selectedID;
 
@@ -3283,7 +3283,8 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                     labelStyle: const TextStyle(
                                       color: Constants.themeBgColor,
                                     ),
-                                    prefixIcon: const Icon(Icons.home_outlined),
+                                    prefixIcon:
+                                        const Icon(Icons.house_outlined),
                                     prefixIconColor: Constants.themeBgColor,
                                     //label: Text("Reside at"),
                                     hintText: hintText,
@@ -3533,7 +3534,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
             style: GoogleFonts.varela(color: Constants.subtitleclr),
             decoration: InputDecoration(
                 prefixIconColor: Constants.themeBgColor,
-                prefixIcon: const Icon(Icons.home_outlined),
+                prefixIcon: const Icon(Icons.house_outlined),
                 contentPadding: const EdgeInsets.only(
                     top: 8, bottom: 8, left: 10, right: 10),
                 counterText: '',
@@ -3740,19 +3741,19 @@ class _CustomJobTitleForExperienceState
   void initState() {
     // TODO: implement initState
     super.initState();
-    widget.focusNode!.addListener(() {
+    /*  widget.focusNode!.addListener(() {
       setState(() {
         suggestionSelected =
             widget.focusNode!.hasFocus && controller!.text.isEmpty
                 ? false
                 : true;
       });
-    });
+    }); */
   }
 
   @override
   void dispose() {
-    widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
+    // Don't forget to dispose of the focus node
     super.dispose();
   }
 
@@ -3860,7 +3861,7 @@ class _CustomJobTitleForExperienceState
                 suggestionSelected = true;
               });
             },
-            enabled: !suggestionSelected,
+            // enabled: !suggestionSelected,
             onChanged: (value) {
               suggestion = null;
             },
@@ -3875,7 +3876,7 @@ class _CustomJobTitleForExperienceState
               labelStyle: GoogleFonts.varela(
                   color: Constants.themeBgColor, fontSize: 15.sp),
               prefixIcon: const Icon(
-                Icons.perm_contact_calendar_sharp,
+                Icons.badge_outlined,
                 color: Constants.themeBgColor,
               ),
               prefixIconColor: Constants.themeBgColor,
@@ -3935,6 +3936,7 @@ class _CustomJobTitleForExperienceState
           },
           onSuggestionSelected: (suggestion) {
             // widget.focusNode!.nextFocus();
+            widget.onChanged(true);
             setState(() {
               controller!.text = suggestion.value.toString();
               suggestionSelected = true;

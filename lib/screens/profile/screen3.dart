@@ -9,7 +9,6 @@ import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -622,7 +621,9 @@ class _Screen3State extends State<Screen3> {
                             ),
                           ),
                     Text(
-                      "Introduce your experience to the recruiters",
+                      "Adding role and companies you have worked \nwith help employers understand your background.",
+                      softWrap: true,
+                      maxLines: 2,
                       style: GoogleFonts.varela(
                           color: Colors.grey.shade600,
                           fontSize: 12.sp,
@@ -655,7 +656,7 @@ class _Screen3State extends State<Screen3> {
                       companyController.text.isNotEmpty) &&
                   (yes || no)
               ? InkWell(
-                  onTap: () {
+                  onTap: () async {
                     if (jobTitleController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Job title is not optional"));
@@ -692,6 +693,15 @@ class _Screen3State extends State<Screen3> {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
                           "Select any one option from salry type."));
                     } else {
+                      var payload = {
+                        "stage": "experience",
+                        "data": {
+                          "id": await Utils.getPreferencesValue(
+                              null, ESharedPreferences.user_id.name),
+                          "experience": 1,
+                        }
+                      };
+                      await saveExperience(payload);
                       save();
                     }
                   },
@@ -3315,6 +3325,14 @@ class _Screen3State extends State<Screen3> {
                     color: Constants.themeBgColor, fontSize: 15.sp))));
   }
 
+  saveExperience(data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      print("done");
+    }
+    setState(() {});
+  }
+
   save() async {
     // Retrieve the form data
 
@@ -3388,8 +3406,8 @@ class _Screen3State extends State<Screen3> {
                     isFirst: false,
                   )));
     } else { */
-      Navigator.pop(context);
-   // }
+    Navigator.pop(context);
+    // }
   }
 
   InkWell customContainerSelectForWorkingType({

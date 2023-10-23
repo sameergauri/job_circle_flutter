@@ -95,12 +95,8 @@ class _SkillsMultiState extends State<SkillsMulti> {
   }
 
   void save() async {
-    List<String> skills = selectedValues;
-
-    ProfileSummaryModel model = ProfileSummaryModel(
-      id: expID,
-      skills: selectedlist,
-    );
+    ProfileSummaryModel model =
+        ProfileSummaryModel(id: expID, skills: selectedlist);
     Map<String, dynamic> jsonData = model.toJson();
     await updateSkills(jsonData, expID!);
     Navigator.pop(context);
@@ -110,7 +106,7 @@ class _SkillsMultiState extends State<SkillsMulti> {
   }
 
   List<String> suggestions = [];
-  List<String> selectedlist = [];
+  List<String>? selectedlist;
 
   /*  Future<List<Skill>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
@@ -239,7 +235,7 @@ class _SkillsMultiState extends State<SkillsMulti> {
               const SizedBox(
                 height: 10,
               ),
-              if (selectedlist.isNotEmpty)
+              if (selectedlist != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -251,32 +247,33 @@ class _SkillsMultiState extends State<SkillsMulti> {
                     SizedBox(
                       height: 5.h,
                     ),
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      alignment: WrapAlignment.start,
-                      children: selectedlist.map((suggestion) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (!selectedlist.contains(suggestions)) {
-                                selectedlist.remove(suggestion);
-                                suggestions.add(suggestion);
-                              }
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(
-                                bottom: 2, top: 2, left: 2, right: 2),
-                            decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(8.r)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 6.h, horizontal: 10.w),
-                            child: Text(suggestion.toString()),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    if (selectedlist != null)
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.start,
+                        alignment: WrapAlignment.start,
+                        children: selectedlist!.map((suggestion) {
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (!selectedlist!.contains(suggestions)) {
+                                  selectedlist!.remove(suggestion);
+                                  suggestions.add(suggestion);
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(
+                                  bottom: 2, top: 2, left: 2, right: 2),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 6.h, horizontal: 10.w),
+                              child: Text(suggestion.toString()),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     SizedBox(
                       height: 05.h,
                     ),
@@ -298,37 +295,38 @@ class _SkillsMultiState extends State<SkillsMulti> {
                     SizedBox(
                       height: 5.h,
                     ),
-                    Wrap(
-                      children: suggestions.map((suggestion) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (!selectedlist.contains(suggestion)) {
-                                selectedlist.add(suggestion);
-                                suggestions.remove(suggestion);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        '$suggestion Already added in the list.'),
-                                  ),
-                                );
-                              }
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(
-                                bottom: 2, top: 2, left: 2, right: 2),
-                            decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8.r)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 6.h, horizontal: 10.w),
-                            child: Text(suggestion.toString()),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    if (selectedlist != null)
+                      Wrap(
+                        children: suggestions.map((suggestion) {
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (!selectedlist!.contains(suggestion)) {
+                                  selectedlist!.add(suggestion);
+                                  suggestions.remove(suggestion);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          '$suggestion Already added in the list.'),
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(
+                                  bottom: 2, top: 2, left: 2, right: 2),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 6.h, horizontal: 10.w),
+                              child: Text(suggestion.toString()),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                   ],
                 ),
               const SizedBox(height: 20),

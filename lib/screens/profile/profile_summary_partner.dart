@@ -2,16 +2,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/components/cv.dart';
-import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
-import 'package:job_circle/screens/profile/screen2.dart';
-import 'package:job_circle/screens/profile/screen3.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -102,7 +97,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
         body: SafeArea(
           bottom: false,
           child: Column(
-            children: [
+            children: const [
               // Center(
               //     child: Padding(
               //   padding: const EdgeInsets.all(8.0),
@@ -668,8 +663,9 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
       context,
       MaterialPageRoute(
         builder: (context) => Screen1(
+          isbio: false,
           prevPageModel: profilemodel,
-          isfirst:  false,
+          isfirst: false,
         ),
       ),
     );

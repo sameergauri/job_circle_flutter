@@ -443,102 +443,94 @@ class _JobsState extends ConsumerState<Jobs>
             child: ListView(
               padding: const EdgeInsets.all(0),
               children: [
-                SizedBox(
-                  height: 200,
-                  child: UserAccountsDrawerHeader(
-                    margin: EdgeInsets.only(left: 10.w),
-                    decoration:
-                        const BoxDecoration(color: Constants.themeBgColorLight),
-                    accountName: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "User Name",
+                UserAccountsDrawerHeader(
+                  margin: EdgeInsets.only(left: 10.w),
+                  decoration:
+                      const BoxDecoration(color: Constants.themeBgColorLight),
+                  accountName: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                        style: GoogleFonts.varela(
+                            fontSize: 16.sp,
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(profilemodel.user_location.toString(),
                           style: GoogleFonts.varela(
-                              fontSize: 12.sp, color: Constants.themeBgColor),
-                        ),
-                        Text(
-                          "Tag line",
-                          style: GoogleFonts.varela(
-                              fontSize: 12.sp, color: Colors.black),
-                        ),
-                        Text(
-                          "Location",
-                          style: GoogleFonts.varela(
-                              fontSize: 12.sp, color: Colors.black),
-                        )
-                      ],
-                    ),
-                    accountEmail: const Text(""),
-                    currentAccountPictureSize: const Size.square(40),
-                    currentAccountPicture: InkWell(
-                        onTap: () async {
-                          Navigator.of(context).pop();
-                          await Navigator.pushNamed(
-                              context, ERoute.profile_summary.name);
-
-                          closeDrawer(); // Call the function to close the drawer
-                        },
-                        child: profilemodel.profile_pic == null
-                            ? CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.asset("assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.asset(
-                                        "assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)
-                                    .image)
-                            : CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.network(
-                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.network(
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
-                                ).image,
-                              )),
-
-                    /* CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.asset("assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.asset(
-                                        "assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)
-                                    .image)
-                            : CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.asset("assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.network(
-                                  profile_final_pic,
-                                ).image,
-                              )),  */ //circleAvatar
+                              fontSize: 14.sp, color: Constants.themeBgColor))
+                    ],
                   ),
+                  accountEmail: null,
+                  //  currentAccountPictureSize: const Size.square(40),
+                  currentAccountPicture: InkWell(
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                        await Navigator.pushNamed(
+                            context, ERoute.profile_summary.name);
+
+                        closeDrawer(); // Call the function to close the drawer
+                      },
+                      child: profilemodel.profile_pic == null
+                          ? CircleAvatar(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 190, 190),
+                              radius: 43,
+                              onBackgroundImageError: ((error, stackTrace) =>
+                                  Image.asset("assets/images/company.png",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)),
+                              backgroundImage: Image.asset(
+                                      "assets/images/company.png",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)
+                                  .image)
+                          : CircleAvatar(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 190, 190),
+                              radius: 43,
+                              onBackgroundImageError: ((error, stackTrace) =>
+                                  Image.network(
+                                      "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)),
+                              backgroundImage: Image.network(
+                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                              ).image,
+                            )),
+
+                  /* CircleAvatar(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 190, 190),
+                              radius: 43,
+                              onBackgroundImageError: ((error, stackTrace) =>
+                                  Image.asset("assets/images/company.png",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)),
+                              backgroundImage: Image.asset(
+                                      "assets/images/company.png",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)
+                                  .image)
+                          : CircleAvatar(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 190, 190),
+                              radius: 43,
+                              onBackgroundImageError: ((error, stackTrace) =>
+                                  Image.asset("assets/images/company.png",
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.contain)),
+                              backgroundImage: Image.network(
+                                profile_final_pic,
+                              ).image,
+                            )),  */ //circleAvatar
                 ), //DrawerHeader
                 ListTile(
                   minLeadingWidth: 0.0,
@@ -1081,7 +1073,7 @@ class _JobsState extends ConsumerState<Jobs>
                             }); */
                       }),
                       child: Text(
-                          user_selected_lcoation == "" &&
+                          user_selected_lcoation == "" ||
                                   user_selected_lcoation == null
                               ? 'Select Location'
                               : user_selected_lcoation,

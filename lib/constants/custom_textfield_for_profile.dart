@@ -661,7 +661,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         labelStyle: GoogleFonts.varela(
                             color: Constants.themeBgColor, fontSize: 15.sp),
                         prefixIcon: const Icon(
-                          Icons.lightbulb_outline,
+                          Icons.star_border_outlined,
                           color: Constants.themeBgColor,
                         ),
                         prefixIconColor: Constants.themeBgColor,
@@ -1019,9 +1019,9 @@ class _customCompanyforExperienceState
           elevation: 4.0,
         ),
         textFieldConfiguration: TextFieldConfiguration(
-          enabled: !suggestionSelected,
+          // enabled: !suggestionSelected,
           focusNode: widget.focusNode,
-          onTapOutside: (event) {
+          /* onTapOutside: (event) {
             setState(() {
               suggestionSelected = true;
             });
@@ -1034,8 +1034,8 @@ class _customCompanyforExperienceState
 
           onChanged: (value) {
             suggestion = null;
-          },
-          autofocus: true,
+          }, */
+          // autofocus: true,
 
           // focusNode: focusNode,
           textCapitalization: TextCapitalization.sentences,
@@ -1047,7 +1047,7 @@ class _customCompanyforExperienceState
             labelStyle: GoogleFonts.varela(
                 color: Constants.themeBgColor, fontSize: 15.sp),
             prefixIcon: const Icon(
-              Icons.holiday_village_outlined,
+              Icons.domain_add_outlined,
               color: Constants.themeBgColor,
             ),
             prefixIconColor: Constants.themeBgColor,
@@ -1119,6 +1119,7 @@ class _customCompanyforExperienceState
         }, */
         onSuggestionSelected: (suggestion) {
           setState(() {
+            widget.onChanged(true);
             controller!.text = suggestion.name.toString();
             widget.getid!(suggestion.id);
             suggestionSelected = true;

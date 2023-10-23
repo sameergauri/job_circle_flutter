@@ -103,7 +103,7 @@ class _AddIntoductionState extends State<AddIntoduction>
   String gender = "";
   String martialStatus = "";
   String? Localityfinal;
-  String? cityname = "";
+  String? cityname;
   List<dynamic> selectedValuesList = [];
   List<String> selectedValues = [];
   FocusNode industryFocus = FocusNode();
@@ -523,11 +523,11 @@ class _AddIntoductionState extends State<AddIntoduction>
             } else if (resideAt != null && resideAt!.isEmpty) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Current Residence Town?"));
-            } else if (secondaryNumber.text.isNotEmpty &&
+            } /* else if (secondaryNumber.text.isNotEmpty &&
                 secondaryNumber.text.length < 10) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Incorrect alternate number."));
-            } /* else if (!isEmailValid(emailadr.text)) {
+            } */ /* else if (!isEmailValid(emailadr.text)) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Invalid email"));
             } else if (emailadr.text.isNotEmpty) {
@@ -952,7 +952,9 @@ class _AddIntoductionState extends State<AddIntoduction>
                       });
                     },
                     contextIn: context,
-                    hintText: cityname == null && Localityfinal == null
+                    hintText: cityname == null ||
+                            cityname == "" && Localityfinal == null ||
+                            Localityfinal == ""
                         ? "Thane, Mumbai"
                         : resideAt.toString(),
                   ),

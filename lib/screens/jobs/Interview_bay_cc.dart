@@ -882,7 +882,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                 scrollDirection: Axis.vertical,
                                                 // Use appropriate scroll physics as needed (e.g., BouncingScrollPhysics())
                                                 physics:
-                                                    BouncingScrollPhysics(),
+                                                    const BouncingScrollPhysics(),
                                                 shrinkWrap: true,
                                                 itemCount:
                                                     filteredApplicants.length,

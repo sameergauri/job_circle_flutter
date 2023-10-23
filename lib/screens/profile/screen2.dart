@@ -543,7 +543,7 @@ class _Screen2State extends State<Screen2> {
                                 ),
                               ),
                         Text(
-                          "Let recruiter know your value as a\n potential",
+                          "Adding your education details will help recruiters to know your value as a potential candidate.",
                           style: GoogleFonts.varela(
                               color: Colors.grey.shade600,
                               fontSize: 12.sp,

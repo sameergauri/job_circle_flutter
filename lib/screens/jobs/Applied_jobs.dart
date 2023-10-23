@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -9,6 +10,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,18 +20,24 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
+final fetchAllApplicantProvider = FutureProvider.family<List<Applicant>, int>(
+    (ref, id) => _AppliedJobState.fetchApplicantsByUserId(id));
 //enum Issue { no, incorrect, recruiter, other }
 
-class AppliedJob extends StatefulWidget {
+class AppliedJob extends ConsumerStatefulWidget {
   const AppliedJob({
     super.key,
   });
 
   @override
-  State<AppliedJob> createState() => _AppliedJobState();
+  ConsumerState<AppliedJob> createState() => _AppliedJobState();
 }
 
-class _AppliedJobState extends State<AppliedJob>
+List<String> getStatuses(List<Applicant> applicants) {
+  return applicants.map((e) => e.status.toString()).toSet().toList()..sort();
+}
+
+class _AppliedJobState extends ConsumerState<AppliedJob>
     with SingleTickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -64,7 +72,7 @@ class _AppliedJobState extends State<AppliedJob>
     }
   }
 
-  Future<List<Applicant>> fetchApplicantsByUserId(int userId) async {
+  static Future<List<Applicant>> fetchApplicantsByUserId(int userId) async {
     final url = Uri.parse(
         'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userId');
     try {
@@ -129,78 +137,101 @@ class _AppliedJobState extends State<AppliedJob>
     if (profilemodel == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
+      var fetchApplicants = profilemodel.id != null
+          ? ref.watch(fetchAllApplicantProvider(profilemodel.id!.toInt()))
+          : null;
       // Build your widget's UI with the 'profilemodel' data
       // For example:
-      return FutureBuilder<List<Applicant>>(
-        future: fetchApplicantsByUserId(profilemodel.id ?? 552),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            final data = snapshot.data!;
-            final statuses =
-                data.map((e) => e.status.toString()).toSet().toList().toList();
-            statuses.sort();
-            return DefaultTabController(
-              length: statuses.length,
-              child: Scaffold(
-                appBar: PreferredSize(
-                  preferredSize:
-                      const Size(double.maxFinite, kTextTabBarHeight),
-                  child: AppBar(
-                    backgroundColor: Colors.white,
-                    bottom: TabBar(
-                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                      labelColor: Colors.black,
-                      isScrollable: true,
-                      unselectedLabelColor: Colors.black,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      splashBorderRadius: BorderRadius.circular(8),
-                      //indicatorSize: TabBarIndicatorSize.label,
-                      indicatorWeight: 1.h,
-                      indicatorPadding: EdgeInsets.only(
-                          top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
-                      //indicatorSize: TabBarIndicatorSize.label,
-                      // indicatorWeight: 0,
-                      indicator: BoxDecoration(
-                          color: Constants.borderColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                              color: Constants.borderColor) // Creates border
-                          ),
-                      tabs: statuses
-                          .map(
-                            (e) => Tab(
-                              child: customTab(
-                                e,
-                              ),
+      return PageStorage(
+          bucket: PageStorageBucket(),
+          key: const PageStorageKey<String>("futureKey"),
+          child: fetchApplicants != null
+              ? fetchApplicants.when(data: (fetchData) {
+                  List<Applicant>? dataList = fetchData;
+                  bool anyItemMeetsCondition = false;
+                  for (Applicant item in dataList) {
+                    // If the condition is met for any item, set the flag to true and break the loop
+                    anyItemMeetsCondition = true;
+                    break;
+                  }
+                  if (anyItemMeetsCondition) {
+                    final data = fetchData;
+                    final statuses = getStatuses(data);
+                    return DefaultTabController(
+                      length: statuses.length,
+                      child: Scaffold(
+                        appBar: PreferredSize(
+                          preferredSize:
+                              const Size(double.maxFinite, kTextTabBarHeight),
+                          child: AppBar(
+                            backgroundColor: Colors.white,
+                            bottom: TabBar(
+                              labelPadding:
+                                  const EdgeInsets.only(left: 5, right: 5),
+                              labelColor: Colors.black,
+                              isScrollable: true,
+                              unselectedLabelColor: Colors.black,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              splashBorderRadius: BorderRadius.circular(8),
+                              //indicatorSize: TabBarIndicatorSize.label,
+                              indicatorWeight: 1.h,
+                              indicatorPadding: EdgeInsets.only(
+                                  top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
+                              //indicatorSize: TabBarIndicatorSize.label,
+                              // indicatorWeight: 0,
+                              indicator: BoxDecoration(
+                                  color: Constants.borderColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: Constants
+                                          .borderColor) // Creates border
+                                  ),
+                              tabs: statuses
+                                  .map(
+                                    (e) => Tab(
+                                      child: customTab(
+                                        e,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ),
-                body: TabBarView(
-                  children: statuses
-                      .map(
-                        (e) => ListView(
-                          shrinkWrap: true,
-                          children: data
-                              .where(
-                                (applicant) => applicant.status.toString() == e,
-                              )
+                          ),
+                        ),
+                        body: TabBarView(
+                          children: statuses
                               .map(
-                                (e) => listViewItem_new(context, e, true),
+                                (e) => ListView(
+                                  shrinkWrap: true,
+                                  children: data
+                                      .where(
+                                        (applicant) =>
+                                            applicant.status.toString() == e,
+                                      )
+                                      .map(
+                                        (e) =>
+                                            listViewItem_new(context, e, true),
+                                      )
+                                      .toList(),
+                                ),
                               )
                               .toList(),
                         ),
-                      )
-                      .toList(),
-                ),
-              ),
-            );
-          }
-          return const SizedBox();
-        },
-      );
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text("No data to display"),
+                    );
+                  }
+                }, error: (error, stackTrace) {
+                  return const Center(
+                    child: Text("Error while fetching the data"),
+                  );
+                }, loading: () {
+                  return const CircularProgressIndicator();
+                })
+              : const Center(child: SizedBox()));
     }
   }
 
@@ -244,11 +275,12 @@ class _AppliedJobState extends State<AppliedJob>
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
-                  Text(
-                    " - ",
-                    style: GoogleFonts.varela(
-                        fontWeight: FontWeight.bold, fontSize: 16.sp),
-                  ),
+                  if (item.leadLevel != null)
+                    Text(
+                      " - ",
+                      style: GoogleFonts.varela(
+                          fontWeight: FontWeight.bold, fontSize: 16.sp),
+                    ),
                   if (item.leadLevel != null)
                     Text(
                       item.leadLevel == ""
@@ -374,11 +406,12 @@ class _AppliedJobState extends State<AppliedJob>
                               ),
                             ],
                           ),
-                          Text(
-                            "akdjgkjkjadgkjajshdkh jkgasg",
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.w500, fontSize: 14.sp),
-                          )
+                          if (item.remark != null)
+                            Text(
+                              item.remark.toString(),
+                              style: GoogleFonts.varela(
+                                  fontWeight: FontWeight.w500, fontSize: 14.sp),
+                            )
                         ],
                       ),
                     )
@@ -390,29 +423,37 @@ class _AppliedJobState extends State<AppliedJob>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                          // border: Border.all(color: Constants.themeBgColor),
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/images/similar.png",
-                            height: 15.h,
-                          ),
-                          const SizedBox(
-                            width: 3,
-                          ),
-                          Text(
-                            "View More Jobs",
-                            style: GoogleFonts.varela(
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                            // border: Border.all(color: Constants.themeBgColor),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              "assets/images/similar.png",
+                              height: 15.h,
+                            ),
+                            const SizedBox(
+                              width: 3,
+                            ),
+                            Text(
+                              "View More Jobs",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),
@@ -420,7 +461,7 @@ class _AppliedJobState extends State<AppliedJob>
                       isChat: true,
                       onTap: () async {
                         Uri url = Uri.parse(
-                            "whatsapp://send?phone=91${jobDetailsModel.spoc_contact}");
+                            "whatsapp://send?phone=91${item.spocContactNo}");
                         await canLaunchUrl(url)
                             ? await launchUrl(url)
                             : throw "could not launch $url";
@@ -433,7 +474,7 @@ class _AppliedJobState extends State<AppliedJob>
                       isChat: false,
                       onTap: () async {
                         FlutterPhoneDirectCaller.callNumber(
-                            "+91${jobDetailsModel.spoc_contact}");
+                            "+91${item.spocContactNo}");
                       },
                     ),
                   ],

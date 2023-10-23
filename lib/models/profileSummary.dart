@@ -354,6 +354,7 @@ class Experience with Searchable {
   String? increment_letter;
   String? availability;
   String? shortname;
+  String? icon;
 
   Experience(
       {this.id,
@@ -376,7 +377,9 @@ class Experience with Searchable {
       this.experience_letter,
       this.increment_letter,
       this.availability,
-      this.shortname});
+      this.shortname,
+      this.icon
+      });
 
   static Experience fromMap(Map<String, dynamic> map) {
     return Experience(
@@ -405,6 +408,7 @@ class Experience with Searchable {
       isCurrent: map['isCurrent'],
       offer_letter: map['offer_letter'],
       shortname: map['shortname'],
+      icon: map['icon']
     );
   }
 
@@ -439,6 +443,7 @@ class Experience with Searchable {
       'offer_letter': offer_letter,
       'isCurrent': isCurrent,
       'shortname': shortname,
+      'icon': icon
     };
   }
 
@@ -469,6 +474,7 @@ class Experience with Searchable {
       isCurrent: json['isCurrent'],
       offer_letter: json['offer_letter'],
       shortname: json['shortname'],
+      icon:json['icon']
     );
   }
 
@@ -495,6 +501,7 @@ class Experience with Searchable {
       'offer_letter': offer_letter,
       'isCurrent': isCurrent,
       'shortname': shortname,
+      'icon': icon
     };
   }
 

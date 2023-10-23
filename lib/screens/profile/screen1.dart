@@ -33,9 +33,11 @@ class Screen1 extends StatefulWidget {
   Screen1(
       {Key? key,
       this.prevPageModel,
+      required this.isbio,
       required this.isfirst,
       this.primaryNumberValue})
       : super(key: key);
+  final bool isbio;
   late ProfileSummaryModel? prevPageModel;
   final bool isfirst;
   final String? primaryNumberValue;
@@ -104,8 +106,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
 
   String gender = "";
   String martialStatus = "";
-  String? Localityfinal;
-  String? cityname;
+  String Localityfinal = '';
+  String cityname = '';
   List<dynamic> selectedValuesList = [];
   List<String> selectedValues = [];
   FocusNode industryFocus = FocusNode();
@@ -213,6 +215,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
             : primaryNumber.text;
       });
     });
+    if (widget.isbio) {
+      aboutmefocus.requestFocus();
+    }
 
     primaryNumberFocus.addListener(() {
       if (!primaryNumberFocus.hasFocus) {
