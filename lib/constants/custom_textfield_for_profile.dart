@@ -117,7 +117,7 @@ class _CustomTextFieldComapanyLocationState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=1000000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -129,7 +129,7 @@ class _CustomTextFieldComapanyLocationState
       for (var entry in content) {
         String? value = entry['value']?.toString();
         if (value != null &&
-            value.toLowerCase().startsWith(pattern.toLowerCase()) &&
+            value.toLowerCase().contains(pattern.toLowerCase()) &&
             !value.toLowerCase().contains("anywhere")) {
           if (!uniqueValues.contains(value)) {
             uniqueValues.add(value);
@@ -361,6 +361,29 @@ class _CustomTextFieldComapanyLocationState
         },
         noItemsFoundBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
+              ? 'No result found. Search again and select from suggestion or add a new item.'
+              : 'Searching';
+
+          return InkWell(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Container(
+                margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
+                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.add,
+                      size: 15,
+                    ),
+                    Text("Add"),
+                  ],
+                )),
+          );
+        },
+        /* noItemsFoundBuilder: (value) {
+          final message = suggestion != null && suggestion!.isEmpty
               ? 'No result found. Search again and select from suggestion.'
               : 'Searching';
 
@@ -371,7 +394,7 @@ class _CustomTextFieldComapanyLocationState
               style: const TextStyle(fontStyle: FontStyle.italic),
             ),
           );
-        },
+        }, */
       ),
     );
   }
@@ -978,19 +1001,19 @@ class _customCompanyforExperienceState
   void initState() {
     // TODO: implement initState
     super.initState();
-    widget.focusNode!.addListener(() {
+    /*  widget.focusNode!.addListener(() {
       setState(() {
         suggestionSelected =
             widget.focusNode!.hasFocus && controller!.text.isEmpty
                 ? false
                 : true;
       });
-    });
+    }); */
   }
 
   @override
   void dispose() {
-    widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
+    //  widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
     super.dispose();
   }
 

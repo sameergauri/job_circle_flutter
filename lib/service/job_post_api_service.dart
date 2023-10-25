@@ -279,6 +279,26 @@ class JobPostApiService {
     }
   }
 
+  static Future<void> postEducation(Map<dynamic, dynamic> jsonData) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host}/edu/v1';
+
+    try {
+      var response = await http.post(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print("data posted succesully");
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   static Future<void> DeletExperience(
       int id, BuildContext context, String urlcode) async {
     String apiurl =

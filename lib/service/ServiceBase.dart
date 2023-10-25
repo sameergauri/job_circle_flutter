@@ -67,7 +67,7 @@ class ServiceBase {
       {Map<String, String>? param, Map<String, String>? headers}) async {
     Uri url = Uri.http(GlobalConstants.API_Host_one, endpoint, param ?? {});
     if (kDebugMode) {
-    //  print(url);
+      //  print(url);
     }
     SharedPreferences preferences = await Utils.getSharedPreferences();
     Object? token = await Utils.getPreferencesValue(preferences, "token");

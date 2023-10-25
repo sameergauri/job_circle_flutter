@@ -15,7 +15,6 @@ import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/utils.dart';
-import '../../constants/customTextfield.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
@@ -26,12 +25,13 @@ class Screen2 extends StatefulWidget {
       this.prevPageModel,
       this.selectedLevel,
       this.educationList,
-      required this.isFirst})
+      required this.isFirst,
+      required this.isEdit})
       : super(key: key);
   late Education? prevPageModel;
   late String? selectedLevel;
   late List<Education>? educationList;
-  final bool isFirst;
+  final bool isFirst, isEdit;
 
   @override
   State<Screen2> createState() => _Screen2State();
@@ -488,7 +488,15 @@ class _Screen2State extends State<Screen2> {
                             customSnackbar("The Degree is already added"));
                         // break;
                       } else {
-                        save();
+                        if (degreeController.text.isEmpty) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(customSnackbar("Add degree first"));
+                        } else if (universityController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              customSnackbar("Add University first"));
+                        } else {
+                          save();
+                        }
                       }
                     }
                   } else {
@@ -516,61 +524,46 @@ class _Screen2State extends State<Screen2> {
                 ),
               ),
               appBar: AppBar(
-                automaticallyImplyLeading: widget.isFirst ? false : true,
+                automaticallyImplyLeading: false,
                 backgroundColor: Colors.white,
                 elevation: 0,
                 iconTheme: const IconThemeData(color: Colors.black),
                 title: Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        widget.prevPageModel == null
-                            ? Text(
-                                "Add Education",
-                                style: GoogleFonts.varela(
-                                  fontSize: 18.sp,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )
-                            : Text(
-                                "Edit Education ",
-                                style: GoogleFonts.varela(
-                                  fontSize: 18.sp,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                        Text(
-                          "Adding your education details will help recruiters to know your value as a potential candidate.",
-                          style: GoogleFonts.varela(
-                              color: Colors.grey.shade600,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.normal),
-                        )
-                      ],
-                    ),
-                    const Spacer(),
-                    if (!widget.isFirst)
-                      Column(
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 0),
-                            child: InkWell(
-                                onTap: () {
-                                  JobPostApiService.DeletExperience(
-                                      widget.prevPageModel!.id!.toInt(),
-                                      context,
-                                      "edu");
-                                },
-                                child: const Icon(
-                                  Icons.delete_outlined,
-                                  color: Colors.red,
-                                )),
+                          widget.prevPageModel == null
+                              ? Text(
+                                  "Add Education",
+                                  style: GoogleFonts.varela(
+                                    fontSize: 18.sp,
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                )
+                              : Text(
+                                  "Edit Education ",
+                                  style: GoogleFonts.varela(
+                                    fontSize: 18.sp,
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                          Text(
+                            "Adding your education details will help recruiters to know your value as a potential candidate.",
+                            softWrap: true,
+                            maxLines: 2,
+                            style: GoogleFonts.varela(
+                                color: Colors.grey.shade600,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.normal),
                           )
                         ],
-                      )
+                      ),
+                    ),
+                    //  const Spacer(),
                   ],
                 ),
               ),
@@ -910,7 +903,7 @@ class _Screen2State extends State<Screen2> {
           );
   }
 
-  SizedBox customWidgetOther() {
+/*   SizedBox customWidgetOther() {
     return SizedBox(
       child: Column(
         children: [
@@ -1376,13 +1369,13 @@ class _Screen2State extends State<Screen2> {
                           ? marksheet.toString()
                           : "Upload Marksheet"),
             ],
-          )
+          ),
         ],
       ),
     );
-  }
+  } */
 
-  SizedBox customWidgetMBA() {
+/*   SizedBox customWidgetMBA() {
     return SizedBox(
       child: Column(children: [
         SizedBox(
@@ -1835,7 +1828,7 @@ class _Screen2State extends State<Screen2> {
         )
       ]),
     );
-  }
+  } */
 
   FocusNode boardFocus = FocusNode();
   FocusNode passingyearfocus = FocusNode();
@@ -1845,7 +1838,7 @@ class _Screen2State extends State<Screen2> {
   FocusNode firstyearfocus = FocusNode();
   FocusNode finalyearfocus = FocusNode();
 
-  SizedBox customWidgetHSC() {
+/*   SizedBox customWidgetHSC() {  //TODO: hsc before 21/10/2023
     return SizedBox(
       child: Column(
         children: [
@@ -2106,7 +2099,7 @@ class _Screen2State extends State<Screen2> {
         ],
       ),
     );
-  }
+  } */
 
   String? marksheet;
 
@@ -2392,13 +2385,28 @@ class _Screen2State extends State<Screen2> {
                   ),
           ), */
           const SizedBox(height: 10),
-          CustomTextField(
+          CustomTextFieldComapanyLocation(
+            labelText: "Field of Study",
+            title: "",
+            isCity: true,
+            contextIn: context,
+            role: "",
+            hintText: "Account and Finance",
+            name: "fieldofstudy",
+            isCompany: false,
+            controller: fieldOfStudyController,
+            onChanged: (p0) {
+              // isUniG = true;
+            },
+            icon: const Icon(Icons.auto_stories_outlined),
+          ),
+          /* CustomTextField(
               context: context,
               hint: "Account and Finance",
               label: "Field of Study",
               focusNode: filedofstudyfocus,
               controller: fieldOfStudyController,
-              icon: const Icon(Icons.auto_stories_outlined)),
+              icon: const Icon(Icons.auto_stories_outlined)), */
           /* Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2812,13 +2820,33 @@ class _Screen2State extends State<Screen2> {
                             : "Upload Marksheet"), //customButton("Upload Marksheet", "", 0, true),
               ),
             ],
-          )
+          ),
+          const SizedBox(
+            height: 50,
+          ),
+          if (widget.isEdit)
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 0),
+                  child: InkWell(
+                      onTap: () {
+                        JobPostApiService.DeletExperience(
+                            widget.prevPageModel!.id!.toInt(), context, "edu");
+                      },
+                      child: Text(
+                        "Delete Education",
+                        style: GoogleFonts.varela(color: Colors.red),
+                      )),
+                )
+              ],
+            )
         ],
       ),
     );
   }
 
-  SizedBox customWidgetPost() {
+  /* SizedBox customWidgetPost() {
     return SizedBox(
       child: Column(
         children: [
@@ -3273,7 +3301,7 @@ class _Screen2State extends State<Screen2> {
         ],
       ),
     );
-  }
+  } */
 
   InkWell customContainerSelect(
       {required final VoidCallback onPressed,
@@ -3356,8 +3384,12 @@ class _Screen2State extends State<Screen2> {
       university: universityController.text,
       degree_spc: degreeController.text,
       fieldOfStudy: fieldOfStudyController.text,
-      firstYear: int.parse(firstYearController.text),
-      passingYear: int.parse(passingYearController.text),
+      firstYear: firstYearController.text.isNotEmpty
+          ? int.parse(firstYearController.text)
+          : null,
+      passingYear: passingYearController.text.isNotEmpty
+          ? int.parse(passingYearController.text)
+          : null,
       marksheet: marksheet,
     );
 
@@ -3365,7 +3397,8 @@ class _Screen2State extends State<Screen2> {
     UserDataService userDataService = UserDataService();
 
     // Call the saveUserExperience method on the instance
-    await userDataService.saveUserEducation(model.toMap());
+    await JobPostApiService.postEducation(model.toMap());
+    // await userDataService.saveUserEducation(model.toMap()); //TODO: Old one.....
     /*  if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));

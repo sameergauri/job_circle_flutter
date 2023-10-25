@@ -636,167 +636,121 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                           ),
                                         ),
                                         profilemodel.experience == "Experience"
-                                            ? Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
+                                            ? Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      "${profilemodel.first_name.toString().toTitleCase()} ${profilemodel.last_name.toString().toTitleCase()}",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    if (experienceList
+                                                        .isNotEmpty)
                                                       Text(
-                                                        "${profilemodel.first_name.toString().toTitleCase()} ",
+                                                        "${experienceList.last.job_title.toString()} at ${experienceList.last.company_name.toString()}",
                                                         style:
                                                             GoogleFonts.varela(
-                                                          fontSize: 18.sp,
+                                                          fontSize: 12.sp,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                              FontWeight.w400,
                                                         ),
                                                       ),
+                                                    if ((profilemodel.bio ==
+                                                                null ||
+                                                            profilemodel.bio ==
+                                                                "" ||
+                                                            profilemodel.bio!
+                                                                .isEmpty) &&
+                                                        experienceList
+                                                            .isEmpty &&
+                                                        educationList.isEmpty)
+                                                      InkWell(
+                                                        onTap: () {
+                                                          sendToBasicInfo(true);
+                                                        },
+                                                        child: Text(
+                                                          "Add Bio",
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                                  fontSize:
+                                                                      12.sp,
+                                                                  color: Colors
+                                                                      .blue,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .italic),
+                                                        ),
+                                                      ),
+                                                    if (profilemodel.bio !=
+                                                            null &&
+                                                        profilemodel
+                                                            .bio!.isNotEmpty)
                                                       Text(
-                                                        // ignore: unnecessary_string_interpolations
-                                                        "${profilemodel.last_name.toString().toTitleCase()}",
+                                                        profilemodel.bio!,
                                                         style:
                                                             GoogleFonts.varela(
-                                                          fontSize: 18.sp,
+                                                          fontSize: 12.sp,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                              FontWeight.w400,
                                                         ),
                                                       ),
-                                                      /* const SizedBox(
-                                                width: 5),
-                                            if (profilemodel
-                                                        .dateofbirth !=
-                                                    null &&
-                                                profilemodel
-                                                    .dateofbirth!
-                                                    .isNotEmpty)
-                                              Text(
-                                                "(${calculateAge(profilemodel.dateofbirth)} yr's)",
-                                                style: GoogleFonts
-                                                    .varela(
-                                                  fontSize: 13.sp,
-                                                  fontWeight:
-                                                      FontWeight
-                                                          .w500,
-                                                  color:
-                                                      Colors.grey,
+                                                    if (experienceList
+                                                            .isEmpty &&
+                                                        educationList
+                                                            .isNotEmpty)
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              "${educationList.last.degree_spc.toString()} from ${educationList.last.university.toString()}",
+                                                              softWrap: true,
+                                                              // maxLines: 3,
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    if (profilemodel.bio ==
+                                                            null ||
+                                                        profilemodel.bio ==
+                                                            "" ||
+                                                        profilemodel
+                                                            .bio!.isEmpty)
+                                                      Text(
+                                                        '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                        softWrap: true,
+                                                        maxLines: 3,
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 12.sp,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
+                                                      )
+                                                  ],
                                                 ),
-                                              ), */
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      if (experienceList
-                                                          .isNotEmpty)
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              experienceList
-                                                                  .last
-                                                                  .job_title
-                                                                  .toString(),
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              " at ",
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              experienceList
-                                                                  .last
-                                                                  .company_name
-                                                                  .toString(),
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                    ],
-                                                  ),
-                                                  if (profilemodel.bio ==
-                                                          null ||
-                                                      profilemodel.bio == "" ||
-                                                      profilemodel.bio!.isEmpty)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        sendToBasicInfo(true);
-                                                      },
-                                                      child: Text(
-                                                        "Add Bio",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                                fontSize: 12.sp,
-                                                                color:
-                                                                    Colors.blue,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic),
-                                                      ),
-                                                    ),
-                                                  if (profilemodel.bio !=
-                                                          null &&
-                                                      profilemodel
-                                                          .bio!.isNotEmpty)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          profilemodel.bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  if (profilemodel.bio ==
-                                                          null ||
-                                                      profilemodel.bio == "" ||
-                                                      profilemodel.bio!.isEmpty)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                ],
                                               )
                                             : Column(
                                                 mainAxisSize: MainAxisSize.max,
@@ -899,10 +853,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                         ),
                                                     ],
                                                   ),
-                                                  if (profilemodel.bio ==
-                                                          null ||
-                                                      profilemodel.bio == "" ||
-                                                      profilemodel.bio!.isEmpty)
+                                                  if ((profilemodel.bio ==
+                                                              null ||
+                                                          profilemodel.bio ==
+                                                              "" ||
+                                                          profilemodel
+                                                              .bio!.isEmpty) &&
+                                                      experienceList.isEmpty &&
+                                                      educationList.isEmpty)
                                                     InkWell(
                                                       onTap: () {
                                                         sendToBasicInfo(true);
@@ -1147,6 +1105,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                           builder: (context) =>
                                                               Screen2(
                                                             isFirst: false,
+                                                            isEdit: false,
                                                           ),
                                                         ),
                                                       );
@@ -1362,6 +1321,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                             selectedLevel: profilemodel.education,
                             educationList: educationList,
                             isFirst: false,
+                            isEdit: true,
                           ),
                         ),
                       );
@@ -1511,27 +1471,31 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     ),
                     subtitle: Row(
                       children: [
-                        Text(
-                          education.firstYear.toString(),
-                          style: GoogleFonts.varela(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
+                        if (education.firstYear != 0)
+                          Text(
+                            education.firstYear.toString(),
+                            style: GoogleFonts.varela(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                        Text(
-                          " - ",
-                          style: GoogleFonts.varela(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
+                        if (education.firstYear != 0 &&
+                            education.passingYear != null)
+                          Text(
+                            " - ",
+                            style: GoogleFonts.varela(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                        Text(
-                          education.passingYear.toString(),
-                          style: GoogleFonts.varela(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
+                        if (education.passingYear != 0)
+                          Text(
+                            education.passingYear.toString(),
+                            style: GoogleFonts.varela(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     /*   trailing: InkWell(
@@ -1578,7 +1542,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
           imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
           title: "Employment Details",
           child: ListTile(
-            onTap: profilemodel.experience == "Experience"
+            onTap: profilemodel.experience == "Experience" &&
+                    experienceList.isNotEmpty
                 ? () {
                     Navigator.push(
                       context,
@@ -2365,6 +2330,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
           selectedLevel: profilemodel.education,
           educationList: educationList,
           isFirst: false,
+          isEdit: true,
         ),
       ),
     );
@@ -2403,8 +2369,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
       bool? isedit = true,
       Function()? onPress,
       String? imageUrl}) {
-    bool shouldShowExperienceAddButton =
-        experienceList.isNotEmpty || profilemodel.experience == "Fresher";
+    bool shouldShowExperienceAddButton = experienceList.isNotEmpty ||
+        profilemodel.experience == "Fresher" ||
+        profilemodel.experience == "Experience";
     bool shouldShowEducationAddButton = educationList.isNotEmpty;
 
     return Container(
@@ -2466,7 +2433,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                 builder: (context) => Screen3(
                                   experiencelist: experienceList,
                                   isEdit: false,
-                                  isFirst: false,
+                                  isFirst: true,
                                 ),
                               ),
                             );
@@ -2475,9 +2442,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Screen2(
-                                  educationList: educationList,
-                                  isFirst: false,
-                                ),
+                                    educationList: educationList,
+                                    isFirst: true,
+                                    isEdit: false),
                               ),
                             );
                           }
@@ -2563,6 +2530,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
           prevPageModel: education,
           educationList: educationList,
           isFirst: false,
+          isEdit: true,
         ),
       ),
     );
