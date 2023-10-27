@@ -3542,7 +3542,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                     ? "$firstText, $cityname"
                     : widget.hintText,
                 labelStyle: const TextStyle(
-                  color: Constants.themeBgColor,
+                  color: Constants.subtitleclr,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),

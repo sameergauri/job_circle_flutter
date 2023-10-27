@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/assets_images_url.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
@@ -22,14 +27,142 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/customRow.dart';
 
-class ProfileSummary extends StatefulWidget {
+/* final fetchUserData = FutureProvider<ProfileSummaryModel>((ref) async {
+  final response = await _ProfileSummaryState.bindProfileSummary();
+
+  if (response != null) {
+    return ProfileSummaryModel.fromJson(response);
+  } else {
+    // Handle the case where the response is null or an error occurred.
+    return ProfileSummaryModel(); // Return a default model or handle the error.
+  }
+}); */
+
+class UserDataModel {
+  final ProfileSummaryModel profileSummary;
+  final List<Education> education;
+  final List<Experience> experiences;
+
+  UserDataModel({
+    required this.profileSummary,
+    required this.education,
+    required this.experiences,
+  });
+}
+
+/* final profileSummaryProvider = FutureProvider<ProfileSummaryModel>((ref) async {
+  final summaryResponse = await _ProfileSummaryState.bindProfileSummary();
+  if (summaryResponse != null) {
+    return ProfileSummaryModel.fromJson(summaryResponse);
+  } else {
+    throw Exception('Failed to load profile summary data');
+  }
+}); */
+final profileSummaryProvider = FutureProvider<ProfileSummaryModel>((ref) async {
+  final summaryResponse = await _ProfileSummaryState.bindProfileSummary();
+  // Simulate fetching profile summary data (replace with actual API call)
+  // await Future.delayed(const Duration(seconds: 2));
+  if (summaryResponse != null) {
+    return ProfileSummaryModel.fromJson(summaryResponse);
+  } else {
+    throw Exception('Failed to load profile summary data');
+  }
+  // return ProfileSummaryModel('John Doe');
+});
+
+final educationProvider = FutureProvider<List<Education>>((ref) async {
+  final educationResponse = await _ProfileSummaryState.bindProfileEducation();
+  if (educationResponse != null) {
+    return (educationResponse).map((item) => Education.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load education data');
+  }
+});
+
+final experienceProvider = FutureProvider<List<Experience>>((ref) async {
+  final experienceResponse = await _ProfileSummaryState.bindProfileExperience();
+  if (experienceResponse != null) {
+    return (experienceResponse)
+        .map((item) => Experience.fromJson(item))
+        .toList();
+  } else {
+    throw Exception('Failed to load experience data');
+  }
+});
+
+final userDataProvider = FutureProvider<UserDataModel>((ref) async {
+  final profileSummary = await _ProfileSummaryState
+      .bindProfileSummary(); //ref.watch(profileSummaryProvider);
+  final profileSummaryData = ProfileSummaryModel.fromJson(profileSummary);
+
+  final education = await _ProfileSummaryState.bindProfileEducation();
+  final educationData =
+      (education).map((item) => Education.fromJson(item)).toList();
+  final experiences = await _ProfileSummaryState.bindProfileExperience();
+  final experienceData =
+      (experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
+  return UserDataModel(
+    profileSummary: profileSummaryData,
+    education: educationData,
+    experiences: experienceData,
+  );
+  //neeche ka code hata de comment krde or bs ye p
+  /* return profileSummary.when(
+    data: (profileData) {
+      return education.when(
+        data: (educationData) {
+          return experiences.when(
+            data: (experienceData) {
+              return UserDataModel(
+                profileSummary: profileData,
+                education: educationData,
+                experiences: experienceData,
+              );
+            },
+            loading: () {
+              // Handle loading state for experiences
+              throw Exception('Loading experiences');
+            },
+            error: (error, stackTrace) {
+              // Handle error state for experiences
+              throw error;
+            },
+          );
+        },
+        loading: () {
+          // Handle loading state for education
+          throw Exception('Loading education');
+        },
+        error: (error, stackTrace) {
+          // Handle error state for education
+          throw error;
+        },
+      );
+    },
+    loading: () {
+      // Handle loading state for profile summary
+      throw Exception('Loading profile summary');
+    },
+    error: (error, stackTrace) {
+      // Handle error state for profile summary
+      throw error;
+    },
+  ); */
+
+  //abhi yeh bata ke riverpod .when or watch kaha lagega? jaha bhi to ye provider use krega wahi
+});
+
+/* final fetchAllApplicantProvider = FutureProvider<ProfileSummaryModel>(
+    (ref) => _ProfileSummaryState.bindProfileSummary); */
+
+class ProfileSummary extends ConsumerStatefulWidget {
   const ProfileSummary({Key? key}) : super(key: key);
 
   @override
-  State<ProfileSummary> createState() => _ProfileSummaryState();
+  ConsumerState<ProfileSummary> createState() => _ProfileSummaryState();
 }
 
-class _ProfileSummaryState extends State<ProfileSummary>
+class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     with TickerProviderStateMixin {
   late Widget previousWidget;
   // ignore: non_constant_identifier_names
@@ -72,7 +205,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
 
       setState(() {});
     });
-    bindProfileSummary();
+
+    //  bindProfileSummary();
     super.initState();
     // Initialize the animation controller with the desired duration
     _animationController = AnimationController(
@@ -115,7 +249,124 @@ class _ProfileSummaryState extends State<ProfileSummary>
   //   }
   //   setState(() {});
   // }
-  bindProfileSummary() async {
+
+  static Future<Map<String, dynamic>> bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/users/v1/details/$id'));
+
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse.containsKey("resultData") &&
+          parsedResponse["resultData"].containsKey("users")) {
+        return parsedResponse["resultData"]["users"] as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  static Future<List<dynamic>> bindProfileEducation() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/users/v1/details/$id'));
+
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse.containsKey("resultData") &&
+          parsedResponse["resultData"].containsKey("users")) {
+        return parsedResponse["resultData"]["educations"];
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  static Future<List<dynamic>> bindProfileExperience() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/users/v1/details/$id'));
+
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse.containsKey("resultData") &&
+          parsedResponse["resultData"].containsKey("users")) {
+        return parsedResponse["resultData"]["experiences"];
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  /*  Future<void> bindProfileSummary() async {
+    try {
+      SharedPreferences prefs = await Utils.getSharedPreferences();
+      var result = await UserDataService().getUserDetails(
+          await Utils.getPreferencesValue(
+              prefs, ESharedPreferences.user_id.name));
+      var parsedResult = Utils.parseResponse(result);
+
+      if (parsedResult.resultData != null) {
+        var dataResult = parsedResult.resultData;
+        var userData = dataResult["users"];
+        var educationData = dataResult["educations"] as List<dynamic>;
+        var experienceData = dataResult["experiences"] as List<dynamic>;
+
+        // Initialize the model and lists here
+        profilemodel = ProfileSummaryModel.fromJson(userData);
+        educationList =
+            educationData.map((item) => Education.fromMap(item)).toList();
+        experienceList =
+            experienceData.map((item) => Experience.fromMap(item)).toList();
+      } else {
+        // Handle cases where data is missing or not in the expected format
+      }
+    } catch (e) {
+      // Handle any exceptions or errors that occur during data retrieval or processing
+    }
+  } */
+
+  /*  bindProfileSummary() async {
+    try {
+      SharedPreferences prefs = await Utils.getSharedPreferences();
+      var result = await UserDataService().getUserDetails(
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name),
+      );
+      var parsedResult = Utils.parseResponse(result);
+
+      if (parsedResult.resultData != null) {
+        var dataResult = parsedResult.resultData;
+        var userData = dataResult["users"];
+        var educationData = dataResult["educations"] as List<dynamic>;
+        var experienceData = dataResult["experiences"] as List<dynamic>;
+
+        // Initialize the model and lists here
+        profilemodel = ProfileSummaryModel.fromJson(userData);
+        educationList =
+            educationData.map((item) => Education.fromMap(item)).toList();
+        experienceList =
+            experienceData.map((item) => Experience.fromMap(item)).toList();
+      } else {
+        // Handle cases where data is missing or not in the expected format
+      }
+    } catch (e) {
+      // Handle any exceptions or errors that occur during data retrieval or processing
+    }
+  } */
+
+  /* bindProfileSummary() async { //TODO : old bindProfile 
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var result = await UserDataService().getUserDetails(
         await Utils.getPreferencesValue(
@@ -167,10 +418,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
       // }
       // profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
       // profile_cv_file = Utils.getFileName(profile_cv_link);
-
-      setState(() {});
     }
-  }
+  } */
 
   bool visible = true;
   bool notvisible = false;
@@ -182,498 +431,635 @@ class _ProfileSummaryState extends State<ProfileSummary>
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      // onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      onTap: () {
-        // Handle tap on the parent widget (outside the Row)
-        FocusManager.instance.primaryFocus?.unfocus(); // Unfocus the keyboard
-        if (isSearchVisible) {
-          setState(() {
-            isSearchVisible = false;
-            _animationController.reverse(); // Reverse the animation
-            _searchFocusNode.unfocus(); // Clear focus when it becomes invisible
-          });
-        }
-      },
 
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          floatingActionButton: usertype == 1 && profilemodel.cv_link != null
-              ? FloatingActionButton(
-                  backgroundColor: Constants.themeBgColor,
-                  onPressed: () {
-                    //  log("message");
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Scaffold(
-                          floatingActionButton: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              InkWell(
-                                onTap: () async {
-                                  resume = await Delete(true);
-                                  var payload = {
-                                    "stage": "upload_cv",
-                                    "data": {
-                                      "id": await Utils.getPreferencesValue(
-                                          null,
-                                          ESharedPreferences.user_id.name),
-                                      "cv_link": null
-                                    }
-                                  };
-                                  save(null, payload);
-                                  Navigator.pop(context);
-                                  setState(() {});
+    final combinedData = ref.watch(userDataProvider);
+// yaha bhi laga sakta hai or data me scaffold return krle usme sab datas milega
+//lekin error or loading me bhi tere ko scaffold return krna padega
+    return combinedData.when(
+      data: (data) {
+        return Scaffold(
+            backgroundColor: Colors.white,
+            floatingActionButton: usertype == 1 &&
+                    data.profileSummary.cv_link != null
+                ? FloatingActionButton(
+                    backgroundColor: Constants.themeBgColor,
+                    onPressed: () {
+                      //  log("message");
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Scaffold(
+                            floatingActionButton: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                InkWell(
+                                  onTap: () async {
+                                    resume = await Delete(true);
+                                    var payload = {
+                                      "stage": "upload_cv",
+                                      "data": {
+                                        "id": await Utils.getPreferencesValue(
+                                            null,
+                                            ESharedPreferences.user_id.name),
+                                        "cv_link": null
+                                      }
+                                    };
+                                    await save(null, payload);
+                                    ref.refresh(userDataProvider);
+                                    Navigator.pop(context);
+                                    setState(() {});
 
-                                  /*  setState(() {
-                                    resume = Delete(true).toString();
-                                  }); */
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 4.h, horizontal: 8.r),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      border: Border.all(
-                                          color: Constants.themeBgColor)),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.cancel_outlined,
-                                        size: 15.h,
-                                        color: Constants.themeBgColor,
-                                      ),
-                                      SizedBox(
-                                        width: 4.w,
-                                      ),
-                                      const Text("Remove"),
-                                    ],
+                                    /*  setState(() {
+                                resume = Delete(true).toString();
+                              }); */
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4.h, horizontal: 8.r),
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        border: Border.all(
+                                            color: Constants.themeBgColor)),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.cancel_outlined,
+                                          size: 15.h,
+                                          color: Constants.themeBgColor,
+                                        ),
+                                        SizedBox(
+                                          width: 4.w,
+                                        ),
+                                        const Text("Remove"),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () async {
-                                  resume = await uploadFile(['pdf'], "cv");
-                                  var payload = {
-                                    "stage": "upload_cv",
-                                    "data": {
-                                      "id": await Utils.getPreferencesValue(
-                                          null,
-                                          ESharedPreferences.user_id.name),
-                                      "cv_link": resume
-                                    }
-                                  };
-                                  save(resume, payload);
-                                  Navigator.pop(context);
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.only(left: 20.w),
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 4.h, horizontal: 8.r),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      border: Border.all(
-                                          color: Constants.themeBgColor)),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.upload_file,
-                                        size: 15.h,
-                                        color: Constants.themeBgColor,
-                                      ),
-                                      SizedBox(
-                                        width: 4.w,
-                                      ),
-                                      const Text("Replace"),
-                                    ],
+                                InkWell(
+                                  onTap: () async {
+                                    resume = await uploadFile(['pdf'], "cv");
+                                    var payload = {
+                                      "stage": "upload_cv",
+                                      "data": {
+                                        "id": await Utils.getPreferencesValue(
+                                            null,
+                                            ESharedPreferences.user_id.name),
+                                        "cv_link": resume
+                                      }
+                                    };
+                                    await save(resume, payload);
+                                    ref.refresh(userDataProvider);
+                                    Navigator.pop(context);
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 20.w),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4.h, horizontal: 8.r),
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        border: Border.all(
+                                            color: Constants.themeBgColor)),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.upload_file,
+                                          size: 15.h,
+                                          color: Constants.themeBgColor,
+                                        ),
+                                        SizedBox(
+                                          width: 4.w,
+                                        ),
+                                        const Text("Replace"),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                            ],
-                          ),
-                          body: Container(
-                            child: FutureBuilder<PDFDocument>(
-                              future: PDFDocument.fromURL(
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.cv_link}"),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  if (snapshot.hasData) {
-                                    return PDFViewer(
-                                      scrollDirection: Axis.vertical,
-                                      panLimit: 1.1,
-                                      document: snapshot.data!,
-                                      zoomSteps: 3,
-                                      showNavigation: false,
-                                      showPicker: false,
+                                )
+                              ],
+                            ),
+                            body: Container(
+                              child: FutureBuilder<PDFDocument>(
+                                future: PDFDocument.fromURL(
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.cv_link}"),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    if (snapshot.hasData) {
+                                      return PDFViewer(
+                                        scrollDirection: Axis.vertical,
+                                        panLimit: 1.1,
+                                        document: snapshot.data!,
+                                        zoomSteps: 3,
+                                        showNavigation: false,
+                                        showPicker: false,
 
-                                      // numberPickerConfirmWidget: f,
-                                    );
+                                        // numberPickerConfirmWidget: f,
+                                      );
+                                    } else {
+                                      return const Center(
+                                          child: Text('Failed to load PDF'));
+                                    }
                                   } else {
                                     return const Center(
-                                        child: Text('Failed to load PDF'));
+                                        child: CircularProgressIndicator());
                                   }
-                                } else {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  /*  onPressed: () async {
-                    resume = await uploadFile(['pdf'], "cv");
-                    var payload = {
-                      "stage": "upload_cv",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "cv_link": resume
-                      }
-                    };
-                    save(resume, payload);
-                    setState(() {});
-                  }, */
-                  child: Image.network(
-                    ConstImageUrl.cv,
-                    height: 30.h,
-                    color: Colors.white,
-                  ),
-                )
-              /* FloatingActionButton(
-                  onPressed: () {},
-                  child: CVWidget(
-                    profileCv: ProfileCv(
-                      cv_link: profilemodel.cv_link,
-                      cv_upladted_date: profilemodel.cv_upladted_date,
-                      profile_cv_file:
-                          profilemodel.cv_link, // Use the same value as cv_link
-                      profile_cv_link: profile_cv_link,
-                    ),
-                    onUpload: (fileName, payload) async =>
-                        await save(fileName, payload),
-                  ),
-                ) */
-              : const SizedBox(),
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            iconTheme: const IconThemeData(color: Colors.black),
-            backgroundColor: Colors.white,
-            elevation: 0,
-            actions: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                      width: width / 1.16.w,
-                      height: 40,
-                      // color: Colors.red,
-
-                      child: TextField(
-                          decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(),
-                            borderRadius: BorderRadius.circular(8.r)),
-                        filled: true,
-                        prefixIcon: const Icon(Icons.search),
-                        contentPadding:
-                            const EdgeInsets.only(bottom: 10, left: 5, top: 10),
-                        border: OutlineInputBorder(
-                            /* borderSide:
-                            const BorderSide(color: Constants.borderColor), */
-                            borderRadius: BorderRadius.circular(8.r)),
-                        hintText:
-                            "${profilemodel.first_name} ${profilemodel.last_name}",
-                      ))),
-                  /* Padding(
-                    padding: EdgeInsets.only(right: 10.w, left: 10.w),
-                    child: Image.asset(
-                      "assets/images/alert.png",
-                      height: height / 50.h,
-                    ),
-                  ), */
-                ],
-              )
-            ],
-          ),
-          // backgroundColor: Constants.themeBgColorLight,
-          body: Column(
-            children: [
-              Expanded(
-                child: Scrollbar(
-                  thickness: 10,
-                  radius: Radius.circular(8.r),
-                  child: SingleChildScrollView(
-                    child: profilemodel.first_name == null
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : SafeArea(
-                            child: Container(
-                              //  padding: const EdgeInsets.only(top: 20),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
+                                },
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Stack(
-                                        children: [
-                                          InkWell(
-                                            onTap:
-                                                profilemodel.profile_pic != null
-                                                    ? () {
-                                                        showDialog(
-                                                          context: context,
-                                                          // Set this property to true
-                                                          builder: (context) {
-                                                            return AlertDialog(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              elevation: 0,
-                                                              content: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .center,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  CircleAvatar(
-                                                                    radius:
-                                                                        height /
-                                                                            6.r,
-                                                                    backgroundImage: profilemodel.profile_pic !=
-                                                                            null
-                                                                        ? Image.network("https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
-                                                                            .image
-                                                                        : Image
-                                                                            .asset(
-                                                                            "assets/images/adduser.png",
-                                                                            // height: .h,
-                                                                          ).image,
-                                                                  ),
-                                                                  CircleAvatar(
-                                                                    backgroundColor:
-                                                                        Constants
-                                                                            .themeBgColor,
-                                                                    child: IconButton(
-                                                                        onPressed: () async {
-                                                                          setState(
-                                                                              () async {
-                                                                            var data =
-                                                                                await Delete(false);
-                                                                            var payload =
-                                                                                {
-                                                                              "stage": "profile_pic",
-                                                                              "data": {
-                                                                                "id": await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
-                                                                                "profile_pic": null
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    /*  onPressed: () async {
+                resume = await uploadFile(['pdf'], "cv");
+                var payload = {
+                  "stage": "upload_cv",
+                  "data": {
+                    "id": await Utils.getPreferencesValue(
+                        null, ESharedPreferences.user_id.name),
+                    "cv_link": resume
+                  }
+                };
+                save(resume, payload);
+                setState(() {});
+              }, */
+                    child: Image.network(
+                      ConstImageUrl.cv,
+                      height: 30.h,
+                      color: Colors.white,
+                    ),
+                  )
+                /* FloatingActionButton(
+              onPressed: () {},
+              child: CVWidget(
+                profileCv: ProfileCv(
+                  cv_link: profilemodel.cv_link,
+                  cv_upladted_date: profilemodel.cv_upladted_date,
+                  profile_cv_file:
+                      profilemodel.cv_link, // Use the same value as cv_link
+                  profile_cv_link: profile_cv_link,
+                ),
+                onUpload: (fileName, payload) async =>
+                    await save(fileName, payload),
+              ),
+            ) */
+                : const SizedBox(),
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              iconTheme: const IconThemeData(color: Colors.black),
+              backgroundColor: Colors.white,
+              elevation: 0,
+              actions: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                        width: width / 1.16.w,
+                        height: 40,
+                        // color: Colors.red,
+
+                        child: TextField(
+                            decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(),
+                              borderRadius: BorderRadius.circular(8.r)),
+                          filled: true,
+                          prefixIcon: const Icon(Icons.search),
+                          contentPadding: const EdgeInsets.only(
+                              bottom: 10, left: 5, top: 10),
+                          border: OutlineInputBorder(
+                              /* borderSide:
+                        const BorderSide(color: Constants.borderColor), */
+                              borderRadius: BorderRadius.circular(8.r)),
+                          hintText:
+                              "${data.profileSummary.first_name} ${data.profileSummary.last_name}",
+                        ))),
+                    /* Padding(
+                padding: EdgeInsets.only(right: 10.w, left: 10.w),
+                child: Image.asset(
+                  "assets/images/alert.png",
+                  height: height / 50.h,
+                ),
+              ), */
+                  ],
+                )
+              ],
+            ),
+            // backgroundColor: Constants.themeBgColorLight,
+            body: Column(
+              children: [
+                Expanded(
+                  child: Scrollbar(
+                    thickness: 10,
+                    radius: Radius.circular(8.r),
+                    child: SingleChildScrollView(
+                      child: data.profileSummary.first_name == null
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : SafeArea(
+                              child: Container(
+                                //  padding: const EdgeInsets.only(top: 20),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            InkWell(
+                                              onTap:
+                                                  data.profileSummary
+                                                              .profile_pic !=
+                                                          null
+                                                      ? () {
+                                                          showDialog(
+                                                            context: context,
+                                                            // Set this property to true
+                                                            builder: (context) {
+                                                              return AlertDialog(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                elevation: 0,
+                                                                content: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .center,
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    CircleAvatar(
+                                                                      radius:
+                                                                          height /
+                                                                              6.r,
+                                                                      backgroundImage: data.profileSummary.profile_pic !=
+                                                                              null
+                                                                          ? Image.network("https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
+                                                                              .image
+                                                                          : Image
+                                                                              .asset(
+                                                                              "assets/images/add.png",
+                                                                              height: 8.h,
+                                                                            ).image,
+                                                                    ),
+                                                                    CircleAvatar(
+                                                                      backgroundColor:
+                                                                          Constants
+                                                                              .themeBgColor,
+                                                                      child: IconButton(
+                                                                          onPressed: () async {
+                                                                            setState(() async {
+                                                                              var data = await Delete(false);
+                                                                              var payload = {
+                                                                                "stage": "profile_pic",
+                                                                                "data": {
+                                                                                  "id": await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                                  "profile_pic": null
+                                                                                }
+                                                                              };
+                                                                              await save(data, payload);
+                                                                              ref.refresh(userDataProvider);
+                                                                              //  Navigator.pop(context);
+                                                                              if (data != null) {
+                                                                                setState(() {
+                                                                                  icon_data = null;
+                                                                                });
                                                                               }
-                                                                            };
-                                                                            save(data,
-                                                                                payload);
-                                                                            if (data !=
-                                                                                null) {
-                                                                              setState(() {
-                                                                                icon_data = data;
-                                                                              });
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                        icon: const Icon(
-                                                                          Icons
-                                                                              .delete_outline,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        )),
-                                                                  )
-                                                                  /* Container(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  vertical: 6.h,
-                                                                  horizontal:
-                                                                      12.w),
-                                                          margin: EdgeInsets
-                                                              .symmetric(
-                                                                  vertical: 10),
-                                                          decoration: BoxDecoration(
+                                                                              Navigator.pop(context);
+                                                                            });
+                                                                          },
+                                                                          icon: const Icon(
+                                                                            Icons.delete_outline,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          )),
+                                                                    )
+                                                                    /* Container(
+                                                      padding: EdgeInsets
+                                                          .symmetric(
+                                                              vertical: 6.h,
+                                                              horizontal:
+                                                                  12.w),
+                                                      margin: EdgeInsets
+                                                          .symmetric(
+                                                              vertical: 10),
+                                                      decoration: BoxDecoration(
+                                                          color: Constants
+                                                              .themeBgColor,
+                                                          border: Border.all(
                                                               color: Constants
-                                                                  .themeBgColor,
-                                                              border: Border.all(
-                                                                  color: Constants
-                                                                      .themeBgColor),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8.r)),
-                                                          child: Text(
-                                                              "Remove Profile pic"),
-                                                        ) */
-                                                                ],
-                                                              ),
-                                                            );
-                                                          },
-                                                        );
-                                                      }
-                                                    : () {},
-                                            child: CircleAvatar(
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 190, 190, 190),
-                                                radius: 45,
-                                                /* onBackgroundImageError: ((error,
-                                            stackTrace) =>
-                                        Image.asset(
-                                            "assets/images/company.png",
+                                                                  .themeBgColor),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.r)),
+                                                      child: Text(
+                                                          "Remove Profile pic"),
+                                                    ) */
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            },
+                                                          );
+                                                        }
+                                                      : () {},
+                                              child: CircleAvatar(
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 190, 190, 190),
+                                                  radius: 45,
+                                                  /* onBackgroundImageError: ((error,
+                                        stackTrace) =>
+                                    Image.asset(
+                                        "assets/images/company.png",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.contain)), */
+                                                  backgroundImage: data
+                                                              .profileSummary
+                                                              .profile_pic !=
+                                                          null
+                                                      ?
+                                                      // ignore: unnecessary_null_comparison
+                                                      Image.network(
+                                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
+                                                          .image
+                                                      : Image.asset(
+                                                          "assets/images/add.png",
+                                                          height: 8.h,
+                                                        ).image
+                                                  /*  : Image.asset(
+                                            "assets/images/man.png",
                                             height: 80,
                                             width: 80,
-                                            fit: BoxFit.contain)), */
-                                                backgroundImage: profilemodel
-                                                            .profile_pic !=
-                                                        null
-                                                    ?
-                                                    // ignore: unnecessary_null_comparison
-                                                    Image.network(
-                                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}")
-                                                        .image
-                                                    : Image.asset(
-                                                        "assets/images/adduser.png",
-                                                        // height: .h,
-                                                      ).image
-                                                /*  : Image.asset(
-                                                "assets/images/man.png",
-                                                height: 80,
-                                                width: 80,
-                                                fit: BoxFit.contain,
-                                              ).image, */
-                                                ),
-                                          ),
-                                          Positioned(
-                                            right: width / 160.w,
-                                            bottom: height / 85.h,
-                                            child: InkWell(
-                                              onTap: () async {
-                                                setState(() async {
-                                                  var data = await uploadFile(
-                                                      ['jpeg', 'jpg'], "icon");
-                                                  var payload = {
-                                                    "stage": "profile_pic",
-                                                    "data": {
-                                                      "id": await Utils
-                                                          .getPreferencesValue(
-                                                              null,
-                                                              ESharedPreferences
-                                                                  .user_id
-                                                                  .name),
-                                                      "profile_pic": data
-                                                    }
-                                                  };
-                                                  save(data, payload);
-                                                  if (data != null) {
-                                                    setState(() {
-                                                      icon_data = data;
-                                                    });
-                                                  }
-                                                  Navigator.pop(context);
-                                                });
-                                              },
-                                              child: CircleAvatar(
-                                                radius: 9,
-                                                backgroundColor: Colors.white,
+                                            fit: BoxFit.contain,
+                                          ).image, */
+                                                  ),
+                                            ),
+                                            Positioned(
+                                              right: width / 160.w,
+                                              bottom: height / 85.h,
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  setState(() async {
+                                                    var data = await uploadFile(
+                                                        ['jpeg', 'jpg'],
+                                                        "icon");
+                                                    var payload = {
+                                                      "stage": "profile_pic",
+                                                      "data": {
+                                                        "id": await Utils
+                                                            .getPreferencesValue(
+                                                                null,
+                                                                ESharedPreferences
+                                                                    .user_id
+                                                                    .name),
+                                                        "profile_pic": data
+                                                      }
+                                                    };
+                                                    await save(data, payload);
+
+                                                    icon_data = data;
+                                                    ref.refresh(
+                                                        userDataProvider);
+                                                    //  Navigator.pop(context);
+                                                  });
+                                                },
                                                 child: CircleAvatar(
+                                                  radius: 9,
                                                   backgroundColor: Colors.white,
-                                                  radius: 8.r,
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    size: 15.h,
+                                                  child: CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    radius: 8.r,
+                                                    child: Icon(
+                                                      Icons.add,
+                                                      size: 15.h,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        /*  IconButton(
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          color:
-                                              Colors.transparent,
-                                        )), */
-                                        InkWell(
-                                          child: Container(
-                                            child: Icon(
-                                              Icons.edit_outlined,
-                                              size: 18.h,
-                                              color: Colors.transparent,
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          /*  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      color:
+                                          Colors.transparent,
+                                    )), */
+                                          InkWell(
+                                            child: Container(
+                                              child: Icon(
+                                                Icons.edit_outlined,
+                                                size: 18.h,
+                                                color: Colors.transparent,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        profilemodel.experience == "Experience"
-                                            ? Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      "${profilemodel.first_name.toString().toTitleCase()} ${profilemodel.last_name.toString().toTitleCase()}",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    if (experienceList
-                                                        .isNotEmpty)
+                                          data.profileSummary.experience ==
+                                                  "Experience"
+                                              ? Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
                                                       Text(
-                                                        "${experienceList.last.job_title.toString()} at ${experienceList.last.company_name.toString()}",
+                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 18.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      if (data.experiences
+                                                          .isNotEmpty)
+                                                        Text(
+                                                          "${data.experiences.last.job_title.toString()} at ${data.experiences.last.company_name.toString()}",
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      if ((data.profileSummary.bio ==
+                                                                  null ||
+                                                              data.profileSummary
+                                                                      .bio ==
+                                                                  "" ||
+                                                              data
+                                                                  .profileSummary
+                                                                  .bio!
+                                                                  .isEmpty) &&
+                                                          data.experiences
+                                                              .isEmpty &&
+                                                          data.education
+                                                              .isEmpty)
+                                                        InkWell(
+                                                          onTap: () {
+                                                            sendToBasicInfo(
+                                                                true,
+                                                                data.profileSummary);
+                                                          },
+                                                          child: Text(
+                                                            "Add Bio",
+                                                            style: GoogleFonts.varela(
+                                                                fontSize: 12.sp,
+                                                                color:
+                                                                    Colors.blue,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic),
+                                                          ),
+                                                        ),
+                                                      if (data.profileSummary
+                                                                  .bio !=
+                                                              null &&
+                                                          data
+                                                              .profileSummary
+                                                              .bio!
+                                                              .isNotEmpty &&
+                                                          data.education
+                                                              .isEmpty &&
+                                                          data.experiences
+                                                              .isEmpty)
+                                                        Text(
+                                                          data.profileSummary
+                                                              .bio!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      if (data.experiences
+                                                              .isEmpty &&
+                                                          data.education
+                                                              .isNotEmpty)
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university.toString()}",
+                                                                softWrap: true,
+                                                                // maxLines: 3,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .varela(
+                                                                  fontSize:
+                                                                      12.sp,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      Text(
+                                                        '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
+                                                        softWrap: true,
+                                                        maxLines: 3,
                                                         style:
                                                             GoogleFonts.varela(
                                                           fontSize: 12.sp,
                                                           fontWeight:
                                                               FontWeight.w400,
                                                         ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              : Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
-                                                    if ((profilemodel.bio ==
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        if (data.experiences
+                                                            .isNotEmpty)
+                                                          Text(
+                                                            "${data.education.last.degree_spc.toString()} from ${data.education.last.university.toString()}",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    if ((data.profileSummary.bio ==
                                                                 null ||
-                                                            profilemodel.bio ==
+                                                            data.profileSummary
+                                                                    .bio ==
                                                                 "" ||
-                                                            profilemodel.bio!
+                                                            data
+                                                                .profileSummary
+                                                                .bio!
                                                                 .isEmpty) &&
-                                                        experienceList
+                                                        data.experiences
                                                             .isEmpty &&
-                                                        educationList.isEmpty)
+                                                        data.education.isEmpty)
                                                       InkWell(
                                                         onTap: () {
-                                                          sendToBasicInfo(true);
+                                                          sendToBasicInfo(true,
+                                                              data.profileSummary);
                                                         },
                                                         child: Text(
                                                           "Add Bio",
@@ -691,220 +1077,25 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                                           .italic),
                                                         ),
                                                       ),
-                                                    if (profilemodel.bio !=
+                                                    if (data.profileSummary
+                                                                .bio !=
                                                             null &&
-                                                        profilemodel
-                                                            .bio!.isNotEmpty)
-                                                      Text(
-                                                        profilemodel.bio!,
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    if (experienceList
-                                                            .isEmpty &&
-                                                        educationList
+                                                        data.profileSummary.bio!
                                                             .isNotEmpty)
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Text(
-                                                              "${educationList.last.degree_spc.toString()} from ${educationList.last.university.toString()}",
-                                                              softWrap: true,
-                                                              // maxLines: 3,
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    if (profilemodel.bio ==
-                                                            null ||
-                                                        profilemodel.bio ==
-                                                            "" ||
-                                                        profilemodel
-                                                            .bio!.isEmpty)
                                                       Text(
-                                                        '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
-                                                        softWrap: true,
-                                                        maxLines: 3,
+                                                        data.profileSummary
+                                                            .bio!,
                                                         style:
                                                             GoogleFonts.varela(
                                                           fontSize: 12.sp,
                                                           fontWeight:
                                                               FontWeight.w400,
                                                         ),
-                                                      )
-                                                  ],
-                                                ),
-                                              )
-                                            : Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        "${profilemodel.first_name.toString().toTitleCase()} ",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
                                                       ),
-                                                      Text(
-                                                        // ignore: unnecessary_string_interpolations
-                                                        "${profilemodel.last_name.toString().toTitleCase()}",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      /* const SizedBox(
-                                                width: 5),
-                                            if (profilemodel
-                                                        .dateofbirth !=
-                                                    null &&
-                                                profilemodel
-                                                    .dateofbirth!
-                                                    .isNotEmpty)
-                                              Text(
-                                                "(${calculateAge(profilemodel.dateofbirth)} yr's)",
-                                                style: GoogleFonts
-                                                    .varela(
-                                                  fontSize: 13.sp,
-                                                  fontWeight:
-                                                      FontWeight
-                                                          .w500,
-                                                  color:
-                                                      Colors.grey,
-                                                ),
-                                              ), */
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      if (experienceList
-                                                          .isNotEmpty)
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              educationList.last
-                                                                  .degree_spc
-                                                                  .toString(),
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              " from ",
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              educationList.last
-                                                                  .university
-                                                                  .toString(),
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                fontSize: 12.sp,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                    ],
-                                                  ),
-                                                  if ((profilemodel.bio ==
-                                                              null ||
-                                                          profilemodel.bio ==
-                                                              "" ||
-                                                          profilemodel
-                                                              .bio!.isEmpty) &&
-                                                      experienceList.isEmpty &&
-                                                      educationList.isEmpty)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        sendToBasicInfo(true);
-                                                      },
-                                                      child: Text(
-                                                        "Add Bio",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                                fontSize: 12.sp,
-                                                                color:
-                                                                    Colors.blue,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic),
-                                                      ),
-                                                    ),
-                                                  if (profilemodel.bio !=
-                                                          null &&
-                                                      profilemodel
-                                                          .bio!.isNotEmpty)
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          profilemodel.bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  if (profilemodel.bio ==
-                                                          null ||
-                                                      profilemodel.bio == "" ||
-                                                      profilemodel.bio!.isEmpty)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '${capitalizeFirstLetter(profilemodel.user_locality)}, ${capitalizeFirstLetter(profilemodel.user_location)}',
+                                                          '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
                                                           style: TextStyle(
                                                             fontSize: 12.sp,
                                                             fontWeight:
@@ -913,276 +1104,328 @@ class _ProfileSummaryState extends State<ProfileSummary>
                                                         ),
                                                       ],
                                                     )
-                                                ],
+                                                  ],
+                                                ),
+                                          InkWell(
+                                            onTap: () {
+                                              sendToBasicInfo(
+                                                  false, data.profileSummary);
+                                            },
+                                            child: Container(
+                                              child: Icon(
+                                                Icons.edit_outlined,
+                                                size: 18.h,
+                                                color: Colors.black,
                                               ),
-                                        InkWell(
-                                          onTap: () {
-                                            sendToBasicInfo(false);
-                                          },
-                                          child: Container(
-                                            child: Icon(
-                                              Icons.edit_outlined,
-                                              size: 18.h,
-                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (data.profileSummary.cv_link == null ||
+                                        data.profileSummary.skills!.isEmpty ||
+                                        (data.profileSummary.languages!
+                                            .isEmpty) ||
+                                        data.education
+                                            .isEmpty /* ||
+                                  experienceList.isEmpty */
+                                    )
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 102,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            // color: Colors.brown.shade50,
+                                          ),
+                                          //  padding: const EdgeInsets.all(10.0),
+                                          child: Scrollbar(
+                                            child: ListView(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const BouncingScrollPhysics(),
+                                              scrollDirection: Axis.horizontal,
+                                              children: [
+                                                if (data.profileSummary
+                                                        .cv_link ==
+                                                    null)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 4,
+                                                            right: 4.0),
+                                                    child: CustomFieldBlock(
+                                                      iconColor:
+                                                          const Color.fromRGBO(
+                                                              37, 150, 190, 0),
+                                                      imageUrl:
+                                                          "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
+                                                      description:
+                                                          "Recruiters identify prospective candidates through their CV.",
+                                                      buttonText:
+                                                          "+ Upload Resume",
+                                                      onPressed: () async {
+                                                        resume =
+                                                            await uploadFile(
+                                                                ['pdf'], "cv");
+                                                        var payload = {
+                                                          "stage": "upload_cv",
+                                                          "data": {
+                                                            "id": await Utils
+                                                                .getPreferencesValue(
+                                                                    null,
+                                                                    ESharedPreferences
+                                                                        .user_id
+                                                                        .name),
+                                                            "cv_link": resume
+                                                          }
+                                                        };
+                                                        await save(
+                                                            resume, payload);
+                                                        ref.refresh(
+                                                            userDataProvider);
+                                                        setState(() {
+                                                          /* var data = await uploadFile(
+                                                        'pdf', "icon");
+                                                    if (data != null) {
+                                                      setState(() {
+                                                        icon_data = data;
+                                                      });
+                                                    } */
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+
+                                                // Block 2: Email
+                                                // Block 2: Email
+                                                // CustomFieldBlock(
+                                                //   imageUrl:
+                                                //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
+                                                //   description:
+                                                //       "Ensure your contact email",
+                                                //   buttonText: "Verify Now",
+                                                //   onPressed: () {
+                                                //     sendToBasicInfo();
+                                                //   },
+                                                // ),
+
+                                                // Block 3: Skills
+                                                if (data.profileSummary
+                                                            .skills !=
+                                                        null &&
+                                                    data.profileSummary.skills!
+                                                        .isEmpty &&
+                                                    data.profileSummary
+                                                            .experience ==
+                                                        "Fresher")
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 4,
+                                                            right: 4.0),
+                                                    child: CustomFieldBlock(
+                                                      imageUrl:
+                                                          "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                                                      description:
+                                                          "Your skills will connect you with relevant job opportunities",
+                                                      buttonText:
+                                                          "+ Add Skills",
+                                                      onPressed: () {
+                                                        List<String> skills =
+                                                            [];
+                                                        sendToSkills(
+                                                            skills,
+                                                            data.profileSummary,
+                                                            data.experiences);
+                                                      },
+                                                    ),
+                                                  ),
+
+                                                // Block 4: Language
+
+                                                if (data.profileSummary
+                                                            .languages !=
+                                                        null &&
+                                                    data.profileSummary
+                                                        .languages!.isEmpty)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 4.0,
+                                                            right: 4.0),
+                                                    child: CustomFieldBlock(
+                                                      imageUrl:
+                                                          "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
+                                                      description:
+                                                          "Specify the languages",
+                                                      buttonText:
+                                                          "+ Add Languages",
+                                                      onPressed: () {
+                                                        sendToLanguges([],
+                                                            data.profileSummary);
+                                                      },
+                                                    ),
+                                                  ),
+                                                /* if (experienceList.isEmpty)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(
+                                                      left: 8.0,
+                                                      right: 8.0),
+                                              child: CustomFieldBlock(
+                                                imageUrl:
+                                                    "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
+                                                description:
+                                                    "Keep your profile updated with your recent work experience.",
+                                                buttonText:
+                                                    "+ Add Experience",
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Screen3(
+                                                        experiencelist:
+                                                            experienceList,
+                                                        isEdit: false,
+                                                        isFirst: false,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ), */
+                                                if (data.education.isEmpty)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 4.0,
+                                                            left: 4),
+                                                    child: CustomFieldBlock(
+                                                      imageUrl:
+                                                          "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+                                                      description:
+                                                          "Share Educational detail to maximize your potential.",
+                                                      buttonText:
+                                                          "+ Add Education",
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    Screen2(
+                                                              isFirst: false,
+                                                              isEdit: false,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (profilemodel.cv_link == null ||
-                                      profilemodel.skills!.isEmpty ||
-                                      (profilemodel.languages!.isEmpty) ||
-                                      educationList
-                                          .isEmpty /* ||
-                                      experienceList.isEmpty */
-                                  )
-                                    Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 102,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          // color: Colors.brown.shade50,
-                                        ),
-                                        //  padding: const EdgeInsets.all(10.0),
-                                        child: Scrollbar(
-                                          child: ListView(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const BouncingScrollPhysics(),
-                                            scrollDirection: Axis.horizontal,
-                                            children: [
-                                              if (profilemodel.cv_link == null)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 4, right: 4.0),
-                                                  child: CustomFieldBlock(
-                                                    iconColor:
-                                                        const Color.fromRGBO(
-                                                            37, 150, 190, 0),
-                                                    imageUrl:
-                                                        "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
-                                                    description:
-                                                        "Recruiters identify prospective candidates through their CV.",
-                                                    buttonText:
-                                                        "+ Upload Resume",
-                                                    onPressed: () async {
-                                                      resume = await uploadFile(
-                                                          ['pdf'], "cv");
-                                                      var payload = {
-                                                        "stage": "upload_cv",
-                                                        "data": {
-                                                          "id": await Utils
-                                                              .getPreferencesValue(
-                                                                  null,
-                                                                  ESharedPreferences
-                                                                      .user_id
-                                                                      .name),
-                                                          "cv_link": resume
-                                                        }
-                                                      };
-                                                      save(resume, payload);
-                                                      setState(() {
-                                                        /* var data = await uploadFile(
-                                                            'pdf', "icon");
-                                                        if (data != null) {
-                                                          setState(() {
-                                                            icon_data = data;
-                                                          });
-                                                        } */
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-
-                                              // Block 2: Email
-                                              // Block 2: Email
-                                              // CustomFieldBlock(
-                                              //   imageUrl:
-                                              //       "https://cdn-icons-png.flaticon.com/128/726/726623.png",
-                                              //   description:
-                                              //       "Ensure your contact email",
-                                              //   buttonText: "Verify Now",
-                                              //   onPressed: () {
-                                              //     sendToBasicInfo();
-                                              //   },
-                                              // ),
-
-                                              // Block 3: Skills
-                                              if (profilemodel
-                                                      .skills!.isEmpty &&
-                                                  profilemodel.experience ==
-                                                      "Fresher")
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 4, right: 4.0),
-                                                  child: CustomFieldBlock(
-                                                    imageUrl:
-                                                        "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                                                    description:
-                                                        "Your skills will connect you with relevant job opportunities",
-                                                    buttonText: "+ Add Skills",
-                                                    onPressed: () {
-                                                      List<String> skills = [];
-                                                      sendToSkills(skills);
-                                                    },
-                                                  ),
-                                                ),
-
-                                              // Block 4: Language
-
-                                              if (profilemodel.languages !=
-                                                      null &&
-                                                  profilemodel
-                                                      .languages!.isEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 4.0,
-                                                          right: 4.0),
-                                                  child: CustomFieldBlock(
-                                                    imageUrl:
-                                                        "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
-                                                    description:
-                                                        "Specify the languages",
-                                                    buttonText:
-                                                        "+ Add Languages",
-                                                    onPressed: () {
-                                                      sendToLanguges([]);
-                                                    },
-                                                  ),
-                                                ),
-                                              /* if (experienceList.isEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 8.0,
-                                                          right: 8.0),
-                                                  child: CustomFieldBlock(
-                                                    imageUrl:
-                                                        "https://cdn-icons-png.flaticon.com/128/5131/5131890.png",
-                                                    description:
-                                                        "Keep your profile updated with your recent work experience.",
-                                                    buttonText:
-                                                        "+ Add Experience",
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Screen3(
-                                                            experiencelist:
-                                                                experienceList,
-                                                            isEdit: false,
-                                                            isFirst: false,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ), */
-                                              if (educationList.isEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          right: 4.0, left: 4),
-                                                  child: CustomFieldBlock(
-                                                    imageUrl:
-                                                        "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                                                    description:
-                                                        "Share Educational detail to maximize your potential.",
-                                                    buttonText:
-                                                        "+ Add Education",
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Screen2(
-                                                            isFirst: false,
-                                                            isEdit: false,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
                                       ),
+                                    Visibility(
+                                      visible: (usertype == 1 ? true : false),
+                                      child: experience(
+                                          //experienceList
+                                          data.experiences ?? [],
+                                          data.education ?? [],
+                                          data.profileSummary),
                                     ),
-                                  Visibility(
-                                    visible: (usertype == 1 ? true : false),
-                                    child: experience(experienceList ?? []),
-                                  ),
-                                  Visibility(
-                                    visible: (usertype == 1 ? true : false),
-                                    child: education(educationList ?? []),
-                                  ),
-                                  Visibility(
-                                    visible: usertype == 1,
-                                    child: skills(experienceList),
-                                  ),
-                                  Visibility(
-                                    visible: (usertype == 1 ? true : false),
-                                    child:
-                                        languages(profilemodel.languages ?? []),
-                                  ),
-                                  SizedBox(
-                                    height: 20.h,
-                                  ),
-                                  /*  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 150.w),
-                                    child: const Divider(
-                                      color: Constants.borderColor,
-                                      thickness: 2.5,
+                                    Visibility(
+                                      visible: (usertype == 1 ? true : false),
+                                      child: education(
+                                          // educationList
+                                          data.education ?? [],
+                                          data.experiences ?? [],
+                                          data.profileSummary),
                                     ),
-                                  ) */
-                                  /*  Visibility(  //TODO: previous add cv button at the bottom.
-                                    visible: (usertype == 1 ? true : false),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 3, right: 3),
-                                      child: cardCustom(
-                                        icon: Icons.file_copy,
-                                        isedit: false,
-                                        isresume: true,
-                                        title: "",
-                                        child: CVWidget(
-                                          profileCv: ProfileCv(
-                                            cv_link: profilemodel.cv_link,
-                                            cv_upladted_date:
-                                                profilemodel.cv_upladted_date,
-                                            profile_cv_file: profilemodel
-                                                .cv_link, // Use the same value as cv_link
-                                            profile_cv_link: profile_cv_link,
-                                          ),
-                                          onUpload: (fileName, payload) async =>
-                                              await save(fileName, payload),
-                                        ),
+                                    Visibility(
+                                      visible: usertype == 1,
+                                      child: skills(
+                                          // experienceList
+                                          data.experiences,
+                                          data.education,
+                                          data.profileSummary),
+                                    ),
+                                    Visibility(
+                                      visible: (usertype == 1 ? true : false),
+                                      child: languages(
+                                          data.profileSummary.languages ?? [],
+                                          data.profileSummary),
+                                    ),
+                                    SizedBox(
+                                      height: 20.h,
+                                    ),
+                                    /*  Padding(
+                                padding:
+                                    EdgeInsets.symmetric(horizontal: 150.w),
+                                child: const Divider(
+                                  color: Constants.borderColor,
+                                  thickness: 2.5,
+                                ),
+                              ) */
+                                    /*  Visibility(  //TODO: previous add cv button at the bottom.
+                                visible: (usertype == 1 ? true : false),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 3, right: 3),
+                                  child: cardCustom(
+                                    icon: Icons.file_copy,
+                                    isedit: false,
+                                    isresume: true,
+                                    title: "",
+                                    child: CVWidget(
+                                      profileCv: ProfileCv(
+                                        cv_link: data.profileSummary.cv_link,
+                                        cv_upladted_date:
+                                            data.profileSummary.cv_upladted_date,
+                                        profile_cv_file: data
+                                            .cv_link, // Use the same value as cv_link
+                                        profile_cv_link: profile_cv_link,
                                       ),
+                                      onUpload: (fileName, payload) async =>
+                                          await save(fileName, payload),
                                     ),
-                                  ), */
-                                ],
+                                  ),
+                                ),
+                              ), */
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
-              )
-            ],
-          )),
+                )
+              ],
+            ));
+      },
+      error: (error, stackTrace) {
+        return const Scaffold(
+          body: Center(
+            child: Text("Failed to fetch data"),
+          ),
+        );
+      },
+      loading: () {
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
     );
   }
 
-  Widget basicInfo() {
+  Widget basicInfo(ProfileSummaryModel profileSummaryModel,
+      List<Education> educationList, List<Experience> experienceList) {
     return Column(
       children: [
         const SizedBox(
@@ -1191,12 +1434,15 @@ class _ProfileSummaryState extends State<ProfileSummary>
         SizedBox(
           width: double.infinity,
           child: cardCustom(
+            profileSummaryModel: profileSummaryModel,
+            experienceList: experienceList,
+            educationList: educationList,
             // icon: Icons.account_circle_outlined,
             title: "",
             onPress: (() {
               // Navigator.pushNamed(context, ERoute.screen1.value,
               //     arguments: 1);
-              sendToBasicInfo(false);
+              sendToBasicInfo(false, profileSummaryModel);
             }),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -1284,21 +1530,27 @@ class _ProfileSummaryState extends State<ProfileSummary>
     );
   }
 
-  Widget educationTitle() {
-    return titleCard('Highest Education : ${profilemodel.education}');
+  Widget educationTitle(List<Education> education) {
+    return titleCard('Highest Education : $education');
   }
 
-  Widget experienceTitle() {
-    return titleCard('Work Status : ${profilemodel.experience}');
+  Widget experienceTitle(ProfileSummaryModel profileSummaryModel) {
+    return titleCard('Work Status : ${profileSummaryModel.experience}');
   }
 
-  Widget education(List<Education> educationList) {
+  Widget education(
+      List<Education> educationList,
+      List<Experience> experienceList,
+      ProfileSummaryModel profileSummaryModel) {
     bool shouldShowAddButton = educationList.isNotEmpty;
     bool showEducation = educationList.isEmpty;
 
     if (showEducation) {
       return SizedBox(
         child: cardCustom(
+          educationList: educationList,
+          profileSummaryModel: profileSummaryModel,
+          experienceList: experienceList,
           onPress: () {
             // sendToEducation();
           },
@@ -1409,6 +1661,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
       return SizedBox(
         width: double.infinity,
         child: cardCustom(
+          experienceList: experienceList,
+          profileSummaryModel: profileSummaryModel,
+          educationList: educationList,
           onPress: () {
             // sendToEducation();
           },
@@ -1527,7 +1782,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
     return (yearsDifference * 12) + monthsDifference;
   }
 
-  Widget experience(List<Experience> experienceList) {
+  Widget experience(List<Experience> experienceList,
+      List<Education> educationList, ProfileSummaryModel profileSummaryModel) {
     bool shouldShowAddButton = experienceList.isNotEmpty;
     // ignore: unused_local_variable
     bool hasExperienceData = profilemodel.experience != null;
@@ -1535,6 +1791,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
     if (experienceList.isEmpty) {
       return SizedBox(
         child: cardCustom(
+          educationList: educationList,
+          experienceList: experienceList,
+          profileSummaryModel: profileSummaryModel,
           onPress: () {
             // sendToEducation();
           },
@@ -1652,6 +1911,9 @@ class _ProfileSummaryState extends State<ProfileSummary>
       return SizedBox(
         width: double.infinity,
         child: cardCustom(
+          educationList: educationList,
+          experienceList: experienceList,
+          profileSummaryModel: profileSummaryModel,
           onPress: (() {
             // sendToExperience(visible);
           }),
@@ -1895,7 +2157,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
     }
   }
 
-  Widget languages(List<dynamic> languages) {
+  Widget languages(
+      List<dynamic> languages, ProfileSummaryModel profileSummaryModel) {
     // Filter out languages other than English, Hindi, and Marathi
     //print(profilemodel.languages);
     List filteredLanguages = languages;
@@ -1952,7 +2215,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                     if (filteredLanguages.length <= 11)
                       InkWell(
                         onTap: () {
-                          sendToLanguges(filteredLanguages);
+                          sendToLanguges(
+                              filteredLanguages, profileSummaryModel);
                         },
                         child: Container(
                           padding: const EdgeInsets.only(
@@ -2030,7 +2294,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       } else if (index == 11) {
                         return InkWell(
                           onTap: () {
-                            sendToLanguges(filteredLanguages);
+                            sendToLanguges(
+                                filteredLanguages, profileSummaryModel);
                             // sendToSkills(skills);
                           },
                           child: Container(
@@ -2090,7 +2355,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
     );
   }
 
-  Widget skills(List<Experience> experienceList) {
+  Widget skills(List<Experience> experienceList, List<Education> educationList,
+      ProfileSummaryModel profileSummaryModel) {
     List<String> skills = [];
 
     // Add skills from experienceList
@@ -2101,8 +2367,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
     }
 
     // Add skills from profilemodel
-    if (profilemodel.skills != null) {
-      skills.addAll(profilemodel.skills!);
+    if (profileSummaryModel.skills != null) {
+      skills.addAll(profileSummaryModel.skills!);
     }
 
     // Remove duplicates and convert to a list
@@ -2157,7 +2423,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       InkWell(
                         //TODO: previous add button which is use to send to the skills page using sendToSkills.
                         onTap: () {
-                          sendToSkills(skills);
+                          sendToSkills(
+                              skills, profileSummaryModel, experienceList);
                         },
                         child: Container(
                           padding: const EdgeInsets.only(
@@ -2228,7 +2495,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
                       } else if (index == 12) {
                         return InkWell(
                           onTap: () {
-                            sendToSkills(skills);
+                            sendToSkills(
+                                skills, profileSummaryModel, experienceList);
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 5, top: 5),
@@ -2286,14 +2554,17 @@ class _ProfileSummaryState extends State<ProfileSummary>
     );
   }
 
-  void sendToSkills(List<String> skills) async {
+  void sendToSkills(
+      List<String> skills,
+      ProfileSummaryModel profileSummaryModel,
+      List<Experience> experience) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SkillsMulti(
-          prevPageModel: profilemodel,
-          experienceList: experienceList,
-          // initialSkills: skills,
+          prevPageModel: profileSummaryModel,
+          experienceList: experience,
+          initialSkills: skills,
         ),
       ),
     );
@@ -2303,13 +2574,14 @@ class _ProfileSummaryState extends State<ProfileSummary>
     }
   }
 
-  void sendToLanguges(List<dynamic>? language) async {
+  void sendToLanguges(
+      List<dynamic>? language, ProfileSummaryModel profileSummaryModel) async {
     // ignore: unused_local_variable
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => LanguageMulti(
-          prevPageModel: profilemodel,
+          prevPageModel: profileSummaryModel,
           languageList: language!,
           isFirst: false,
           // experienceList: experienceList,
@@ -2360,7 +2632,10 @@ class _ProfileSummaryState extends State<ProfileSummary>
   }
 
   Widget cardCustom(
-      {required String? title,
+      {required List<Education> educationList,
+      required List<Experience> experienceList,
+      required ProfileSummaryModel profileSummaryModel,
+      required String? title,
       IconData? icon,
       IconData? icons,
       Widget? child,
@@ -2370,8 +2645,8 @@ class _ProfileSummaryState extends State<ProfileSummary>
       Function()? onPress,
       String? imageUrl}) {
     bool shouldShowExperienceAddButton = experienceList.isNotEmpty ||
-        profilemodel.experience == "Fresher" ||
-        profilemodel.experience == "Experience";
+        profileSummaryModel.experience == "Fresher" ||
+        profileSummaryModel.experience == "Experience";
     bool shouldShowEducationAddButton = educationList.isNotEmpty;
 
     return Container(
@@ -2501,12 +2776,12 @@ class _ProfileSummaryState extends State<ProfileSummary>
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  sendToBasicInfo(bool isBio) async {
+  sendToBasicInfo(bool isBio, ProfileSummaryModel profileSummaryModel) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen1(
-          prevPageModel: profilemodel,
+          prevPageModel: profileSummaryModel,
           isbio: isBio,
           isfirst: false,
         ),
@@ -2692,9 +2967,6 @@ class _ProfileSummaryState extends State<ProfileSummary>
     setState(() {});
   }
 }
-
-
-
 
 /* import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';

@@ -2,28 +2,34 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/screens/profile/profile_summary.dart';
 
 import '../../constants/gobal.dart';
 import '../../models/profileSummary.dart';
 import '../../themes/colors.dart';
 
-class SkillsMulti extends StatefulWidget {
+class SkillsMulti extends ConsumerStatefulWidget {
   final ProfileSummaryModel? prevPageModel;
 
   // final bool? expirieanceFlag;
   final List<Experience> experienceList;
+  final List<String> initialSkills;
 
   const SkillsMulti(
-      {Key? key, required this.prevPageModel, required this.experienceList})
+      {Key? key,
+      required this.prevPageModel,
+      required this.experienceList,
+      required this.initialSkills})
       : super(key: key);
   @override
-  State<SkillsMulti> createState() => _SkillsMultiState();
+  ConsumerState<SkillsMulti> createState() => _SkillsMultiState();
 }
 
-class _SkillsMultiState extends State<SkillsMulti> {
+class _SkillsMultiState extends ConsumerState<SkillsMulti> {
   late Widget previousWidget;
 
   late TextEditingController skillsController = TextEditingController();
@@ -99,6 +105,7 @@ class _SkillsMultiState extends State<SkillsMulti> {
         ProfileSummaryModel(id: expID, skills: selectedlist);
     Map<String, dynamic> jsonData = model.toJson();
     await updateSkills(jsonData, expID!);
+    ref.refresh(userDataProvider);
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Skills saved successfully')),

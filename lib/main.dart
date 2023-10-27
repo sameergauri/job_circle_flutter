@@ -9,6 +9,10 @@ import 'package:job_circle/themes/colors.dart';
 import 'interceptors/no_internet.dart';
 
 void main() {
+  // FlutterError.demangleStackTrace = (stackTrace) => stackTrace;
+  /* FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details, forceReport: true);
+  }; */
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

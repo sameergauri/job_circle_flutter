@@ -2,9 +2,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
 
 import '../../constants/gobal.dart';
@@ -12,7 +14,7 @@ import '../../models/autocompleteCheckBoxModel.dart';
 import '../../models/profileSummary.dart';
 import '../../themes/colors.dart';
 
-class LanguageMulti extends StatefulWidget {
+class LanguageMulti extends ConsumerStatefulWidget {
   final ProfileSummaryModel? prevPageModel;
   final List<dynamic>? languageList;
   final bool isFirst;
@@ -24,10 +26,10 @@ class LanguageMulti extends StatefulWidget {
       {Key? key, this.prevPageModel, this.languageList, required this.isFirst})
       : super(key: key);
   @override
-  State<LanguageMulti> createState() => _LanguageMultiState();
+  ConsumerState<LanguageMulti> createState() => _LanguageMultiState();
 }
 
-class _LanguageMultiState extends State<LanguageMulti> {
+class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   late Widget previousWidget;
 
   late TextEditingController LanguageController = TextEditingController();
@@ -165,6 +167,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
                     isFirst: false,
                   )));
     } else {
+      ref.refresh(userDataProvider);
       Navigator.pop(context);
     }
   }
@@ -197,7 +200,7 @@ class _LanguageMultiState extends State<LanguageMulti> {
       ),
       backgroundColor: Constants.themeBgColorLight,
       appBar: AppBar(
-        automaticallyImplyLeading: widget.isFirst?false:true,
+        automaticallyImplyLeading: widget.isFirst ? false : true,
         backgroundColor: Constants.themeBgColorLight,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),

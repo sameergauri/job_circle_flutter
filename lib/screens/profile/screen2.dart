@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -19,7 +21,7 @@ import '../../models/autocompleteModel.dart';
 import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 
-class Screen2 extends StatefulWidget {
+class Screen2 extends ConsumerStatefulWidget {
   Screen2(
       {Key? key,
       this.prevPageModel,
@@ -34,10 +36,10 @@ class Screen2 extends StatefulWidget {
   final bool isFirst, isEdit;
 
   @override
-  State<Screen2> createState() => _Screen2State();
+  ConsumerState<Screen2> createState() => _Screen2State();
 }
 
-class _Screen2State extends State<Screen2> {
+class _Screen2State extends ConsumerState<Screen2> {
   late Widget previousWidget;
   //controller
   late TextEditingController educationController = TextEditingController();
@@ -3398,6 +3400,7 @@ class _Screen2State extends State<Screen2> {
 
     // Call the saveUserExperience method on the instance
     await JobPostApiService.postEducation(model.toMap());
+    ref.refresh(userDataProvider);
     // await userDataService.saveUserEducation(model.toMap()); //TODO: Old one.....
     /*  if (widget.prevPageModel == null) {
       Navigator.pushReplacement(

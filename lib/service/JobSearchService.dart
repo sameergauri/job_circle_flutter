@@ -5,15 +5,16 @@ import 'package:job_circle/models/fav_job_model.dart';
 import 'package:job_circle/service/ServiceBase.dart';
 
 class JobSearchService extends ServiceBase {
-  Future getJobSearch(Map<String, String> params) {
-    return callGetLocal(GlobalConstants.API_jobs_v1_search, param: params);
+  Future getJobSearch(Map<String, dynamic> params) {
+    return callGetLocal(GlobalConstants.API_jobs_v1_search,
+        param: params.cast<String, String>());
   }
 
-   Future getcompany(Map<String, String> params) {
+  Future getcompany(Map<String, String> params) {
     return callGetLocal(GlobalConstants.API_company_name_v1, param: params);
   }
 
-  Future<FavJobModel?> getFavoriteJob(int jobId) async {  
+  Future<FavJobModel?> getFavoriteJob(int jobId) async {
     try {
       //on click pe job add to ho rahi hai
       var response = await callGetLocal("favjob/v1", param: {});

@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,7 @@ import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -29,7 +31,7 @@ import '../../models/api_response.dart';
 import '../../service/FileUploadService.dart';
 import '../../service/job_post_api_service.dart';
 
-class Screen1 extends StatefulWidget {
+class Screen1 extends ConsumerStatefulWidget {
   Screen1(
       {Key? key,
       this.prevPageModel,
@@ -43,10 +45,10 @@ class Screen1 extends StatefulWidget {
   final String? primaryNumberValue;
   // Pr ofileSummaryModel profilemodel;
   @override
-  State<Screen1> createState() => _Screen1State();
+  ConsumerState<Screen1> createState() => _Screen1State();
 }
 
-class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
+class _Screen1State extends ConsumerState<Screen1> {
   late Widget previousWidget;
 
   // Veriable Declaration
@@ -1023,7 +1025,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                             suffix: Text(
                               "${calculateAge(dateOfBirth.text).toString()} yrs",
                             ),
-                            labelText: "Date of birth",
+                            labelText: "Date of Birth",
                             labelStyle: const TextStyle(
                               color: Constants.themeBgColor,
                             ),
@@ -1377,6 +1379,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                                         vaccination = "1";
                                       } else {
                                         vaccination = "0";
+                                      }
+                                      if (newValue == false) {
+                                        data = null;
                                       }
                                     }); // Notify Flutter that the state has changed
                                   },
@@ -2575,10 +2580,11 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
         // widget.prevPageModel!.skills = fetchApiskill;
         widget.prevPageModel!.dateofbirth =
             DateFormat("yyyy-MM-dd").format(dataOfBirthValue); */
-
+    ref.refresh(userDataProvider);
     Navigator.pop(
       context,
     );
+    ref.refresh(userDataProvider);
 
     Utils.setCacheData('firstName', firstName.text);
   }

@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -20,7 +22,7 @@ import '../../constants/customTextfield.dart';
 import '../../models/autocompleteModel.dart';
 import '../../service/UserDataService.dart';
 
-class Screen3 extends StatefulWidget {
+class Screen3 extends ConsumerStatefulWidget {
   Screen3(
       {Key? key,
       this.prevPageModel,
@@ -37,10 +39,10 @@ class Screen3 extends StatefulWidget {
   late List<Experience>? experiencelist;
 
   @override
-  State<Screen3> createState() => _Screen3State();
+  ConsumerState<Screen3> createState() => _Screen3State();
 }
 
-class _Screen3State extends State<Screen3> {
+class _Screen3State extends ConsumerState<Screen3> {
   late Widget previousWidget;
   // CardModel model = CardModel();
   //bool expirieanceFlag = false;
@@ -3604,6 +3606,7 @@ class _Screen3State extends State<Screen3> {
 
     // Call the saveUserExperience method on the instance
     await userDataService.saveUserExperience(experience.toJson());
+    ref.refresh(userDataProvider);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Form data saved successfully')),

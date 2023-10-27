@@ -429,28 +429,33 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   : const SizedBox(),
               Visibility(
                 visible: (usertype == EUserType.jobSeeker.value),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  decoration: BoxDecoration(
-                      // border: Border.all(color: Constants.themeBgColor),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "assets/images/similar.png",
-                        height: 15.h,
-                      ),
-                      const SizedBox(
-                        width: 3,
-                      ),
-                      Text(
-                        "Similar Jobs",
-                        style: GoogleFonts.varela(
-                            color: Constants.themeBgColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                        // border: Border.all(color: Constants.themeBgColor),
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          "assets/images/similar.png",
+                          height: 15.h,
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          "Similar Jobs",
+                          style: GoogleFonts.varela(
+                              color: Constants.themeBgColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1933,23 +1938,22 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(top: 20.h, right: 20.w),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: CircleAvatar(
-                                radius: 30,
-                                child: CachedNetworkImage(
-                                  imageUrl:
-                                      "${jobDetailsModel.spoc_profile_pic}",
-                                  errorWidget: (context, url, error) {
-                                    return const CircleAvatar(
-                                        radius: 30,
-                                        backgroundImage: NetworkImage(
-                                            "https://media.istockphoto.com/id/503040171/photo/middle-eastern-businessman-portrait.jpg?s=612x612&w=0&k=20&c=7t6c_HQHfUZNgrVtR-G1rQpJAMaCbFsuxppDRKBnXDw="));
-                                  },
-                                )),
-                          ),
-                        )
+                            padding: EdgeInsets.only(top: 20.h, right: 20.w),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: jobDetailsModel.spoc_profile_pic != null
+                                  ? CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(
+                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                      ),
+                                    )
+                                  : const CircleAvatar(
+                                      radius: 30,
+                                      child: Icon(Icons.error_outline),
+                                    ),
+                            )),
                       ],
                     ),
                     if (usertype == EUserType.businessPartner.value &&

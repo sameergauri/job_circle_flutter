@@ -1,5 +1,6 @@
 // ignore_for_file: await_only_futures
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' hide log;
@@ -27,7 +28,6 @@ import 'package:job_circle/models/location_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/career_assets.dart';
 import 'package:job_circle/screens/jobs/filter.dart';
-import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/screens/jobs/matching_jobs.dart';
@@ -202,6 +202,7 @@ class _JobsState extends ConsumerState<Jobs>
     bindInit();
     _refreshController = RefreshController(initialRefresh: false);
     super.initState();
+    startSearchFieldAnimation();
     setState(() {
       Utils.setPreference(
           null,
@@ -359,7 +360,8 @@ class _JobsState extends ConsumerState<Jobs>
     try {
       var id = profilemodel.id; //this id is null, get the user id
       final response = await http.post(
-        Uri.parse("http://192.168.1.110:9090/favjob/v1/$id/$jobId"),
+        Uri.parse(
+            "http://${GlobalConstants.API_Host_one}/favjob/v1/$id/$jobId"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -367,6 +369,7 @@ class _JobsState extends ConsumerState<Jobs>
 //ek min wait kr //api ka issue ho skta hai may be
       if (response.statusCode == 200) {
         print('Post request successful');
+        searchAgain();
       } else {
         print('Error during post request: ${response.statusCode}');
       }
@@ -377,15 +380,14 @@ class _JobsState extends ConsumerState<Jobs>
 
   Future<void> removeFromFav(int favJobId) async {
     var id = profileSummaryModel.id;
-    final response = await http.post(
+    final response = await http.delete(
       Uri.parse("http://${GlobalConstants.API_Host_one}/favjob/v1/$favJobId"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: <String, String>{},
     );
 
     if (response.statusCode == 200) {
       print('Post request successful');
+      searchAgain();
     } else {
       print('Error during post request: ${response.statusCode}');
     }
@@ -422,6 +424,7 @@ class _JobsState extends ConsumerState<Jobs>
   late Map<String, String> staticMap = {
     'spoc': '${profilemodel.id}',
   };
+
   late Map<String, String> staticMap1 = {
     'spoc': '${profilemodel.report_to}',
   };
@@ -614,296 +617,325 @@ class _JobsState extends ConsumerState<Jobs>
                 ))
             : const SizedBox(),
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           leading: Builder(
-            builder: (context) => Padding(
-              padding: EdgeInsets.only(
-                left: 22.w,
-              ),
-              child: InkWell(
-                onTap: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                child: CircleAvatar(
-                  radius: 2.r,
-                  child: profilemodel.profile_pic != null
-                      ? CircleAvatar(
-                          backgroundColor:
-                              const Color.fromARGB(255, 190, 190, 190),
-                          radius: 43,
-                          onBackgroundImageError: ((error, stackTrace) =>
-                              Image.asset("assets/images/company.png",
-                                  height: 80, width: 80, fit: BoxFit.contain)),
-                          backgroundImage: Image.network(
-                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
-                          ).image,
-                        )
-                      : Icon(
-                          Icons.person,
-                          size: 14.h,
-                        ),
+            builder: (context) => InkWell(
+              onTap: () {
+                Scaffold.of(context).openDrawer();
+              },
+              child: CircleAvatar(
+                // radius: 2.r,
+                child: profilemodel.profile_pic != null
+                    ? CircleAvatar(
+                        backgroundColor:
+                            const Color.fromARGB(255, 190, 190, 190),
+                        radius: 18.r,
+                        onBackgroundImageError: ((error, stackTrace) =>
+                            Image.asset("assets/images/company.png",
+                                height: 80, width: 80, fit: BoxFit.contain)),
+                        backgroundImage: Image.network(
+                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${profilemodel.profile_pic}",
+                        ).image,
+                      )
+                    : Icon(
+                        Icons.person,
+                        size: 14.h,
+                      ),
 
-                  /* CircleAvatar(
-                          backgroundColor:
-                              const Color.fromARGB(255, 190, 190, 190),
-                          radius: 43,
-                          onBackgroundImageError: ((error, stackTrace) =>
-                              Image.asset("assets/images/company.png",
-                                  height: 80, width: 80, fit: BoxFit.contain)),
-                          backgroundImage: Image.network(
-                            profile_final_pic,
-                          ).image,
-                        )
+                /* CircleAvatar(
+                        backgroundColor:
+                            const Color.fromARGB(255, 190, 190, 190),
+                        radius: 43,
+                        onBackgroundImageError: ((error, stackTrace) =>
+                            Image.asset("assets/images/company.png",
+                                height: 80, width: 80, fit: BoxFit.contain)),
+                        backgroundImage: Image.network(
+                          profile_final_pic,
+                        ).image,
+                      )
+                    : Icon(
+                        Icons.person,
+                        size: 14.h,
+                      ), */
+                /* IconButton(
+                  icon: profileSummaryModel.profile_pic != null
+                      ? Image.network(
+                          profileSummaryModel.profile_pic.toString())
                       : Icon(
                           Icons.person,
-                          size: 14.h,
-                        ), */
-                  /* IconButton(
-                    icon: profileSummaryModel.profile_pic != null
-                        ? Image.network(
-                            profileSummaryModel.profile_pic.toString())
-                        : Icon(
-                            Icons.person,
-                            size: 16.h,
-                          ),
-                    onPressed: () =>
-                        /*  Navigator.pushNamed(
-                        context,
-                        ERoute.profile_summary
-                            .name), */
-                        Scaffold.of(context).openDrawer(),
-                  ), */
-                ),
+                          size: 16.h,
+                        ),
+                  onPressed: () =>
+                      /*  Navigator.pushNamed(
+                      context,
+                      ERoute.profile_summary
+                          .name), */
+                      Scaffold.of(context).openDrawer(),
+                ), */
               ),
             ),
           ),
-          iconTheme: const IconThemeData(color: Constants.themeBgColor),
+          // iconTheme: const IconThemeData(color: Constants.themeBgColor),
           bottom: PreferredSize(
             preferredSize: Size(0, 25.h),
-            child: TabBar(
-              labelPadding: const EdgeInsets.only(left: 5, right: 5),
-              controller: _tabController,
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.black,
-              indicatorSize: TabBarIndicatorSize.tab,
-              splashBorderRadius: BorderRadius.circular(8.r),
-              //indicatorSize: TabBarIndicatorSize.label,
-              indicatorWeight: 5,
-              indicatorPadding: EdgeInsets.only(
-                  top: 10.h, bottom: 12.h, left: 3.w, right: 3.w),
-              indicator: isSelect
-                  ? BoxDecoration(
-                      color: Constants.borderColor,
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                          color: Constants.borderColor) // Creates border
-                      )
-                  : null,
-              onTap: (value) {
-                setState(() {
-                  cutTab = value;
-                  isSelect = !isSelect;
-                  if (value == 1) {
-                    // sortByd = "New Jobs";
-                    isSelect
-                        ? searchAgain(
-                            data: role == "1" || role == "2"
-                                ? staticMap1
-                                : staticMap)
-                        : searchAgain();
-                    // isSelect ? ;
-                  }
-                  if (value == 2) {
-                    sortByd = "Newer Jobs";
-                    isSelect == true ? null : sortByd = "";
-                    // Map<String, String> newData = {"work_type": "hybrid"};
-                    searchAgain();
-                  }
-                  if (value == 3) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {
-                      "work_type": "workfromhome"
-                    };
-                    searchAgain(data: newData1);
-                  }
-                  if (value == 4) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {"work_type": "fresher"};
-                    searchAgain(data: newData1);
-                  }
-                  if (value == 5) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {
-                      "work_type": "workfromhome"
-                    };
-                    searchAgain(data: newData1);
-                  }
-                  if (value == 6) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {
-                      "work_type": "workfromhome"
-                    };
-                    searchAgain(data: newData1);
-                  }
-                  if (value == 7) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {
-                      "work_type": "workfromhome"
-                    };
-                    searchAgain(data: newData1);
-                  }
-                  if (value == 8) {
-                    // sortByd = "New Jobs";
-                    Map<String, String> newData1 = {
-                      "work_type": "workfromhome"
-                    };
-                    searchAgain(data: newData1);
-                  }
-                });
-              },
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TabBar(
+                labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                controller: _tabController,
 
-              isScrollable: true,
-              tabs: [
-                Tab(
-                  child: InkWell(
-                    onTap: () async {
-                      /*  showCustomModelBottomSheet(
-                        context,
-                      ); */
-                      CustomSheet.customSheet(
-                          context: context,
-                          onDone: (data) {
-                            searchAgain(data: data);
-                          });
-                      /* Navigator.push(
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.black,
+                indicatorSize: TabBarIndicatorSize.tab,
+                splashBorderRadius: BorderRadius.circular(8.r),
+                //indicatorSize: TabBarIndicatorSize.label,
+                indicatorWeight: 5,
+                indicatorPadding: EdgeInsets.only(
+                    top: 10.h, bottom: 12.h, left: 3.w, right: 3.w),
+                indicator: isSelect
+                    ? BoxDecoration(
+                        color: Constants.borderColor,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                            color: Constants.borderColor) // Creates border
+                        )
+                    : null,
+                onTap: (value) {
+                  setState(() {
+                    cutTab = value;
+                    isSelect = !isSelect;
+
+                    if (value == 1 && usertype == 1) {
+                      Map<String, dynamic> fav = {
+                        'is_fav': 1,
+                        'userId': profilemodel.id!.toInt(),
+                      };
+                      isSelect ? searchAgain(data: fav) : searchAgain();
+
+                      // sortByd = "New Jobs";
+                      // isSelect ? searchAgain(data: fav) : searchAgain();
+                      // isSelect ? ;
+                    }
+                    if (value == 1 && usertype != 1) {
+                      // sortByd = "New Jobs";
+                      isSelect
+                          ? searchAgain(
+                              data: role == "1" || role == "2"
+                                  ? staticMap1
+                                  : staticMap)
+                          : searchAgain();
+                      // isSelect ? ;
+                    }
+
+                    /*  if (value == 1) {
+                      // sortByd = "New Jobs";
+                      isSelect
+                          ? searchAgain(
+                              data: role == "1" || role == "2"
+                                  ? staticMap1
+                                  : staticMap)
+                          : searchAgain();
+                      // isSelect ? ;
+                    } */
+                    if (value == 2) {
+                      sortByd = "Newer Jobs";
+                      isSelect == true ? null : sortByd = "";
+                      // Map<String, String> newData = {"work_type": "hybrid"};
+                      searchAgain();
+                    }
+                    if (value == 3) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {
+                        "work_type": "workfromhome"
+                      };
+                      searchAgain(data: newData1);
+                    }
+                    if (value == 4) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {"work_type": "fresher"};
+                      searchAgain(data: newData1);
+                    }
+                    if (value == 5) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {
+                        "work_type": "workfromhome"
+                      };
+                      searchAgain(data: newData1);
+                    }
+                    if (value == 6) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {
+                        "work_type": "workfromhome"
+                      };
+                      searchAgain(data: newData1);
+                    }
+                    if (value == 7) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {
+                        "work_type": "workfromhome"
+                      };
+                      searchAgain(data: newData1);
+                    }
+                    if (value == 8) {
+                      // sortByd = "New Jobs";
+                      Map<String, String> newData1 = {
+                        "work_type": "workfromhome"
+                      };
+                      searchAgain(data: newData1);
+                    }
+                  });
+                },
+
+                isScrollable: true,
+                tabs: [
+                  Tab(
+                    child: InkWell(
+                      onTap: () async {
+                        /*  showCustomModelBottomSheet(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const JobFilter())); */
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(color: Constants.borderColor)),
-                      height: 28.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Filter"),
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          const Icon(
-                            Icons.filter_list,
-                            color: Colors.black,
-                          ),
-                          // const Text("Sort by"),
-                          /* DropdownButton<String>(
-                            icon: const Icon(
+                        ); */
+                        CustomSheet.customSheet(
+                            context: context,
+                            onDone: (data) {
+                              searchAgain(data: data);
+                            });
+                        /* Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const JobFilter())); */
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: Constants.borderColor)),
+                        height: 28.h,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Filter"),
+                            SizedBox(
+                              width: 5.w,
+                            ),
+                            const Icon(
                               Icons.filter_list,
                               color: Colors.black,
                             ),
-                            underline: const SizedBox(),
-                            style: const GoogleFonts.varela(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold),
-                            value: sortByd,
-                            alignment: Alignment.bottomRight,
-                            items: <String>[
-                              'Recomended',
-                              // 'Salary - high to low',
-                              // 'Distance - newr to far',
-                              'Newer Jobs'
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value,
-                                    style: const GoogleFonts.varela(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold)),
-                              );
-                            }).toList(),
-                            onChanged: (_) {
-                              setState(() {
-                                sortByd = _.toString();
-                                searchAgain();
-                              });
-                            },
-                          ), */
-                        ],
+                            // const Text("Sort by"),
+                            /* DropdownButton<String>(
+                              icon: const Icon(
+                                Icons.filter_list,
+                                color: Colors.black,
+                              ),
+                              underline: const SizedBox(),
+                              style: const GoogleFonts.varela(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold),
+                              value: sortByd,
+                              alignment: Alignment.bottomRight,
+                              items: <String>[
+                                'Recomended',
+                                // 'Salary - high to low',
+                                // 'Distance - newr to far',
+                                'Newer Jobs'
+                              ].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value,
+                                      style: const GoogleFonts.varela(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold)),
+                                );
+                              }).toList(),
+                              onChanged: (_) {
+                                setState(() {
+                                  sortByd = _.toString();
+                                  searchAgain();
+                                });
+                              },
+                            ), */
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                //  if (usertype == 3)
-                /*  Tab(
-                  child: InkWell(
-                    onTap: () {
-                      searchAgain(
-                          data: role == "1" || role == "2"
-                              ? staticMap1
-                              : staticMap);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50.r),
-                          border: Border.all(color: Constants.borderColor)),
-                      height: 33.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text("My Jobs"),
-                          /* Image.asset(
-                              "assets/images/updown.png",
-                              height: 15.h,
-                            ) */
-                        ],
-                      ),
-                    ),
-                  ),
-                ), */
-                Tab(
-                  child: customTab("My Jobs", "assets/images/check.png", 1),
-                ),
-                /* Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
-                Tab(
-                    child: customTab(
-                        "Work from home", "assets/images/check.png", 3)),
-                Tab(child: customTab("Fresher", "assets/images/check.png", 4)),
-                Tab(
-                    child: customTab(
-                        "Work from office", "assets/images/check.png", 5)),
-                Tab(child: customTab("Hybrid", "assets/images/check.png", 6)),
-                Tab(
-                    child:
-                        customTab("Recomended", "assets/images/check.png", 7)),
-                Tab(
-                    child:
-                        customTab("Saved Jobs", "assets/images/check.png", 7)), */
-
-                /*    Tab(
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 20),
+                  //  if (usertype == 3)
+                  /*  Tab(
+                    child: InkWell(
+                      onTap: () {
+                        searchAgain(
+                            data: role == "1" || role == "2"
+                                ? staticMap1
+                                : staticMap);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                                color: Colors.red, width: 1)),
-                        child: const Center(
-                            child: Text('Work From Home +')))), */
-              ],
+                            borderRadius: BorderRadius.circular(50.r),
+                            border: Border.all(color: Constants.borderColor)),
+                        height: 33.h,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Text("My Jobs"),
+                            /* Image.asset(
+                                "assets/images/updown.png",
+                                height: 15.h,
+                              ) */
+                          ],
+                        ),
+                      ),
+                    ),
+                  ), */
+                  if (usertype != 1)
+                    Tab(
+                      child: customTab("My Jobs", "assets/images/check.png", 1),
+                    ),
+                  if (usertype == 1)
+                    Tab(
+                      child:
+                          customTab("Fav Jobs", "assets/images/check.png", 1),
+                    ),
+                  /* Tab(child: customTab("New Jobs", "assets/images/check.png", 2)),
+                  Tab(
+                      child: customTab(
+                          "Work from home", "assets/images/check.png", 3)),
+                  Tab(child: customTab("Fresher", "assets/images/check.png", 4)),
+                  Tab(
+                      child: customTab(
+                          "Work from office", "assets/images/check.png", 5)),
+                  Tab(child: customTab("Hybrid", "assets/images/check.png", 6)),
+                  Tab(
+                      child:
+                          customTab("Recomended", "assets/images/check.png", 7)),
+                  Tab(
+                      child:
+                          customTab("Saved Jobs", "assets/images/check.png", 7)), */
+
+                  /*    Tab(
+                      child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 20),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                  color: Colors.red, width: 1)),
+                          child: const Center(
+                              child: Text('Work From Home +')))), */
+                ],
+              ),
             ),
           ),
           toolbarHeight: MediaQuery.of(context).size.width * 0.17,
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: SizedBox(
                   //margin: const EdgeInsets.symmetric(vertical: 10),
                   height: 30.h,
-                  width: MediaQuery.of(context).size.width / 1.65.w,
+                  //width: MediaQuery.of(context).size.width / 1.65.w,
                   child: TextField(
                     onChanged: (String q) {
                       searchText = q;
@@ -926,10 +958,11 @@ class _JobsState extends ConsumerState<Jobs>
                       contentPadding:
                           const EdgeInsets.only(left: 14.0, bottom: 5, top: 5),
                       fillColor: Constants.themeBgColorLight,
-                      hintText: 'Search company, process, role...',
+                      hintText:
+                          'Search Jobs by ${searchFields[currentSearchFieldIndex]}',
                       hintStyle: GoogleFonts.varela(
                         color: Colors.grey,
-                        fontSize: 16.sp,
+                        fontSize: 14.sp,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide:
@@ -2110,8 +2143,28 @@ class _JobsState extends ConsumerState<Jobs>
     );
   }
 
+  final List<String> searchFields = [
+    'Company',
+    'Process',
+    'Designation',
+    'Functional Area',
+    'Skills',
+  ];
+
+  int currentSearchFieldIndex = 0;
+  late Timer timer;
+
+  void startSearchFieldAnimation() {
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() {
+        currentSearchFieldIndex =
+            (currentSearchFieldIndex + 1) % searchFields.length;
+      });
+    });
+  }
+
   Widget listViewItem_new(BuildContext context, int index, item, bool isTrue) {
-    var favProvider = ref.watch(favJobProvider(item['id'] ?? 0));
+    //var favProvider = ref.watch(favJobProvider(item['id'] ?? 0));
     String _colorName;
     Color _color;
     List<String>? myStrings;
@@ -3022,8 +3075,67 @@ class _JobsState extends ConsumerState<Jobs>
                   ) */
             : Positioned(
                 top: 0,
-                right: 0,
-                child: Container(
+                right: 6.w,
+                child: IconButton(
+                    onPressed: () async {
+                      if ((item['is_fav'] ?? 0) == 1) {
+                        await removeFromFav(item['favJobId']);
+                      } else {
+                        await addToFav(item['id'] ?? 0);
+                      }
+                    },
+                    icon: Icon(
+                        /*   jobs[index]["id"].toString() ==
+                                      item[index]["id"].toString() */
+                        (item['is_fav'] ?? 0) == 1 &&
+                                (item['userId'] == profilemodel.id)
+                            ? Icons.bookmark
+                            : Icons.bookmark_add_outlined,
+                        size: 22.h,
+                        color: Constants.themeBgColor)),
+
+                /* Container( //TODO: Affilet marketin
+                  child: Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            if ((item['is_fav'] ?? 0) == 1) {
+                              await removeFromFav(item['favJobId']);
+                            } else {
+                              await addToFav(item['id'] ?? 0);
+                            }
+                          },
+                          icon: Icon(
+                              /*   jobs[index]["id"].toString() ==
+                                      item[index]["id"].toString() */
+                              (item['is_fav'] ?? 0) == 1 &&
+                                      (item['userId'] == profilemodel.id)
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_add_outlined,
+                              size: 18.h,
+                              color: Constants.themeBgColor)),
+                      IconButton(
+                          onPressed: () async {
+                            const url =
+                                "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          icon: Icon(Icons.share,
+                              size: 15.h, color: Constants.themeBgColor)),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          topRight: Radius.circular(10))),
+                  margin: const EdgeInsets.only(right: 10),
+                ), */
+                /* Container(//TODO old code for save button before 26/10/2023.
                   child: Column(
                     children: [
                       favProvider
@@ -3072,7 +3184,7 @@ class _JobsState extends ConsumerState<Jobs>
                           bottomLeft: Radius.circular(10),
                           topRight: Radius.circular(10))),
                   margin: const EdgeInsets.only(right: 10),
-                ),
+                ), */
               ),
       ],
     );
@@ -3102,7 +3214,7 @@ class _JobsState extends ConsumerState<Jobs>
     }
   }
 
-  void searchAgain({Map<String, String>? data}) async {
+  void searchAgain({Map<String, dynamic>? data}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     _page = 0;
@@ -3114,7 +3226,78 @@ class _JobsState extends ConsumerState<Jobs>
     bindItems(data: data);
   }
 
-  void bindItems({Map<String, String>? data}) async {
+  void bindItems({Map<String, dynamic>? data}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      locationid = prefs.getInt('loc')!;
+      _isLoadMoreRunning = true;
+    });
+
+    _page += 1; // Increase _page by 1
+
+    try {
+      var seardData = {"page": _page.toString(), "size": _pageSize.toString()};
+      if (locationid > 0 && data == null) {
+        seardData['location'] = locationid.toString();
+      }
+
+      seardData['sortType'] = 'asc';
+      seardData['companyname'] = searchText
+          .toLowerCase()
+          .trim(); // Case-insensitive and trimmed search
+      seardData['rolename'] = searchText
+          .toLowerCase()
+          .trim(); // Case-insensitive and trimmed search
+
+      Map<String, dynamic> finalData = {
+        ...seardData.map((key, value) => MapEntry(key, value.toString())),
+        if (data != null)
+          ...data.map((key, value) => MapEntry(key, value.toString())),
+      };
+      print("Search criteria: $seardData");
+
+      var result = await JobSearchService().getJobSearch(finalData);
+      print("Search result: ${result.body}");
+
+      RequestResult res = Utils.parseResponse(result);
+      var list = res.resultData as List;
+
+      setState(() {
+        for (var item in list) {
+          if (!jobItems.contains(item) &&
+                  item['companyname']
+                      .toLowerCase()
+                      .contains(searchText.toLowerCase()) ||
+              item['rolename']
+                  .toLowerCase()
+                  .contains(searchText.toLowerCase()) ||
+              item['process']
+                  .toLowerCase()
+                  .contains(searchText.toLowerCase()) ||
+              item['naturofwork']
+                  .toLowerCase()
+                  .contains(searchText.toLowerCase()) ||
+              item['skills'].toLowerCase().contains(searchText.toLowerCase())) {
+            jobItems.add(item);
+          }
+        }
+
+        if (list.length < _pageSize) {
+          _hasNextPage = false;
+        }
+      });
+    } catch (err) {
+      print(err);
+    }
+
+    setState(() {
+      _isLoadMoreRunning = false;
+      _refreshController.loadComplete();
+    });
+  }
+
+  /*  void bindItems({Map<String, String>? data}) async {  //TODO: old binf item code before 26/10/2023
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -3162,7 +3345,7 @@ class _JobsState extends ConsumerState<Jobs>
       _refreshController
           .loadComplete(); // Display a progress indicator at the bottom
     });
-  }
+  } */
 
   void searchLocation(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
