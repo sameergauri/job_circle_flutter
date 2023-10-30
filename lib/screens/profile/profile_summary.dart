@@ -91,12 +91,15 @@ final experienceProvider = FutureProvider<List<Experience>>((ref) async {
 });
 
 final userDataProvider = FutureProvider<UserDataModel>((ref) async {
-  final profileSummary = await _ProfileSummaryState.bindProfileSummary(); //ref.watch(profileSummaryProvider);
+  final profileSummary = await _ProfileSummaryState
+      .bindProfileSummary(); //ref.watch(profileSummaryProvider);
   final profileSummaryData = ProfileSummaryModel.fromJson(profileSummary);
   final education = await _ProfileSummaryState.bindProfileEducation();
-  final educationData = (education).map((item) => Education.fromJson(item)).toList();
+  final educationData =
+      (education).map((item) => Education.fromJson(item)).toList();
   final experiences = await _ProfileSummaryState.bindProfileExperience();
-  final experienceData =(experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
+  final experienceData =
+      (experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
   return UserDataModel(
     profileSummary: profileSummaryData,
     education: educationData,
@@ -2001,7 +2004,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                   //   ),
                   // ),
                   child: Image.network(
-                    experienceList[index].icon == ""
+                    experienceList[index].icon == null ||
+                            experienceList[index].icon == ""
                         ? "https://cdn-icons-png.flaticon.com/128/2098/2098316.png"
                         : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].icon}",
                     //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",

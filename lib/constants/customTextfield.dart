@@ -3943,7 +3943,7 @@ class _CustomJobTitleForExperienceState
               //FocusScope.of(context).nextFocus();
             });
           },
-          noItemsFoundBuilder: (value) {
+          /* noItemsFoundBuilder: (value) {
             final message =
                 suggestion != null && suggestion!.isEmpty ? '' : 'Searching';
 
@@ -3953,6 +3953,30 @@ class _CustomJobTitleForExperienceState
                 message,
                 style: const TextStyle(fontStyle: FontStyle.italic),
               ),
+            );
+          }, */
+          noItemsFoundBuilder: (value) {
+            final message = suggestion != null && suggestion!.isEmpty
+                ? 'No result found. Search again and select from suggestion or add a new item.'
+                : 'Searching';
+
+            return InkWell(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                widget.onChanged(true);
+              },
+              child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
+                  padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.add,
+                        size: 15,
+                      ),
+                      Text("Add"),
+                    ],
+                  )),
             );
           },
         ),

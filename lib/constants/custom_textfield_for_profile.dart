@@ -1149,6 +1149,30 @@ class _customCompanyforExperienceState
           });
         },
         noItemsFoundBuilder: (value) {
+          final message = suggestion != null && suggestion!.isEmpty
+              ? 'No result found. Search again and select from suggestion or add a new item.'
+              : 'Searching';
+
+          return InkWell(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              widget.onChanged(true);
+            },
+            child: Container(
+                margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
+                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.add,
+                      size: 15,
+                    ),
+                    Text("Add"),
+                  ],
+                )),
+          );
+        },
+        /*  noItemsFoundBuilder: (value) {
           /* if (controller!.text.isNotEmpty) {
             return AddButtonVisibilityWidgetExperience(
               suggestions: suggestion,
@@ -1182,7 +1206,7 @@ class _customCompanyforExperienceState
               style: const TextStyle(fontStyle: FontStyle.italic),
             ),
           );
-        },
+        }, */
       ),
     );
   }
