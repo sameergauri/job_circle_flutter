@@ -605,43 +605,39 @@ class _Screen3State extends ConsumerState<Screen3> {
             backgroundColor: Colors.white,
             elevation: 0,
             iconTheme: const IconThemeData(color: Constants.themeBgColor),
-            title: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      widget.prevPageModel == null
-                          ? Text(
-                              "Add Experience",
-                              style: GoogleFonts.varela(
-                                fontSize: 18.sp,
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            )
-                          : Text(
-                              "Edit Experience",
-                              style: GoogleFonts.varela(
-                                fontSize: 18.sp,
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                      Text(
-                        "Adding role and companies you've worked with, help employers to understand your professional background.",
-                        softWrap: true,
-                        maxLines: 2,
-                        style: GoogleFonts.varela(
-                            color: Colors.grey.shade600,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.normal),
-                      ),
-                      //const Spacer(),
-                    ],
+            title: Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  widget.prevPageModel == null
+                      ? Text(
+                          "Add Experience",
+                          style: GoogleFonts.varela(
+                            fontSize: 18.sp,
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : Text(
+                          "Edit Experience",
+                          style: GoogleFonts.varela(
+                            fontSize: 18.sp,
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                  Text(
+                    "Adding role and companies you've worked with, help employers to understand your professional background.",
+                    softWrap: true,
+                    maxLines: 2,
+                    style: GoogleFonts.varela(
+                        color: Constants.hintColor,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.normal),
                   ),
-                ),
-              ],
+                  //const Spacer(),
+                ],
+              ),
             ),
           ),
           extendBodyBehindAppBar: true,
@@ -699,13 +695,13 @@ class _Screen3State extends ConsumerState<Screen3> {
                     }
                   },
                   child: Container(
-                    margin:
-                        const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    margin: const EdgeInsets.only(
+                        top: 10, left: 20, right: 20, bottom: 10),
                     decoration: BoxDecoration(
                         color: Constants.themeBgColor,
                         borderRadius: BorderRadius.circular(8.r)),
                     width: double.maxFinite,
-                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1093,353 +1089,409 @@ class _Screen3State extends ConsumerState<Screen3> {
                               for (var e in widget.experiencelist!) {
                                 if (e.last_working_date == null) {
                                   showDialog(
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        contentPadding: EdgeInsets.only(
-                                            top: 10.h,
-                                            left: 14,
-                                            right: 14,
-                                            bottom: 8),
-                                        content: StatefulBuilder(builder:
-                                            (BuildContext context,
-                                                StateSetter setState) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Row(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (context) {
+                                        return WillPopScope(
+                                          onWillPop: () async {
+                                            // Define your custom logic here to determine whether the dialog should close or not.
+                                            // Return true to allow the dialog to close or false to prevent it from closing.
+                                            return false; // Change this as needed.
+                                          },
+                                          child: AlertDialog(
+                                              contentPadding: EdgeInsets.only(
+                                                  top: 10.h,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 8),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Text(
-                                                    "Add",
-                                                    style: GoogleFonts.varela(),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Add",
+                                                        style: GoogleFonts
+                                                            .varela(),
+                                                      ),
+                                                      Text(
+                                                        " End Date",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                color: Colors
+                                                                    .blue),
+                                                      ),
+                                                      Text(
+                                                        " of previous company",
+                                                        style: GoogleFonts
+                                                            .varela(),
+                                                      )
+                                                    ],
                                                   ),
-                                                  Text(
-                                                    " End Date",
-                                                    style: GoogleFonts.varela(
-                                                        color: Colors.blue),
-                                                  ),
-                                                  Text(
-                                                    " of previous company",
-                                                    style: GoogleFonts.varela(),
-                                                  )
-                                                ],
-                                              ),
-                                              ListTile(
-                                                contentPadding:
-                                                    const EdgeInsets.only(
-                                                        top: 0, bottom: 0),
-                                                // ignore: sized_box_for_whitespace
-                                                leading: Container(
-                                                  width: 70.w,
-                                                  height: 70.h,
-                                                  // decoration: BoxDecoration(
-                                                  //   color: Colors.white,
-                                                  //   borderRadius: BorderRadius.circular(15),
-                                                  //   border: Border.all(
-                                                  //     color: Colors.transparent,
-                                                  //   ),
-                                                  // ),
-                                                  child: Image.network(
-                                                    "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
-                                                    //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  e.job_title.toString(),
-                                                  // experience.job_title.toString(),
-                                                  style: GoogleFonts.varela(
-                                                    fontSize: 15.sp,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                subtitle: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          e.shortname != null
-                                                              ? e.shortname
-                                                                  .toString()
-                                                              : e.company_name
-                                                                  .toString(),
-                                                          // experience.company_name.toString(),
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                        const Text(" · "),
-                                                        Text(
-                                                          e.emptype.toString(),
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        )
-                                                      ],
+                                                  ListTile(
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                            top: 0, bottom: 0),
+                                                    // ignore: sized_box_for_whitespace
+                                                    leading: Container(
+                                                      width: 70.w,
+                                                      height: 70.h,
+                                                      // decoration: BoxDecoration(
+                                                      //   color: Colors.white,
+                                                      //   borderRadius: BorderRadius.circular(15),
+                                                      //   border: Border.all(
+                                                      //     color: Colors.transparent,
+                                                      //   ),
+                                                      // ),
+                                                      child: Image.network(
+                                                        "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+                                                        //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                                                        fit: BoxFit.contain,
+                                                      ),
                                                     ),
-                                                    const SizedBox(height: 2),
-                                                    Row(
+                                                    title: Text(
+                                                      e.job_title.toString(),
+                                                      // experience.job_title.toString(),
+                                                      style: GoogleFonts.varela(
+                                                        fontSize: 15.sp,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    subtitle: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Text(
-                                                          e.joining_date != null
-                                                              ? DateFormat(
-                                                                      'MMM-yyyy')
-                                                                  .format(e
-                                                                      .joining_date!)
-                                                              : "",
-                                                          /*  experienceList[index].joining_date != null
-                            ? experienceList[index].joining_date.toString()
-                            : "", */
-                                                          // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
-                                                          style: TextStyle(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              e.shortname !=
+                                                                      null
+                                                                  ? e.shortname
+                                                                      .toString()
+                                                                  : e.company_name
+                                                                      .toString(),
+                                                              // experience.company_name.toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                            const Text(" · "),
+                                                            Text(
+                                                              e.emptype
+                                                                  .toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            )
+                                                          ],
                                                         ),
-                                                        if (e.last_working_date !=
-                                                            null)
-                                                          SizedBox(
-                                                            child: Row(
-                                                              children: [
-                                                                const Text(
-                                                                    " - "),
-                                                                Text(
-                                                                  DateFormat(
+                                                        const SizedBox(
+                                                            height: 2),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              e.joining_date !=
+                                                                      null
+                                                                  ? DateFormat(
                                                                           'MMM-yyyy')
                                                                       .format(e
-                                                                          .last_working_date!),
-
-                                                                  /*  experienceList[index].joining_date != null
-                                  ? experienceList[index].joining_date.toString()
-                                  : "", */
-                                                                  // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                                          .joining_date!)
+                                                                  : "",
+                                                              /*  experienceList[index].joining_date != null
+                                                                  ? experienceList[index].joining_date.toString()
+                                                                  : "", */
+                                                              // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
+                                                              style: TextStyle(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        if (e.last_working_date ==
-                                                            null)
-                                                          SizedBox(
-                                                            child: Row(
-                                                              children: [
-                                                                const Text(
-                                                                    " - "),
-                                                                InkWell(
-                                                                  onTap: () {
-                                                                    selectDateForLastWorkingDayForPResent();
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left: 6,
-                                                                        right:
-                                                                            6,
-                                                                        top: 4,
-                                                                        bottom:
-                                                                            4),
-                                                                    child: Text(
-                                                                      selectedLastDateofPrevious !=
-                                                                              null
-                                                                          ? DateFormat('MMM-yyyy')
-                                                                              .format(selectedLastDateofPrevious!)
-                                                                          : "Select End Date",
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        color: Colors
-                                                                            .blue,
+                                                            if (e.last_working_date !=
+                                                                null)
+                                                              SizedBox(
+                                                                child: Row(
+                                                                  children: [
+                                                                    const Text(
+                                                                        " - "),
+                                                                    Text(
+                                                                      DateFormat(
+                                                                              'MMM-yyyy')
+                                                                          .format(
+                                                                              e.last_working_date!),
+
+                                                                      /*  experienceList[index].joining_date != null
+                                                                        ? experienceList[index].joining_date.toString()
+                                                                        : "", */
+                                                                      // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
+                                                                      style:
+                                                                          TextStyle(
                                                                         fontSize:
                                                                             12.sp,
                                                                         fontWeight:
                                                                             FontWeight.w400,
                                                                       ),
                                                                     ),
-                                                                  ),
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        /* if (experienceList[index].joining_date != null &&
-                          experienceList[index].last_working_date != null)
-                        Text(
-                          " (${monthsDifference.toString()}m)",
-                          style: GoogleFonts.varela(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ) */
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          e.company_location
-                                                              .toString(),
-                                                          // experience.company_location.toString(),
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
+                                                              ),
+                                                            if (e.last_working_date ==
+                                                                null)
+                                                              SizedBox(
+                                                                child: Row(
+                                                                  children: [
+                                                                    const Text(
+                                                                        " - "),
+                                                                    InkWell(
+                                                                      onTap:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          selectDateForLastWorkingDayForPResent();
+                                                                        });
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        padding: const EdgeInsets.only(
+                                                                            left:
+                                                                                6,
+                                                                            right:
+                                                                                6,
+                                                                            top:
+                                                                                4,
+                                                                            bottom:
+                                                                                4),
+                                                                        child:
+                                                                            Text(
+                                                                          selectedLastDateofPrevious != null
+                                                                              ? DateFormat('MMM-yyyy').format(selectedLastDateofPrevious!)
+                                                                              : "Select End Date",
+                                                                          style:
+                                                                              GoogleFonts.varela(
+                                                                            color:
+                                                                                Colors.blue,
+                                                                            fontSize:
+                                                                                12.sp,
+                                                                            fontWeight:
+                                                                                FontWeight.w400,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            /* if (experienceList[index].joining_date != null &&
+                                                                experienceList[index].last_working_date != null)
+                                                              Text(
+                                                                " (${monthsDifference.toString()}m)",
+                                                                style: GoogleFonts.varela(
+                                                                  fontSize: 12.sp,
+                                                                  fontWeight: FontWeight.w400,
+                                                                ),
+                                                              ) */
+                                                          ],
                                                         ),
-                                                        const Text(" · "),
-                                                        Text(
-                                                          e.work_type
-                                                              .toString(),
-                                                          // experience.company_location.toString(),
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment.end,
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () async {
-                                                            // Retrieve the form data
-
-                                                            // Create a new instance of the model and assign the values
-                                                            Experience
-                                                                experience =
-                                                                Experience(
-                                                              id: e.id,
-                                                              userId: e.userId,
-                                                              job_title:
-                                                                  e.job_title,
-                                                              company_name: e
-                                                                  .company_name,
-                                                              isCurrent: 0,
-                                                              description:
-                                                                  e.description,
-                                                              skills_exp:
-                                                                  e.skills_exp,
-                                                              work_type:
-                                                                  e.work_type,
-                                                              company_location:
-                                                                  e.company_location,
-                                                              emptype:
-                                                                  e.emptype,
-                                                              joining_date: e
-                                                                  .joining_date,
-                                                              last_working_date:
-                                                                  selectedLastDateofPrevious,
-                                                              salary: e.salary,
-                                                              ismonthly:
-                                                                  e.ismonthly,
-                                                              offer_letter: e
-                                                                  .offer_letter,
-                                                              appointment_letter:
-                                                                  e.appointment_letter,
-                                                              salary_slip:
-                                                                  e.salary_slip,
-                                                              increment_letter:
-                                                                  e.increment_letter,
-                                                              experience_letter:
-                                                                  e.experience_letter,
-
-                                                              availability: e
-                                                                  .availability,
-
-                                                              // working: working,
-                                                            );
-
-                                                            // Create an instance of UserDataService
-                                                            UserDataService
-                                                                userDataService =
-                                                                UserDataService();
-                                                            //  selectedLastDateofPrevious,
-                                                            if (selectedLastDateofPrevious !=
-                                                                null) {
-                                                              await userDataService
-                                                                  .saveUserExperience(
-                                                                      experience
-                                                                          .toJson());
-
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                const SnackBar(
-                                                                    content: Text(
-                                                                        'end date of previous company updated successfully')),
-                                                              );
-                                                              Navigator.pop(
-                                                                  context);
-                                                            } else {
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                const SnackBar(
-                                                                    content: Text(
-                                                                        'Select end date')),
-                                                              );
-                                                            }
-                                                            // Call the saveUserExperience method on the instance
-                                                          },
-                                                          child: Container(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                                    vertical:
-                                                                        6.h,
-                                                                    horizontal:
-                                                                        10.w),
-                                                            child: Text(
-                                                              "Submit",
-                                                              style: GoogleFonts.varela(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              e.company_location
+                                                                  .toString(),
+                                                              // experience.company_location.toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
                                                             ),
-                                                          ),
+                                                            const Text(" · "),
+                                                            Text(
+                                                              e.work_type
+                                                                  .toString(),
+                                                              // experience.company_location.toString(),
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            InkWell(
+                                                              onTap: () {
+                                                                setState(
+                                                                  () {
+                                                                    no = true;
+                                                                    yes = false;
+                                                                    selectedLastDateofPrevious =
+                                                                        null;
+                                                                  },
+                                                                );
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: Container(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        vertical:
+                                                                            6.h,
+                                                                        horizontal:
+                                                                            10.w),
+                                                                child: Text(
+                                                                  "Cancel",
+                                                                  style: GoogleFonts.varela(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                // Retrieve the form data
+
+                                                                // Create a new instance of the model and assign the values
+                                                                Experience
+                                                                    experience =
+                                                                    Experience(
+                                                                  id: e.id,
+                                                                  userId:
+                                                                      e.userId,
+                                                                  job_title: e
+                                                                      .job_title,
+                                                                  company_name:
+                                                                      e.company_name,
+                                                                  isCurrent: 0,
+                                                                  description: e
+                                                                      .description,
+                                                                  skills_exp: e
+                                                                      .skills_exp,
+                                                                  work_type: e
+                                                                      .work_type,
+                                                                  company_location:
+                                                                      e.company_location,
+                                                                  emptype:
+                                                                      e.emptype,
+                                                                  joining_date:
+                                                                      e.joining_date,
+                                                                  last_working_date:
+                                                                      selectedLastDateofPrevious,
+                                                                  salary:
+                                                                      e.salary,
+                                                                  ismonthly: e
+                                                                      .ismonthly,
+                                                                  offer_letter:
+                                                                      e.offer_letter,
+                                                                  appointment_letter:
+                                                                      e.appointment_letter,
+                                                                  salary_slip: e
+                                                                      .salary_slip,
+                                                                  increment_letter:
+                                                                      e.increment_letter,
+                                                                  experience_letter:
+                                                                      e.experience_letter,
+
+                                                                  availability:
+                                                                      e.availability,
+
+                                                                  // working: working,
+                                                                );
+
+                                                                // Create an instance of UserDataService
+                                                                UserDataService
+                                                                    userDataService =
+                                                                    UserDataService();
+                                                                //  selectedLastDateofPrevious,
+                                                                if (selectedLastDateofPrevious !=
+                                                                    null) {
+                                                                  await userDataService
+                                                                      .saveUserExperience(
+                                                                          experience
+                                                                              .toJson());
+                                                                  ref.refresh(
+                                                                      userDataProvider);
+
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(
+                                                                    const SnackBar(
+                                                                        content:
+                                                                            Text('end date of previous company updated successfully')),
+                                                                  );
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                } else {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(
+                                                                    const SnackBar(
+                                                                        content:
+                                                                            Text('Select end date')),
+                                                                  );
+                                                                }
+                                                                // Call the saveUserExperience method on the instance
+                                                              },
+                                                              child: Container(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        vertical:
+                                                                            6.h,
+                                                                        horizontal:
+                                                                            10.w),
+                                                                child: Text(
+                                                                  "Submit",
+                                                                  style: GoogleFonts.varela(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
                                                         )
                                                       ],
-                                                    )
-                                                  ],
-                                                ),
-                                                /* trailing: InkWell(
-                  onTap: () {
-                    sendToExperience(experienceList[index]
-                        // experience
-                        ); // Pass the selected experience object
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.only(left: 10, right: 4, bottom: 10),
-                    child: Icon(Icons.edit_outlined, size: 18.h),
-                  )), */
-                                              ),
-                                            ],
-                                          );
-                                        }),
-                                      );
-                                    },
-                                  );
+                                                    ),
+                                                    /* trailing: InkWell(
+                                                        onTap: () {
+                                                          sendToExperience(experienceList[index]
+                                                              // experience
+                                                              ); // Pass the selected experience object
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets.only(left: 10, right: 4, bottom: 10),
+                                                          child: Icon(Icons.edit_outlined, size: 18.h),
+                                                        )), */
+                                                  ),
+                                                ],
+                                              )),
+                                        );
+                                      });
                                 } else {
                                   setState(() {
                                     yes = true;
@@ -1480,6 +1532,48 @@ class _Screen3State extends ConsumerState<Screen3> {
                               ),
                             ),
                           ),
+                          /* InkWell(
+                            onTap: () async {
+                              for (var e in widget.experiencelist!) {
+                                if (e.last_working_date == null) {
+                                } else {
+                                  setState(() {
+                                    yes = true;
+                                    no = false;
+                                  });
+
+                                  print('Last working date is not null.');
+                                }
+                              }
+                              widget.experiencelist!
+                                  .map((e) => e.last_working_date == null);
+
+                              if (someid == null) {
+                                await JobPostApiService.AddCompanytoMom(
+                                    companyController.text.toString());
+                              }
+                              setState(() {
+                                yes = true;
+                                no = false;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 2.h, horizontal: 10.w),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                      color: yes
+                                          ? Constants.themeBgColor
+                                          : Colors.transparent)),
+                              child: Text(
+                                "Yes",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor),
+                              ),
+                            ),
+                          ), */
                           InkWell(
                             onTap: () async {
                               setState(() {
@@ -1891,7 +1985,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                         name: "city",
                         isCity: true,
                         focusNode: cityFocus,
-                        labelText: "Work Location",
+                        labelText: "Work City",
                         /* onFocusNodeRequested: (p0) {
                                               focusNode.requestFocus();
                                                   }, */
@@ -2164,7 +2258,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                           ),
                         ),
                       if (joiningDataController.text.isNotEmpty &&
-                          lastWorkingController.text.isEmpty)
+                          lastWorkingController.text.isEmpty &&
+                          widget.isEdit!)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -3278,11 +3373,12 @@ class _Screen3State extends ConsumerState<Screen3> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10, top: 20),
                     child: InkWell(
-                        onTap: () {
-                          JobPostApiService.DeletExperience(
+                        onTap: () async {
+                          await JobPostApiService.DeletExperience(
                               widget.prevPageModel!.id!.toInt(),
                               context,
                               "exp");
+                          ref.refresh(userDataProvider);
                         },
                         child: Text(
                           "Delete Experience",

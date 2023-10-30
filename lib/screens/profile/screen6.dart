@@ -178,17 +178,18 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       bottomNavigationBar: InkWell(
         onTap: save,
         child: Container(
-          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+          margin:
+              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
           decoration: BoxDecoration(
               color: Constants.themeBgColor,
               borderRadius: BorderRadius.circular(8.r)),
           width: double.maxFinite,
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: const EdgeInsets.only(bottom: 8, top: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                widget.isFirst ? "Save & next" : "Save",
+                "Save",
                 style: GoogleFonts.varela(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
@@ -200,7 +201,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       ),
       backgroundColor: Constants.themeBgColorLight,
       appBar: AppBar(
-        automaticallyImplyLeading: widget.isFirst ? false : true,
+        automaticallyImplyLeading: false,
         backgroundColor: Constants.themeBgColorLight,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -211,8 +212,8 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
               "Edit Languages",
               style: GoogleFonts.varela(
                 fontSize: 18.sp,
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
+                color: Constants.themeBgColor,
+                fontWeight: FontWeight.w600,
               ),
             ),
             Text(
@@ -235,8 +236,8 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
                   icon: const Icon(
                     Icons.lightbulb_outline,
                   ),
-                  hint: "Advance Excel",
-                  label: "Skills",
+                  hint: "English",
+                  label: "Language",
                   focusNode: FocusNode(),
                   controller: LanguageController),
               const SizedBox(

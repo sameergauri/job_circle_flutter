@@ -18,6 +18,7 @@ import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:super_tooltip/super_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
@@ -2394,7 +2395,392 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 ),
               ), */
 
-                    Visibility(
+                    if (jobDetailsModel.payoutType != null &&
+                        (jobDetailsModel.payoutType == 'Flat' ||
+                            jobDetailsModel.payoutType == 'Slab' ||
+                            jobDetailsModel.payoutType == 'CTC Based' ||
+                            jobDetailsModel.specialClause != null ||
+                            jobDetailsModel.specialClause != ""))
+                      Visibility(
+                        visible: usertype != 3,
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(
+                            top: 10,
+                            left: 20,
+                            right: 5,
+                          ),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Constants.borderColor),
+                              color: Constants.themeBgColor,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    offset: const Offset(0, 0),
+                                    blurRadius: 2)
+                              ]),
+                          child: Stack(
+                            children: [
+                              // for (int i = 0;
+                              //     i < jobDetailsModel.slabAmount!.length;
+                              //     i++)
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (jobDetailsModel.payoutType == 'Flat')
+                                        Text(
+                                          "Refer your friend for above Job and get \npaid Rs. ${(jobDetailsModel.flatAmount)?.toStringAsFixed(0)} per Referral",
+                                          style: GoogleFonts.varela(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white),
+                                        ),
+                                      if (jobDetailsModel.payoutType == 'Slab')
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Refer your friend for the above Job and get",
+                                              style: GoogleFonts.varela(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "paid between Rs. ${(double.parse(jobDetailsModel.slabAmount![0]) * 0.6).toStringAsFixed(0)} to ${(double.parse(jobDetailsModel.slabAmount![jobDetailsModel.slabAmount!.length - 1]) * 0.6).toStringAsFixed(0)} ",
+                                                  style: GoogleFonts.varela(
+                                                    fontSize: 14.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                SuperTooltip(
+                                                  popupDirection:
+                                                      TooltipDirection.up,
+                                                  content: DataTable(
+                                                    columnSpacing: 10.0,
+                                                    dataRowHeight: 25.0,
+                                                    headingRowHeight: 25.0,
+                                                    horizontalMargin:
+                                                        5, // Adjust as needed
+                                                    columns: [
+                                                      DataColumn(
+                                                        label: Container(
+                                                          width: 52,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "Min Count",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              color: Constants
+                                                                  .subtitleclr,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 13.sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      //DataColumn(
+                                                      // label: Text(
+                                                      //   "-", // Separator
+                                                      //   style: GoogleFonts.varela(
+                                                      //     color: Constants.subtitleclr,
+                                                      //     fontWeight: FontWeight.bold,
+                                                      //     fontSize: 13.sp,
+                                                      //   ),
+                                                      // ),
+                                                      //   ),
+                                                      DataColumn(
+                                                        label: Container(
+                                                          width: 55,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "Max Count",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              color: Constants
+                                                                  .subtitleclr,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 13.sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      // DataColumn(
+                                                      //   // label: Text(
+                                                      //   //   "=", // Separator
+                                                      //   //   style: GoogleFonts.varela(
+                                                      //   //     color: Constants.subtitleclr,
+                                                      //   //     fontWeight: FontWeight.bold,
+                                                      //   //     fontSize: 13.sp,
+                                                      //   //   ),
+                                                      //   // ),
+                                                      // ),
+                                                      DataColumn(
+                                                        label: Container(
+                                                          width: 40,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "Amount",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              color: Constants
+                                                                  .subtitleclr,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 13.sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                    rows:
+                                                        List<DataRow>.generate(
+                                                      jobDetailsModel
+                                                          .minCount!.length,
+                                                      (index) => DataRow(
+                                                        cells: [
+                                                          DataCell(
+                                                            Container(
+                                                              width: 52,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                _formatSlab(
+                                                                    jobDetailsModel
+                                                                            .minCount![
+                                                                        index]),
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .varela(
+                                                                  color: Constants
+                                                                      .subtitleclr,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      13.sp,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          // DataCell(
+                                                          //   Text(
+                                                          //     "-", // Separator
+                                                          //     style: GoogleFonts.varela(
+                                                          //       color: Constants.subtitleclr,
+                                                          //       fontWeight: FontWeight.normal,
+                                                          //       fontSize: 13.sp,
+                                                          //     ),
+                                                          //   ),
+                                                          // ),
+                                                          DataCell(
+                                                            Container(
+                                                              width: 55,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                _formatSlab(
+                                                                    jobDetailsModel
+                                                                            .maxCount![
+                                                                        index]),
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .varela(
+                                                                  color: Constants
+                                                                      .subtitleclr,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      13.sp,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          // DataCell(
+                                                          //   Text(
+                                                          //     "=", // Separator
+                                                          //     style: GoogleFonts.varela(
+                                                          //       color: Constants.subtitleclr,
+                                                          //       fontWeight: FontWeight.normal,
+                                                          //       fontSize: 13.sp,
+                                                          //     ),
+                                                          //   ),
+                                                          // ),
+                                                          DataCell(
+                                                            Container(
+                                                              width: 40,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                "${_formatSlabAmount(double.parse(jobDetailsModel.slabAmount?[index] ?? '0.0'))}/-",
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .varela(
+                                                                  color: Constants
+                                                                      .subtitleclr,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      13.sp,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.info,
+                                                    color: Colors.white,
+                                                    size: 11.sp,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  " per Referral",
+                                                  style: GoogleFonts.varela(
+                                                    fontSize: 14.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      if (jobDetailsModel.payoutType ==
+                                          'CTC Based')
+                                        Text(
+                                          "Refer your friend for above Job and get \npaid Rs. ${(jobDetailsModel.ctcPrecent)} % of Annual CTC \n(excluding gratuity & Variables)",
+                                          style: GoogleFonts.varela(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white),
+                                        ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AddResume(
+                                                        company_name:
+                                                            jobDetailsModel.name
+                                                                .toString(),
+                                                        role: jobDetailsModel
+                                                            .rolename
+                                                            .toString(),
+                                                        process: jobDetailsModel
+                                                            .process
+                                                            .toString(),
+                                                        nature_of_work:
+                                                            jobDetailsModel
+                                                                .naturofwork
+                                                                .toString(),
+                                                        company_id:
+                                                            jobDetailsModel
+                                                                .compnayid!
+                                                                .toInt(),
+                                                        jobId: jobDetailsModel
+                                                            .id!
+                                                            .toInt(),
+                                                        sourceId: profilemodel
+                                                            .id!
+                                                            .toInt(),
+                                                        sourceName:
+                                                            "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                                                        isRefer: true,
+                                                        spocId: jobDetailsModel
+                                                            .spoc!
+                                                            .toInt(),
+                                                      )));
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 20),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 20),
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Text(
+                                            "Refer Now",
+                                            style: GoogleFonts.varela(
+                                                fontSize: 14.sp,
+                                                letterSpacing: 1,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 20),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 31,
+                                        backgroundColor: Colors.white,
+                                        child: Image.asset(
+                                          "assets/images/moneybag.png",
+                                          height: 40,
+                                        ),
+                                      ),
+                                      // const Text("T & C apply")
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 5,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(bottom: 5, top: 5),
+                                  child: Text(
+                                    "T&C Apply",
+                                    style: GoogleFonts.varela(
+                                        fontSize: 11.sp,
+                                        letterSpacing: 1,
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+
+                    /* Visibility(  //TODO: Refer card before 28/10/2023
                       visible: usertype != 3,
                       child: Container(
                         margin: const EdgeInsets.only(top: 10),
@@ -2503,12 +2889,67 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ],
                         ),
                       ),
-                    )
+                    ) */
                   ],
                 ),
         ),
       ),
     );
+  }
+
+  String _formatSlab(String? stringValue) {
+    if (stringValue == null) {
+      return 'N/A'; // Handle null values gracefully
+    }
+
+    try {
+      final double parsedValue = double.parse(stringValue);
+      if (parsedValue >= 100000) {
+        final double lAmount = parsedValue / 100000;
+        return '${lAmount.toStringAsFixed(1)}L';
+      } else if (parsedValue >= 1000) {
+        final double kAmount = parsedValue / 1000;
+        return '${kAmount.toStringAsFixed(1)}k';
+      } else {
+        return parsedValue
+            .toStringAsFixed(0); // Keep two decimal places for other values
+      }
+    } catch (e) {
+      return 'Invalid'; // Handle parsing errors gracefully
+    }
+  }
+
+  String _formatAmount(double? amount) {
+    if (amount == null) {
+      return 'N/A'; // Handle null values gracefully
+    } else {
+      return amount
+          .toStringAsFixed(0); // Keep two decimal places for other values
+    }
+  }
+
+  String _formatSlabFix(double? amount) {
+    if (amount == null) {
+      return 'N/A'; // Handle null values gracefully
+    } else {
+      return amount
+          .toStringAsFixed(2); // Keep two decimal places for other values
+    }
+  }
+
+  String _formatSlabAmount(double? amount) {
+    try {
+      if (amount == null) {
+        return 'N/A'; // Handle null values gracefully
+      } else {
+        // Ensure the value is not null before parsing
+        double parsedAmount = double.parse(amount.toString());
+        return parsedAmount.toStringAsFixed(0);
+      }
+    } catch (e) {
+      // Handle the case where parsing fails
+      return 'Invalid Amount';
+    }
   }
 
   Widget customSkill(String title, bool isHash) {

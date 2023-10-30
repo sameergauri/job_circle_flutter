@@ -91,16 +91,12 @@ final experienceProvider = FutureProvider<List<Experience>>((ref) async {
 });
 
 final userDataProvider = FutureProvider<UserDataModel>((ref) async {
-  final profileSummary = await _ProfileSummaryState
-      .bindProfileSummary(); //ref.watch(profileSummaryProvider);
+  final profileSummary = await _ProfileSummaryState.bindProfileSummary(); //ref.watch(profileSummaryProvider);
   final profileSummaryData = ProfileSummaryModel.fromJson(profileSummary);
-
   final education = await _ProfileSummaryState.bindProfileEducation();
-  final educationData =
-      (education).map((item) => Education.fromJson(item)).toList();
+  final educationData = (education).map((item) => Education.fromJson(item)).toList();
   final experiences = await _ProfileSummaryState.bindProfileExperience();
-  final experienceData =
-      (experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
+  final experienceData =(experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
   return UserDataModel(
     profileSummary: profileSummaryData,
     education: educationData,
@@ -426,6 +422,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   String? icon_data;
 
   String? resume;
+  String? previousResume;
 
   @override
   Widget build(BuildContext context) {
@@ -498,18 +495,28 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                 ),
                                 InkWell(
                                   onTap: () async {
+                                    setState(() {
+                                      previousResume = resume;
+                                    });
                                     resume = await uploadFile(['pdf'], "cv");
-                                    var payload = {
-                                      "stage": "upload_cv",
-                                      "data": {
-                                        "id": await Utils.getPreferencesValue(
-                                            null,
-                                            ESharedPreferences.user_id.name),
-                                        "cv_link": resume
-                                      }
-                                    };
-                                    await save(resume, payload);
-                                    ref.refresh(userDataProvider);
+                                    if (resume != null) {
+                                      var payload = {
+                                        "stage": "upload_cv",
+                                        "data": {
+                                          "id": await Utils.getPreferencesValue(
+                                              null,
+                                              ESharedPreferences.user_id.name),
+                                          "cv_link": resume
+                                        }
+                                      };
+                                      await save(resume, payload);
+                                      ref.refresh(userDataProvider);
+                                    } else {
+                                      setState(() {
+                                        resume = previousResume;
+                                      });
+                                    }
+
                                     Navigator.pop(context);
                                     setState(() {});
                                   },
@@ -608,47 +615,32 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 : const SizedBox(),
             extendBodyBehindAppBar: true,
             appBar: AppBar(
-              automaticallyImplyLeading: false,
-              iconTheme: const IconThemeData(color: Colors.black),
-              backgroundColor: Colors.white,
-              elevation: 0,
-              actions: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                        width: width / 1.16.w,
-                        height: 40,
-                        // color: Colors.red,
-
-                        child: TextField(
-                            decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(),
-                              borderRadius: BorderRadius.circular(8.r)),
-                          filled: true,
-                          prefixIcon: const Icon(Icons.search),
-                          contentPadding: const EdgeInsets.only(
-                              bottom: 10, left: 5, top: 10),
-                          border: OutlineInputBorder(
-                              /* borderSide:
-                        const BorderSide(color: Constants.borderColor), */
-                              borderRadius: BorderRadius.circular(8.r)),
-                          hintText:
-                              "${data.profileSummary.first_name} ${data.profileSummary.last_name}",
-                        ))),
-                    /* Padding(
-                padding: EdgeInsets.only(right: 10.w, left: 10.w),
-                child: Image.asset(
-                  "assets/images/alert.png",
-                  height: height / 50.h,
-                ),
-              ), */
-                  ],
-                )
-              ],
-            ),
+                automaticallyImplyLeading: false,
+                iconTheme: const IconThemeData(color: Colors.black),
+                backgroundColor: Colors.white,
+                elevation: 0,
+                title: SizedBox(
+                  //margin: const EdgeInsets.only(right: 20),
+                  height: height / 26.h,
+                  // width: width / 1.10.w,
+                  child: TextField(
+                      style: GoogleFonts.varela(color: Constants.subtitleclr),
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(),
+                            borderRadius: BorderRadius.circular(8.r)),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.search),
+                        contentPadding: const EdgeInsets.only(left: 5, top: 10),
+                        border: OutlineInputBorder(
+                            /* borderSide:
+                  const BorderSide(color: Constants.borderColor), */
+                            borderRadius: BorderRadius.circular(8.r)),
+                        hintText:
+                            "${data.profileSummary.first_name} ${data.profileSummary.last_name}",
+                      )),
+                )),
             // backgroundColor: Constants.themeBgColorLight,
             body: Column(
               children: [
@@ -849,6 +841,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     child: Icon(
                                                       Icons.add,
                                                       size: 15.h,
+                                                      color: Constants
+                                                          .themeBgColor,
                                                     ),
                                                   ),
                                                 ),
@@ -1573,7 +1567,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                             selectedLevel: profilemodel.education,
                             educationList: educationList,
                             isFirst: false,
-                            isEdit: true,
+                            isEdit: false,
                           ),
                         ),
                       );

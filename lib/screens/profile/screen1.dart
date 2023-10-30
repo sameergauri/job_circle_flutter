@@ -486,15 +486,15 @@ class _Screen1State extends ConsumerState<Screen1> {
         backgroundColor: Colors.white,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          automaticallyImplyLeading: widget.isfirst ? false : true,
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black),
+          //iconTheme: const IconThemeData(color: Colors.black),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.isfirst ? "Add Introduction" : "Edit Intro",
+                "Edit Intro",
                 style: GoogleFonts.varela(
                   fontSize: 18.sp,
                   color: Constants.themeBgColor,

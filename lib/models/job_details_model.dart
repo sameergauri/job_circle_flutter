@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class JobDetailsModel {
   int? id;
   int? is_graduate;
@@ -46,19 +48,27 @@ class JobDetailsModel {
   String? emptype;
   String? salary;
   String? age_group;
+  String? paymentClause;
+  String? payoutType;
+  double? ctcPrecent;
+  double? specialAmount;
+  double? flatAmount;
+  String? specialClause;
+  List<String>? maxCount;
+  List<String>? minCount;
+  List<String>? slabAmount;
 
   JobDetailsModel({
     this.id,
     this.is_graduate,
     this.compnayid,
-    this.age_group,
-    this.no_of_vacancy,
-    this.ismonthly,
     this.rolename,
+    this.isfresher,
+    this.ismonthly,
     this.spoc_fname,
     this.spoc_lname,
     this.spoc_contact,
-    this.isfresher,
+    this.no_of_vacancy,
     this.spoc_designation,
     this.spoc_location,
     this.spoc_profile_pic,
@@ -95,6 +105,16 @@ class JobDetailsModel {
     this.moredetails,
     this.emptype,
     this.salary,
+    this.age_group,
+    this.paymentClause,
+    this.payoutType,
+    this.ctcPrecent,
+    this.specialAmount,
+    this.flatAmount,
+    this.specialClause,
+    this.maxCount,
+    this.minCount,
+    this.slabAmount,
   });
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
@@ -116,12 +136,9 @@ class JobDetailsModel {
     List<String>? skills =
         map['skills'] != null ? parseLanguageKnown(map['skills']) : null;
 
-    // ignore: unused_local_variable
     List<String>? languageknown = map['languageknown'] != null
         ? parseLanguageKnown(map['languageknown'])
         : null;
-
-// ...
 
     List<String>? jobBenifits = map['job_benifits'] != null
         ? parseLanguageKnown(map['job_benifits'])
@@ -130,19 +147,18 @@ class JobDetailsModel {
     List<String>? boundarylimits = map['boundarylimits'] != null
         ? parseLanguageKnown(map['boundarylimits'])
         : null;
-    // Rest of the code remains the same
 
     return JobDetailsModel(
       id: map['id'],
       is_graduate: map['is_graduate'],
-      isfresher: map['isfresher'],
       compnayid: map['compnayid'],
-      ismonthly: map['ismonthly'],
       rolename: map['rolename'],
-      no_of_vacancy: map["no_of_vacancy"],
+      isfresher: map['isfresher'],
+      ismonthly: map['ismonthly'],
       spoc_fname: map['spoc_fname'],
       spoc_lname: map['spoc_lname'],
       spoc_contact: map['spoc_contact'],
+      no_of_vacancy: map['no_of_vacancy'],
       spoc_designation: map['spoc_designation'],
       spoc_location: map['spoc_location'],
       spoc_profile_pic: map['spoc_profile_pic'],
@@ -173,30 +189,58 @@ class JobDetailsModel {
       address: map['address'],
       payoutval: map['payoutval'],
       spoc: map['spoc'],
-      age_group: map['age_group'],
       languageknown: languageknown,
       boundarylimits: boundarylimits,
       moredetails: moredetails,
       job_benifits: jobBenifits,
       emptype: map['emptype'],
       salary: map['salary'],
+      age_group: map['age_group'],
+      paymentClause: map['payment_clause'],
+      payoutType: map['payout_type'],
+      ctcPrecent: map['ctc_precent'],
+      specialAmount: double.tryParse(map['special_amount']?.toString() ?? ''),
+      flatAmount: double.tryParse(map['flat_amount']?.toString() ?? ''),
+      specialClause: map['special_caluse'],
+      minCount: _parseSkills(map['mincount']),
+      maxCount: _parseSkills(map['maxcount']),
+      slabAmount: _parseSkills(map['slab_amount']),
     );
   }
-}
 
-List<String>? parseLanguageKnown(String? value) {
-  try {
-    if (value != null) {
-      final RegExp regex = RegExp(r'"([^"]+)"');
-      final List<Match> matches = regex.allMatches(value).toList();
-      return matches.map((match) => match.group(1)!).toList();
+  static List<String>? parseLanguageKnown(String? value) {
+    try {
+      if (value != null) {
+        final RegExp regex = RegExp(r'"([^"]+)"');
+        final List<Match> matches = regex.allMatches(value).toList();
+        return matches.map((match) => match.group(1)!).toList();
+      }
+    } catch (e) {
+      print('Error parsing languageknown: $e');
     }
-  } catch (e) {
-    print('Error parsing languageknown: $e');
+    return null;
   }
-  return null;
-}
 
+  static List<String>? _parseSkills(dynamic jsonSkills) {
+    try {
+      if (jsonSkills == null) {
+        return null;
+      } else if (jsonSkills is String) {
+        final List<dynamic> skillsList = json.decode(jsonSkills);
+        final List<String> skills =
+            skillsList.map((e) => e.toString()).toList();
+        return skills;
+      } else if (jsonSkills is List<dynamic>) {
+        return jsonSkills.cast<String>();
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error parsing skills: $e');
+      return null;
+    }
+  }
+}
 
 
 

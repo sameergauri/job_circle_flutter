@@ -506,13 +506,13 @@ class _Screen2State extends ConsumerState<Screen2> {
                   } // ignore: curly_braces_in_flow_control_structures
                 },
                 child: Container(
-                  margin:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                  margin: const EdgeInsets.only(
+                      top: 10, left: 20, right: 20, bottom: 10),
                   decoration: BoxDecoration(
                       color: Constants.themeBgColor,
-                      borderRadius: BorderRadius.circular(15)),
+                      borderRadius: BorderRadius.circular(8.r)),
                   width: double.maxFinite,
-                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  padding: const EdgeInsets.only(bottom: 8, top: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -530,43 +530,38 @@ class _Screen2State extends ConsumerState<Screen2> {
                 backgroundColor: Colors.white,
                 elevation: 0,
                 iconTheme: const IconThemeData(color: Colors.black),
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widget.prevPageModel == null
-                              ? Text(
-                                  "Add Education",
-                                  style: GoogleFonts.varela(
-                                    fontSize: 18.sp,
-                                    color: Constants.themeBgColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )
-                              : Text(
-                                  "Edit Education ",
-                                  style: GoogleFonts.varela(
-                                    fontSize: 18.sp,
-                                    color: Constants.themeBgColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                          Text(
-                            "Adding your education details will help recruiters to know your value as a potential candidate.",
-                            softWrap: true,
-                            maxLines: 2,
-                            style: GoogleFonts.varela(
-                                color: Colors.grey.shade600,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.normal),
-                          )
-                        ],
-                      ),
-                    ),
-                    //  const Spacer(),
-                  ],
+                title: Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.prevPageModel == null
+                          ? Text(
+                              "Add Education",
+                              style: GoogleFonts.varela(
+                                fontSize: 18.sp,
+                                color: Constants.themeBgColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : Text(
+                              "Edit Education ",
+                              style: GoogleFonts.varela(
+                                fontSize: 18.sp,
+                                color: Constants.themeBgColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                      Text(
+                        "Adding your education details will help recruiters to know your value as a potential candidate.",
+                        softWrap: true,
+                        maxLines: 3,
+                        style: GoogleFonts.varela(
+                            color: Constants.hintColor,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.normal),
+                      )
+                    ],
+                  ),
                 ),
               ),
               extendBodyBehindAppBar: true,
@@ -2519,6 +2514,8 @@ class _Screen2State extends ConsumerState<Screen2> {
             height: 10,
           ),
           CustomTextField(
+              maxLength: 4,
+              isNumber: true,
               context: context,
               hint: "2017",
               label: "First Year",
@@ -2633,6 +2630,8 @@ class _Screen2State extends ConsumerState<Screen2> {
           ), */
           const SizedBox(height: 10),
           CustomTextField(
+              maxLength: 4,
+              isNumber: true,
               context: context,
               hint: "2023",
               label: "Final Year",
@@ -2779,7 +2778,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                 }, */
                 child: marksheet != null
                     ? customContainerSelectToViewDoc(
-                        onPressed: () {
+                        onPressed: () async {
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -2797,6 +2796,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                                     marksheet = await customFilePicker(
                                       ['pdf'],
                                     );
+                                    ref.refresh(userDataProvider);
 
                                     // Add your logic for replacing here
                                   });
@@ -2832,9 +2832,10 @@ class _Screen2State extends ConsumerState<Screen2> {
                 Padding(
                   padding: const EdgeInsets.only(right: 0),
                   child: InkWell(
-                      onTap: () {
-                        JobPostApiService.DeletExperience(
+                      onTap: () async {
+                        await JobPostApiService.DeletExperience(
                             widget.prevPageModel!.id!.toInt(), context, "edu");
+                        ref.refresh(userDataProvider);
                       },
                       child: Text(
                         "Delete Education",

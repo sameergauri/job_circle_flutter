@@ -179,12 +179,13 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
       bottomNavigationBar: InkWell(
         onTap: save,
         child: Container(
-          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+          margin:
+              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
           decoration: BoxDecoration(
               color: Constants.themeBgColor,
               borderRadius: BorderRadius.circular(8.r)),
           width: double.maxFinite,
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: const EdgeInsets.only(bottom: 8, top: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -201,6 +202,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
       ),
       //  backgroundColor: Constants.themeBgColorLight,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -211,8 +213,8 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
               "Edit Skills",
               style: GoogleFonts.varela(
                 fontSize: 18.sp,
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
+                color: Constants.themeBgColor,
+                fontWeight: FontWeight.w600,
               ),
             ),
             Text(
