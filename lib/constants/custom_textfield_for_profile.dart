@@ -36,6 +36,8 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   final FocusNode? focusNode;
   final String? labelText;
   final Icon icon;
+  final bool degree;
+  final bool university;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -62,6 +64,9 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     required this.onChanged,
     this.firstText,
     this.labelText,
+    required this.degree,
+    required this.university,
+
     // required this.onFocusNodeRequested
   }) : super(key: key);
 
@@ -350,6 +355,7 @@ class _CustomTextFieldComapanyLocationState
                 : controller!.text = suggestion.functional_area.toString();
             firstText = controller!.text;
             handleBoolChange(true);
+            widget.degree ? widget.onSubmit!(suggestion.code) : null;
             var selectedId = suggestion.id;
             // onIDSelected(suggestion.id.toString());
             // widget.onJobTitle!(firstText.toString());
@@ -372,12 +378,15 @@ class _CustomTextFieldComapanyLocationState
                 margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
                 padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
                 child: Row(
-                  children: const [
-                    Icon(
-                      Icons.add,
-                      size: 15,
+                  children: [
+                    Text(
+                      widget.degree
+                          ? "Add Degree"
+                          : widget.university
+                              ? "Add University"
+                              : "Add Field of study",
+                      style: GoogleFonts.varela(fontWeight: FontWeight.w600),
                     ),
-                    Text("Add"),
                   ],
                 )),
           );
@@ -1162,12 +1171,12 @@ class _customCompanyforExperienceState
                 margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
                 padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
                 child: Row(
-                  children: const [
-                    Icon(
-                      Icons.add,
-                      size: 15,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Add Company",
+                      style: GoogleFonts.varela(fontWeight: FontWeight.w600),
                     ),
-                    Text("Add"),
                   ],
                 )),
           );

@@ -1994,6 +1994,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                       ),
 
                       CustomTextFieldComapanyLocation(
+                        degree: false,
+                        university: false,
                         isCompany: false,
                         name: "city",
                         isCity: true,

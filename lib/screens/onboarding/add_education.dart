@@ -737,6 +737,8 @@ class _AddEducationState extends State<AddEducation> {
       child: Column(
         children: [
           CustomTextFieldComapanyLocation(
+            university: false,
+            degree: true,
             labelText: "Degree / Specialization",
             title: "",
             isCity: true,
@@ -753,6 +755,8 @@ class _AddEducationState extends State<AddEducation> {
           ),
           const SizedBox(height: 10),
           CustomTextFieldComapanyLocation(
+            university: true,
+            degree: false,
             labelText: "University / Institute",
             title: "",
             isCity: true,

@@ -199,11 +199,9 @@ class JobPostApiService {
             builder: (context) {
               return CustomDialogueForAddResume(
                 onClose: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => const PartnerHomeScreen()),
-                    (Route<dynamic> route) => false,
-                  );
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  Navigator.pop(context);
                 },
                 subtitle: "Submitted successfully!",
               );

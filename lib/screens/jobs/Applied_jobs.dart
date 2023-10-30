@@ -20,8 +20,11 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
-final fetchAllApplicantProvider = FutureProvider.family<List<Applicant>, int>(
-    (ref, id) => _AppliedJobState.fetchApplicantsByUserId(id));
+final fetchAllApplicantProvider =
+    FutureProvider.family<List<Applicant>, int>((ref, id) {
+  Future.delayed(const Duration(seconds: 2));
+  return _AppliedJobState.fetchApplicantsByUserId(id);
+});
 //enum Issue { no, incorrect, recruiter, other }
 
 class AppliedJob extends ConsumerStatefulWidget {
@@ -229,7 +232,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                     child: Text("Error while fetching the data"),
                   );
                 }, loading: () {
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 })
               : const Center(child: SizedBox()));
     }

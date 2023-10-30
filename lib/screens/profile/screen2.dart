@@ -482,6 +482,8 @@ class _Screen2State extends ConsumerState<Screen2> {
           child: Scaffold(
               bottomNavigationBar: InkWell(
                 onTap: () {
+                  int firstYear = int.parse(firstYearController.text);
+                  int lastYear = int.parse(passingYearController.text);
                   if (widget.educationList!.isNotEmpty) {
                     for (Education education in widget.educationList!) {
                       if (education.degree_spc == degreeController.text &&
@@ -496,6 +498,17 @@ class _Screen2State extends ConsumerState<Screen2> {
                         } else if (universityController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               customSnackbar("Add University first"));
+                        } else if (firstYearController.text.length != 4) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              customSnackbar("Add Proper year in first year"));
+                        } else if ( passingYearController.text.length != 4 &&
+                            degreeCode != "D001") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              customSnackbar("Add Proper year in final year"));
+                        } else if (lastYear <= firstYear &&
+                            degreeCode != "D001") {
+                          ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                              "passing year should be greater than first year"));
                         } else {
                           save();
                         }
@@ -2257,6 +2270,8 @@ class _Screen2State extends ConsumerState<Screen2> {
     );
   }
 
+  String degreeCode = "";
+
   SizedBox customWidgetGraduation() {
     return SizedBox(
       child: Column(
@@ -2308,6 +2323,8 @@ class _Screen2State extends ConsumerState<Screen2> {
 
           CustomTextFieldComapanyLocation(
             labelText: "Degree / Specialization",
+            university: false,
+            degree: true,
             title: "",
             isCity: true,
             contextIn: context,
@@ -2319,10 +2336,17 @@ class _Screen2State extends ConsumerState<Screen2> {
             onChanged: (p0) {
               isGraduateDeg = true;
             },
+            onSubmit: (p0) {
+              setState(() {
+                degreeCode = p0;
+              });
+            },
             icon: const Icon(Icons.workspace_premium_outlined),
           ),
           const SizedBox(height: 10),
           CustomTextFieldComapanyLocation(
+            university: true,
+            degree: false,
             labelText: "University / Institute",
             title: "",
             isCity: true,
@@ -2383,6 +2407,8 @@ class _Screen2State extends ConsumerState<Screen2> {
           ), */
           const SizedBox(height: 10),
           CustomTextFieldComapanyLocation(
+            university: false,
+            degree: false,
             labelText: "Field of Study",
             title: "",
             isCity: true,
@@ -2629,15 +2655,16 @@ class _Screen2State extends ConsumerState<Screen2> {
             ],
           ), */
           const SizedBox(height: 10),
-          CustomTextField(
-              maxLength: 4,
-              isNumber: true,
-              context: context,
-              hint: "2023",
-              label: "Final Year",
-              focusNode: finalyearfocus,
-              controller: passingYearController,
-              icon: const Icon(Icons.edit_calendar)),
+          if (degreeCode != "D001")
+            CustomTextField(
+                maxLength: 4,
+                isNumber: true,
+                context: context,
+                hint: "2023",
+                label: "Final Year",
+                focusNode: finalyearfocus,
+                controller: passingYearController,
+                icon: const Icon(Icons.edit_calendar)),
           /* Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -3456,6 +3483,7 @@ Widget CustomTextField(
           return null;
         }, */
       maxLength: maxLength,
+
       keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
       //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
       textCapitalization: TextCapitalization.sentences,

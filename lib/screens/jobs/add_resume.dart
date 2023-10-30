@@ -926,32 +926,33 @@ class _AddResumeState extends State<AddResume> {
         if (applicationList![0].id == 0) {
           // Call the `addResume` function with the specific data
           final addResumeModel = JobApplicationModel(
-              resume: icon_data,
-              isRef: 1,
-              uid: 0,
-              id: 0,
-              applicantName: firt_name.text,
-              lastName: last_name.text,
-              contactNo: int.parse(primary_number.text.trim()),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "TP1",
-              alternateNo: secondry.text.isNotEmpty
-                  ? int.parse(secondry.text.trim())
-                  : null,
-              // subStatus: "Shortlist",
-              sourceId: widget.sourceId,
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              spoc: widget.spocId,
-              dol: DateTime.now()
-              // ... fill in other properties as needed
-              );
+            resume: icon_data,
+            isRef: 1,
+            uid: 0,
+            rid: widget.sourceId,
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status: "TP1",
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            // subStatus: "Shortlist",
+            sourceId: 0,
+            //sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.spocId,
+            // dol: DateTime.now()
+            // ... fill in other properties as needed
+          );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
           setState(() {
@@ -960,10 +961,11 @@ class _AddResumeState extends State<AddResume> {
         } else {
           // Call the `addResume` function with a different set of data
           final addResumeModel = JobApplicationModel(
-            isRef: 1,
+            isRef: 2,
             resume: icon_data,
             uid: applicationList![0].id,
             id: 0,
+            rid: widget.sourceId,
             applicantName: applicationList![0].firstName,
             lastName: applicationList![0].lastName,
             contactNo: int.parse(primary_number.text.trim()),
@@ -976,14 +978,14 @@ class _AddResumeState extends State<AddResume> {
             shortListFor: widget.company_id,
             status: "TP1",
             // subStatus: "Shortlist",
-            sourceId: widget.sourceId,
-            sourceName: widget.sourceName,
+            sourceId: 0,
+            //sourceName: widget.sourceName,
             jobid: widget.jobId,
             alternateNo: secondry.text.isNotEmpty
                 ? int.parse(secondry.text.trim())
                 : null,
             spoc: widget.spocId,
-            dol: DateTime.now(),
+            //   dol: DateTime.now(),
           );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
@@ -995,7 +997,7 @@ class _AddResumeState extends State<AddResume> {
         if (applicationList![0].id == 0) {
           // Call the `addResume` function with the specific data
           final addResumeModel = JobApplicationModel(
-              isRef: 1,
+              isRef: 2,
               uid: 0,
               resume: icon_data,
               id: 0,
@@ -1029,7 +1031,7 @@ class _AddResumeState extends State<AddResume> {
         } else {
           // Call the `addResume` function with a different set of data
           final addResumeModel = JobApplicationModel(
-              isRef: 1,
+              isRef: 0,
               uid: applicationList![0].id,
               id: 0,
               resume: icon_data,

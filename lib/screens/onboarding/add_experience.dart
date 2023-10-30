@@ -1451,6 +1451,8 @@ class _AddExperienceState extends State<AddExperience> {
                         ),
 
                         CustomTextFieldComapanyLocation(
+                          degree: false,
+                          university: false,
                           isCompany: false,
                           name: "city",
                           isCity: true,

@@ -3969,12 +3969,12 @@ class _CustomJobTitleForExperienceState
                   margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
                   padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
                   child: Row(
-                    children: const [
-                      Icon(
-                        Icons.add,
-                        size: 15,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Add Designation",
+                        style: GoogleFonts.varela(fontWeight: FontWeight.w600),
                       ),
-                      Text("Add"),
                     ],
                   )),
             );
