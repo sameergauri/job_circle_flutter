@@ -154,8 +154,8 @@ class Utils {
               MaterialPageRoute(builder: (context) => AddIntoduction()));
         } */
         else {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen()));
           // nextRoute = ERoute.home;
         }
         /*   Navigator.pushNamedAndRemoveUntil(

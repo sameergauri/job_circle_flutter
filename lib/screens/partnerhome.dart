@@ -58,7 +58,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          const Jobs(),
+           Jobs(),
 
           if (role == "3")
             const InterViewBay()

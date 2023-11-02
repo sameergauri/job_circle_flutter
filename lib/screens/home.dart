@@ -7,7 +7,8 @@ import 'jobs/jobs.dart';
 // Other imports...
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  bool? isFirst;
+  HomeScreen({Key? key, this.isFirst}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

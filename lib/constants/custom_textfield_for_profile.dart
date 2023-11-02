@@ -38,6 +38,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   final Icon icon;
   final bool degree;
   final bool university;
+  final bool hsc;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -48,6 +49,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     this.process,
     this.onSubmit,
     this.focusNode,
+    required this.hsc,
     required this.isCity,
     required this.icon,
 
@@ -127,12 +129,47 @@ class _CustomTextFieldComapanyLocationState
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       List<JobTitleModel1> suggestions = [];
+      List uniqueValues = [];
+
+      List<dynamic> content = data['resultData']['content'];
+
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        String? code = entry['code']?.toString();
+
+        if (value != null &&
+            value.toLowerCase().contains(pattern.toLowerCase()) &&
+            !value.toLowerCase().contains("anywhere") &&
+            ((widget.hsc || (code == "D001" || code == "D002")) ||
+                !widget.hsc)) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
+            suggestions.add(jobTitle);
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  /*  Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=1000000'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<JobTitleModel1> suggestions = [];
       Set<String> uniqueValues = {};
 
       List<dynamic> content = data['resultData']['content'];
 
       for (var entry in content) {
         String? value = entry['value']?.toString();
+        String? code = entry['code']?.toString();
         if (value != null &&
             value.toLowerCase().contains(pattern.toLowerCase()) &&
             !value.toLowerCase().contains("anywhere")) {
@@ -148,7 +185,7 @@ class _CustomTextFieldComapanyLocationState
     } else {
       throw Exception('Failed to retrieve suggestions');
     }
-  }
+  } */
 
   Future<List<NatureOfWorkModel>> getJobNatureOfWork(
       String pattern, String name, String role, String process) async {
@@ -270,8 +307,8 @@ class _CustomTextFieldComapanyLocationState
           onChanged: (value) {
             suggestion = null;
           },
-          autofocus: true,
-          focusNode: widget.focusNode,
+          //autofocus: true,
+          //focusNode: widget.focusNode,
           textCapitalization: TextCapitalization.sentences,
           controller: controller,
           style:
@@ -682,8 +719,8 @@ class _CustomFormTextFieldMultiSelectForProfileState
 
                       //enabled: false,
 
-                      autofocus: true,
-                      focusNode: textFieldFocusNode,
+                      //autofocus: true,
+                      // focusNode: textFieldFocusNode,
                       textCapitalization: TextCapitalization.sentences,
                       controller: controller,
                       style: GoogleFonts.varela(

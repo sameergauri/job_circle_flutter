@@ -1121,8 +1121,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                     ),
                                     if (data.profileSummary.cv_link == null ||
                                         data.profileSummary.skills!.isEmpty ||
-                                        (data.profileSummary.languages!
-                                            .isEmpty) ||
+                                        (data.profileSummary.languages !=
+                                                null &&
+                                            data.profileSummary.languages!
+                                                .isEmpty) ||
                                         data.education
                                             .isEmpty /* ||
                                   experienceList.isEmpty */
@@ -1210,14 +1212,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                 // ),
 
                                                 // Block 3: Skills
-                                                if (data.profileSummary
-                                                            .skills !=
-                                                        null &&
-                                                    data.profileSummary.skills!
-                                                        .isEmpty &&
+                                                if (data.profileSummary.skills!
+                                                    .isEmpty /*  &&
                                                     data.profileSummary
                                                             .experience ==
-                                                        "Fresher")
+                                                        "Fresher" */
+                                                )
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
@@ -1599,7 +1599,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            profilemodel.education == "Graduate"
+                            profileSummaryModel.education == "Graduate"
                                 ? "Graduate"
                                 : "Under Graduate / 10+2",
                             overflow: TextOverflow.ellipsis,
@@ -1677,7 +1677,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 children: [
                   ListTile(
                     onTap: () {
-                      sendToEducation(education);
+                      sendToEducation(education, educationList);
                     },
                     contentPadding: const EdgeInsets.only(
                         left: 10, right: 10, top: 0, bottom: 0),
@@ -1732,7 +1732,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                             ),
                           ),
                         if (education.firstYear != 0 &&
-                            education.passingYear != null)
+                            education.passingYear != null &&
+                            education.passingYear != 0 &&
+                            education.firstYear != null)
                           Text(
                             " - ",
                             style: GoogleFonts.varela(
@@ -1819,7 +1821,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             leading: Container(
               width: 70.w,
               height: 70.h,
-              // decoration: BoxDecoration(
+              // deco5ration: BoxDecoration(
               //   color: Colors.white,
               //   borderRadius: BorderRadius.circular(15),
               //   border: Border.all(
@@ -1988,7 +1990,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
 
               return ListTile(
                 onTap: () {
-                  sendToExperience(experienceList[index]);
+                  sendToExperience(experienceList[index], experienceList);
                 },
                 contentPadding: const EdgeInsets.only(
                     left: 10, right: 10, top: 0, bottom: 0),
@@ -2795,7 +2797,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  sendToEducation(Education education) async {
+  sendToEducation(Education education, List<Education> educationList) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -2827,7 +2829,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     return age;
   }
 
-  sendToExperience(Experience experience) async {
+  sendToExperience(
+      Experience experience, List<Experience>? experienceList) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(

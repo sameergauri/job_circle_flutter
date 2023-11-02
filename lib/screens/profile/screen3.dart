@@ -159,7 +159,7 @@ class _Screen3State extends ConsumerState<Screen3> {
 
     bool isDateLess = false;
 
-    if (pickedDate != null && widget.experiencelist != null) {
+    /*  if (pickedDate != null && widget.experiencelist != null) {
       for (Experience experience in widget.experiencelist!) {
         if (pickedDate.isBefore(experience.joining_date!) ||
             pickedDate.isAtSameMomentAs(experience.joining_date!)) {
@@ -167,7 +167,7 @@ class _Screen3State extends ConsumerState<Screen3> {
           break;
         }
       }
-    }
+    } */
 
     if (isDateLess) {
       // Snackbar dikhao yeh wali date ya previous wali mai isse kam hai
@@ -412,21 +412,10 @@ class _Screen3State extends ConsumerState<Screen3> {
       joiningDataController.text = widget.prevPageModel!.joining_date != null
           ? dateFormatter.format(widget.prevPageModel!.joining_date!)
           : '';
-      setState(() {
-        widget.prevPageModel!.availability == "Immediate"
-            ? imd = true
-            : widget.prevPageModel!.availability == "15Days or less"
-                ? day15 = true
-                : widget.prevPageModel!.availability == "1 Month"
-                    ? day30 = true
-                    : widget.prevPageModel!.availability == "2 Month"
-                        ? day60 = true
-                        : widget.prevPageModel!.availability ==
-                                "3 month or more"
-                            ? day90 = true
-                            : null;
-      });
-      if (widget.prevPageModel!.availability != null) {
+      if (widget.prevPageModel!.isCurrent == 1) if (widget
+                  .prevPageModel!.availability !=
+              null &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           apportunities = true;
         });
@@ -475,25 +464,30 @@ class _Screen3State extends ConsumerState<Screen3> {
         });
       }
 
-      if (widget.prevPageModel!.availability == "Imediate") {
+      if (widget.prevPageModel!.availability == "Imediate" &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           imd = true;
         });
-      } else if (widget.prevPageModel!.availability == "15 Days or less") {
+      } else if (widget.prevPageModel!.availability == "15 Days or less" &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           day15 = true;
           apportunities = true;
         });
-      } else if (widget.prevPageModel!.availability == "1 Month") {
+      } else if (widget.prevPageModel!.availability == "1 Month" &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           day30 = true;
           apportunities = true;
         });
-      } else if (widget.prevPageModel!.availability == "2 Months") {
+      } else if (widget.prevPageModel!.availability == "2 Months" &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           day60 = true;
         });
-      } else if (widget.prevPageModel!.availability == "3 Months") {
+      } else if (widget.prevPageModel!.availability == "3 Months" &&
+          widget.prevPageModel!.isCurrent == 1) {
         setState(() {
           day90 = true;
         });
@@ -510,6 +504,11 @@ class _Screen3State extends ConsumerState<Screen3> {
       jobTitleController.text = widget.prevPageModel!.job_title ?? '';
       fetchApiskill = widget.prevPageModel!.skills_exp!;
       selectedValuesList = widget.prevPageModel!.skills_exp!;
+      if (widget.prevPageModel!.isCurrent != 1) {
+        currentSalaryController.clear();
+        isYearly = false;
+        isMonthly = false;
+      }
     }
 
     super.initState();
@@ -1997,6 +1996,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                         degree: false,
                         university: false,
                         isCompany: false,
+                        hsc: false,
+
                         name: "city",
                         isCity: true,
                         focusNode: cityFocus,
@@ -2299,12 +2300,84 @@ class _Screen3State extends ConsumerState<Screen3> {
                                   unselectedWidgetColor: Colors.transparent,
                                 ),
                                 child: Checkbox(
-                                  activeColor: Colors.white,
-                                  checkColor: Constants.themeBgColor,
-                                  visualDensity: VisualDensity.compact,
-                                  value: currentlyWorking,
-                                  onChanged: (newValue) {
-                                    setState(() {
+                                    activeColor: Colors.white,
+                                    checkColor: Constants.themeBgColor,
+                                    visualDensity: VisualDensity.compact,
+                                    value: currentlyWorking,
+                                    onChanged: (newValue) {
+                                      if (widget.experiencelist!.length <= 1) {
+                                        if (newValue == true) {
+                                          setState(() {
+                                            no = false;
+                                            yes = true;
+                                            currentlyWorking = true;
+                                            currentSalaryController.clear();
+                                            isYearly = false;
+                                            isMonthly = false;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            no = true;
+                                            yes = false;
+                                            currentlyWorking = false;
+                                            currentSalaryController.clear();
+                                            isYearly = false;
+                                            isMonthly = false;
+                                          });
+                                        }
+                                      } else {
+                                        for (var e in widget.experiencelist!) {
+                                          if (newValue == true) {
+                                            if (e.last_working_date == null &&
+                                                e.isCurrent == 1) {
+                                              showDialog(
+                                                  barrierDismissible: false,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return MyCustomDialogForExperience(
+                                                      e: e,
+                                                      onYes: (p0) {
+                                                        setState(() {
+                                                          yes = p0;
+                                                          currentlyWorking = p0;
+                                                        });
+                                                      },
+                                                      onNo: (p0) {
+                                                        setState(() {
+                                                          currentlyWorking = p0;
+                                                          no = p0;
+                                                        });
+                                                      },
+                                                      onDateSelected: (p0) {
+                                                        setState(() {
+                                                          currentlyWorking =
+                                                              !currentlyWorking;
+                                                          selectedLastDateofPrevious =
+                                                              p0;
+                                                        });
+                                                      },
+                                                      selectedDate:
+                                                          DateTime.now(),
+                                                    );
+                                                  });
+                                            } else {
+                                              setState(() {
+                                                no = false;
+                                                yes = true;
+                                                currentlyWorking = true;
+                                              });
+                                            }
+                                          } else {
+                                            setState(() {
+                                              yes = false;
+                                              no = true;
+                                              currentlyWorking = false;
+                                            });
+                                          }
+                                        }
+                                      }
+                                    }
+                                    /*  setState(() {
                                       if (newValue == true) {
                                         yes = true;
                                         no = false;
@@ -2313,10 +2386,10 @@ class _Screen3State extends ConsumerState<Screen3> {
                                         yes = false;
                                       }
                                       currentlyWorking = !currentlyWorking;
-                                    });
+                                    }); */
                                     // Notify Flutter that the state has changed
-                                  },
-                                ),
+
+                                    ),
                               ),
                             ),
                           ],
@@ -3163,67 +3236,90 @@ class _Screen3State extends ConsumerState<Screen3> {
                                     title: "Experience / Relieving letter"),
                         ],
                       ),
-                      SizedBox(
-                        height: 20.h,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(top: 6.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text("Looking for better opportunities.",
-                                    style: GoogleFonts.varela(
-                                      color: Colors.black,
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.w400,
-                                    )),
-                                const Spacer(),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color:
-                                          // selectedKeyResponsible.contains(item)
-                                          Colors.grey,
-                                      width: 1.5,
+                      if (yes)
+                        Container(
+                          padding: EdgeInsets.only(top: 6.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Looking for better opportunities.",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black,
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.w400,
+                                      )),
+                                  const Spacer(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color:
+                                            // selectedKeyResponsible.contains(item)
+                                            Colors.grey,
+                                        width: 1.5,
+                                      ),
                                     ),
-                                  ),
-                                  height: 16,
-                                  width: 20,
-                                  child: Theme(
-                                    data: ThemeData(
-                                      unselectedWidgetColor: Colors.transparent,
-                                    ),
-                                    child: Checkbox(
-                                      activeColor: Colors.white,
-                                      checkColor: Constants.themeBgColor,
-                                      visualDensity: VisualDensity.compact,
-                                      value: apportunities,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          if (newValue!) {
-                                            // Add the item to the list
-                                            apportunities = true;
-                                          } else {
-                                            apportunities = false;
-                                            imd = false;
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = false;
-                                            // Remove the item from the list
+                                    height: 16,
+                                    width: 20,
+                                    child: Theme(
+                                      data: ThemeData(
+                                        unselectedWidgetColor:
+                                            Colors.transparent,
+                                      ),
+                                      child: Checkbox(
+                                        activeColor: Colors.white,
+                                        checkColor: Constants.themeBgColor,
+                                        visualDensity: VisualDensity.compact,
+                                        value: apportunities,
+                                        onChanged: (newValue) {
+                                          for (var e
+                                              in widget.experiencelist!) {
+                                            if (newValue == true) {
+                                              setState(() {
+                                                e.availability.toString() ==
+                                                        "Immediate"
+                                                    ? imd = true
+                                                    : e.availability
+                                                                .toString() ==
+                                                            "15Days or less"
+                                                        ? day15 = true
+                                                        : e.availability
+                                                                    .toString() ==
+                                                                "1 Month"
+                                                            ? day30 = true
+                                                            : e.availability
+                                                                        .toString() ==
+                                                                    "2 Month"
+                                                                ? day60 = true
+                                                                : e.availability
+                                                                            .toString() ==
+                                                                        "3 month or more"
+                                                                    ? day90 =
+                                                                        true
+                                                                    : null; // Add the item to the list
+                                                apportunities = true;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                apportunities = false;
+                                                imd = false;
+                                                day15 = false;
+                                                day30 = false;
+                                                day60 = false;
+                                                day90 = false;
+                                              });
+                                            }
                                           }
-                                        });
-                                        // Notify Flutter that the state has changed
-                                      },
+                                          // Notify Flutter that the state has changed
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            /* InkWell(
+                                ],
+                              ),
+                              /* InkWell(
                                     onTap: () {
                                       setState(() {
                                         apportunities = !apportunities;
@@ -3261,103 +3357,103 @@ class _Screen3State extends ConsumerState<Screen3> {
                                       ],
                                     ),
                                   ), */
-                            if (apportunities)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 10.h,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Availability to join?",
-                                        style: GoogleFonts.varela(
-                                            color: Constants.themeBgColor),
-                                      ),
-                                    ],
-                                  ),
-                                  Wrap(
-                                    children: [
-                                      customContainerSelect(
-                                        isAnother: true,
-                                        onPressed: () {
-                                          setState(() {
-                                            working = "Immediate";
-                                            imd = !imd;
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = false;
-                                          });
-                                        },
-                                        isSelect: imd,
-                                        title: "Immediate",
-                                      ),
-                                      customContainerSelect(
-                                        isAnother: true,
-                                        onPressed: () {
-                                          setState(() {
-                                            working = "15 Days or less";
-                                            imd = false;
-                                            day15 = !day15;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = false;
-                                          });
-                                        },
-                                        isSelect: day15,
-                                        title: "15 Days or less",
-                                      ),
-                                      customContainerSelect(
-                                        isAnother: true,
-                                        onPressed: () {
-                                          setState(() {
-                                            working = "1 Month";
-                                            day15 = false;
-                                            day30 = !day30;
-                                            day60 = false;
-                                            day90 = false;
-                                          });
-                                        },
-                                        isSelect: day30,
-                                        title: "1 Month",
-                                      ),
-                                      customContainerSelect(
-                                        isAnother: true,
-                                        onPressed: () {
-                                          setState(() {
-                                            working = "2 Months";
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = !day60;
-                                            day90 = false;
-                                          });
-                                        },
-                                        isSelect: day60,
-                                        title: "2 Months",
-                                      ),
-                                      customContainerSelect(
-                                        isAnother: true,
-                                        onPressed: () {
-                                          setState(() {
-                                            working = "2 Months";
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = !day90;
-                                          });
-                                        },
-                                        isSelect: day90,
-                                        title: "3 Months or more",
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                          ],
+                              if (apportunities)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 10.h,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Availability to join?",
+                                          style: GoogleFonts.varela(
+                                              color: Constants.themeBgColor),
+                                        ),
+                                      ],
+                                    ),
+                                    Wrap(
+                                      children: [
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "Immediate";
+                                              imd = !imd;
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: imd,
+                                          title: "Immediate",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "15 Days or less";
+                                              imd = false;
+                                              day15 = !day15;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day15,
+                                          title: "15 Days or less",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "1 Month";
+                                              day15 = false;
+                                              day30 = !day30;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day30,
+                                          title: "1 Month",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = !day60;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day60,
+                                          title: "2 Months",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = !day90;
+                                            });
+                                          },
+                                          isSelect: day90,
+                                          title: "3 Months or more",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
 
                       /* customDocumnet(
                             "Offer / Appointment letter.",
@@ -3389,12 +3485,37 @@ class _Screen3State extends ConsumerState<Screen3> {
                     padding: const EdgeInsets.only(bottom: 10, top: 20),
                     child: InkWell(
                         onTap: () async {
+                          if (widget.experiencelist!.length <= 1) {
+                            var payload = {
+                              "stage": "experience",
+                              "data": {
+                                "id": await Utils.getPreferencesValue(
+                                    null, ESharedPreferences.user_id.name),
+                                "experience": 0,
+                              }
+                            };
+                            await saveExperience(payload);
+                            JobPostApiService.DeletExperience(
+                                widget.prevPageModel!.id!.toInt(),
+                                context,
+                                "exp");
+                            ref.refresh(userDataProvider);
+                            // Navigator.pop(context);
+                          } else {
+                            await JobPostApiService.DeletExperience(
+                                widget.prevPageModel!.id!.toInt(),
+                                context,
+                                "exp");
+                            ref.refresh(userDataProvider);
+                          }
+                        },
+                        /* () async {
                           await JobPostApiService.DeletExperience(
                               widget.prevPageModel!.id!.toInt(),
                               context,
                               "exp");
                           ref.refresh(userDataProvider);
-                        },
+                        }, */
                         child: Text(
                           "Delete Experience",
                           style: GoogleFonts.varela(color: Colors.red),

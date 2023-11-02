@@ -10,6 +10,7 @@ class Constants {
   static const subtitleclr = Color(0xfff898d8c);
   static const hintColor = Color(0xfffa8a3a3);
   static const maintheme_light_color = Color(0xffb3caca);
+  static final lightdull = Colors.grey.shade300;
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

@@ -133,7 +133,7 @@ class JobPostApiService {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
+                        builder: (context) => HomeScreen(),
                       ),
                       (route) => false);
                 },

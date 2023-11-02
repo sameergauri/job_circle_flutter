@@ -431,7 +431,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
+                                builder: (context) =>  HomeScreen()));
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(

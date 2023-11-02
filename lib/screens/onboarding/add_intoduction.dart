@@ -189,14 +189,16 @@ class _AddIntoductionState extends State<AddIntoduction>
   }
 
   @override
+  DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 35));
+  DateTime firstDate = DateTime.now().subtract(const Duration(days: 365 * 18));
+  @override
   void dispose() {
     // Cancel the countdown timer when the widget is disposed
     ticker.dispose();
+    primaryNumberFocus.removeListener(() {});
+    industryFocus.removeListener(() {});
     super.dispose();
   }
-
-  DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 35));
-  DateTime firstDate = DateTime.now().subtract(const Duration(days: 365 * 18));
 
   @override
   void initState() {
@@ -479,25 +481,27 @@ class _AddIntoductionState extends State<AddIntoduction>
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Add Introduction",
-                style: GoogleFonts.varela(
-                  fontSize: 18.sp,
-                  color: Constants.themeBgColor,
-                  fontWeight: FontWeight.w600,
+          title: Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Add Introduction",
+                  style: GoogleFonts.varela(
+                    fontSize: 18.sp,
+                    color: Constants.themeBgColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Text(
-                "Introduce yourself to the recruiters",
-                style: GoogleFonts.varela(
-                    color: Constants.hintColor,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.normal),
-              )
-            ],
+                Text(
+                  "Introduce yourself to the recruiters",
+                  style: GoogleFonts.varela(
+                      color: Constants.hintColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.normal),
+                )
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: InkWell(

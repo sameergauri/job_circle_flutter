@@ -1936,7 +1936,7 @@ class _JobFormState extends State<JobForm> {
                                   : onlyFemale
                                       ? "Female"
                                       : femalePrefered
-                                          ? "Female prefered"
+                                          ? "Female preferred"
                                           : " ",
                               is_graduate: isGraduateCheckBox ? 1 : 0,
 

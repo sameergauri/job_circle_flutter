@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
 
@@ -35,7 +37,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   late TextEditingController LanguageController = TextEditingController();
   List<dynamic> fetchApiLanguages = [];
   List<dynamic> selectedValuesList = [];
-  List<String> selectedValues = [];
+  List<dynamic> selectedValues = [];
   late List languageList = [];
   late List<AutoCompleteCheckBoxModel> languageAutoList = [];
 
@@ -47,13 +49,14 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       "",
     );
     LanguageController = TextEditingController();
-    if (widget.prevPageModel != null) {
+    if (widget.prevPageModel != null &&
+        widget.prevPageModel!.languages != null) {
       selectedlist = widget.prevPageModel!.languages!.toSet().toList();
       suggestions.removeWhere((suggestion) =>
           widget.prevPageModel!.languages!.contains(suggestion));
       expID = widget.prevPageModel!.id;
     }
-    for (var language in widget.languageList!) {
+    for (dynamic language in widget.languageList!) {
       if (language != null) {
         selectedValues.addAll(language);
       }
@@ -148,13 +151,15 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
 
   void save() async {
     List<dynamic> languages = selectedlist;
+    var useID =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
 
     ProfileSummaryModel model = ProfileSummaryModel(
       id: expID,
       languages: languages,
     );
     Map<String, dynamic> jsonData = model.toJson();
-    await updateLanguages(jsonData, expID!);
+    await updateLanguages(jsonData, useID!);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('language saved successfully')),

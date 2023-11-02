@@ -280,18 +280,76 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
+        automaticallyImplyLeading: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              // jobDetailsModel.name
+              jobDetailsModel.rolename.toString(),
+              textAlign: TextAlign.center,
+              style: GoogleFonts.varela(
+                // fontWeight: FontWeight.bold,
+                fontSize: 16.h,
+              ),
+            ),
+            Row(
+              children: [
+                Image.asset(
+                  "assets/images/proces.png",
+                  height: 12.h,
+                  //color: Colors.black45,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  jobDetailsModel.process.toString(),
+                  style: GoogleFonts.varela(
+                    //fontWeight: FontWeight.bold,
+                    fontSize: 16.h,
+                  ),
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                Text(
+                  " ||",
+                  style: GoogleFonts.varela(
+                    // fontWeight: FontWeight.bold,
+                    fontSize: 16.h,
+                  ),
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                Text(
+                  jobDetailsModel.naturofwork.toString(),
+                  style: GoogleFonts.varela(
+                    //  fontWeight: FontWeight.bold,
+                    fontSize: 16.h,
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+        /* Text(
           "Job Details",
           style: GoogleFonts.varela(fontSize: 16.h),
-        ),
+        ), */
         actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.share,
-                size: 18.h,
-                color: Constants.themeBgColor,
-              )),
+          jobDetailsModel.icon != ""
+              ? Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  height: 80.h,
+                  width: 80.w,
+                  child: Image.network(
+                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.icon}",
+                    fit: BoxFit.contain,
+                  ),
+                )
+              : const SizedBox()
         ],
         // bottom: PreferredSize(
         //   child: Text(subtitleText),
@@ -700,8 +758,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.only(
-              left: 20, right: 20, top: kToolbarHeight * 2),
+          padding: EdgeInsets.only(
+              left: 20, right: 20, top: kToolbarHeight * 1.65.h),
           child: jobDetailsModel.id == null
               ? const Center(
                   child: CircularProgressIndicator(),
@@ -709,7 +767,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
+                    /*  Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -761,7 +819,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ),
                     const SizedBox(
                       height: 10,
-                    ),
+                    ), */
                     if (jobDetailsModel.name.toString().isNotEmpty)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -1044,7 +1102,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Constants.themeBgColorLight,
+                              color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Constants.borderColor)),
                           child: Row(
@@ -1068,7 +1126,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Constants.themeBgColorLight,
+                              color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Constants.borderColor)),
                           child: Text(
@@ -1081,7 +1139,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Constants.themeBgColorLight,
+                              color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Constants.borderColor)),
                           child: Row(
@@ -1109,15 +1167,22 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     // ]),
                     Container(
                       decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Constants.borderColor,
+                                Constants.maintheme_light_color,
+                              ]),
                           boxShadow: [
                             BoxShadow(
                                 color: Colors.grey.shade300,
                                 offset: const Offset(0, 0),
                                 blurRadius: 2)
                           ],
-                          color: Constants.themeBgColorLight,
                           border: Border.all(
-                              color: Constants.borderColor, width: 2),
+                              color: Constants.maintheme_light_color),
+                          color: Constants.borderColor,
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.only(
                           left: 10, right: 8, top: 6, bottom: 6),
@@ -1144,6 +1209,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             Padding(
                               padding: EdgeInsets.only(bottom: 3.h),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Image.asset(
                                     "assets/images/languages.JPG",
@@ -1153,7 +1219,59 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   const SizedBox(
                                     width: 7,
                                   ),
-                                  SizedBox(
+                                  Column(
+                                    //TODO: Temp....
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Wrap(
+                                        spacing:
+                                            4.0, // Adjust the spacing between items as needed
+                                        children: [
+                                          for (int index = 0;
+                                              index <
+                                                  jobDetailsModel
+                                                      .languageknown!.length;
+                                              index++)
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  jobDetailsModel
+                                                      .languageknown![index],
+                                                  style: GoogleFonts.varela(
+                                                    // fontSize: 15,
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  index ==
+                                                          jobDetailsModel
+                                                                  .languageknown!
+                                                                  .length -
+                                                              1
+                                                      ? '.'
+                                                      : ",",
+                                                  style: GoogleFonts.varela(
+                                                      color:
+                                                          Colors.grey.shade700),
+                                                ),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
+                                      /*  if (jobDetailsModel //TODO: Pending work due to overflow.
+                                              .languageknown!.length >=
+                                          2)
+                                        Text(
+                                          " (Any one)",
+                                          style: GoogleFonts.varela(
+                                              color: Colors.grey.shade700),
+                                        ), */
+                                    ],
+                                  )
+
+                                  /*  SizedBox(  //TODO: old code before 2/11/2023.
                                     height: 18.h,
                                     child: Row(
                                       children: [
@@ -1177,8 +1295,10 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                 Text(
                                                   language,
                                                   style: GoogleFonts.varela(
+                                                      fontSize: 15,
                                                       color:
                                                           Colors.grey.shade700),
+                                                  softWrap: true,
                                                 ),
                                                 Text(separator,
                                                     style: GoogleFonts.varela(
@@ -1197,7 +1317,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             : const SizedBox(),
                                       ],
                                     ),
-                                  ),
+                                  ), */
                                 ],
                               ),
                             ),
@@ -1337,7 +1457,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         ),
                         Text(jobDetailsModel.eligibility.toString())
                       ],
-                    ), */
+                                        ), */
                         ],
                       ),
                     ),
@@ -1376,6 +1496,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     width: 5,
                                   ),
                                   Wrap(
+                                    spacing: 0.1,
                                     children: [
                                       ...jobDetailsModel.job_benifits!
                                           .take(5)
@@ -1828,7 +1949,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     offset: const Offset(0, 0),
                                     blurRadius: 2)
                               ],
-                              color: Constants.themeBgColorLight,
+                              color: Constants.borderColor,
                               // border: Border.all(color: Colors.blue.shade200),
                               borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.only(
@@ -2746,13 +2867,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   padding: const EdgeInsets.only(bottom: 20),
                                   child: Column(
                                     children: [
-                                      CircleAvatar(
-                                        radius: 31,
-                                        backgroundColor: Colors.white,
-                                        child: Image.asset(
-                                          "assets/images/moneybag.png",
-                                          height: 40,
-                                        ),
+                                      Image.network(
+                                        "https://cdn.discordapp.com/attachments/1095606068614283337/1167412358986080358/cwok_casual_62-removebg.png?ex=654e087b&is=653b937b&hm=c707f2c36c9413d427b6401defa19d3af4f67272793213d5f1a54634208e90a9&",
+                                        height: 90.h,
                                       ),
                                       // const Text("T & C apply")
                                     ],
@@ -2766,12 +2883,13 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   padding:
                                       const EdgeInsets.only(bottom: 5, top: 5),
                                   child: Text(
-                                    "T&C Apply",
+                                    "Terms & condition Apply",
                                     style: GoogleFonts.varela(
-                                        fontSize: 11.sp,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 9.sp,
                                         letterSpacing: 1,
                                         fontWeight: FontWeight.normal,
-                                        color: Colors.white),
+                                        color: Colors.black),
                                   ),
                                 ),
                               )
@@ -2954,7 +3072,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 
   Widget customSkill(String title, bool isHash) {
     return Container(
-      margin: const EdgeInsets.only(top: 5, bottom: 5, right: 5),
+      margin: const EdgeInsets.only(bottom: 5, right: 5),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
           color: Colors.white,

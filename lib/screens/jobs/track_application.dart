@@ -41,7 +41,7 @@ class _TrackApplicationState extends State<TrackApplication> {
                     selectedIndex = index;
                   });
                 },
-                children: const [AppliedJob(), ReferNow()],
+                children: const [AppliedJob(), AllReferStatus()],
               ),
             ),
           ],

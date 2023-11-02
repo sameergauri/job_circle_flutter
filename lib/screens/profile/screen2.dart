@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
+import 'package:job_circle/constants/customdialogue_for_education_selecton.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
@@ -484,7 +485,8 @@ class _Screen2State extends ConsumerState<Screen2> {
                 onTap: () {
                   int firstYear = int.parse(firstYearController.text);
                   int lastYear = int.parse(passingYearController.text);
-                  if (widget.educationList!.isNotEmpty) {
+                  if (widget.educationList != null &&
+                      widget.educationList!.isNotEmpty) {
                     for (Education education in widget.educationList!) {
                       if (education.degree_spc == degreeController.text &&
                           widget.prevPageModel == null) {
@@ -501,7 +503,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                         } else if (firstYearController.text.length != 4) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               customSnackbar("Add Proper year in first year"));
-                        } else if ( passingYearController.text.length != 4 &&
+                        } else if (passingYearController.text.length != 4 &&
                             degreeCode != "D001") {
                           ScaffoldMessenger.of(context).showSnackBar(
                               customSnackbar("Add Proper year in final year"));
@@ -2271,6 +2273,7 @@ class _Screen2State extends ConsumerState<Screen2> {
   }
 
   String degreeCode = "";
+  bool science = false, commerce = false, art = false;
 
   SizedBox customWidgetGraduation() {
     return SizedBox(
@@ -2325,6 +2328,7 @@ class _Screen2State extends ConsumerState<Screen2> {
             labelText: "Degree / Specialization",
             university: false,
             degree: true,
+            hsc: true,
             title: "",
             isCity: true,
             contextIn: context,
@@ -2347,7 +2351,9 @@ class _Screen2State extends ConsumerState<Screen2> {
           CustomTextFieldComapanyLocation(
             university: true,
             degree: false,
-            labelText: "University / Institute",
+            hsc: false,
+            labelText:
+                degreeCode == "D001" ? "Board" : "University / Institute",
             title: "",
             isCity: true,
             contextIn: context,
@@ -2406,23 +2412,131 @@ class _Screen2State extends ConsumerState<Screen2> {
                   ),
           ), */
           const SizedBox(height: 10),
-          CustomTextFieldComapanyLocation(
-            university: false,
-            degree: false,
-            labelText: "Field of Study",
-            title: "",
-            isCity: true,
-            contextIn: context,
-            role: "",
-            hintText: "Account and Finance",
-            name: "fieldofstudy",
-            isCompany: false,
-            controller: fieldOfStudyController,
-            onChanged: (p0) {
-              // isUniG = true;
-            },
-            icon: const Icon(Icons.auto_stories_outlined),
-          ),
+          degreeCode == "D001"
+              ? Container(
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Field of study",
+                        style: GoogleFonts.varela(
+                            fontSize: 14.sp, color: Constants.themeBgColor)),
+                    SizedBox(
+                      height: 5.h,
+                    ),
+                    Row(
+                      //  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              science = true;
+                              commerce = false;
+                              art = false;
+                              // degreeController.text = "H.S.C".toString();
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                color: science
+                                    ? Constants.themeBgColor
+                                    : Colors.white,
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4.h, horizontal: 8),
+                            child: Text(
+                              "Science",
+                              style: GoogleFonts.varela(
+                                  fontWeight: science
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: science ? Colors.white : Colors.black),
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              science = false;
+                              commerce = true;
+                              art = false;
+                              // degreeController.text = "H.S.C".toString();
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                color: commerce
+                                    ? Constants.themeBgColor
+                                    : Colors.white,
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4.h, horizontal: 8),
+                            child: Text(
+                              "Commerce",
+                              style: GoogleFonts.varela(
+                                  fontWeight: commerce
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color:
+                                      commerce ? Colors.white : Colors.black),
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              science = false;
+                              commerce = false;
+                              art = true;
+                              // degreeController.text = "H.S.C".toString();
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 5.w),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                color:
+                                    art ? Constants.themeBgColor : Colors.white,
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4.h, horizontal: 8),
+                            child: Text(
+                              "Art",
+                              style: GoogleFonts.varela(
+                                  fontWeight:
+                                      art ? FontWeight.bold : FontWeight.normal,
+                                  color: art ? Colors.white : Colors.black),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ))
+              : CustomTextFieldComapanyLocation(
+                  university: false,
+                  degree: false,
+                  labelText: "Field of Study",
+                  title: "",
+                  hsc: false,
+                  isCity: true,
+                  contextIn: context,
+                  role: "",
+                  hintText: "Account and Finance",
+                  name: "fieldofstudy",
+                  isCompany: false,
+                  controller: fieldOfStudyController,
+                  onChanged: (p0) {
+                    // isUniG = true;
+                  },
+                  icon: const Icon(Icons.auto_stories_outlined),
+                ),
           /* CustomTextField(
               context: context,
               hint: "Account and Finance",
@@ -2544,7 +2658,7 @@ class _Screen2State extends ConsumerState<Screen2> {
               isNumber: true,
               context: context,
               hint: "2017",
-              label: "First Year",
+              label: degreeCode == "D001" ? "Passing Year" : "First Year",
               focusNode: firstyearfocus,
               controller: firstYearController,
               icon: const Icon(Icons.edit_calendar)),
@@ -2860,8 +2974,19 @@ class _Screen2State extends ConsumerState<Screen2> {
                   padding: const EdgeInsets.only(right: 0),
                   child: InkWell(
                       onTap: () async {
-                        await JobPostApiService.DeletExperience(
-                            widget.prevPageModel!.id!.toInt(), context, "edu");
+                        widget.educationList!.length <= 1
+                            ? showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return EducationSelectionDialog(
+                                    id: widget.prevPageModel!.id!.toInt(),
+                                  );
+                                },
+                              )
+                            : await JobPostApiService.DeletExperience(
+                                widget.prevPageModel!.id!.toInt(),
+                                context,
+                                "edu");
                         ref.refresh(userDataProvider);
                       },
                       child: Text(
@@ -3412,14 +3537,24 @@ class _Screen2State extends ConsumerState<Screen2> {
       userId: profilemodel.id,
       //level: "Graduate",
       university: universityController.text,
-      degree_spc: degreeController.text,
-      fieldOfStudy: fieldOfStudyController.text,
+      degree_spc: degreeCode == "D001" ? "H.S.C" : degreeController.text,
+      fieldOfStudy: degreeCode == "D001"
+          ? science
+              ? "Science"
+              : commerce
+                  ? "Commerce"
+                  : art
+                      ? "Art"
+                      : fieldOfStudyController.text
+          : fieldOfStudyController.text,
       firstYear: firstYearController.text.isNotEmpty
           ? int.parse(firstYearController.text)
           : null,
-      passingYear: passingYearController.text.isNotEmpty
-          ? int.parse(passingYearController.text)
-          : null,
+      passingYear: degreeCode == "D001"
+          ? null
+          : passingYearController.text.isNotEmpty
+              ? int.parse(passingYearController.text)
+              : null,
       marksheet: marksheet,
     );
 

@@ -112,10 +112,10 @@ class _AddCvState extends State<AddCv> {
                 ),
                 InkWell(
                   onTap: () async {
-                    Navigator.push(
+                    Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomeScreen()));
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        (route) => false);
                     /* resume = await uploadFile(['pdf'], "cv");
                     var payload = {
                       "stage": "upload_cv",
@@ -191,10 +191,11 @@ class _AddCvState extends State<AddCv> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
+                                builder: (context) => HomeScreen()),
+                            (route) => false);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -210,40 +211,108 @@ class _AddCvState extends State<AddCv> {
                 )
               ],
             ),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Constants.themeBgColor,
-              child: const Icon(Icons.add),
-              onPressed: () async {
-                resume = await uploadFile(['pdf'], "cv");
-                var payload = {
-                  "stage": "upload_cv",
-                  "data": {
-                    "id": await Utils.getPreferencesValue(
-                        null, ESharedPreferences.user_id.name),
-                    "cv_link": resume
-                  }
-                };
-                save(resume, payload);
-                setState(() {});
-              },
-            ),
-            body: Center(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.r),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.shade400,
-                        //  blurRadius: 10,
-                        blurRadius: 15.0,
-                        offset: const Offset(1, 1))
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  "Recruiters identify prospective candidates through their CV.",
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                  style: GoogleFonts.varela(
+                      fontWeight: FontWeight.bold,
+                      color: Constants.themeBgColor,
+                      fontSize: 16.sp),
+                ),
+                SizedBox(
+                  height: 20.h,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: Colors.white,
+                        /*  boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.shade400,
+                              //  blurRadius: 10,
+                              blurRadius: 15.0,
+                              offset: const Offset(1, 1))
+                        ], */ //"assets/images/cv_doc.png"
+                      ),
+                      child: Image.network(
+                        "https://cdn.discordapp.com/attachments/1095606068614283337/1169234100503191562/Profile_data.gif?ex=6554a91c&is=6542341c&hm=7d792b032b842e88e73481281c9281d951545f3e8d8988abd07ed4f91b85ff41&",
+                        height: 300.0,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) {
+                            // If the image is fully loaded, return the child (original image)
+                            return child;
+                          } else {
+                            // While the image is loading, you can return a loading indicator here (e.g., CircularProgressIndicator).
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                        },
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
+                          // If there's an error loading the image, you can return an error image or message here.
+                          return Image.asset(
+                              "assets/images/cv_doc.png"); // Replace 'assets/error_image.png' with your error image.
+                        },
+                      ),
+                      /*  child: Image.network(
+                        "https://cdn.discordapp.com/attachments/1095606068614283337/1169234100503191562/Profile_data.gif?ex=6554a91c&is=6542341c&hm=7d792b032b842e88e73481281c9281d951545f3e8d8988abd07ed4f91b85ff41&",
+                        height: 300.h,
+                        fit: BoxFit.contain,
+                      ), */
+                    ),
                   ],
                 ),
-                child: Image.network(
-                    "https://cdn-icons-png.flaticon.com/128/9836/9836378.png"),
-              ),
+                const SizedBox(
+                  height: 20,
+                ),
+                InkWell(
+                  onTap: () async {
+                    resume = await uploadFile(['pdf'], "cv");
+                    var payload = {
+                      "stage": "upload_cv",
+                      "data": {
+                        "id": await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_id.name),
+                        "cv_link": resume
+                      }
+                    };
+                    save(resume, payload);
+                    setState(() {});
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 20, left: 15, right: 15),
+                    width: double.maxFinite,
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    decoration: BoxDecoration(
+                        color: Constants.themeBgColor,
+                        borderRadius: BorderRadius.circular(8.r)),
+                    child: Center(
+                        child: Text(
+                      "Add Resume",
+                      style: GoogleFonts.varela(
+                          fontSize: 16.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    )),
+                  ),
+                ),
+                Text(
+                  "Never miss adding your resume",
+                  style: GoogleFonts.varela(
+                      fontSize: 14.sp, color: Constants.subtitleclr),
+                ),
+              ],
             ),
           );
   }

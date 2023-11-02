@@ -21,7 +21,6 @@ import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/constants/assets_images_url.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/interceptors/no_internet.dart';
 import 'package:job_circle/models/active_state_model.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/location_model.dart';
@@ -31,6 +30,7 @@ import 'package:job_circle/screens/jobs/filter.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/screens/jobs/matching_jobs.dart';
+import 'package:job_circle/screens/onboarding/add_cv.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -988,7 +988,9 @@ class _JobsState extends ConsumerState<Jobs>
                     },
                     controller: searchController,
                     enableInteractiveSelection:
-                        false, // will disable paste operation
+                        false, 
+                       // focusNode: ,
+                        // will disable paste operation
                     //focusNode: AlwaysDisabledFocusNode(),
                     /* onTap: () {
                       showSearch(
@@ -2868,7 +2870,7 @@ class _JobsState extends ConsumerState<Jobs>
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const NoInternet()));
+                                  builder: (context) => const AddCv()));
                           /*  JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),

@@ -383,27 +383,29 @@ class _AddExperienceState extends State<AddExperience> {
             iconTheme: const IconThemeData(color: Constants.themeBgColor),
             title: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Employement Detail",
-                      style: GoogleFonts.varela(
-                        fontSize: 18.sp,
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Employement Detail",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
 
-                    Text(
-                      "Introduce your experience to the recruiters",
-                      style: GoogleFonts.varela(
-                          color: Colors.grey.shade600,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.normal),
-                    ),
-                    //const Spacer(),
-                  ],
+                      Text(
+                        "Introduce your experience to the recruiters",
+                        style: GoogleFonts.varela(
+                            color: Colors.grey.shade600,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.normal),
+                      ),
+                      //const Spacer(),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -631,7 +633,7 @@ class _AddExperienceState extends State<AddExperience> {
                       SizedBox(
                         width: 10.w,
                       ),
-                      const Text("I am fresher.")
+                      const Text("I am Fresher.")
                     ],
                   ),
                   const SizedBox(
@@ -1453,6 +1455,8 @@ class _AddExperienceState extends State<AddExperience> {
                         CustomTextFieldComapanyLocation(
                           degree: false,
                           university: false,
+              hsc: false,
+
                           isCompany: false,
                           name: "city",
                           isCity: true,
