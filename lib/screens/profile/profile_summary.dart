@@ -900,7 +900,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                         ),
                                                       ),
                                                       if (data.experiences
-                                                          .isNotEmpty)
+                                                          .every((element) =>
+                                                              element
+                                                                  .last_working_date ==
+                                                              null))
                                                         Text(
                                                           "${data.experiences.last.job_title.toString()} at ${data.experiences.last.company_name.toString()}",
                                                           style: GoogleFonts
@@ -910,6 +913,17 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                 FontWeight.w400,
                                                           ),
                                                         ),
+                                                      /* if (data.experiences
+                                                          .isNotEmpty)
+                                                        Text(
+                                                          "${data.experiences.last.job_title.toString()} at ${data.experiences.last.company_name.toString()}",
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ), */
                                                       if ((data.profileSummary.bio ==
                                                                   null ||
                                                               data.profileSummary
@@ -918,11 +932,16 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                               data
                                                                   .profileSummary
                                                                   .bio!
-                                                                  .isEmpty) &&
-                                                          data.experiences
-                                                              .isEmpty &&
-                                                          data.education
-                                                              .isEmpty)
+                                                                  .isEmpty) ||
+                                                          data.experiences.every(
+                                                                  (element) =>
+                                                                      element
+                                                                          .last_working_date ==
+                                                                      null) &&
+                                                              data.experiences
+                                                                  .isEmpty &&
+                                                              data.education
+                                                                  .isEmpty)
                                                         InkWell(
                                                           onTap: () {
                                                             sendToBasicInfo(
@@ -943,17 +962,24 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                         .italic),
                                                           ),
                                                         ),
-                                                      if (data.profileSummary
-                                                                  .bio !=
-                                                              null &&
-                                                          data
-                                                              .profileSummary
-                                                              .bio!
-                                                              .isNotEmpty &&
-                                                          data.education
-                                                              .isEmpty &&
-                                                          data.experiences
-                                                              .isEmpty)
+                                                      if (data.experiences.every((element) =>
+                                                              element
+                                                                      .last_working_date !=
+                                                                  null &&
+                                                              data.profileSummary
+                                                                      .bio !=
+                                                                  null) ||
+                                                          (data.profileSummary
+                                                                      .bio !=
+                                                                  null &&
+                                                              data
+                                                                  .profileSummary
+                                                                  .bio!
+                                                                  .isNotEmpty &&
+                                                              data.education
+                                                                  .isEmpty &&
+                                                              data.experiences
+                                                                  .isEmpty))
                                                         Text(
                                                           data.profileSummary
                                                               .bio!,
@@ -1213,7 +1239,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
 
                                                 // Block 3: Skills
                                                 if (data.profileSummary.skills!
-                                                    .isEmpty /*  &&
+                                                        .isEmpty &&
+                                                    data.experiences
+                                                        .isEmpty /*  &&
                                                     data.profileSummary
                                                             .experience ==
                                                         "Fresher" */
@@ -1317,6 +1345,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                     Screen2(
                                                               isFirst: false,
                                                               isEdit: false,
+                                                              underGraduate:
+                                                                  profilemodel.education !=
+                                                                          "Graduate"
+                                                                      ? true
+                                                                      : false,
                                                             ),
                                                           ),
                                                         );
@@ -1359,7 +1392,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                           data.profileSummary),
                                     ),
                                     SizedBox(
-                                      height: 20.h,
+                                      height: 40.h,
                                     ),
                                     /*  Padding(
                                 padding:
@@ -1570,6 +1603,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                             selectedLevel: profilemodel.education,
                             educationList: educationList,
                             isFirst: false,
+                            underGraduate:
+                                profileSummaryModel.education != "Graduate"
+                                    ? true
+                                    : false,
                             isEdit: false,
                           ),
                         ),
@@ -1677,7 +1714,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 children: [
                   ListTile(
                     onTap: () {
-                      sendToEducation(education, educationList);
+                      sendToEducation(
+                        education,
+                        educationList,
+                        education.degree_spc == "H.S.C" ? true : false,
+                      );
                     },
                     contentPadding: const EdgeInsets.only(
                         left: 10, right: 10, top: 0, bottom: 0),
@@ -1775,11 +1816,35 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  int calculateMonthDifference(DateTime startDate, DateTime endDate) {
+  String calculateMonthDifference(DateTime startDate, DateTime endDate) {
     int yearsDifference = endDate.year - startDate.year;
     int monthsDifference = endDate.month - startDate.month;
-    return (yearsDifference * 12) + monthsDifference;
+
+    if (yearsDifference == 0 && monthsDifference == 0) {
+      return ""; // Return an empty string when both years and months are 0.
+    } else {
+      String result = "";
+
+      if (yearsDifference > 0) {
+        result += "${yearsDifference}yr";
+      }
+
+      if (monthsDifference > 0) {
+        if (result.isNotEmpty) {
+          result += ", ";
+        }
+        result += "${monthsDifference}mo";
+      }
+
+      return "($result)";
+    }
   }
+
+  /* String calculateMonthDifference(DateTime startDate, DateTime endDate) {
+    int yearsDifference = endDate.year - startDate.year;
+    int monthsDifference = endDate.month - startDate.month;
+    return "${(yearsDifference)}yr, ${monthsDifference}mo";
+  } */
 
   Widget experience(List<Experience> experienceList,
       List<Education> educationList, ProfileSummaryModel profileSummaryModel) {
@@ -1938,7 +2003,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
               }
             },
             itemBuilder: (context, index) {
-              int monthsDifference = 0;
+              String monthsDifference = "";
               if (experienceList[index].joining_date != null &&
                   experienceList[index].last_working_date != null) {
                 monthsDifference = calculateMonthDifference(
@@ -2104,9 +2169,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         if (experienceList[index].joining_date != null &&
                             experienceList[index].last_working_date != null)
                           Text(
-                            " (${monthsDifference.toString()}m)",
+                            " $monthsDifference",
                             style: GoogleFonts.varela(
                               fontSize: 12.sp,
+                              fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.w400,
                             ),
                           )
@@ -2602,6 +2668,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
           selectedLevel: profilemodel.education,
           educationList: educationList,
           isFirst: false,
+          underGraduate: profilemodel.education != "Graduate" ? true : false,
           isEdit: true,
         ),
       ),
@@ -2718,6 +2785,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                               MaterialPageRoute(
                                 builder: (context) => Screen2(
                                     educationList: educationList,
+                                    underGraduate: false,
                                     isFirst: true,
                                     isEdit: false),
                               ),
@@ -2797,7 +2865,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  sendToEducation(Education education, List<Education> educationList) async {
+  sendToEducation(Education education, List<Education> educationList,
+      bool isGraduate) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -2805,6 +2874,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
           prevPageModel: education,
           educationList: educationList,
           isFirst: false,
+          underGraduate: isGraduate,
           isEdit: true,
         ),
       ),

@@ -293,7 +293,7 @@ class _MyCustomDialogForExperienceState
                             appointment_letter: widget.e.appointment_letter,
                             salary_slip: widget.e.salary_slip,
                             increment_letter: widget.e.increment_letter,
-                            experience_letter: widget.e.experience_letter,
+                            experience_lettter: widget.e.experience_lettter,
 
                             availability: widget.e.availability,
 

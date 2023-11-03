@@ -3,24 +3,26 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/utils.dart';
 import '../service/UserDataService.dart';
 
-class OTPScreen extends StatefulWidget {
-  const OTPScreen({Key? key,this.no}) : super(key: key);
- final String? no;
+class OTPScreen extends ConsumerStatefulWidget {
+  const OTPScreen({Key? key, this.no}) : super(key: key);
+  final String? no;
 
   @override
-  State<OTPScreen> createState() => _OTPScreenState();
+  ConsumerState<OTPScreen> createState() => _OTPScreenState();
 }
 
-class _OTPScreenState extends State<OTPScreen> {
+class _OTPScreenState extends ConsumerState<OTPScreen> {
   // controller
   late TextEditingController otpChar1Controller;
   late TextEditingController otpChar2Controller;
@@ -321,6 +323,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
         await Utils.setPreference(
             pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
+        ref.refresh(userDataProvider);
         Utils.gotoScreen(context, data, model.mobile);
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

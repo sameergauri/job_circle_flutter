@@ -3118,7 +3118,7 @@ class _AddExperienceState extends State<AddExperience> {
       appointment_letter: appointmentLetter,
       salary_slip: alarySlip,
       increment_letter: incrementLetter,
-      experience_letter: experienceLetter,
+      experience_lettter: experienceLetter,
 
       availability: apportunities
           ? imd

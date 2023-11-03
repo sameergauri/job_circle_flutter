@@ -505,7 +505,7 @@ class _JobsState extends ConsumerState<Jobs>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                              "${profilemodel.first_name.toString().toTitleCase()} ${profilemodel.last_name.toString()}",
                               style: GoogleFonts.varela(
                                   fontSize: 16.sp,
                                   color: Constants.themeBgColor,
@@ -987,10 +987,9 @@ class _JobsState extends ConsumerState<Jobs>
                       searchAgain();
                     },
                     controller: searchController,
-                    enableInteractiveSelection:
-                        false, 
-                       // focusNode: ,
-                        // will disable paste operation
+                    enableInteractiveSelection: false,
+                    // focusNode: ,
+                    // will disable paste operation
                     //focusNode: AlwaysDisabledFocusNode(),
                     /* onTap: () {
                       showSearch(

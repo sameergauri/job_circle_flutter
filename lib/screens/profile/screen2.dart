@@ -23,12 +23,14 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 
 class Screen2 extends ConsumerStatefulWidget {
+  final bool underGraduate;
   Screen2(
       {Key? key,
       this.prevPageModel,
       this.selectedLevel,
       this.educationList,
       required this.isFirst,
+      required this.underGraduate,
       required this.isEdit})
       : super(key: key);
   late Education? prevPageModel;
@@ -106,13 +108,19 @@ class _Screen2State extends ConsumerState<Screen2> {
 
       profilemodel = ProfileSummaryModel.fromJson(userData);
     }
-    setState(() {});
+    setState(() {
+      widget.underGraduate ? degreeCode = "D001" : degreeCode = "";
+      degreeController.text = widget.underGraduate
+          ? "H.S.C"
+          : widget.prevPageModel!.degree_spc.toString();
+    });
   }
 
   @override
   initState() {
     super.initState();
     bindProfileSummary();
+
     bindLevelOfEducation();
     bindUniversityEducation();
     bindDegree();
@@ -484,7 +492,9 @@ class _Screen2State extends ConsumerState<Screen2> {
               bottomNavigationBar: InkWell(
                 onTap: () {
                   int firstYear = int.parse(firstYearController.text);
-                  int lastYear = int.parse(passingYearController.text);
+                  int lastYear = degreeCode == "D001"
+                      ? int.parse(firstYearController.text)
+                      : int.parse(passingYearController.text);
                   if (widget.educationList != null &&
                       widget.educationList!.isNotEmpty) {
                     for (Education education in widget.educationList!) {

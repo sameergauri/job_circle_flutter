@@ -396,9 +396,9 @@ class _Screen3State extends ConsumerState<Screen3> {
           incrementLetter = widget.prevPageModel!.increment_letter;
         });
       }
-      if (widget.prevPageModel!.experience_letter != null) {
+      if (widget.prevPageModel!.experience_lettter != null) {
         setState(() {
-          experienceLetter = widget.prevPageModel!.experience_letter;
+          experienceLetter = widget.prevPageModel!.experience_lettter;
         });
       }
 
@@ -3029,7 +3029,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                           offerLetter != null
                               ? customContainerSelectToViewDoc(
                                   onPressed: () {
-                                    showDialog(
+                                    showModalBottomSheet(
+                                      isScrollControlled: true,
                                       context: context,
                                       builder: (context) {
                                         return CustomPDFViewerDialog(
@@ -3071,7 +3072,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                           appointmentLetter != null
                               ? customContainerSelectToViewDoc(
                                   onPressed: () {
-                                    showDialog(
+                                    showModalBottomSheet(
+                                      isScrollControlled: true,
                                       context: context,
                                       builder: (context) {
                                         return CustomPDFViewerDialog(
@@ -3113,7 +3115,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                           alarySlip != null
                               ? customContainerSelectToViewDoc(
                                   onPressed: () {
-                                    showDialog(
+                                    showModalBottomSheet(
+                                      isScrollControlled: true,
                                       context: context,
                                       builder: (context) {
                                         return CustomPDFViewerDialog(
@@ -3153,7 +3156,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                           incrementLetter != null
                               ? customContainerSelectToViewDoc(
                                   onPressed: () {
-                                    showDialog(
+                                    showModalBottomSheet(
+                                      isScrollControlled: true,
                                       context: context,
                                       builder: (context) {
                                         return CustomPDFViewerDialog(
@@ -3195,7 +3199,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                             experienceLetter != null
                                 ? customContainerSelectToViewDoc(
                                     onPressed: () {
-                                      showDialog(
+                                      showModalBottomSheet(
+                                        isScrollControlled: true,
                                         context: context,
                                         builder: (context) {
                                           return CustomPDFViewerDialog(
@@ -3814,7 +3819,7 @@ class _Screen3State extends ConsumerState<Screen3> {
       appointment_letter: appointmentLetter,
       salary_slip: alarySlip,
       increment_letter: incrementLetter,
-      experience_letter: experienceLetter,
+      experience_lettter: experienceLetter,
 
       availability: apportunities
           ? imd

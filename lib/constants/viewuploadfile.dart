@@ -1,7 +1,8 @@
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:job_circle/themes/colors.dart'; // Make sure to import the necessary package(s)
+import 'package:job_circle/themes/colors.dart';
+// Make sure to import the necessary package(s)
 
 class CustomPDFViewerDialog extends StatelessWidget {
   final String pdfUrl;
@@ -17,12 +18,13 @@ class CustomPDFViewerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Scaffold(
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
+    return BottomSheet(
+      onClosing: () {},
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(top: kToolbarHeight),
+          child: Scaffold(
+            floatingActionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
@@ -94,9 +96,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
                 )
               ],
             ),
-            SizedBox(height: 20.h),
-            SizedBox(
-              height: 400.h, // Adjust the height as needed
+            body: Container(
               child: FutureBuilder<PDFDocument>(
                 future: PDFDocument.fromURL(pdfUrl),
                 builder: (context, snapshot) {
@@ -123,9 +123,9 @@ class CustomPDFViewerDialog extends StatelessWidget {
                 },
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

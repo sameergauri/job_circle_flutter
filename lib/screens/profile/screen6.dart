@@ -150,30 +150,102 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   }
 
   void save() async {
-    List<dynamic> languages = selectedlist;
-    var useID =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    if (selectedlist.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Error",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text("Add atleast one language"),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
 
-    ProfileSummaryModel model = ProfileSummaryModel(
-      id: expID,
-      languages: languages,
-    );
-    Map<String, dynamic> jsonData = model.toJson();
-    await updateLanguages(jsonData, useID!);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('language saved successfully')),
-    );
-    if (widget.prevPageModel == null) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Screen3(
-                    isFirst: false,
-                  )));
+      print("Add atleast one language");
+      /* ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: SnackBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Row(
+            children: const [
+              Icon(
+                Icons.error_outline_outlined,
+                color: Colors.red,
+                size: 15.0, // Adjust the size to your preference
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                "Add atleast one languages",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                ),
+              ),
+            ],
+          ),
+        ),
+        duration: const Duration(seconds: 3),
+      ))); */
     } else {
-      ref.refresh(userDataProvider);
-      Navigator.pop(context);
+      List<dynamic> languages = selectedlist;
+      var useID = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_id.name);
+
+      ProfileSummaryModel model = ProfileSummaryModel(
+        id: expID,
+        languages: languages,
+      );
+      Map<String, dynamic> jsonData = model.toJson();
+      await updateLanguages(jsonData, useID!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('language saved successfully')),
+      );
+      if (widget.prevPageModel == null) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Screen3(
+                      isFirst: false,
+                    )));
+      } else {
+        ref.refresh(userDataProvider);
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -181,7 +253,15 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: InkWell(
-        onTap: save,
+        onTap: () {
+          save();
+          /*  if (selectedlist.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: CustomSnackBar(title: "Add atleast one language")));
+          } else {
+            
+          } */
+        },
         child: Container(
           margin:
               const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
@@ -204,10 +284,10 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
           ),
         ),
       ),
-      backgroundColor: Constants.themeBgColorLight,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Constants.themeBgColorLight,
+        backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Column(

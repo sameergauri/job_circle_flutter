@@ -350,7 +350,7 @@ class Experience with Searchable {
   String? offer_letter;
   String? appointment_letter;
   String? salary_slip;
-  String? experience_letter;
+  String? experience_lettter;
   String? increment_letter;
   String? availability;
   String? shortname;
@@ -374,7 +374,7 @@ class Experience with Searchable {
       this.offer_letter,
       this.appointment_letter,
       this.salary_slip,
-      this.experience_letter,
+      this.experience_lettter,
       this.increment_letter,
       this.availability,
       this.shortname,
@@ -400,7 +400,7 @@ class Experience with Searchable {
       availability: map['availability'],
       appointment_letter: map['appointment_letter'] as String?,
       salary_slip: map['salary_slip'] as String?,
-      experience_letter: map['experience_letter'] as String?,
+      experience_lettter: map['experience_lettter'] as String?,
       skills_exp: List<String>.from(map['skills_exp'] ?? []),
       description: map['description'],
       emptype: map['emptype'],
@@ -435,7 +435,7 @@ class Experience with Searchable {
       'availability': availability,
       'appointment_letter': appointment_letter,
       'salary_slip': salary_slip,
-      'experience_letter': experience_letter,
+      'experience_lettter': experience_lettter,
       'skills_exp': skills_exp,
       'description': description,
       'emptype': emptype,
@@ -466,7 +466,7 @@ class Experience with Searchable {
       availability: json['availability'],
       appointment_letter: json['appointment_letter'] as String?,
       salary_slip: json['salary_slip'] as String?,
-      experience_letter: json['experience_letter'] as String?,
+      experience_lettter: json['experience_lettter'] as String?,
       skills_exp: List<String>.from(json['skills_exp'] ?? []),
       description: json['description'],
       emptype: json['emptype'],
@@ -493,7 +493,7 @@ class Experience with Searchable {
       'availability': availability,
       'appointment_letter': appointment_letter,
       'salary_slip': salary_slip,
-      'experience_letter': experience_letter,
+      'experience_lettter': experience_lettter,
       'skills_exp': skills_exp,
       'description': description,
       'emptype': emptype,
@@ -507,7 +507,7 @@ class Experience with Searchable {
 
   @override
   String toString() {
-    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location,ismonthly: $ismonthly,  salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip,  experience_letter: $experience_letter, skills_exp: $skills_exp,work_type:$work_type,description:$description,emptype:$emptype,increment_letter:$increment_letter,offer_letter:$offer_letter,isCurrent:$isCurrent)';
+    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location,ismonthly: $ismonthly,  salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip,  experience_lettter: $experience_lettter, skills_exp: $skills_exp,work_type:$work_type,description:$description,emptype:$emptype,increment_letter:$increment_letter,offer_letter:$offer_letter,isCurrent:$isCurrent)';
   }
 
   @override
