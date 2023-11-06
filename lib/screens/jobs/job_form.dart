@@ -603,7 +603,7 @@ class _JobFormState extends State<JobForm> {
               "Candidates should be flexible with Night / US shifts.") {
             // _eligibilityList.add(CheckItem(item.toString(), true));
           } else if (item ==
-              "While all candidates are welcome, female candidates are preferred.") {
+              "All candidates are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative.") {
             // _eligibilityList.add(CheckItem(item.toString(), true));
           } else if (item == "This role is exclusively for male candidates.") {
             // _eligibilityList.add(CheckItem(item.toString(), true));
@@ -2058,7 +2058,7 @@ class _JobFormState extends State<JobForm> {
                   }
                   if (femalePrefered) {
                     selectedKeyEligibility.add(
-                        " While all candidates are welcome, female candidates are preferred.");
+                        "All candidates are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative.");
                   }
                   if (onlyMale) {
                     selectedKeyEligibility

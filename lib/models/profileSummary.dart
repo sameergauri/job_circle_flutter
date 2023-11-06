@@ -355,6 +355,7 @@ class Experience with Searchable {
   String? availability;
   String? shortname;
   String? icon;
+  int? companyid;
 
   Experience(
       {this.id,
@@ -378,38 +379,38 @@ class Experience with Searchable {
       this.increment_letter,
       this.availability,
       this.shortname,
-      this.icon
-      });
+      this.icon,
+      this.companyid});
 
   static Experience fromMap(Map<String, dynamic> map) {
     return Experience(
-      id: map['id'] as int?,
-      userId: map['userId'],
-      job_title: map['job_title'] as String?,
-      company_name: map['company_name'] as String?,
-      company_location: map['company_location'] as String?,
-      work_type: map['work_type'] as String?,
-      ismonthly: map['ismonthly'] as int?,
-      salary: map['salary'] as String?,
-      joining_date: map['joining_date'] != null
-          ? DateTime.parse(map['joining_date'] as String)
-          : null,
-      last_working_date: map['last_working_date'] != null
-          ? DateTime.parse(map['last_working_date'] as String)
-          : null,
-      availability: map['availability'],
-      appointment_letter: map['appointment_letter'] as String?,
-      salary_slip: map['salary_slip'] as String?,
-      experience_lettter: map['experience_lettter'] as String?,
-      skills_exp: List<String>.from(map['skills_exp'] ?? []),
-      description: map['description'],
-      emptype: map['emptype'],
-      increment_letter: map['increment_letter'],
-      isCurrent: map['isCurrent'],
-      offer_letter: map['offer_letter'],
-      shortname: map['shortname'],
-      icon: map['icon']
-    );
+        id: map['id'] as int?,
+        userId: map['userId'],
+        job_title: map['job_title'] as String?,
+        company_name: map['company_name'] as String?,
+        company_location: map['company_location'] as String?,
+        work_type: map['work_type'] as String?,
+        ismonthly: map['ismonthly'] as int?,
+        salary: map['salary'] as String?,
+        joining_date: map['joining_date'] != null
+            ? DateTime.parse(map['joining_date'] as String)
+            : null,
+        last_working_date: map['last_working_date'] != null
+            ? DateTime.parse(map['last_working_date'] as String)
+            : null,
+        availability: map['availability'],
+        appointment_letter: map['appointment_letter'] as String?,
+        salary_slip: map['salary_slip'] as String?,
+        experience_lettter: map['experience_lettter'] as String?,
+        skills_exp: List<String>.from(map['skills_exp'] ?? []),
+        description: map['description'],
+        emptype: map['emptype'],
+        increment_letter: map['increment_letter'],
+        isCurrent: map['isCurrent'],
+        offer_letter: map['offer_letter'],
+        shortname: map['shortname'],
+        companyid: map['companyid'] as int?,
+        icon: map['icon']);
   }
 
   static List<Experience> fromList(List<dynamic> list) {
@@ -443,39 +444,40 @@ class Experience with Searchable {
       'offer_letter': offer_letter,
       'isCurrent': isCurrent,
       'shortname': shortname,
-      'icon': icon
+      'icon': icon,
+      'companyid': companyid
     };
   }
 
   factory Experience.fromJson(Map<String, dynamic> json) {
     return Experience(
-      id: json['id'] as int?,
-      userId: json['userId'],
-      job_title: json['job_title'] as String?,
-      company_name: json['company_name'] as String?,
-      company_location: json['company_location'] as String?,
-      work_type: json['work_type'] as String?,
-      ismonthly: json['ismonthly'] as int?,
-      salary: json['salary'] as String?,
-      joining_date: json['joining_date'] != null
-          ? DateTime.parse(json['joining_date'] as String)
-          : null,
-      last_working_date: json['last_working_date'] != null
-          ? DateTime.parse(json['last_working_date'] as String)
-          : null,
-      availability: json['availability'],
-      appointment_letter: json['appointment_letter'] as String?,
-      salary_slip: json['salary_slip'] as String?,
-      experience_lettter: json['experience_lettter'] as String?,
-      skills_exp: List<String>.from(json['skills_exp'] ?? []),
-      description: json['description'],
-      emptype: json['emptype'],
-      increment_letter: json['increment_letter'],
-      isCurrent: json['isCurrent'],
-      offer_letter: json['offer_letter'],
-      shortname: json['shortname'],
-      icon:json['icon']
-    );
+        id: json['id'] as int?,
+        userId: json['userId'],
+        job_title: json['job_title'] as String?,
+        company_name: json['company_name'] as String?,
+        company_location: json['company_location'] as String?,
+        work_type: json['work_type'] as String?,
+        ismonthly: json['ismonthly'] as int?,
+        salary: json['salary'] as String?,
+        joining_date: json['joining_date'] != null
+            ? DateTime.parse(json['joining_date'] as String)
+            : null,
+        last_working_date: json['last_working_date'] != null
+            ? DateTime.parse(json['last_working_date'] as String)
+            : null,
+        availability: json['availability'],
+        appointment_letter: json['appointment_letter'] as String?,
+        salary_slip: json['salary_slip'] as String?,
+        experience_lettter: json['experience_lettter'] as String?,
+        skills_exp: List<String>.from(json['skills_exp'] ?? []),
+        description: json['description'],
+        emptype: json['emptype'],
+        increment_letter: json['increment_letter'],
+        isCurrent: json['isCurrent'],
+        offer_letter: json['offer_letter'],
+        shortname: json['shortname'],
+        companyid: json['companyid'] as int?,
+        icon: json['icon']);
   }
 
   Map<String, dynamic> toJson() {
@@ -501,13 +503,14 @@ class Experience with Searchable {
       'offer_letter': offer_letter,
       'isCurrent': isCurrent,
       'shortname': shortname,
-      'icon': icon
+      'icon': icon,
+      'companyid': companyid
     };
   }
 
   @override
   String toString() {
-    return 'Experience(id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location,ismonthly: $ismonthly,  salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip,  experience_lettter: $experience_lettter, skills_exp: $skills_exp,work_type:$work_type,description:$description,emptype:$emptype,increment_letter:$increment_letter,offer_letter:$offer_letter,isCurrent:$isCurrent)';
+    return 'Experience(companyid:$companyid,id: $id, userId: $userId, job_title: $job_title, company_name: $company_name, company_location: $company_location,ismonthly: $ismonthly,  salary: $salary, joining_date: $joining_date, last_working_date: $last_working_date, availability: $availability, appointment_letter: $appointment_letter, salary_slip: $salary_slip,  experience_lettter: $experience_lettter, skills_exp: $skills_exp,work_type:$work_type,description:$description,emptype:$emptype,increment_letter:$increment_letter,offer_letter:$offer_letter,isCurrent:$isCurrent)';
   }
 
   @override

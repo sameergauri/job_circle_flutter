@@ -555,38 +555,36 @@ class _Screen2State extends ConsumerState<Screen2> {
                 backgroundColor: Colors.white,
                 elevation: 0,
                 iconTheme: const IconThemeData(color: Colors.black),
-                title: Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      widget.prevPageModel == null
-                          ? Text(
-                              "Add Education",
-                              style: GoogleFonts.varela(
-                                fontSize: 18.sp,
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            )
-                          : Text(
-                              "Edit Education ",
-                              style: GoogleFonts.varela(
-                                fontSize: 18.sp,
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.w600,
-                              ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    widget.prevPageModel == null
+                        ? Text(
+                            "Add Education",
+                            style: GoogleFonts.varela(
+                              fontSize: 18.sp,
+                              color: Constants.themeBgColor,
+                              fontWeight: FontWeight.w600,
                             ),
-                      Text(
-                        "Adding your education details will help recruiters to know your value as a potential candidate.",
-                        softWrap: true,
-                        maxLines: 3,
-                        style: GoogleFonts.varela(
-                            color: Constants.hintColor,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.normal),
-                      )
-                    ],
-                  ),
+                          )
+                        : Text(
+                            "Edit Education ",
+                            style: GoogleFonts.varela(
+                              fontSize: 18.sp,
+                              color: Constants.themeBgColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                    Text(
+                      "Adding your education details will help recruiters to know your value as a potential candidate.",
+                      softWrap: true,
+                      maxLines: 3,
+                      style: GoogleFonts.varela(
+                          color: Constants.hintColor,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.normal),
+                    )
+                  ],
                 ),
               ),
               extendBodyBehindAppBar: true,
@@ -2369,7 +2367,7 @@ class _Screen2State extends ConsumerState<Screen2> {
             contextIn: context,
             role: "",
             hintText: "Mumbai University",
-            name: "university",
+            name: degreeCode == "D001" ? "board" : "university",
             isCompany: false,
             controller: universityController,
             onChanged: (p0) {

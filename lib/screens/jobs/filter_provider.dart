@@ -61,7 +61,10 @@ class FilterProvider extends ChangeNotifier {
         /*  'Skills': ['Skill1', 'skill2'],
       'process': ['p1', 'p2'], */
       };
-      originalFilterData = Map.from(filterData);
+      if (originalFilterData.keys.isEmpty) {
+        originalFilterData = Map.from(filterData);
+      }
+
       selectedKey = filterData.keys.first;
     });
   }

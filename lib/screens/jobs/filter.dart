@@ -36,6 +36,8 @@ class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
     }
   }
 
+  // yehi hai
+
   final int _tabIndex = 0;
   final _controller = PageController(
     initialPage: 0,
@@ -56,7 +58,7 @@ class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
                 backgroundColor: Colors.white,
                 elevation: 1,
                 leading: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.arrow_back,
                     color: Colors.black,
                   ),
@@ -90,21 +92,23 @@ class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
                     // Left Pane
                     Padding(
                       padding: const EdgeInsets.only(top: 1),
-                      child: Container(
+                      child: SizedBox(
                         width: 135,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: filterPro.filterData.keys
+                          children: filterPro.originalFilterData.keys
                               .map(
                                 (e) => ListTile(
-                                  tileColor: filterPro.selectedKey == e
-                                      ? Colors.white
-                                      : Colors.grey.shade200,
+                                  selected: filterPro.selectedKey == e,
+                                  selectedColor: Colors.white,
+                                  tileColor: Colors.grey.shade200,
                                   onTap: () {
                                     filterPro.selectedKey = e;
                                     _controller.jumpToPage(1);
                                   },
-                                  title: Text(e.toString()),
+                                  title: Text(e.toString(),
+                                      style: GoogleFonts.varela(
+                                          color: Colors.black)),
                                 ),
                               )
                               .toList(),
@@ -123,7 +127,7 @@ class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
                                 child: ListView(
                                   shrinkWrap: true,
                                   physics: const BouncingScrollPhysics(),
-                                  children: (filterPro.filterData[
+                                  children: (filterPro.originalFilterData[
                                               filterPro.selectedKey] ??
                                           [])
                                       .map(
@@ -133,13 +137,13 @@ class _CustomSheetNewState extends ConsumerState<CustomSheetNew> {
                                                   ?.contains(e) ==
                                               true,
                                           onChanged: (v) {
-                                            if (v == true) {
-                                              // User is selecting the checkbox
-                                              filterPro.toggleSelection(e);
-                                            } else {
+                                            // if (v == true) {
+                                            // User is selecting the checkbox
+                                            filterPro.toggleSelection(e);
+                                            /*  } else {
                                               // User is unselecting the checkbox, display all data
                                               filterPro.clearAll();
-                                            }
+                                            } */
                                           },
                                           title: Text(e),
                                         ),

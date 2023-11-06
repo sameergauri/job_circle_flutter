@@ -421,7 +421,9 @@ class _CustomTextFieldComapanyLocationState
                           ? "Add Degree"
                           : widget.university
                               ? "Add University"
-                              : "Add Field of study",
+                              : widget.isCity
+                                  ? "Add City"
+                                  : "Add Field of study",
                       style: GoogleFonts.varela(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -1192,6 +1194,7 @@ class _customCompanyforExperienceState
             controller!.text = suggestion.name.toString();
             widget.getid!(suggestion.id);
             suggestionSelected = true;
+            widget.onSubmit!(suggestion.id);
           });
         },
         noItemsFoundBuilder: (value) {

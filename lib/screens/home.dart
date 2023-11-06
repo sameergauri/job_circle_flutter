@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import 'jobs/jobs.dart';

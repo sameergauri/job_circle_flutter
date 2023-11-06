@@ -1248,56 +1248,59 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   const SizedBox(
                                     width: 7,
                                   ),
-                                  Column(
-                                    //TODO: Temp....
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Wrap(
-                                        spacing:
-                                            4.0, // Adjust the spacing between items as needed
-                                        children: [
-                                          for (int index = 0;
-                                              index <
-                                                  jobDetailsModel
-                                                      .languageknown!.length;
-                                              index++)
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  jobDetailsModel
-                                                      .languageknown![index],
-                                                  style: GoogleFonts.varela(
-                                                    // fontSize: 15,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  index ==
-                                                          jobDetailsModel
-                                                                  .languageknown!
-                                                                  .length -
-                                                              1
-                                                      ? '.'
-                                                      : ",",
-                                                  style: GoogleFonts.varela(
+                                  Expanded(
+                                    child: Column(
+                                      //TODO: Temp....
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing:
+                                              4.0, // Adjust the spacing between items as needed
+                                          children: [
+                                            for (int index = 0;
+                                                index <
+                                                    jobDetailsModel
+                                                        .languageknown!.length;
+                                                index++)
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    jobDetailsModel
+                                                        .languageknown![index],
+                                                    style: GoogleFonts.varela(
+                                                      // fontSize: 15,
                                                       color:
-                                                          Colors.grey.shade700),
-                                                ),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                                      /*  if (jobDetailsModel //TODO: Pending work due to overflow.
-                                              .languageknown!.length >=
-                                          2)
-                                        Text(
-                                          " (Any one)",
-                                          style: GoogleFonts.varela(
-                                              color: Colors.grey.shade700),
-                                        ), */
-                                    ],
+                                                          Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    index ==
+                                                            jobDetailsModel
+                                                                    .languageknown!
+                                                                    .length -
+                                                                1
+                                                        ? '.'
+                                                        : ",",
+                                                    style: GoogleFonts.varela(
+                                                        color: Colors
+                                                            .grey.shade700),
+                                                  ),
+                                                ],
+                                              ),
+                                          ],
+                                        ),
+                                        /*  if (jobDetailsModel //TODO: Pending work due to overflow.
+                                                .languageknown!.length >=
+                                            2)
+                                          Text(
+                                            " (Any one)",
+                                            style: GoogleFonts.varela(
+                                                color: Colors.grey.shade700),
+                                          ), */
+                                      ],
+                                    ),
                                   )
 
                                   /*  SizedBox(  //TODO: old code before 2/11/2023.
@@ -2098,20 +2101,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         Padding(
                             padding: EdgeInsets.only(top: 20.h, right: 20.w),
                             child: Align(
-                              alignment: Alignment.topRight,
-                              child: jobDetailsModel.spoc_profile_pic != null
-                                  ? CircleAvatar(
-                                      radius: 30,
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
-                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
-                                      ),
-                                    )
-                                  : const CircleAvatar(
-                                      radius: 30,
-                                      child: Icon(Icons.error_outline),
-                                    ),
-                            )),
+                                alignment: Alignment.topRight,
+                                child: jobDetailsModel.spoc_profile_pic != null
+                                    ? CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(
+                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                        ),
+                                      )
+                                    : const SizedBox())),
                       ],
                     ),
                     if (usertype == EUserType.businessPartner.value &&
@@ -2911,29 +2910,29 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     ),
                                   if (jobDetailsModel.payoutType == 'CTC Based')
                                     Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         SizedBox(
                                             width: 50.w,
                                             child: const Divider(
                                               thickness: 1.5,
                                             )),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "${(jobDetailsModel.ctcPrecent)} % of Annual CTC",
-                                              style: GoogleFonts.varela(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.indigo),
-                                            ),
-                                            Text(
-                                              "\n(excluding gratuity & Variables)",
-                                              style: GoogleFonts.varela(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.indigo),
-                                            ),
-                                          ],
+                                        Text(
+                                          "${(jobDetailsModel.ctcPrecent)} % of Annual CTC",
+                                          style: GoogleFonts.varela(
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.indigo),
+                                        ),
+                                        Text(
+                                          "(excluding gratuity & variables)",
+                                          style: GoogleFonts.varela(
+                                              fontSize: 8.sp,
+                                              letterSpacing: 1,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.indigo),
                                         ),
                                       ],
                                     ),
@@ -2994,6 +2993,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         style: GoogleFonts.varela(
                                             fontSize: 14.sp,
                                             letterSpacing: 1,
+                                            color: Colors.indigo,
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -3001,7 +3001,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 ],
                               ),
                               Positioned(
-                                bottom: 10.h,
+                                bottom: jobDetailsModel.payoutType == 'Slab'
+                                    ? 10.h
+                                    : 0.h,
                                 right: 0,
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 20),

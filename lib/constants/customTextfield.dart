@@ -99,7 +99,7 @@ class _CustomFormTextFieldMultiSelectLocationState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=10000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -899,7 +899,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
   Future<List<JobTitleModel>> getSuggestions(String pattern) async {
     // 2 min wait
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/company/v1/allClientCompany?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/allClientCompany?pageNumber=1&pageSize=1000000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

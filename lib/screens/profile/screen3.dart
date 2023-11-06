@@ -114,6 +114,7 @@ class _Screen3State extends ConsumerState<Screen3> {
   bool no = false;
   var dt;
   bool apportunities = false;
+  bool Enable = false;
 
   DateTime joiningDateValue = DateTime.now();
   DateTime lastWorkingDateValue = DateTime.now();
@@ -264,6 +265,8 @@ class _Screen3State extends ConsumerState<Screen3> {
       });
     }
   }
+
+  int? companyid;
 
   String? someid;
   void getSuggestionList(String id) {
@@ -420,17 +423,9 @@ class _Screen3State extends ConsumerState<Screen3> {
           apportunities = true;
         });
       }
-
-      if (widget.prevPageModel!.ismonthly == 1 &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          isMonthly = true;
-        });
-      } else {
-        setState(() {
-          isYearly = true;
-        });
-      }
+      setState(() {
+        companyid = widget.prevPageModel!.companyid;
+      });
 
       lastWorkingController.text =
           widget.prevPageModel!.last_working_date != null
@@ -504,6 +499,34 @@ class _Screen3State extends ConsumerState<Screen3> {
       jobTitleController.text = widget.prevPageModel!.job_title ?? '';
       fetchApiskill = widget.prevPageModel!.skills_exp!;
       selectedValuesList = widget.prevPageModel!.skills_exp!;
+
+      if (widget.prevPageModel!.ismonthly == 1 &&
+          widget.prevPageModel!.isCurrent == 1 &&
+          widget.prevPageModel!.salary != "") {
+        setState(() {
+          isMonthly = true;
+        });
+      } else if (widget.prevPageModel!.ismonthly == 0 &&
+          widget.prevPageModel!.isCurrent == 1 &&
+          widget.prevPageModel!.salary != "") {
+        setState(() {
+          isYearly = true;
+        });
+      }
+
+      /*  if (widget.prevPageModel!.ismonthly == 1 &&
+          widget.prevPageModel!.isCurrent == 1 &&
+          (currentSalaryController.text.isNotEmpty ||
+              currentSalaryController != null)) {
+        setState(() {
+          isMonthly = true;
+        });
+      } else {
+        setState(() {
+          isYearly = true;
+        });
+      } */
+
       if (widget.prevPageModel!.isCurrent != 1) {
         currentSalaryController.clear();
         isYearly = false;
@@ -605,39 +628,37 @@ class _Screen3State extends ConsumerState<Screen3> {
             backgroundColor: Colors.white,
             elevation: 0,
             iconTheme: const IconThemeData(color: Constants.themeBgColor),
-            title: Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  widget.prevPageModel == null
-                      ? Text(
-                          "Add Experience",
-                          style: GoogleFonts.varela(
-                            fontSize: 18.sp,
-                            color: Constants.themeBgColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      : Text(
-                          "Edit Experience",
-                          style: GoogleFonts.varela(
-                            fontSize: 18.sp,
-                            color: Constants.themeBgColor,
-                            fontWeight: FontWeight.w600,
-                          ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.prevPageModel == null
+                    ? Text(
+                        "Add Experience",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.w600,
                         ),
-                  Text(
-                    "Adding role and companies you've worked with, help employers to understand your professional background.",
-                    softWrap: true,
-                    maxLines: 2,
-                    style: GoogleFonts.varela(
-                        color: Constants.hintColor,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.normal),
-                  ),
-                  //const Spacer(),
-                ],
-              ),
+                      )
+                    : Text(
+                        "Edit Experience",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                Text(
+                  "Adding role and companies you've worked with, help employers to understand your professional background.",
+                  softWrap: true,
+                  maxLines: 2,
+                  style: GoogleFonts.varela(
+                      color: Constants.hintColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.normal),
+                ),
+                //const Spacer(),
+              ],
             ),
           ),
           extendBodyBehindAppBar: true,
@@ -818,7 +839,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                           title: "Job Title",
                           controller: jobTitleController,
                           onChanged: (p0) {
-                            isEdit1 = true;
+                            //  isEdit1 = true;
                           },
                           contextIn: context,
                           hintText: "Sales Manager",
@@ -872,9 +893,14 @@ class _Screen3State extends ConsumerState<Screen3> {
                         //  focusNode: focusNode,
                         onChanged: (p0) {
                           isEdit2 = true;
+                          isEdit1 = true;
                         },
                         contextIn: context,
-                        //  onSubmit: (p0) {},
+                        onSubmit: (p0) {
+                          setState(() {
+                            companyid = int.tryParse(p0);
+                          });
+                        },
                         hintText: "Aditya birla Health Insurance",
                         // getSuggestions: getSuggestions,
                         onIDSelected: () {}),
@@ -3820,7 +3846,7 @@ class _Screen3State extends ConsumerState<Screen3> {
       salary_slip: alarySlip,
       increment_letter: incrementLetter,
       experience_lettter: experienceLetter,
-
+      companyid: companyid,
       availability: apportunities
           ? imd
               ? "Immediate"

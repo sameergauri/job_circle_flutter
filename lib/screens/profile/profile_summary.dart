@@ -899,8 +899,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                               FontWeight.bold,
                                                         ),
                                                       ),
-                                                      if (data.experiences
-                                                          .every((element) =>
+                                                      if (data.experiences.any(
+                                                          (element) =>
                                                               element
                                                                   .last_working_date ==
                                                               null))
@@ -924,24 +924,22 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                 FontWeight.w400,
                                                           ),
                                                         ), */
-                                                      if ((data.profileSummary.bio ==
+
+                                                      if ((data.profileSummary
+                                                                      .bio ==
                                                                   null ||
                                                               data.profileSummary
                                                                       .bio ==
-                                                                  "" ||
-                                                              data
-                                                                  .profileSummary
-                                                                  .bio!
-                                                                  .isEmpty) ||
-                                                          data.experiences.every(
-                                                                  (element) =>
-                                                                      element
-                                                                          .last_working_date ==
-                                                                      null) &&
-                                                              data.experiences
-                                                                  .isEmpty &&
+                                                                  "") &&
+                                                          (data.experiences.any(
+                                                                      (element) =>
+                                                                          element
+                                                                              .last_working_date !=
+                                                                          null) &&
+                                                                  data.experiences
+                                                                      .isEmpty ||
                                                               data.education
-                                                                  .isEmpty)
+                                                                  .isEmpty))
                                                         InkWell(
                                                           onTap: () {
                                                             sendToBasicInfo(
@@ -962,24 +960,20 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                         .italic),
                                                           ),
                                                         ),
-                                                      if (data.experiences.every((element) =>
-                                                              element
-                                                                      .last_working_date !=
-                                                                  null &&
+                                                      if ((data.profileSummary
+                                                                      .bio !=
+                                                                  null ||
                                                               data.profileSummary
                                                                       .bio !=
-                                                                  null) ||
-                                                          (data.profileSummary
-                                                                      .bio !=
-                                                                  null &&
-                                                              data
-                                                                  .profileSummary
-                                                                  .bio!
-                                                                  .isNotEmpty &&
-                                                              data.education
-                                                                  .isEmpty &&
-                                                              data.experiences
-                                                                  .isEmpty))
+                                                                  "") &&
+                                                          data.experiences.any(
+                                                              (element) =>
+                                                                  element.last_working_date !=
+                                                                  null) &&
+                                                          data.education
+                                                              .isEmpty &&
+                                                          data.experiences
+                                                              .isEmpty)
                                                         Text(
                                                           data.profileSummary
                                                               .bio!,
@@ -1067,18 +1061,21 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                           ),
                                                       ],
                                                     ),
-                                                    if ((data.profileSummary.bio ==
+                                                    if ((data.profileSummary
+                                                                    .bio ==
                                                                 null ||
                                                             data.profileSummary
                                                                     .bio ==
-                                                                "" ||
-                                                            data
-                                                                .profileSummary
-                                                                .bio!
-                                                                .isEmpty) &&
-                                                        data.experiences
-                                                            .isEmpty &&
-                                                        data.education.isEmpty)
+                                                                "") &&
+                                                        ((data.experiences.any(
+                                                                (element) =>
+                                                                    element
+                                                                        .last_working_date !=
+                                                                    null) ||
+                                                            data.experiences
+                                                                .isEmpty ||
+                                                            data.education
+                                                                .isEmpty)))
                                                       InkWell(
                                                         onTap: () {
                                                           sendToBasicInfo(true,
@@ -1100,11 +1097,20 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                           .italic),
                                                         ),
                                                       ),
-                                                    if (data.profileSummary
-                                                                .bio !=
-                                                            null &&
-                                                        data.profileSummary.bio!
-                                                            .isNotEmpty)
+                                                    if ((data.profileSummary
+                                                                    .bio !=
+                                                                null ||
+                                                            data.profileSummary
+                                                                    .bio !=
+                                                                "") &&
+                                                       (data.experiences.any(
+                                                            (element) =>
+                                                                element.last_working_date ==
+                                                                    null &&
+                                                                data.education
+                                                                    .isEmpty &&
+                                                                data.experiences
+                                                                    .isEmpty)))
                                                       Text(
                                                         data.profileSummary
                                                             .bio!,
@@ -1146,11 +1152,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       ),
                                     ),
                                     if (data.profileSummary.cv_link == null ||
-                                        data.profileSummary.skills!.isEmpty ||
-                                        (data.profileSummary.languages !=
-                                                null &&
-                                            data.profileSummary.languages!
-                                                .isEmpty) ||
+                                        (data.profileSummary.skills!.isEmpty &&
+                                            data.experiences.isEmpty) ||
+                                        (data.profileSummary.languages!
+                                            .isEmpty) ||
                                         data.education
                                             .isEmpty /* ||
                                   experienceList.isEmpty */
@@ -1159,7 +1164,26 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                         padding: const EdgeInsets.all(12.0),
                                         child: Container(
                                           width: double.infinity,
-                                          height: 102,
+                                          height:
+                                              data.profileSummary.cv_link ==
+                                                          null ||
+                                                      data.profileSummary
+                                                          .skills!.isEmpty ||
+                                                      (data.profileSummary
+                                                                  .languages !=
+                                                              null &&
+                                                          data
+                                                              .profileSummary
+                                                              .languages!
+                                                              .isEmpty) ||
+                                                      data.education.isEmpty &&
+                                                          data
+                                                              .experiences
+                                                              .first
+                                                              .skills_exp!
+                                                              .isEmpty
+                                                  ? 102
+                                                  : 0,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(15),
@@ -1817,27 +1841,30 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   }
 
   String calculateMonthDifference(DateTime startDate, DateTime endDate) {
-    int yearsDifference = endDate.year - startDate.year;
-    int monthsDifference = endDate.month - startDate.month;
+    int monthsDifference = endDate.year * 12 +
+        endDate.month -
+        (startDate.year * 12 + startDate.month);
 
-    if (yearsDifference == 0 && monthsDifference == 0) {
-      return ""; // Return an empty string when both years and months are 0.
-    } else {
-      String result = "";
-
-      if (yearsDifference > 0) {
-        result += "${yearsDifference}yr";
-      }
-
-      if (monthsDifference > 0) {
-        if (result.isNotEmpty) {
-          result += ", ";
-        }
-        result += "${monthsDifference}mo";
-      }
-
-      return "($result)";
+    if (monthsDifference <= 0) {
+      return ""; // Return an empty string when there is no positive month difference.
     }
+
+    String result = "";
+    int years = monthsDifference ~/ 12;
+    int remainingMonths = monthsDifference % 12;
+
+    if (years > 0) {
+      result += "${years}yr,";
+    }
+
+    if (remainingMonths > 0) {
+      if (result.isNotEmpty) {
+        result += " ";
+      }
+      result += "${remainingMonths}mo";
+    }
+
+    return "($result)";
   }
 
   /* String calculateMonthDifference(DateTime startDate, DateTime endDate) {
@@ -2542,7 +2569,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
 
                       if (index < 12) {
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 5, top: 5),
+                          margin: const EdgeInsets.only(top: 5),
                           padding: const EdgeInsets.symmetric(
                               vertical: 4, horizontal: 8),
                           decoration: BoxDecoration(

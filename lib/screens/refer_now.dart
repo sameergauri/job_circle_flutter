@@ -12,6 +12,7 @@ import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,7 +21,7 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
-final fetchAllApplicantProvider =
+final fetchAllReferalProvider =
     FutureProvider.family<List<Applicant>, int>((ref, id) {
   Future.delayed(const Duration(seconds: 2));
   return _AllReferStatusState.fetchApplicantsByUserId(id);
@@ -77,7 +78,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
 
   static Future<List<Applicant>> fetchApplicantsByUserId(int userId) async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userId&pageNumber=1&pageSize=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userId&pageNumber=1&pageSize=1000000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -96,6 +97,20 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
       print('Error while fetching data: $e');
       return [];
     }
+  }
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  Future<void> _onRefresh() async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      ref.refresh(fetchAllReferalProvider(profilemodel.id!.toInt()));
+      // Update the UI with new data
+    });
+    _refreshController
+        .refreshCompleted(); // Call this to end the refresh animation
   }
 
   String convertSalaryFormat(String input) {
@@ -141,7 +156,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
       return const Center(child: CircularProgressIndicator());
     } else {
       var fetchApplicants = profilemodel.id != null
-          ? ref.watch(fetchAllApplicantProvider(profilemodel.id!.toInt()))
+          ? ref.watch(fetchAllReferalProvider(profilemodel.id!.toInt()))
           : null;
       // Build your widget's UI with the 'profilemodel' data
       // For example:
@@ -201,24 +216,36 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             ),
                           ),
                         ),
-                        body: TabBarView(
-                          children: statuses
-                              .map(
-                                (e) => ListView(
-                                  shrinkWrap: true,
-                                  children: data
-                                      .where(
-                                        (applicant) =>
-                                            applicant.status.toString() == e,
-                                      )
-                                      .map(
-                                        (e) =>
-                                            listViewItem_new(context, e, true),
-                                      )
-                                      .toList(),
-                                ),
-                              )
-                              .toList(),
+                        body: SmartRefresher(
+                          enablePullDown: true,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          child: NestedScrollView(
+                            headerSliverBuilder: (BuildContext context,
+                                bool innerBoxIsScrolled) {
+                              return <Widget>[];
+                            },
+                            body: TabBarView(
+                              children: statuses
+                                  .map(
+                                    (e) => ListView(
+                                      shrinkWrap: true,
+                                      children: data
+                                          .where(
+                                            (applicant) =>
+                                                applicant.status.toString() ==
+                                                e,
+                                          )
+                                          .map(
+                                            (e) => listViewItem_new(
+                                                context, e, true),
+                                          )
+                                          .toList(),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -437,7 +464,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>  HomeScreen()));
+                                builder: (context) => HomeScreen()));
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
