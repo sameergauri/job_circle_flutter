@@ -126,9 +126,11 @@ class _EducationSelectionDialogState
                         await saveEducation(payload);
                         await JobPostApiService.DeletExperience(
                             widget.id, context, "edu");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            customSnackbar(
+                                "Experience Deleted Succesfully.", true));
                         ref.refresh(userDataProvider);
                         Navigator.pop(context);
-                       
                       },
                       child: Container(
                         margin: const EdgeInsets.only(top: 20),
@@ -143,6 +145,56 @@ class _EducationSelectionDialogState
           ],
         ),
       ),
+    );
+  }
+
+  SnackBar customSnackbar(String title, bool error) {
+    return SnackBar(
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Expanded(
+        child: Row(
+          children: [
+            error
+                ? Icon(
+                    Icons.error_outline_outlined,
+                    color: Colors.red,
+                    size: 15.h,
+                  )
+                : Image.asset(
+                    "assets/images/check.png",
+                    color: Constants.themeBgColor,
+                    height: 15.h,
+                  ),
+            /* Icon(
+                    Icons.check,
+                    color: Constants.themeBgColor,
+                    size: 15.h,
+                  ),  */ // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black, // Text color
+                  fontSize: 14.0,
+                  // Text size
+                ),
+                softWrap: true,
+                maxLines: 2,
+              ),
+            ),
+          ],
+        ),
+      ),
+      // duration: const Duration(seconds: 3),
     );
   }
 

@@ -25,7 +25,7 @@ class ProfileModel {
   String? degreeSpc;
   String? dateOfBirth;
   String? userLocation;
-  List<String>? languages;
+  List<dynamic>? languages;
   String? email;
   String? cvUploadedDate;
   String? martialStatus;
@@ -75,46 +75,61 @@ class ProfileModel {
       this.usertype});
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    return ProfileModel(
-        id: json['id'] as int?,
-        firstName: json['first_name'] as String?,
-        middleName: json['middle_name'] as String?,
-        lastName: json['last_name'] as String?,
-        gender: json['gender'] as String?,
-        role: json['role'] as String?,
-        universityId: json['university_id'] as int?,
-        workExperience: json['work_experience'] as String?,
-        reportTo: json['report_to'] as int?,
-        experience: json['experience'] as String?,
-        companyName: json['company_name'] as String?,
-        degreeSpcId: json['degree_spc_id'] as int?,
-        officialEmail: json['official_email'] as String?,
-        education: json['education'] as String?,
-        experienceId: json['experience_id'] as int?,
-        profilePic: json['profile_pic'] as String?,
-        cvLink: json['cv_link'] as String?,
-        educationId: json['education_id'] as int?,
-        mobile: json['mobile'] as int?,
-        partnerRequest: json['partner_request'] as int?,
-        passingYear: json['passing_year']?.toString(),
-        degreeSpc: json['degree_spc'] as String?,
-        dateOfBirth: json['dateofbirth'] as String?,
-        userLocation: json['user_location'] as String?,
-        languages: (json['languages'] != null)
-            ? List<String>.from(jsonDecode(json['languages']))
-            : null,
-        email: json['email'] as String?,
-        cvUploadedDate: json['cv_upladted_date'] as String?,
-        martialStatus: json['martial_status'] as String?,
-        hasExperience: json['has_experience'] as int?,
-        isFav: json['is_fav'] as int?,
-        favId: json['favId'] as int?,
-        userId: json['userId'] as int?,
-        uid: json['uid'] as int?,
-        status: json['status'] as String?,
-        usertype: json['usertype'] as int?);
+    try {
+      List<String>? languagesList;
+      if (json['languages'] is String) {
+        try {
+          languagesList = List<String>.from(jsonDecode(json['languages']));
+        } catch (e) {
+          // Handle JSON decoding error if needed
+        }
+      } else if (json['languages'] is List) {
+        languagesList = List<String>.from(json['languages']);
+      }
+      return ProfileModel(
+          id: json['id'] as int?,
+          firstName: json['first_name'] as String?,
+          middleName: json['middle_name'] as String?,
+          lastName: json['last_name'] as String?,
+          gender: json['gender'] as String?,
+          role: json['role'] as String?,
+          universityId: json['university_id'] as int?,
+          workExperience: json['work_experience'] as String?,
+          reportTo: json['report_to'] as int?,
+          experience: json['experience'] as String?,
+          companyName: json['company_name'] as String?,
+          degreeSpcId: json['degree_spc_id'] as int?,
+          officialEmail: json['official_email'] as String?,
+          education: json['education'] as String?,
+          experienceId: json['experience_id'] as int?,
+          profilePic: json['profile_pic'] as String?,
+          cvLink: json['cv_link'] as String?,
+          educationId: json['education_id'] as int?,
+          mobile: json['mobile'] as int?,
+          partnerRequest: json['partner_request'] as int?,
+          passingYear: json['passing_year']?.toString(),
+          degreeSpc: json['degree_spc'] as String?,
+          dateOfBirth: json['dateofbirth'] as String?,
+          userLocation: json['user_location'] as String?,
+          languages: languagesList,
+          /* (json['languages'] != null)
+              ? List<String>.from(jsonDecode(json['languages']))
+              : null, */
+          email: json['email'] as String?,
+          cvUploadedDate: json['cv_upladted_date'] as String?,
+          martialStatus: json['martial_status'] as String?,
+          hasExperience: json['has_experience'] as int?,
+          isFav: json['is_fav'] as int?,
+          favId: json['favId'] as int?,
+          userId: json['userId'] as int?,
+          uid: json['uid'] as int?,
+          status: json['status'] as String?,
+          usertype: json['usertype'] as int?);
+    } catch (e) {
+      print("Error parsing JSON: $e");
+      return ProfileModel(); // Return a default instance or handle the error accordingly
+    }
   }
-
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
         id: map['id'] as int?,

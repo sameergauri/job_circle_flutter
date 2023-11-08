@@ -8,6 +8,7 @@ import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -323,6 +324,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
         await Utils.setPreference(
             pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
+        ref.refresh(userJobDataProvider);
         ref.refresh(userDataProvider);
         Utils.gotoScreen(context, data, model.mobile);
 

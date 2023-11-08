@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: PageView(
           controller: pageController,
-          children: const [Jobs(), TrackApplication()],
+          children: const [NewJobs(), TrackApplication()],
           onPageChanged: (index) {
             setState(() {
               selectedIndex = index;

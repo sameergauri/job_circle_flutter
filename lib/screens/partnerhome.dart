@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/jobs/jobs.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'jobs/Interview_bay_cc.dart';
@@ -58,7 +58,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          const Jobs(),
+          const NewJobs(),
 
           if (role == "3")
             const InterViewBay()

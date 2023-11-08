@@ -149,9 +149,54 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
     }
   }
 
+  SnackBar customSnackbar(String title, bool error) {
+    return SnackBar(
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Row(
+        children: [
+          error
+              ? Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 15.h,
+                )
+              : Image.asset(
+                  "assets/images/check.png",
+                  color: Constants.themeBgColor,
+                  height: 15.h,
+                ),
+          /* Icon(
+                  Icons.check,
+                  color: Constants.themeBgColor,
+                  size: 15.h,
+                ),  */ // Add an icon if needed
+          const SizedBox(width: 8.0), // Add spacing between icon and text
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black, // Text color
+              fontSize: 14.0, // Text size
+            ),
+          ),
+        ],
+      ),
+      // duration: const Duration(seconds: 3),
+    );
+  }
+
   void save() async {
     if (selectedlist.isEmpty) {
-      showDialog(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(customSnackbar("Add atleast one language.", true));
+      /* showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -187,7 +232,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
             ],
           );
         },
-      );
+      ); */
 
       print("Add atleast one language");
       /* ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -233,8 +278,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       await updateLanguages(jsonData, useID!);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('language saved successfully')),
-      );
+          customSnackbar("Your Language has been updated.", false));
       if (widget.prevPageModel == null) {
         Navigator.pushReplacement(
             context,
@@ -313,7 +357,11 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 5,),
+          padding: EdgeInsets.only(
+            left: 20.w,
+            right: 20.w,
+            top: 5,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

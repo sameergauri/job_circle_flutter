@@ -669,39 +669,41 @@ class _Screen3State extends ConsumerState<Screen3> {
                   onTap: () async {
                     if (jobTitleController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Job title is not optional"));
+                          customSnackbar("Job title is not optional", true));
                     } else if (companyController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Company is not optional"));
+                          customSnackbar("Company is not optional", true));
                     } else if (!yes && !no) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from yes and no"));
+                          "Select any one option from yes and no", true));
                     } else if (!isPartTime &&
                         !isFullTime &&
                         !isContract &&
                         !isIntern) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from emp type."));
+                          "Specify your Employment type.", true));
                     } else if (companyLocationController.text.isEmpty) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(customSnackbar("Enter your location"));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Provide your work city", true));
                     } else if (!isOnsite && !isHybrid && !isWfh) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option form work mode"));
+                          "Specify your Work Mode / Type", true));
                     } else if (fetchApiskill.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Add atleast one skill"));
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Add skills that match your Job responsibilities.",
+                          true));
                     } else if (joiningDataController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Provide your joining dare"));
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Enter your employment Start date", true));
                     } else if (no && lastWorkingController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Provide last working date"));
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Enter your employment End date", true));
                     } else if (currentSalaryController.text.isNotEmpty &&
                         (!isMonthly && !isYearly) &&
                         yes) {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from salry type."));
+                          "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
+                          true));
                     } else {
                       var payload = {
                         "stage": "experience",
@@ -746,37 +748,53 @@ class _Screen3State extends ConsumerState<Screen3> {
     );
   }
 
-  SnackBar customSnackbar(String title) {
+  SnackBar customSnackbar(String title, bool error) {
     return SnackBar(
-      backgroundColor:
-          Colors.transparent, // Set background color to transparent
-      elevation: 0, // Remove shadow
-      content: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16.0), // Add horizontal padding
-        decoration: BoxDecoration(
-          color: Colors.white, // White background
-          borderRadius: BorderRadius.circular(8.0), // Border radius
-        ),
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Expanded(
         child: Row(
           children: [
-            Icon(
-              Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 15.h,
-            ), // Add an icon if needed
+            error
+                ? Icon(
+                    Icons.error_outline_outlined,
+                    color: Colors.red,
+                    size: 15.h,
+                  )
+                : Image.asset(
+                    "assets/images/check.png",
+                    color: Constants.themeBgColor,
+                    height: 15.h,
+                  ),
+            /* Icon(
+                    Icons.check,
+                    color: Constants.themeBgColor,
+                    size: 15.h,
+                  ),  */ // Add an icon if needed
             const SizedBox(width: 8.0), // Add spacing between icon and text
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black, // Text color
-                fontSize: 14.0, // Text size
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black, // Text color
+                  fontSize: 14.0,
+                  // Text size
+                ),
+                softWrap: true,
+                maxLines: 2,
               ),
             ),
           ],
         ),
       ),
-      duration: const Duration(seconds: 3),
+      // duration: const Duration(seconds: 3),
     );
   }
 
@@ -2355,7 +2373,10 @@ class _Screen3State extends ConsumerState<Screen3> {
                                         for (var e in widget.experiencelist!) {
                                           if (newValue == true) {
                                             if (e.last_working_date == null &&
-                                                e.isCurrent == 1) {
+                                                e.isCurrent == 1 &&
+                                                widget.prevPageModel!
+                                                        .company_name !=
+                                                    e.company_name) {
                                               showDialog(
                                                   barrierDismissible: false,
                                                   context: context,
@@ -3530,7 +3551,11 @@ class _Screen3State extends ConsumerState<Screen3> {
                                 widget.prevPageModel!.id!.toInt(),
                                 context,
                                 "exp");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar(
+                                    "Experience Deleted Succesfully.", true));
                             ref.refresh(userDataProvider);
+
                             // Navigator.pop(context);
                           } else {
                             await JobPostApiService.DeletExperience(
@@ -3871,9 +3896,11 @@ class _Screen3State extends ConsumerState<Screen3> {
     await userDataService.saveUserExperience(experience.toJson());
     ref.refresh(userDataProvider);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Form data saved successfully')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+        widget.isEdit!
+            ? "Experience updated Succesfully."
+            : "New Experience added Succesfully.",
+        false));
     /* if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context,

@@ -108,7 +108,49 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
     ref.refresh(userDataProvider);
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Skills saved successfully')),
+        customSnackbar("Your skill set has been updated.", false));
+  }
+
+  SnackBar customSnackbar(String title, bool error) {
+    return SnackBar(
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Row(
+        children: [
+          error
+              ? Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 15.h,
+                )
+              : Image.asset(
+                  "assets/images/check.png",
+                  color: Constants.themeBgColor,
+                  height: 15.h,
+                ),
+          /* Icon(
+                  Icons.check,
+                  color: Constants.themeBgColor,
+                  size: 15.h,
+                ),  */ // Add an icon if needed
+          const SizedBox(width: 8.0), // Add spacing between icon and text
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black, // Text color
+              fontSize: 14.0, // Text size
+            ),
+          ),
+        ],
+      ),
+      // duration: const Duration(seconds: 3),
     );
   }
 

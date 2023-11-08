@@ -516,34 +516,34 @@ class _Screen1State extends ConsumerState<Screen1> {
             if (firstName.text.isEmpty) {
               //final snackBar = customSnackbar();
 
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("First name is compalsory."));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("First name is compulsory.", true));
             } else if (lastName.text.isEmpty) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Last name is compalsory."));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Last name is compulsory.", true));
             } else if (primaryNumber.text.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("Primary number is compalsory."));
+                  customSnackbar("Primary number is compulsory.", true));
             } else if (ismale == false && isfemale == false) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Select Gender."));
+                  .showSnackBar(customSnackbar("Select Gender.", true));
             } else if (dateOfBirth.text.isEmpty) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Select DOB."));
+                  .showSnackBar(customSnackbar("add Date of birth.", true));
             } else if (resideAt != null && resideAt!.isEmpty) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Current Residence Town?"));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Add Current Residence City?", true));
             } else if (secondaryNumber.text.isNotEmpty &&
                 secondaryNumber.text.length < 10 &&
                 !widget.isfirst) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Incorrect alternate number."));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Incorrect alternate contact number.", true));
             } else if (!isEmailValid(emailadr.text) && !widget.isfirst) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Invalid email"));
+                  .showSnackBar(customSnackbar("Invalid E-Mail", true));
             } else if (emailadr.text.isEmpty) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Invalid email"));
+                  .showSnackBar(customSnackbar("Invalid E-Mail", true));
               /*  if (!emailadr.text.contains("@")) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(customSnackbar("Invalid email"));
@@ -627,37 +627,46 @@ class _Screen1State extends ConsumerState<Screen1> {
     );
   }
 
-  SnackBar customSnackbar(String title) {
+  SnackBar customSnackbar(String title, bool error) {
     return SnackBar(
-      backgroundColor:
-          Colors.transparent, // Set background color to transparent
-      elevation: 0, // Remove shadow
-      content: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16.0), // Add horizontal padding
-        decoration: BoxDecoration(
-          color: Colors.white, // White background
-          borderRadius: BorderRadius.circular(8.0), // Border radius
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 15.h,
-            ), // Add an icon if needed
-            const SizedBox(width: 8.0), // Add spacing between icon and text
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black, // Text color
-                fontSize: 14.0, // Text size
-              ),
-            ),
-          ],
-        ),
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
-      duration: const Duration(seconds: 3),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Row(
+        children: [
+          error
+              ? Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 15.h,
+                )
+              : Image.asset(
+                  "assets/images/check.png",
+                  color: Constants.themeBgColor,
+                  height: 15.h,
+                ),
+          /* Icon(
+                  Icons.check,
+                  color: Constants.themeBgColor,
+                  size: 15.h,
+                ),  */ // Add an icon if needed
+          const SizedBox(width: 8.0), // Add spacing between icon and text
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black, // Text color
+              fontSize: 14.0, // Text size
+            ),
+          ),
+        ],
+      ),
+      // duration: const Duration(seconds: 3),
     );
   }
 

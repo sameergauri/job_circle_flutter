@@ -441,37 +441,46 @@ class _Screen2State extends ConsumerState<Screen2> {
   }
  */
 
-  SnackBar customSnackbar(String title) {
+  SnackBar customSnackbar(String title, bool error) {
     return SnackBar(
-      backgroundColor:
-          Colors.transparent, // Set background color to transparent
-      elevation: 0, // Remove shadow
-      content: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16.0), // Add horizontal padding
-        decoration: BoxDecoration(
-          color: Colors.white, // White background
-          borderRadius: BorderRadius.circular(8.0), // Border radius
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 15.h,
-            ), // Add an icon if needed
-            const SizedBox(width: 8.0), // Add spacing between icon and text
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black, // Text color
-                fontSize: 14.0, // Text size
-              ),
-            ),
-          ],
-        ),
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
-      duration: const Duration(seconds: 3),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Row(
+        children: [
+          error
+              ? Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 15.h,
+                )
+              : Image.asset(
+                  "assets/images/check.png",
+                  color: Constants.themeBgColor,
+                  height: 15.h,
+                ),
+          /* Icon(
+                  Icons.check,
+                  color: Constants.themeBgColor,
+                  size: 15.h,
+                ),  */ // Add an icon if needed
+          const SizedBox(width: 8.0), // Add spacing between icon and text
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black, // Text color
+              fontSize: 14.0, // Text size
+            ),
+          ),
+        ],
+      ),
+      // duration: const Duration(seconds: 3),
     );
   }
 
@@ -490,51 +499,76 @@ class _Screen2State extends ConsumerState<Screen2> {
           },
           child: Scaffold(
               bottomNavigationBar: InkWell(
-                onTap: () {
-                  int firstYear = int.parse(firstYearController.text);
-                  int lastYear = degreeCode == "D001"
-                      ? int.parse(firstYearController.text)
-                      : int.parse(passingYearController.text);
-                  if (widget.educationList != null &&
-                      widget.educationList!.isNotEmpty) {
-                    for (Education education in widget.educationList!) {
-                      if (education.degree_spc == degreeController.text &&
-                          widget.prevPageModel == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("The Degree is already added"));
-                        // break;
-                      } else {
-                        if (degreeController.text.isEmpty) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(customSnackbar("Add degree first"));
-                        } else if (universityController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              customSnackbar("Add University first"));
-                        } else if (firstYearController.text.length != 4) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              customSnackbar("Add Proper year in first year"));
-                        } else if (passingYearController.text.length != 4 &&
-                            degreeCode != "D001") {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              customSnackbar("Add Proper year in final year"));
-                        } else if (lastYear <= firstYear &&
-                            degreeCode != "D001") {
-                          ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                              "passing year should be greater than first year"));
+                onTap: degreeController.text.isNotEmpty &&
+                        universityController.text.isNotEmpty &&
+                        fieldOfStudyController.text.isNotEmpty &&
+                        firstYearController.text.isNotEmpty &&
+                        passingYearController.text.isNotEmpty
+                    ? () async {
+                        int firstYear = firstYearController.text.isNotEmpty
+                            ? int.parse(firstYearController.text)
+                            : 0;
+                        int lastYear = degreeCode == "D001"
+                            ? int.parse(firstYearController.text)
+                            : int.parse(passingYearController.text);
+                        if (widget.educationList != null &&
+                            widget.educationList!.isNotEmpty) {
+                          for (Education education in widget.educationList!) {
+                            if (education.degree_spc == degreeController.text &&
+                                widget.prevPageModel == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  customSnackbar(
+                                      "The Degree is already added", true));
+                              // break;
+                            } else {
+                              if (degreeController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    customSnackbar("Add degree first", true));
+                              } else if (universityController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    customSnackbar(
+                                        "Add University first", true));
+                              } else if (firstYearController.text.length != 4) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    customSnackbar(
+                                        "Add Proper year in first year", true));
+                              } else if (passingYearController.text.length !=
+                                      4 &&
+                                  degreeCode != "D001") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    customSnackbar(
+                                        "Add Proper year in final year", true));
+                              } else if (lastYear <= firstYear &&
+                                  degreeCode != "D001") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    customSnackbar(
+                                        "Passing year should be greater than first year",
+                                        true));
+                              } else {
+                                await save();
+                                ref.refresh(userDataProvider);
+                                Navigator.pop(context);
+                              }
+                            }
+                          }
                         } else {
-                          save();
-                        }
+                          await save();
+                          ref.refresh(userDataProvider);
+                          Navigator.pop(context);
+                        } // ignore: curly_braces_in_flow_control_structures
                       }
-                    }
-                  } else {
-                    save();
-                  } // ignore: curly_braces_in_flow_control_structures
-                },
+                    : () {},
                 child: Container(
                   margin: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
                   decoration: BoxDecoration(
-                      color: Constants.themeBgColor,
+                      color: degreeController.text.isNotEmpty &&
+                              universityController.text.isNotEmpty &&
+                              fieldOfStudyController.text.isNotEmpty &&
+                              firstYearController.text.isNotEmpty &&
+                              passingYearController.text.isNotEmpty
+                          ? Constants.themeBgColor
+                          : Constants.maintheme_light_color,
                       borderRadius: BorderRadius.circular(8.r)),
                   width: double.maxFinite,
                   padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -2995,6 +3029,9 @@ class _Screen2State extends ConsumerState<Screen2> {
                                 widget.prevPageModel!.id!.toInt(),
                                 context,
                                 "edu");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            customSnackbar(
+                                "Qualification Deleted Succesfully.", true));
                         ref.refresh(userDataProvider);
                       },
                       child: Text(
@@ -3535,9 +3572,6 @@ class _Screen2State extends ConsumerState<Screen2> {
   bool isLoading = false;
 
   save() async {
-    setState(() {
-      isLoading = true;
-    });
     Education model = Education();
 
     model = Education(
@@ -3571,21 +3605,16 @@ class _Screen2State extends ConsumerState<Screen2> {
 
     // Call the saveUserExperience method on the instance
     await JobPostApiService.postEducation(model.toMap());
-    ref.refresh(userDataProvider);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(customSnackbar("Qualification added Succesfully", false));
+
     // await userDataService.saveUserEducation(model.toMap()); //TODO: Old one.....
     /*  if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else { */
-    Navigator.pop(context);
-    //  }
 
-    setState(() {
-      isLoading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Education saved successfully')),
-    );
+    //  }
   }
 }
 

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class MyCustomDialogForExperience extends ConsumerStatefulWidget {
   final Experience e;
@@ -64,6 +65,56 @@ class _MyCustomDialogForExperienceState
     }
   }
 
+  SnackBar customSnackbar(String title, bool error) {
+    return SnackBar(
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Expanded(
+        child: Row(
+          children: [
+            error
+                ? Icon(
+                    Icons.error_outline_outlined,
+                    color: Colors.red,
+                    size: 15.h,
+                  )
+                : Image.asset(
+                    "assets/images/check.png",
+                    color: Constants.themeBgColor,
+                    height: 15.h,
+                  ),
+            /* Icon(
+                    Icons.check,
+                    color: Constants.themeBgColor,
+                    size: 15.h,
+                  ),  */ // Add an icon if needed
+            const SizedBox(width: 8.0), // Add spacing between icon and text
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black, // Text color
+                  fontSize: 14.0,
+                  // Text size
+                ),
+                softWrap: true,
+                maxLines: 2,
+              ),
+            ),
+          ],
+        ),
+      ),
+      // duration: const Duration(seconds: 3),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -108,7 +159,9 @@ class _MyCustomDialogForExperienceState
                 //   ),
                 // ),
                 child: Image.network(
-                  "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+                  widget.e.icon == null || widget.e == ""
+                      ? "https://cdn-icons-png.flaticon.com/128/2098/2098316.png"
+                      : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.e.icon}",
                   //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
                   fit: BoxFit.contain,
                 ),
@@ -199,7 +252,7 @@ class _MyCustomDialogForExperienceState
                                       left: 6, right: 6, top: 4, bottom: 4),
                                   child: Text(
                                     selectedDate == null
-                                        ? 'Select Date'
+                                        ? 'End Date'
                                         : DateFormat('MMM-yyyy')
                                             .format(selectedDate!),
                                     style: GoogleFonts.varela(
@@ -275,30 +328,30 @@ class _MyCustomDialogForExperienceState
 
                           // Create a new instance of the model and assign the values
                           Experience experience = Experience(
-                            id: widget.e.id,
-                            userId: widget.e.userId,
-                            job_title: widget.e.job_title,
-                            company_name: widget.e.company_name,
-                            isCurrent: 0,
-                            description: widget.e.description,
-                            skills_exp: widget.e.skills_exp,
-                            work_type: widget.e.work_type,
-                            company_location: widget.e.company_location,
-                            emptype: widget.e.emptype,
-                            joining_date: widget.e.joining_date,
-                            last_working_date: selectedDate,
-                            salary: widget.e.salary,
-                            ismonthly: widget.e.ismonthly,
-                            offer_letter: widget.e.offer_letter,
-                            appointment_letter: widget.e.appointment_letter,
-                            salary_slip: widget.e.salary_slip,
-                            increment_letter: widget.e.increment_letter,
-                            experience_lettter: widget.e.experience_lettter,
-
-                            availability: widget.e.availability,
-
-                            // working: working,
-                          );
+                              id: widget.e.id,
+                              userId: widget.e.userId,
+                              job_title: widget.e.job_title,
+                              company_name: widget.e.company_name,
+                              isCurrent: 0,
+                              description: widget.e.description,
+                              skills_exp: widget.e.skills_exp,
+                              work_type: widget.e.work_type,
+                              company_location: widget.e.company_location,
+                              emptype: widget.e.emptype,
+                              joining_date: widget.e.joining_date,
+                              last_working_date: selectedDate,
+                              salary: widget.e.salary,
+                              ismonthly: widget.e.ismonthly,
+                              offer_letter: widget.e.offer_letter,
+                              appointment_letter: widget.e.appointment_letter,
+                              salary_slip: widget.e.salary_slip,
+                              increment_letter: widget.e.increment_letter,
+                              experience_lettter: widget.e.experience_lettter,
+                              icon: widget.e.icon,
+                              availability: widget.e.availability,
+                              companyid: widget.e.companyid
+                              // working: working,
+                              );
 
                           // Create an instance of UserDataService
                           UserDataService userDataService = UserDataService();
@@ -309,15 +362,13 @@ class _MyCustomDialogForExperienceState
                             ref.refresh(userDataProvider);
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'end date of previous company updated successfully')),
-                            );
+                                customSnackbar(
+                                    " last working date for your previous job has been updated.",
+                                    false));
                             Navigator.pop(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Select end date')),
-                            );
+                                customSnackbar("Add End Date.", true));
                           }
                           // Call the saveUserExperience method on the instance
                         },

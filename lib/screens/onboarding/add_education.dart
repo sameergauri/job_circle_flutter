@@ -301,22 +301,28 @@ class _AddEducationState extends State<AddEducation> {
           color: Colors.white, // White background
           borderRadius: BorderRadius.circular(8.0), // Border radius
         ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 15.h,
-            ), // Add an icon if needed
-            const SizedBox(width: 8.0), // Add spacing between icon and text
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black, // Text color
-                fontSize: 14.0, // Text size
+        child: Expanded(
+          child: Row(
+            children: [
+              Icon(
+                Icons.error_outline_outlined,
+                color: Colors.red,
+                size: 15.h,
+              ), // Add an icon if needed
+              const SizedBox(width: 8.0), // Add spacing between icon and text
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.black, // Text color
+                    fontSize: 14.0, // Text size
+                  ),
+                  softWrap: true,
+                  maxLines: 2,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       duration: const Duration(seconds: 3),

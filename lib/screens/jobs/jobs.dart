@@ -30,7 +30,6 @@ import 'package:job_circle/screens/jobs/filter.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/screens/jobs/matching_jobs.dart';
-import 'package:job_circle/screens/onboarding/add_cv.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -979,7 +978,7 @@ class _JobsState extends ConsumerState<Jobs>
               Expanded(
                 child: SizedBox(
                   //margin: const EdgeInsets.symmetric(vertical: 10),
-                  height: 30.h,
+                  height: MediaQuery.of(context).size.height / 26.h,
                   //width: MediaQuery.of(context).size.width / 1.65.w,
                   child: TextField(
                     onChanged: (String q) {
@@ -987,7 +986,7 @@ class _JobsState extends ConsumerState<Jobs>
                       searchAgain();
                     },
                     controller: searchController,
-                    enableInteractiveSelection: false,
+                    //   enableInteractiveSelection: false,
                     // focusNode: ,
                     // will disable paste operation
                     //focusNode: AlwaysDisabledFocusNode(),
@@ -1002,8 +1001,8 @@ class _JobsState extends ConsumerState<Jobs>
                       // prefixIcon: const Icon(Icons.search_outlined),
                       filled: true,
                       contentPadding:
-                          const EdgeInsets.only(left: 14.0, bottom: 5, top: 5),
-                      fillColor: Constants.themeBgColorLight,
+                          const EdgeInsets.only(left: 5, bottom: 5, top: 5),
+                      fillColor: Constants.bgColorWhite,
                       hintText:
                           'Search Jobs by ${searchFields[currentSearchFieldIndex]}',
                       hintStyle: GoogleFonts.varela(
@@ -1012,18 +1011,16 @@ class _JobsState extends ConsumerState<Jobs>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide:
-                            const BorderSide(color: Constants.borderColor),
-                        borderRadius: BorderRadius.circular(12.r),
+                            const BorderSide(color: Constants.themeBgColor),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide:
-                            const BorderSide(color: Constants.borderColor),
-                        borderRadius: BorderRadius.circular(12.r),
+                            const BorderSide(color: Constants.themeBgColor),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                     ),
-                    style: GoogleFonts.varela(
-                      color: const Color.fromARGB(255, 177, 14, 3),
-                    ),
+                    style: GoogleFonts.varela(color: Colors.black),
                   ),
                 ),
               ),
@@ -2866,14 +2863,14 @@ class _JobsState extends ConsumerState<Jobs>
                       visible: usertype == 1,
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
+                          /*  Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AddCv()));
-                          /*  JobPostApiService.postJobApply(
+                                  builder: (context) => const AddCv())); */
+                          JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),
-                              context: context); */
+                              context: context);
                           /*  Navigator.pushNamed(context, ERoute.application.name,
                               arguments: {
                                 "isnew": false,

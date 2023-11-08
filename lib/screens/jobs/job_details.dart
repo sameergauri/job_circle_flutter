@@ -283,6 +283,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        titleTextStyle: GoogleFonts.varela(color: Constants.themeBgColor),
         automaticallyImplyLeading: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,19 +299,19 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
             ),
             Row(
               children: [
-                Image.asset(
+                /* Image.asset(
                   "assets/images/proces.png",
                   height: 12.h,
                   //color: Colors.black45,
                 ),
                 const SizedBox(
                   width: 5,
-                ),
+                ), */
                 Text(
                   jobDetailsModel.process.toString(),
                   style: GoogleFonts.varela(
                     //fontWeight: FontWeight.bold,
-                    fontSize: 16.h,
+                    fontSize: 12.h,
                   ),
                 ),
                 const SizedBox(
@@ -320,7 +321,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   " ||",
                   style: GoogleFonts.varela(
                     // fontWeight: FontWeight.bold,
-                    fontSize: 16.h,
+                    fontSize: 12.h,
                   ),
                 ),
                 const SizedBox(
@@ -330,7 +331,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   jobDetailsModel.naturofwork.toString(),
                   style: GoogleFonts.varela(
                     //  fontWeight: FontWeight.bold,
-                    fontSize: 16.h,
+                    fontSize: 12.h,
                   ),
                 )
               ],
@@ -1131,9 +1132,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Constants.borderColor)),
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -1155,9 +1156,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Constants.borderColor)),
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: Text(
                             "${jobDetailsModel.no_of_vacancy.toString()} Vacancies",
                             style: GoogleFonts.varela(color: Colors.black54),
@@ -1168,9 +1169,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Constants.borderColor)),
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
