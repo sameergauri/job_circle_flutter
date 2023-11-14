@@ -4,15 +4,15 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
 
   static const API_Host =
-      // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      "192.168.1.101:9080";
+      "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
+  //  "192.168.1.101:9080";
 
   // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"; //Local
   // "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090"; // AWS
 
   static const API_Host_one =
-  //    "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-     "192.168.1.101:9080";
+      "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
+  //"192.168.1.101:9080";
 
   // 'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
@@ -41,7 +41,7 @@ class GlobalConstants {
   static const API_Users_v1_activity = "/users/v1/userId/activity";
 
   static const API_Users_v1_validateOTP = "/users/v1/validateOtp";
-  static const  API_Exp_v1 = "/exp/v1";
+  static const API_Exp_v1 = "/exp/v1";
 
   static const API_Edu_v1 = "/edu/v1";
 
