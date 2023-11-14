@@ -417,13 +417,7 @@ class _CustomTextFieldComapanyLocationState
                 child: Row(
                   children: [
                     Text(
-                      widget.degree
-                          ? "Add Degree"
-                          : widget.university
-                              ? "Add University"
-                              : widget.isCity
-                                  ? "Add City"
-                                  : "Add Field of study",
+                      "Add ${widget.labelText}",
                       style: GoogleFonts.varela(fontWeight: FontWeight.w600),
                     ),
                   ],

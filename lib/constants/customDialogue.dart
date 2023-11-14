@@ -289,7 +289,7 @@ class _CustomDialogState extends State<CustomDialog> {
   Widget build(BuildContext context) {
     return FractionallySizedBox(
       alignment: Alignment.topCenter, // Change the alignment as per your need
-      heightFactor: 0.5,
+      //heightFactor: 0.5,
       child: MediaQuery(
         data: MediaQuery.of(context).copyWith(viewInsets: EdgeInsets.zero),
         child: Dialog(
@@ -590,6 +590,7 @@ class _CustomDialogState extends State<CustomDialog> {
                         )
                       : Column(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Add your custom dialog content here
                             Text(

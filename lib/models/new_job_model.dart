@@ -32,6 +32,8 @@ class JobsModel {
   final String? sLocation;
   final int? uid;
   final List<String>? eligibility;
+  final String? payoutType;
+  final int? active;
 
   JobsModel({
     this.id,
@@ -65,6 +67,8 @@ class JobsModel {
     this.sLocation,
     this.uid,
     this.eligibility,
+    this.payoutType,
+    this.active,
   });
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
@@ -100,6 +104,8 @@ class JobsModel {
       userId: json['userId'],
       uid: json['uid'],
       eligibility: _parseSkills(json['eligibility'] ?? []),
+      payoutType: json['payout_type'],
+      active:json['active']
     );
   }
   Map<String, dynamic> toJson() {
@@ -135,6 +141,8 @@ class JobsModel {
       's_location': sLocation,
       'uid': uid,
       'eligibility': eligibility,
+      'payout_type': payoutType,
+      'active': active,
     };
   }
 
@@ -171,6 +179,8 @@ class JobsModel {
       sLocation: map['s_location'],
       uid: map['uid'],
       eligibility: List<String>.from(map['eligibility'] ?? []),
+      payoutType: map['payout_type'],
+      active: map['active'],
     );
   }
 
@@ -207,6 +217,8 @@ class JobsModel {
       's_location': sLocation,
       'uid': uid,
       'eligibility': eligibility,
+      'payout_type': payoutType,
+      'active': active,
     };
   }
 

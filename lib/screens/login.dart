@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/otp.dart';
+import 'package:job_circle/themes/colors.dart';
 
 import '../common/utils.dart';
 import '../service/UserDataService.dart';
@@ -81,14 +84,17 @@ class _LoginState extends State<Login> {
               Container(
                 height: 160.0,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(60),
                       bottomRight: Radius.circular(60)),
-                  color: Theme.of(context).primaryColor,
+                  color:
+                      Colors.white, ////TODO: logo background container color.
                   boxShadow: [
                     BoxShadow(
-                        color: Theme.of(context).primaryColor, spreadRadius: 3),
+                        color: Colors.white,
+                        spreadRadius:
+                            3), //TODO: Border color of ogin page of background container.
                   ],
                 ),
               ),
@@ -377,7 +383,7 @@ class _LoginState extends State<Login> {
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly
             ],
-            decoration: const InputDecoration(
+            /*  decoration: const InputDecoration(
               label: Text("Your mobile number"),
               prefix: Text(
                 "+91 ",
@@ -387,11 +393,49 @@ class _LoginState extends State<Login> {
               ),
               border: OutlineInputBorder(),
               hintText: 'Enter your mobile number',
-            ),
+            ), */
+            style: GoogleFonts.varela(color: Constants.themeBgColor),
+            decoration: InputDecoration(
+                counterText: '',
+                contentPadding: const EdgeInsets.only(
+                    top: 8, bottom: 8, left: 10, right: 10),
+
+                // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                // Icons.workspace_premium
+                // label: const Text("Company Name *"),
+                //border: OutlineInputBorder(),
+                prefix: Text(
+                  "+91 ",
+                  style: GoogleFonts.varela(
+                    color: Constants.themeBgColor,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                ),
+                focusColor: const Color(0xfff729995),
+                enabled: true,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                ),
+                labelText: "Your mobile number",
+                labelStyle: const TextStyle(color: Color(0xfff729995)),
+                hintText: 'Enter your mobile number',
+                hintStyle: GoogleFonts.sourceSansPro(
+                    color: Constants.subtitleclr, fontSize: 15.sp)
+                //  prefixIcon: Icon(Icons.list)
+                ),
           ),
         ),
         const SizedBox(height: 20),
         ThemeButton(
+          radious: 8.r,
           text: "Confirm",
           onPressed: () {
             saveOTP(otpcontroller.text);
@@ -445,7 +489,11 @@ class _LoginState extends State<Login> {
         Utils.setPreference(
             null, ESharedPreferences.user_mobile.name, otpcontroller.text);
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => OTPScreen(no: no,)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                      no: no,
+                    )));
       }
       // Navigator.pushNamedAndRemoveUntil(
       //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);

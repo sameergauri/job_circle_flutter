@@ -485,7 +485,7 @@ class _JobsState extends ConsumerState<Jobs>
                                     : CircleAvatar(
                                         backgroundColor: const Color.fromARGB(
                                             255, 190, 190, 190),
-                                        radius: 43,
+                                        //radius: 43,
                                         onBackgroundImageError: ((error,
                                                 stackTrace) =>
                                             Image.network(

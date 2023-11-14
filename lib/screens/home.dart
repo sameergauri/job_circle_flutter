@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/themes/colors.dart';
 
-import 'jobs/jobs.dart';
+import 'new_jobs/new_jobs_v1.dart';
 // Other imports...
 
 class HomeScreen extends StatefulWidget {
@@ -25,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: PageView(
           controller: pageController,
-          children: const [NewJobs(), TrackApplication()],
+          children: const [NewJobsV1(), TrackApplication()],
           onPageChanged: (index) {
             setState(() {
               selectedIndex = index;

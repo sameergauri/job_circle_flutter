@@ -21,24 +21,7 @@ class JobPostApiService {
       if (response.statusCode == 200) {
         // Successful request
         print('Data posted successfully');
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialog(
-              fetchDataFromApi: () {},
-              isFisrt: false,
-              onClose: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => const PartnerHomeScreen()),
-                    (Route<dynamic> route) => false);
-              },
-              title: "Success",
-              subtitle: "Submitted successfully!",
-            );
-          },
-        );
+       
       } else {
         // Request failed
         print('Error: ${response.statusCode}');
@@ -138,8 +121,8 @@ class JobPostApiService {
                       (route) => false);
                 },
                 isFisrt: false,
-                title: "Job Apply succesfully",
-                subtitle: "Wait our recruiter will connect you shortly");
+                title: "Application Submitted",
+                subtitle: "Recruiter will connect you shortly");
           },
         );
         print(response.body);

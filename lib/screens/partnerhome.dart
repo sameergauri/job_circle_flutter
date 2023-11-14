@@ -5,11 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'jobs/Interview_bay_cc.dart';
 import 'jobs/my_team.dart';
+import 'new_jobs/new_jobs_v1.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
   const PartnerHomeScreen({Key? key}) : super(key: key);
@@ -58,7 +58,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          const NewJobs(),
+          const NewJobsV1(),
 
           if (role == "3")
             const InterViewBay()

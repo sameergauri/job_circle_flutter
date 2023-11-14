@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
@@ -9,7 +10,6 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/interceptors/no_internet.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/service/UserDataService.dart';
-import 'package:job_circle/themes/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -106,23 +106,44 @@ class _SplashScreenState extends State<SplashScreen> {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(60),
                       bottomRight: Radius.circular(60)),
-                  color: Constants.themeBgColor,
+                  color: Colors.white,
                   boxShadow: [
-                    BoxShadow(color: Constants.themeBgColor, spreadRadius: 3),
+                    BoxShadow(color: Colors.white, spreadRadius: 3),
                   ],
                 ),
               ),
               const SizedBox(
                 height: 120,
               ),
-              const Text(
+              RichText(
+                text: TextSpan(
+                    text: "JOB",
+                    style: GoogleFonts.varela(
+                      fontSize: 40,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                    ),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "CIRCLE",
+                        style: GoogleFonts.varela(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          decoration: TextDecoration.none,
+                        ),
+                      )
+                    ]),
+              ),
+              /* Text(
                 "JOB CIRCLE",
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                 ),
-              ),
+              ), */
               Expanded(
                 child: Align(
                   alignment: FractionalOffset.bottomCenter,

@@ -1,52 +1,50 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/models/new_job_model.dart';
-
- // Import your JobsModel class
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
+// Import your JobsModel class
 import 'package:job_circle/themes/colors.dart';
 
 class FilterDialog {
-  List<JobsModel> filteredjobs;
-  List<JobsModel> alljobs;
   Function(List<JobsModel> filteredData) onFilterApplied;
   List<String> storedSelectedOptions = [];
   String storedSelectedCategory = '';
   List<String> storedSelectedColumn = [];
   Function(List<String> selectedOptions, String selectedCategory,
       List<String> selectedColumn) onDialogClosed;
+  final ProfileModel profileModel;
 
-  FilterDialog(
-    this.filteredjobs,
-    this.alljobs,
-    this.onFilterApplied,
-    this.storedSelectedOptions,
-    this.storedSelectedCategory,
-    this.storedSelectedColumn,
-    this.onDialogClosed,
-  );
+  FilterDialog({
+    required this.profileModel,
+    required this.onFilterApplied,
+    required this.storedSelectedOptions,
+    required this.storedSelectedCategory,
+    required this.storedSelectedColumn,
+    required this.onDialogClosed,
+  });
 
   void showFilterDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return _FilterDialogContent(
-          filteredjobs,
-          alljobs,
-          onFilterApplied,
-          storedSelectedOptions,
-          storedSelectedCategory,
-          storedSelectedColumn,
-          onDialogClosed,
+          onFilterApplied: onFilterApplied,
+          storedSelectedOptions: storedSelectedOptions,
+          storedSelectedCategory: storedSelectedCategory,
+          storedSelectedColumn: storedSelectedColumn,
+          onDialogClosed: onDialogClosed,
+          profileModel: profileModel,
         );
       },
     );
   }
 }
 
-class _FilterDialogContent extends StatefulWidget {
-  List<JobsModel> filteredjobs;
-  List<JobsModel> alljobs;
+class _FilterDialogContent extends ConsumerStatefulWidget {
+  final ProfileModel profileModel;
   Function(List<JobsModel> filteredData) onFilterApplied;
   List<String> storedSelectedOptions = [];
   String storedSelectedCategory = '';
@@ -54,21 +52,20 @@ class _FilterDialogContent extends StatefulWidget {
   Function(List<String> selectedOptions, String selectedCategory,
       List<String> selectedColumn) onDialogClosed;
 
-  _FilterDialogContent(
-    this.filteredjobs,
-    this.alljobs,
-    this.onFilterApplied,
-    this.storedSelectedOptions,
-    this.storedSelectedCategory,
-    this.storedSelectedColumn,
-    this.onDialogClosed,
-  );
+  _FilterDialogContent({
+    required this.profileModel,
+    required this.onFilterApplied,
+    required this.storedSelectedOptions,
+    required this.storedSelectedCategory,
+    required this.storedSelectedColumn,
+    required this.onDialogClosed,
+  });
 
   @override
   __FilterDialogContentState createState() => __FilterDialogContentState();
 }
 
-class __FilterDialogContentState extends State<_FilterDialogContent> {
+class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
   late Map<String, List<String>> filterData;
   late Map<String, List<String>> originalFilterData;
   late String selectedKey;
@@ -92,25 +89,29 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
       selectedData[selectedKey] = widget.storedSelectedOptions;
     }
     _controller = PageController(initialPage: 0);
-    showFilterOption();
-    for (var column in widget.storedSelectedColumn) {
-      if (widget.storedSelectedOptions.isNotEmpty) {
-        selectedData[column] = widget.storedSelectedOptions
-            .where((value) => filterData[column]?.contains(value) ?? false)
-            .toList();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      showFilterOption();
+      for (var column in widget.storedSelectedColumn) {
+        if (widget.storedSelectedOptions.isNotEmpty) {
+          selectedData[column] = widget.storedSelectedOptions
+              .where((value) => filterData[column]?.contains(value) ?? false)
+              .toList();
+        }
       }
-    }
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(jobsProvider);
     return Scaffold(
       body: Column(
         children: [
           // App Bar
           AppBar(
-            backgroundColor: Colors.white,
-            elevation: 1,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back,
@@ -122,6 +123,9 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
             ),
             actions: [
               TextButton(
+                style: ButtonStyle(
+                  
+                ),
                 onPressed: () {
                   setState(() {
                     clearAll();
@@ -248,18 +252,19 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
   }
 
   void _applyFilters() {
+    final jobController = ref.watch(jobsProvider);
     bool isCategorySelected = widget.storedSelectedColumn.contains(selectedKey);
     bool isFirstCategory = widget.storedSelectedColumn.isNotEmpty &&
         widget.storedSelectedColumn[0] == selectedKey;
 
     setState(() {
       if (widget.storedSelectedColumn.isNotEmpty) {
-        widget.filteredjobs = widget.alljobs.where((job) {
+        jobController.filteredJobs = jobController.jobs.where((job) {
           return filterData.entries
               .every((entry) => matchesFilter(job, selectedData));
         }).toList();
       } else {
-        widget.filteredjobs = widget.filteredjobs.where((job) {
+        jobController.filteredJobs = jobController.filteredJobs.where((job) {
           return filterData.entries
               .every((entry) => matchesFilter(job, selectedData));
         }).toList();
@@ -269,8 +274,8 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
       widget.storedSelectedCategory = selectedKey;
       widget.storedSelectedColumn = selectedData.keys.toList();
     });
-
-    widget.onFilterApplied(widget.filteredjobs);
+    jobController.applyFilter(widget.profileModel);
+    widget.onFilterApplied(jobController.filteredJobs);
   }
 
   bool matchesFilter(JobsModel job, Map<String, List<String>> selectedData) {
@@ -353,6 +358,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
   }
 
   List<String> getOptionsToShow(String columnName) {
+    final jobController = ref.watch(jobsProvider);
     List<String> options = [];
 
     // Assuming allLeadsData is the full list of leads
@@ -365,21 +371,21 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
 
     // Apply filters based on the current filterValues
     if (widget.storedSelectedColumn.isEmpty) {
-      leadsList = widget.filteredjobs
+      leadsList = jobController.filteredJobs
           .where((element) => _getColumnValue(element, columnName) != null)
           .toList();
     } else {
       // Apply filters based on the current filterValues inside the loop
       for (String appliedColumn in widget.storedSelectedColumn) {
         if (isCategorySelected && isFirstCategory) {
-          leadsList = widget.alljobs
+          leadsList = jobController.jobs
               .where((element) => _getColumnValue(element, columnName) != null)
               .toList();
         } else if (appliedColumn != columnName &&
             widget.storedSelectedColumn.isNotEmpty) {
           List<String>? selectedOptions = widget.storedSelectedOptions;
           if (selectedOptions.isNotEmpty) {
-            leadsList = widget.alljobs.where((lead) {
+            leadsList = jobController.jobs.where((lead) {
               String? value = _getColumnValue(lead, appliedColumn);
               return value != null && selectedOptions.contains(value);
             }).toList();
@@ -521,11 +527,13 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
       return originalFilterData[categoryKey] ?? [];
     }
 
+    final jobController = ref.watch(jobsProvider);
+
     List<String> updatedData = [];
 
     switch (categoryKey) {
       case 'Company':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.process) ||
                 selectedValues.contains(element.natureOfWork) ||
@@ -540,7 +548,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
         break;
 
       case 'Process':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.companyName) ||
                 selectedValues.contains(element.natureOfWork) ||
@@ -555,7 +563,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
         break;
 
       case 'Functional Area':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.companyName) ||
                 selectedValues.contains(element.process) ||
@@ -570,7 +578,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
         break;
 
       case 'Designation':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.companyName) ||
                 selectedValues.contains(element.process) ||
@@ -585,7 +593,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
         break;
 
       case 'Locality':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.companyName) ||
                 selectedValues.contains(element.process) ||
@@ -601,7 +609,7 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
         break;
 
       case 'Shift':
-        updatedData = widget.filteredjobs
+        updatedData = jobController.filteredJobs
             .where((element) =>
                 selectedValues.contains(element.companyName) ||
                 selectedValues.contains(element.process) ||
@@ -620,7 +628,9 @@ class __FilterDialogContentState extends State<_FilterDialogContent> {
   }
 
   void clearAll() {
+    final jobController = ref.watch(jobsProvider);
+    jobController.filteredJobs = jobController.jobs;
     selectedData.clear();
-    widget.onFilterApplied(widget.alljobs);
+    widget.onFilterApplied(jobController.jobs);
   }
 }

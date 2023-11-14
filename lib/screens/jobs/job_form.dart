@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -20,8 +21,12 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
+import 'package:job_circle/models/commercial_model.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+import 'package:job_circle/screens/partnerhome.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/company.dart';
@@ -35,7 +40,7 @@ import '../../models/job_post_model.dart';
 import '../../models/more__details.dart';
 import '../../service/job_post_api_service.dart';
 
-class JobForm extends StatefulWidget {
+class JobForm extends ConsumerStatefulWidget {
   final bool formEdit;
   final String? companyId, natureOfWork, process, jobTitle, companyName;
   const JobForm(
@@ -48,10 +53,10 @@ class JobForm extends StatefulWidget {
       this.process});
 
   @override
-  State<JobForm> createState() => _JobFormState();
+  ConsumerState<JobForm> createState() => _JobFormState();
 }
 
-class _JobFormState extends State<JobForm> {
+class _JobFormState extends ConsumerState<JobForm> {
   TextEditingController company = TextEditingController();
   TextEditingController role = TextEditingController();
   TextEditingController proces = TextEditingController();
@@ -1691,6 +1696,56 @@ class _JobFormState extends State<JobForm> {
     // Perform any other actions with the ID
   }
 
+  Future<void> saveCommercial() async {
+    Commercial commercial = Commercial(
+        companyId: int.tryParse(CompanyID.toString()),
+        process: proces.text,
+        natureOfWork: natureOfWork.text,
+        roleName: role.text,
+        commercialActive: 1);
+    Map<String, dynamic> requestBody = commercial.toJson();
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://${GlobalConstants.API_Host}/commercial/v1'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print("Commercial added");
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+              fetchDataFromApi: () {},
+              isFisrt: false,
+              onClose: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => const PartnerHomeScreen()),
+                    (Route<dynamic> route) => false);
+              },
+              title: "Success",
+              subtitle: "Submitted successfully!",
+            );
+          },
+        );
+      } else {
+        print("Error while posting commercial");
+      }
+    } catch (e) {
+      print('Error saving data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred')),
+      );
+    }
+    // ref.refresh(commercialProvider);
+  }
+
   //isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
   @override
   Widget build(BuildContext context) {
@@ -1721,7 +1776,7 @@ class _JobFormState extends State<JobForm> {
               widget.formEdit
                   ? const SizedBox()
                   : InkWell(
-                      onTap: () {
+                      onTap: () async {
                         if (selectedComunication == "Excellent | Versant") {
                           selectedKeyEligibility.add(
                               "Excellent English written & verbal Communication skills required.");
@@ -1968,7 +2023,9 @@ class _JobFormState extends State<JobForm> {
                             );
 
                             Map<String, dynamic> jsonData = model.toJson();
-                            JobPostApiService.postDataToApi(jsonData, context);
+                            await JobPostApiService.postDataToApi(
+                                jsonData, context);
+                            ref.refresh(userJobDataProvider);
                             /* showDialog(
                               barrierDismissible: false,
                               context: context,
@@ -2022,7 +2079,7 @@ class _JobFormState extends State<JobForm> {
                       ),
                     ),
               InkWell(
-                onTap: () {
+                onTap: () async {
                   if (selectedComunication == "Average") {
                     selectedKeyEligibility.add(
                         "A basic level of English proficiency is expected for communication in this job.");
@@ -2300,7 +2357,10 @@ class _JobFormState extends State<JobForm> {
                     );
 
                     Map<String, dynamic> jsonData = model.toJson();
-                    JobPostApiService.postDataToApi(jsonData, context);
+                    await JobPostApiService.postDataToApi(jsonData, context);
+                    await saveCommercial();
+                    ref.refresh(userJobDataProvider);
+                    ref.refresh(jobsProvider);
 
                     /*  setState(() {
                             isLoading = false;
@@ -6999,25 +7059,20 @@ class _JobFormState extends State<JobForm> {
                     direction: Axis.horizontal,
                     spacing: 5,
                     runSpacing: 5,
-                    children: List.generate(
-                      selectedInterViewRounds != null
-                          ? selectedInterViewRounds.length
-                          : 0,
-                      (index) {
-                        String title = selectedInterViewRounds[index];
-
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 4.h, horizontal: 8.w),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              border:
-                                  Border.all(color: Constants.themeBgColor)),
-                          margin: EdgeInsets.only(right: 6.w, top: 6.h),
-                          child: Text(title),
-                        );
-                      },
-                    ),
+                    children: selectedInterViewRounds != null
+                        ? selectedInterViewRounds.toSet().map((title) {
+                            return Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.h, horizontal: 8.w),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                      color: Constants.themeBgColor)),
+                              margin: EdgeInsets.only(right: 6.w, top: 6.h),
+                              child: Text(title),
+                            );
+                          }).toList()
+                        : [],
                   ),
                   Text(
                     "Interview Rounds",

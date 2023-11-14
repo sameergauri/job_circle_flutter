@@ -23,12 +23,11 @@ import 'package:super_tooltip/super_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
-import '../../models/fav_job_model.dart';
 import 'add_resume.dart';
 import 'matching_jobs.dart';
 
-final favJobProvider = FutureProvider.family<FavJobModel?, int>(
-    (ref, id) => JobSearchService().getFavoriteJob(id));
+/* final favJobProvider = FutureProvider.family<FavJobModel?, int>(
+    (ref, id) => JobSearchService().getFavoriteJob(id)); */
 
 class JobDetails extends ConsumerStatefulWidget {
   int? id;
@@ -278,8 +277,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final favProvider = ref.watch(favJobProvider(widget.id ?? 0));
-    bool isFav = favProvider.value?.isFav ?? false;
+    //final favProvider = ref.watch(favJobProvider(widget.id ?? 0));
+    // bool isFav = favProvider.value?.isFav ?? false;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -787,9 +786,13 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
         ),
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Container(
-          padding: EdgeInsets.only(
-              left: 20, right: 20, top: kToolbarHeight * 1.65.h),
+          margin: EdgeInsets.only(top: AppBar().preferredSize.height * 1.5.h),
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 20,
+          ),
           child: jobDetailsModel.id == null
               ? const Center(
                   child: CircularProgressIndicator(),
@@ -2092,6 +2095,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 Wrap(
                                   children: [
                                     ...jobDetailsModel.interviewrounds!
+                                        .toSet() // Convert to set to remove duplicates
                                         .map((item) => customSkill(item, true))
                                         .toList(),
                                   ],
@@ -2701,14 +2705,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                               Icons.currency_rupee_outlined,
                                               color: Colors.amber,
                                             ),
-                                            Text(
-                                              "${(double.parse(jobDetailsModel.slabAmount![0]) * 0.6).toStringAsFixed(0)} to ${(double.parse(jobDetailsModel.slabAmount![jobDetailsModel.slabAmount!.length - 1]) * 0.6).toStringAsFixed(0)} ",
-                                              style: GoogleFonts.varela(
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.indigo,
+                                            if (jobDetailsModel.slabAmount !=
+                                                null)
+                                              Text(
+                                                "${(double.tryParse(jobDetailsModel.slabAmount![0])! * 0.6).toStringAsFixed(0)} to ${(double.tryParse(jobDetailsModel.slabAmount![jobDetailsModel.slabAmount!.length - 4])! * 0.6).toStringAsFixed(0)} ",
+                                                style: GoogleFonts.varela(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.indigo,
+                                                ),
                                               ),
-                                            ),
                                             SuperTooltip(
                                               popupDirection:
                                                   TooltipDirection.up,
@@ -2869,7 +2875,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
-                                                            "${_formatSlabAmount(double.parse(jobDetailsModel.slabAmount?[index] ?? '0.0'))}/-",
+                                                            "${_formatSlabAmount(double.tryParse(jobDetailsModel.slabAmount?[index] ?? '0.0'))}/-",
                                                             style: GoogleFonts
                                                                 .varela(
                                                               color: Constants

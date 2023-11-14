@@ -8,6 +8,7 @@ import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,7 +80,10 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: Column(
@@ -326,6 +330,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
             pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
         ref.refresh(userJobDataProvider);
         ref.refresh(userDataProvider);
+        ref.refresh(profileSummaryProvider);
         Utils.gotoScreen(context, data, model.mobile);
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

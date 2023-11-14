@@ -14,6 +14,8 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
@@ -57,17 +59,6 @@ class UserDataModel {
     throw Exception('Failed to load profile summary data');
   }
 }); */
-final profileSummaryProvider = FutureProvider<ProfileSummaryModel>((ref) async {
-  final summaryResponse = await _ProfileSummaryState.bindProfileSummary();
-  // Simulate fetching profile summary data (replace with actual API call)
-  // await Future.delayed(const Duration(seconds: 2));
-  if (summaryResponse != null) {
-    return ProfileSummaryModel.fromJson(summaryResponse);
-  } else {
-    throw Exception('Failed to load profile summary data');
-  }
-  // return ProfileSummaryModel('John Doe');
-});
 
 final educationProvider = FutureProvider<List<Education>>((ref) async {
   final educationResponse = await _ProfileSummaryState.bindProfileEducation();
@@ -704,19 +695,19 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                           .center,
                                                                   children: [
                                                                     CircleAvatar(
-                                                                      radius:
-                                                                          height /
-                                                                              6.r,
-                                                                      backgroundImage: data.profileSummary.profile_pic !=
-                                                                              null
-                                                                          ? Image.network("https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
-                                                                              .image
-                                                                          : Image
-                                                                              .asset(
-                                                                              "assets/images/add.png",
-                                                                              height: 8.h,
-                                                                            ).image,
-                                                                    ),
+                                                                        radius: height /
+                                                                            6.r,
+                                                                        backgroundImage: data.profileSummary.profile_pic !=
+                                                                                null
+                                                                            ? Image.network(
+                                                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}",
+                                                                                fit: BoxFit.fill,
+                                                                              ).image
+                                                                            : Image.network(
+                                                                                data.profileSummary.gender != "Male" ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&" : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
+                                                                                //  height: 8.h,
+                                                                                fit: BoxFit.fill,
+                                                                              ).image),
                                                                     CircleAvatar(
                                                                       backgroundColor:
                                                                           Constants
@@ -733,7 +724,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                                 }
                                                                               };
                                                                               await save(data, payload);
+                                                                              ref.refresh(profileSummaryProvider);
+
                                                                               ref.refresh(userDataProvider);
+                                                                              ref.refresh(userJobDataProvider);
+
                                                                               //  Navigator.pop(context);
                                                                               if (data != null) {
                                                                                 setState(() {
@@ -799,9 +794,13 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                       Image.network(
                                                               "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
                                                           .image
-                                                      : Image.asset(
-                                                          "assets/images/add.png",
-                                                          height: 8.h,
+                                                      : Image.network(
+                                                          data.profileSummary
+                                                                      .gender !=
+                                                                  "Male"
+                                                              ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&"
+                                                              : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
+                                                          // height: 8.h,
                                                         ).image
                                                   /*  : Image.asset(
                                             "assets/images/man.png",
@@ -837,6 +836,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     icon_data = data;
                                                     ref.refresh(
                                                         userDataProvider);
+                                                    ref.refresh(
+                                                        userJobDataProvider);
+                                                    ref.refresh(
+                                                        profileSummaryProvider);
                                                     //  Navigator.pop(context);
                                                   });
                                                 },
@@ -1046,7 +1049,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                       .center,
                                                               children: [
                                                                 Text(
-                                                                  "${experience.job_title.toString()} from ${experience.company_name.toString()}",
+                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
                                                                   style:
                                                                       GoogleFonts
                                                                           .varela(
@@ -1229,7 +1232,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                     .center,
                                                             children: [
                                                               Text(
-                                                                "${experience.job_title.toString()} from ${experience.company_name.toString()}",
+                                                                "${experience.job_title.toString()} at ${experience.company_name.toString()}",
                                                                 style:
                                                                     GoogleFonts
                                                                         .varela(
@@ -1838,7 +1841,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
         ),
       );
     } else if (shouldShowAddButton) {
-      educationList.sort((a, b) => b.passingYear!.compareTo(a.passingYear!));
+      educationList.sort((a, b) => b.firstYear!.compareTo(a.firstYear!));
       return SizedBox(
         width: double.infinity,
         child: cardCustom(
@@ -1963,7 +1966,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  String calculateMonthDifference(DateTime startDate, DateTime endDate) {
+  /* String calculateMonthDifference(DateTime startDate, DateTime endDate) {  //TODO: previous code to calculate month and year.
     int monthsDifference = endDate.year * 12 +
         endDate.month -
         (startDate.year * 12 + startDate.month);
@@ -1988,6 +1991,42 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
 
     return "($result)";
+  } */
+  String calculateMonthDifference(DateTime startDate, DateTime endDate) {
+    int monthsDifference = endDate.year * 12 +
+        endDate.month -
+        (startDate.year * 12 + startDate.month);
+
+    if (monthsDifference <= 0) {
+      return ""; // Return an empty string when there is no positive month difference.
+    }
+
+    if (monthsDifference < 12) {
+      // If the difference is less than 12 months, return it as months in parentheses.
+      return "(${monthsDifference}mo)";
+    } else {
+      // If the difference is a year or more, break it down into years and remaining months.
+      int years = monthsDifference ~/ 12;
+      int remainingMonths = monthsDifference % 12;
+
+      String result = "";
+
+      if (remainingMonths > 0) {
+        if (result.isNotEmpty) {
+          result += " ";
+        }
+        result += "${remainingMonths}mo";
+      }
+      if (years > 0) {
+        if (remainingMonths > 0) {
+          result += "${years}yr,";
+        } else {
+          result += "${years}yr";
+        }
+      }
+
+      return "($result)";
+    }
   }
 
   /* String calculateMonthDifference(DateTime startDate, DateTime endDate) {

@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -86,10 +88,39 @@ class _AddResumeState extends State<AddResume> {
 
   String? icon_data;
 
+  bool termAndConditionOne = false, termAndConditionTwo = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfffedf6f9),
+      // backgroundColor: const Color(0xfffedf6f9), //TODO: old background color
+      backgroundColor: Colors.white,
+      bottomNavigationBar: InkWell(
+        onTap: () {
+          submit();
+        },
+        child: Container(
+          margin:
+              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
+          decoration: BoxDecoration(
+              color: Constants.themeBgColor,
+              borderRadius: BorderRadius.circular(8.r)),
+          width: double.maxFinite,
+          padding: const EdgeInsets.only(bottom: 8, top: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Submit",
+                style: GoogleFonts.sourceSansPro(
+                    fontSize: 18.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
           // automaticallyImplyLeading: false,
           title: Column(
@@ -536,102 +567,7 @@ class _AddResumeState extends State<AddResume> {
                           )
                         ]),
                   ),
-                  /*  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade400,
-                            offset: const Offset(1, 1),
-                            blurRadius: 1.1,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(8.r),
-                      //border: Border.all(color: Constants.borderColor)
-                    ),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8.r),
-                                  topRight: Radius.circular(8.r)),
-                              color: const Color(0xfffb4d8d4),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 10),
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Pursuing For",
-                                  style: GoogleFonts.sourceSansPro(
-                                      fontSize: 20.sp,
-                                      color: const Color(0xfff729995),
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                SizedBox(
-                                  width: 6.w,
-                                ),
-                                Text(
-                                  "(${widget.company_name})",
-                                  style: GoogleFonts.sourceSansPro(
-                                      fontSize: 14.sp,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Wrap(
-                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 10),
-                                margin: const EdgeInsets.only(
-                                    left: 10, bottom: 10, right: 10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    color: const Color(0xfffedf6f9)),
-                                child: Text(widget.process.toString(),
-                                    style: GoogleFonts.sourceSansPro(
-                                        color: const Color(0xfff729995),
-                                        fontSize: 15.sp,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    fresher = false;
-                                    experience = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 10),
-                                  margin: const EdgeInsets.only(
-                                      left: 10, bottom: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      color: const Color(0xfffedf6f9)),
-                                  child: Text(widget.role.toString(),
-                                      style: GoogleFonts.sourceSansPro(
-                                          color: const Color(0xfff729995),
-                                          fontSize: 15.sp,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            ],
-                          )
-                        ]),
-                  ), */
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -639,14 +575,102 @@ class _AddResumeState extends State<AddResume> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           InkWell(
-                            onTap: () async {
-                              var data = await uploadFile(['pdf']);
-                              if (data != null) {
-                                setState(() {
-                                  icon_data = data;
-                                });
-                              }
-                            },
+                            onTap: icon_data == null
+                                ? () async {
+                                    var data = await uploadFile(['pdf'], false);
+                                    if (data != null) {
+                                      setState(() {
+                                        icon_data = data;
+                                      });
+                                    }
+                                  }
+                                : () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Scaffold(
+                                          floatingActionButton: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              InkWell(
+                                                onTap: () async {
+                                                  icon_data = await uploadFile(
+                                                      ['pdf'], true);
+
+                                                  /*  if (data != null) {
+                                                    setState(() {
+                                                      icon_data = data;
+                                                    });
+                                                  } */
+                                                },
+                                                child: Container(
+                                                  margin: EdgeInsets.only(
+                                                      left: 20.w),
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 4.h,
+                                                      horizontal: 8.r),
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.r),
+                                                      border: Border.all(
+                                                          color: Constants
+                                                              .themeBgColor)),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.upload_file,
+                                                        size: 15.h,
+                                                        color: Constants
+                                                            .themeBgColor,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 4.w,
+                                                      ),
+                                                      const Text("Replace"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                          body: Container(
+                                            child: FutureBuilder<PDFDocument>(
+                                              future: PDFDocument.fromURL(
+                                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data"),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.done) {
+                                                  if (snapshot.hasData) {
+                                                    return PDFViewer(
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      panLimit: 1.1,
+                                                      document: snapshot.data!,
+                                                      zoomSteps: 3,
+                                                      showNavigation: false,
+                                                      showPicker: false,
+
+                                                      // numberPickerConfirmWidget: f,
+                                                    );
+                                                  } else {
+                                                    return const Center(
+                                                        child: Text(
+                                                            'Failed to load PDF'));
+                                                  }
+                                                } else {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
                             child: Container(
                               margin: const EdgeInsets.only(top: 20),
                               // width: double.maxFinite,
@@ -660,17 +684,23 @@ class _AddResumeState extends State<AddResume> {
                                   vertical: 4, horizontal: 10),
                               child: Row(
                                 children: [
-                                  Image.asset(
-                                    "assets/images/cv.png",
-                                    height: 15.h,
-                                    color: const Color(0xfff729995),
-                                  ),
+                                  icon_data != null
+                                      ? Icon(
+                                          Icons.visibility_outlined,
+                                          color: Constants.themeBgColor,
+                                          size: 18.h,
+                                        )
+                                      : Image.asset(
+                                          "assets/images/cv.png",
+                                          height: 15.h,
+                                          color: const Color(0xfff729995),
+                                        ),
                                   const SizedBox(
                                     width: 6,
                                   ),
                                   Text(
                                     icon_data != null
-                                        ? "Update Resume"
+                                        ? "View Resume"
                                         : "Add Resume",
                                     style: GoogleFonts.sourceSansPro(
                                         fontSize: 18.sp,
@@ -701,37 +731,248 @@ class _AddResumeState extends State<AddResume> {
                                     fontWeight: FontWeight.w600),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ],
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          submit();
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                              top: 20, bottom: 20, right: 20),
-                          // width: double.maxFinite,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            color: const Color(0xfff60807c),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color:
+                                    // selectedKeyResponsible.contains(item)
+                                    Colors.grey,
+                                width: 1.5,
+                              ),
+                            ),
+                            height: 16,
+                            width: 20,
+                            child: Theme(
+                              data: ThemeData(
+                                unselectedWidgetColor: Colors.transparent,
+                              ),
+                              child: Checkbox(
+                                activeColor: Colors.transparent,
+                                checkColor: Constants.themeBgColor,
+                                visualDensity: VisualDensity.compact,
+                                value: termAndConditionOne,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    if (newValue!) {
+                                      termAndConditionOne = true;
+                                      termAndConditionTwo = false;
+                                    } else {
+                                      termAndConditionOne = false;
+                                    }
+                                  });
+                                  //tify Flutter that the state has changed
+                                },
+                              ),
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 16),
-                          child: Text(
-                            "Submit",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 18.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
+                        ],
                       ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                          child: RichText(
+                              text: TextSpan(
+                                  text:
+                                      "I hereby agree to the 90 days payment clause outlined in the ",
+                                  style: GoogleFonts.varela(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 12.sp,
+                                      color: Colors.black),
+                                  children: <TextSpan>[
+                            TextSpan(
+                              text: "Terms & Conditions.",
+                              style: GoogleFonts.varela(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12.sp,
+                                  color: Colors.blue),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Scaffold(
+                                        body: Container(
+                                          child: FutureBuilder<PDFDocument>(
+                                            future: PDFDocument.fromAsset(
+                                                "assets/images/90.pdf"),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                if (snapshot.hasData) {
+                                                  return PDFViewer(
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    panLimit: 1.1,
+                                                    document: snapshot.data!,
+                                                    zoomSteps: 3,
+                                                    showNavigation: false,
+                                                    showPicker: false,
+
+                                                    // numberPickerConfirmWidget: f,
+                                                  );
+                                                } else {
+                                                  return const Center(
+                                                      child: Text(
+                                                          'Failed to load PDF'));
+                                                }
+                                              } else {
+                                                return const Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                  // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
+                                },
+                            )
+                          ])
+                              /* Text(
+                              "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
+                              style: GoogleFonts.varela(
+                                  fontStyle: FontStyle.italic, fontSize: 12.sp),
+                                                    ), */
+                              )),
+                    ],
+                  ),
+                  // const Spacer(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color:
+                                    // selectedKeyResponsible.contains(item)
+                                    Colors.grey,
+                                width: 1.5,
+                              ),
+                            ),
+                            height: 16,
+                            width: 20,
+                            child: Theme(
+                              data: ThemeData(
+                                unselectedWidgetColor: Colors.transparent,
+                              ),
+                              child: Checkbox(
+                                activeColor: Colors.transparent,
+                                checkColor: Constants.themeBgColor,
+                                visualDensity: VisualDensity.compact,
+                                value: termAndConditionTwo,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    if (newValue!) {
+                                      termAndConditionTwo = true;
+                                      termAndConditionOne = false;
+                                    } else {
+                                      termAndConditionTwo = false;
+                                    }
+                                  });
+                                  //tify Flutter that the state has changed
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                          child: RichText(
+                              text: TextSpan(
+                                  text:
+                                      "I hereby agree to the 30 days payment clause outlined in the ",
+                                  style: GoogleFonts.varela(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 12.sp,
+                                      color: Colors.black),
+                                  children: <TextSpan>[
+                            TextSpan(
+                              text: "Terms & Conditions.",
+                              style: GoogleFonts.varela(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12.sp,
+                                  color: Colors.blue),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Scaffold(
+                                        body: Container(
+                                          child: FutureBuilder<PDFDocument>(
+                                            future: PDFDocument.fromAsset(
+                                                "assets/images/30.pdf"),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                if (snapshot.hasData) {
+                                                  return PDFViewer(
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    panLimit: 1.1,
+                                                    document: snapshot.data!,
+                                                    zoomSteps: 3,
+                                                    showNavigation: false,
+                                                    showPicker: false,
+
+                                                    // numberPickerConfirmWidget: f,
+                                                  );
+                                                } else {
+                                                  return const Center(
+                                                      child: Text(
+                                                          'Failed to load PDF'));
+                                                }
+                                              } else {
+                                                return const Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                  // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
+                                },
+                            )
+                          ])
+                              /* Text(
+                              "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
+                              style: GoogleFonts.varela(
+                                  fontStyle: FontStyle.italic, fontSize: 12.sp),
+                                                    ), */
+                              )),
                     ],
                   ),
                 ],
@@ -790,7 +1031,7 @@ class _AddResumeState extends State<AddResume> {
     }
   } */
 
-  Future<String?> uploadFile(allowExt) async {
+  Future<String?> uploadFile(allowExt, bool isSecond) async {
     Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -811,8 +1052,11 @@ class _AddResumeState extends State<AddResume> {
           print("Filename: $filePath");
 
           // Close the loading dialog when the upload is successful
+          if (isSecond) {
+            //  Navigator.pop(context);
+            Navigator.pop(context);
+          }
           Navigator.pop(context);
-
           return filename;
         } else {
           // Close the loading dialog when there is an error
@@ -1160,6 +1404,18 @@ class _AddResumeState extends State<AddResume> {
                 text2.requestFocus();
               },
               subtitle: "Add resume first");
+        },
+      );
+    } else if (!termAndConditionOne || !termAndConditionTwo) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Agree terms & condition first");
         },
       );
     } else {

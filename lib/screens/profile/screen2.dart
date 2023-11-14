@@ -501,9 +501,9 @@ class _Screen2State extends ConsumerState<Screen2> {
               bottomNavigationBar: InkWell(
                 onTap: degreeController.text.isNotEmpty &&
                         universityController.text.isNotEmpty &&
-                        fieldOfStudyController.text.isNotEmpty &&
-                        firstYearController.text.isNotEmpty &&
-                        passingYearController.text.isNotEmpty
+                        //    fieldOfStudyController.text.isNotEmpty &&
+                        firstYearController.text.isNotEmpty
+                    //passingYearController.text.isNotEmpty
                     ? () async {
                         int firstYear = firstYearController.text.isNotEmpty
                             ? int.parse(firstYearController.text)
@@ -520,41 +520,40 @@ class _Screen2State extends ConsumerState<Screen2> {
                                   customSnackbar(
                                       "The Degree is already added", true));
                               // break;
-                            } else {
-                              if (degreeController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    customSnackbar("Add degree first", true));
-                              } else if (universityController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    customSnackbar(
-                                        "Add University first", true));
-                              } else if (firstYearController.text.length != 4) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    customSnackbar(
-                                        "Add Proper year in first year", true));
-                              } else if (passingYearController.text.length !=
-                                      4 &&
-                                  degreeCode != "D001") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    customSnackbar(
-                                        "Add Proper year in final year", true));
-                              } else if (lastYear <= firstYear &&
-                                  degreeCode != "D001") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    customSnackbar(
-                                        "Passing year should be greater than first year",
-                                        true));
-                              } else {
-                                await save();
-                                ref.refresh(userDataProvider);
-                                Navigator.pop(context);
-                              }
-                            }
+                            } else {}
+                          }
+                          if (degreeController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar("Add degree first", true));
+                          } else if (universityController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar("Add University first", true));
+                          } else if (firstYearController.text.length != 4) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar(
+                                    "Add Proper year in first year", true));
+                          } else if (passingYearController.text.length != 4 &&
+                              degreeCode != "D001") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar(
+                                    "Add Proper year in final year", true));
+                          } else if (lastYear <= firstYear &&
+                              degreeCode != "D001") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar(
+                                    "Passing year should be greater than first year",
+                                    true));
+                          } else {
+                            await save();
+                            ref.refresh(userDataProvider);
+                            Navigator.pop(context);
+                            //   Navigator.pop(context);
                           }
                         } else {
                           await save();
                           ref.refresh(userDataProvider);
                           Navigator.pop(context);
+                          // Navigator.pop(context);
                         } // ignore: curly_braces_in_flow_control_structures
                       }
                     : () {},
@@ -564,9 +563,9 @@ class _Screen2State extends ConsumerState<Screen2> {
                   decoration: BoxDecoration(
                       color: degreeController.text.isNotEmpty &&
                               universityController.text.isNotEmpty &&
-                              fieldOfStudyController.text.isNotEmpty &&
-                              firstYearController.text.isNotEmpty &&
-                              passingYearController.text.isNotEmpty
+                              //   fieldOfStudyController.text.isNotEmpty &&
+                              firstYearController.text.isNotEmpty
+                          //  passingYearController.text.isNotEmpty
                           ? Constants.themeBgColor
                           : Constants.maintheme_light_color,
                       borderRadius: BorderRadius.circular(8.r)),

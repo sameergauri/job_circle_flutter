@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,7 @@ import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -2594,6 +2595,8 @@ class _Screen1State extends ConsumerState<Screen1> {
       context,
     );
     ref.refresh(userDataProvider);
+    ref.refresh(userJobDataProvider);
+    ref.refresh(profileSummaryProvider);
 
     Utils.setCacheData('firstName', firstName.text);
   }

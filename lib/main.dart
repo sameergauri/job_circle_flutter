@@ -14,6 +14,7 @@ void main() {
     FlutterError.dumpErrorToConsole(details, forceReport: true);
   }; */
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

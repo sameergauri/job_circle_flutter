@@ -220,6 +220,40 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                           enablePullDown: true,
                           controller: _refreshController,
                           onRefresh: _onRefresh,
+                          child: ListView.builder(
+                            itemCount: statuses.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final filteredData = data
+                                  .where((applicant) =>
+                                      applicant.status.toString() ==
+                                      statuses[index])
+                                  .toList();
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Add a header or any other UI element if needed
+                                  // Text(statuses[index]),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: filteredData.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return listViewItem_new(
+                                          context, filteredData[index], true);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+
+                        /* body: SmartRefresher( //TODO: old code without scrolling.
+                          enablePullDown: true,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
                           child: NestedScrollView(
                               headerSliverBuilder: (BuildContext context,
                                   bool innerBoxIsScrolled) {
@@ -248,7 +282,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                   );
                                 }).toList(),
                               )),
-                        ),
+                        ), */
                       ),
                     );
                   } else {
