@@ -739,242 +739,250 @@ class _AddResumeState extends State<AddResume> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color:
-                                    // selectedKeyResponsible.contains(item)
-                                    Colors.grey,
-                                width: 1.5,
+                  if (widget.isRefer)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      // selectedKeyResponsible.contains(item)
+                                      Colors.grey,
+                                  width: 1.5,
+                                ),
+                              ),
+                              height: 16,
+                              width: 20,
+                              child: Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.transparent,
+                                ),
+                                child: Checkbox(
+                                  activeColor: Colors.transparent,
+                                  checkColor: Constants.themeBgColor,
+                                  visualDensity: VisualDensity.compact,
+                                  value: termAndConditionOne,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      if (newValue!) {
+                                        termAndConditionOne = true;
+                                        termAndConditionTwo = false;
+                                      } else {
+                                        termAndConditionOne = false;
+                                      }
+                                    });
+                                    //tify Flutter that the state has changed
+                                  },
+                                ),
                               ),
                             ),
-                            height: 16,
-                            width: 20,
-                            child: Theme(
-                              data: ThemeData(
-                                unselectedWidgetColor: Colors.transparent,
-                              ),
-                              child: Checkbox(
-                                activeColor: Colors.transparent,
-                                checkColor: Constants.themeBgColor,
-                                visualDensity: VisualDensity.compact,
-                                value: termAndConditionOne,
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    if (newValue!) {
-                                      termAndConditionOne = true;
-                                      termAndConditionTwo = false;
-                                    } else {
-                                      termAndConditionOne = false;
-                                    }
-                                  });
-                                  //tify Flutter that the state has changed
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                          child: RichText(
-                              text: TextSpan(
-                                  text:
-                                      "I hereby agree to the 90 days payment clause outlined in the ",
+                          ],
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        if (widget.isRefer)
+                          Expanded(
+                              child: RichText(
+                                  text: TextSpan(
+                                      text:
+                                          "I hereby agree to the 90 days payment clause outlined in the ",
+                                      style: GoogleFonts.varela(
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 12.sp,
+                                          color: Colors.black),
+                                      children: <TextSpan>[
+                                TextSpan(
+                                  text: "Terms & Conditions.",
                                   style: GoogleFonts.varela(
                                       fontStyle: FontStyle.italic,
                                       fontSize: 12.sp,
-                                      color: Colors.black),
-                                  children: <TextSpan>[
-                            TextSpan(
-                              text: "Terms & Conditions.",
-                              style: GoogleFonts.varela(
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 12.sp,
-                                  color: Colors.blue),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return Scaffold(
-                                        body: Container(
-                                          child: FutureBuilder<PDFDocument>(
-                                            future: PDFDocument.fromAsset(
-                                                "assets/images/90.pdf"),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.done) {
-                                                if (snapshot.hasData) {
-                                                  return PDFViewer(
-                                                    scrollDirection:
-                                                        Axis.vertical,
-                                                    panLimit: 1.1,
-                                                    document: snapshot.data!,
-                                                    zoomSteps: 3,
-                                                    showNavigation: false,
-                                                    showPicker: false,
+                                      color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return Scaffold(
+                                            body: Container(
+                                              child: FutureBuilder<PDFDocument>(
+                                                future: PDFDocument.fromAsset(
+                                                    "assets/images/90.pdf"),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.done) {
+                                                    if (snapshot.hasData) {
+                                                      return PDFViewer(
+                                                        scrollDirection:
+                                                            Axis.vertical,
+                                                        panLimit: 1.1,
+                                                        document:
+                                                            snapshot.data!,
+                                                        zoomSteps: 3,
+                                                        showNavigation: false,
+                                                        showPicker: false,
 
-                                                    // numberPickerConfirmWidget: f,
-                                                  );
-                                                } else {
-                                                  return const Center(
-                                                      child: Text(
-                                                          'Failed to load PDF'));
-                                                }
-                                              } else {
-                                                return const Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              }
-                                            },
-                                          ),
-                                        ),
+                                                        // numberPickerConfirmWidget: f,
+                                                      );
+                                                    } else {
+                                                      return const Center(
+                                                          child: Text(
+                                                              'Failed to load PDF'));
+                                                    }
+                                                  } else {
+                                                    return const Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       );
+                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
                                     },
-                                  );
-                                  // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                },
-                            )
-                          ])
-                              /* Text(
+                                )
+                              ])
+                                  /* Text(
                               "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
                               style: GoogleFonts.varela(
                                   fontStyle: FontStyle.italic, fontSize: 12.sp),
                                                     ), */
-                              )),
-                    ],
-                  ),
+                                  )),
+                      ],
+                    ),
                   // const Spacer(),
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color:
-                                    // selectedKeyResponsible.contains(item)
-                                    Colors.grey,
-                                width: 1.5,
+                  if (widget.isRefer)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      // selectedKeyResponsible.contains(item)
+                                      Colors.grey,
+                                  width: 1.5,
+                                ),
+                              ),
+                              height: 16,
+                              width: 20,
+                              child: Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.transparent,
+                                ),
+                                child: Checkbox(
+                                  activeColor: Colors.transparent,
+                                  checkColor: Constants.themeBgColor,
+                                  visualDensity: VisualDensity.compact,
+                                  value: termAndConditionTwo,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      if (newValue!) {
+                                        termAndConditionTwo = true;
+                                        termAndConditionOne = false;
+                                      } else {
+                                        termAndConditionTwo = false;
+                                      }
+                                    });
+                                    //tify Flutter that the state has changed
+                                  },
+                                ),
                               ),
                             ),
-                            height: 16,
-                            width: 20,
-                            child: Theme(
-                              data: ThemeData(
-                                unselectedWidgetColor: Colors.transparent,
-                              ),
-                              child: Checkbox(
-                                activeColor: Colors.transparent,
-                                checkColor: Constants.themeBgColor,
-                                visualDensity: VisualDensity.compact,
-                                value: termAndConditionTwo,
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    if (newValue!) {
-                                      termAndConditionTwo = true;
-                                      termAndConditionOne = false;
-                                    } else {
-                                      termAndConditionTwo = false;
-                                    }
-                                  });
-                                  //tify Flutter that the state has changed
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                          child: RichText(
-                              text: TextSpan(
-                                  text:
-                                      "I hereby agree to the 30 days payment clause outlined in the ",
+                          ],
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        if (widget.isRefer)
+                          Expanded(
+                              child: RichText(
+                                  text: TextSpan(
+                                      text:
+                                          "I hereby agree to the 30 days payment clause outlined in the ",
+                                      style: GoogleFonts.varela(
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 12.sp,
+                                          color: Colors.black),
+                                      children: <TextSpan>[
+                                TextSpan(
+                                  text: "Terms & Conditions.",
                                   style: GoogleFonts.varela(
                                       fontStyle: FontStyle.italic,
                                       fontSize: 12.sp,
-                                      color: Colors.black),
-                                  children: <TextSpan>[
-                            TextSpan(
-                              text: "Terms & Conditions.",
-                              style: GoogleFonts.varela(
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 12.sp,
-                                  color: Colors.blue),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return Scaffold(
-                                        body: Container(
-                                          child: FutureBuilder<PDFDocument>(
-                                            future: PDFDocument.fromAsset(
-                                                "assets/images/30.pdf"),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.done) {
-                                                if (snapshot.hasData) {
-                                                  return PDFViewer(
-                                                    scrollDirection:
-                                                        Axis.vertical,
-                                                    panLimit: 1.1,
-                                                    document: snapshot.data!,
-                                                    zoomSteps: 3,
-                                                    showNavigation: false,
-                                                    showPicker: false,
+                                      color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return Scaffold(
+                                            body: Container(
+                                              child: FutureBuilder<PDFDocument>(
+                                                future: PDFDocument.fromAsset(
+                                                    "assets/images/30.pdf"),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.done) {
+                                                    if (snapshot.hasData) {
+                                                      return PDFViewer(
+                                                        scrollDirection:
+                                                            Axis.vertical,
+                                                        panLimit: 1.1,
+                                                        document:
+                                                            snapshot.data!,
+                                                        zoomSteps: 3,
+                                                        showNavigation: false,
+                                                        showPicker: false,
 
-                                                    // numberPickerConfirmWidget: f,
-                                                  );
-                                                } else {
-                                                  return const Center(
-                                                      child: Text(
-                                                          'Failed to load PDF'));
-                                                }
-                                              } else {
-                                                return const Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              }
-                                            },
-                                          ),
-                                        ),
+                                                        // numberPickerConfirmWidget: f,
+                                                      );
+                                                    } else {
+                                                      return const Center(
+                                                          child: Text(
+                                                              'Failed to load PDF'));
+                                                    }
+                                                  } else {
+                                                    return const Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       );
+                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
                                     },
-                                  );
-                                  // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                },
-                            )
-                          ])
-                              /* Text(
+                                )
+                              ])
+                                  /* Text(
                               "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
                               style: GoogleFonts.varela(
                                   fontStyle: FontStyle.italic, fontSize: 12.sp),
                                                     ), */
-                              )),
-                    ],
-                  ),
+                                  )),
+                      ],
+                    ),
                 ],
               ),
             ),

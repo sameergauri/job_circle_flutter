@@ -95,7 +95,7 @@ class _TalentPoolState extends State<TalentPool>
 
   Future<List<Applicant>> fetchAllApplicants(int userId) async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -223,7 +223,7 @@ class _TalentPoolState extends State<TalentPool>
               if (item.status_code!.contains("TP")) {
                 // If the condition is met for any item, set the flag to true and break the loop
                 anyItemMeetsCondition = true;
-                break;  
+                break;
               }
             }
 

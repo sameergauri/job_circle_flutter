@@ -70,9 +70,8 @@ class _MyPipeLineState extends State<MyPipeLine>
     );
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-     
-        profilemodel = ProfileSummaryModel.fromJson(dataResult);
-    
+
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
     } else {
       // Handle the case when the API call fails
       setState(() {
@@ -255,6 +254,8 @@ class _MyPipeLineState extends State<MyPipeLine>
                       if (status == 'New') {
                         // Display applicants directly without sub_status tabs
                         return ListView.builder(
+                          physics: const ClampingScrollPhysics(),
+                          controller: ScrollController(),
                           shrinkWrap: true,
                           itemCount: applicants.length,
                           itemBuilder: (context, index) {
@@ -340,31 +341,23 @@ class _MyPipeLineState extends State<MyPipeLine>
                                         key: const PageStorageKey<String>(
                                             "sskk"),
                                         child: ListView.builder(
+                                          physics:
+                                              const ClampingScrollPhysics(),
+                                          controller: ScrollController(),
                                           shrinkWrap: true,
                                           itemCount: filteredApplicants.length,
                                           itemBuilder: (context, index) {
                                             final applicant =
                                                 filteredApplicants[index];
 
-                                            return InkWell(
-                                              child: SingleChildScrollView(
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    listViewItem_new(
-                                                      context,
-                                                      applicant,
-                                                      true,
-                                                      statuses,
-                                                      profilemodel.id != null
-                                                          ? profilemodel.id!
-                                                              .toInt()
-                                                          : 467,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                            return listViewItem_new(
+                                              context,
+                                              applicant,
+                                              true,
+                                              statuses,
+                                              profilemodel.id != null
+                                                  ? profilemodel.id!.toInt()
+                                                  : 467,
                                             );
                                           },
                                         ),
@@ -520,6 +513,8 @@ class _MyPipeLineState extends State<MyPipeLine>
                                     .toList();
 
                                 return ListView.builder(
+                                  physics: const ClampingScrollPhysics(),
+                                  controller: ScrollController(),
                                   shrinkWrap: true,
                                   itemCount: filteredApplicants.length,
                                   itemBuilder: (context, index) {

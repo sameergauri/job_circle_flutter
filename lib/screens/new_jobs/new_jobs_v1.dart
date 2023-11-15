@@ -212,7 +212,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     color: Constants.borderColor,
                     child: Padding(
                       padding: EdgeInsets.only(
-                          left: 20.w, top: kToolbarHeight, bottom: 10.h),
+                          left: 20.w,
+                          top: data.usertype != 1
+                              ? kToolbarHeight
+                              : kToolbarHeight / 2,
+                          bottom: 10.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -228,19 +232,19 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   child: CircleAvatar(
                                       backgroundColor: const Color.fromARGB(
                                           255, 190, 190, 190),
-                                      radius: 43,
+                                      radius: 35,
                                       onBackgroundImageError:
                                           ((error, stackTrace) => Image.network(
                                                 data.gender != "Male"
                                                     ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&"
                                                     : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
-                                                height: 8.h,
+                                                // height: 8.h,
                                               ).image),
                                       backgroundImage: Image.network(
                                         data.gender != "Male"
                                             ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&"
                                             : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
-                                        height: 8.h,
+                                        // height: 8.h,
                                       ).image))
                               : InkWell(
                                   onTap: () async {

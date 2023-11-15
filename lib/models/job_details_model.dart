@@ -57,6 +57,7 @@ class JobDetailsModel {
   List<String>? maxCount;
   List<String>? minCount;
   List<String>? slabAmount;
+  String? partnerPayout;
 
   JobDetailsModel({
     this.id,
@@ -115,6 +116,7 @@ class JobDetailsModel {
     this.maxCount,
     this.minCount,
     this.slabAmount,
+    this.partnerPayout,
   });
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
@@ -205,6 +207,7 @@ class JobDetailsModel {
       minCount: _parseSkills(map['mincount']),
       maxCount: _parseSkills(map['maxcount']),
       slabAmount: _parseSkills(map['slab_amount']),
+      partnerPayout: map['partner_payout_type'],
     );
   }
 

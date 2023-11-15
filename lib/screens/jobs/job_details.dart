@@ -2556,10 +2556,10 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 ),
               ), */
 
-                    if (jobDetailsModel.payoutType != null &&
-                        (jobDetailsModel.payoutType == 'Flat' ||
-                            jobDetailsModel.payoutType == 'Slab' ||
-                            jobDetailsModel.payoutType == 'CTC Based' ||
+                    if (jobDetailsModel.partnerPayout != null &&
+                        (jobDetailsModel.partnerPayout == 'Flat' ||
+                            jobDetailsModel.partnerPayout == 'Slab' ||
+                            jobDetailsModel.partnerPayout == 'CTC Based' ||
                             jobDetailsModel.specialClause != null ||
                             jobDetailsModel.specialClause != ""))
                       Visibility(
@@ -2627,7 +2627,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                       ],
                                     ),
                                   ),
-                                  if (jobDetailsModel.payoutType == 'Flat')
+                                  if (jobDetailsModel.partnerPayout == 'Flat')
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -2683,7 +2683,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         ),
                                       ],
                                     ),
-                                  if (jobDetailsModel.payoutType == 'Slab')
+                                  if (jobDetailsModel.partnerPayout == 'Slab')
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -2915,7 +2915,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         ),
                                       ],
                                     ),
-                                  if (jobDetailsModel.payoutType == 'CTC Based')
+                                  if (jobDetailsModel.partnerPayout ==
+                                      'CTC Based')
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,

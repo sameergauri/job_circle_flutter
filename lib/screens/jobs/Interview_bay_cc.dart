@@ -416,6 +416,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       // Display applicants directly without sub_status tabs
                                       return ListView.builder(
                                         scrollDirection: Axis.vertical,
+                                        physics: const ClampingScrollPhysics(),
+                                        controller: ScrollController(),
                                         shrinkWrap: true,
                                         itemCount: applicants.length,
                                         itemBuilder: (context, index) {
@@ -515,32 +517,30 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                               e.value)
                                                       .toList();
 
-                                              return SingleChildScrollView(
-                                                child: ListView.builder(
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  shrinkWrap: true,
-                                                  itemCount:
-                                                      filteredApplicants.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final applicant =
-                                                        filteredApplicants[
-                                                            index];
+                                              return ListView.builder(
+                                                scrollDirection: Axis.vertical,
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+                                                controller: ScrollController(),
+                                                itemCount:
+                                                    filteredApplicants.length,
+                                                itemBuilder: (context, index) {
+                                                  final applicant =
+                                                      filteredApplicants[index];
 
-                                                    return listViewItem_new(
-                                                      context,
-                                                      applicant,
-                                                      true,
-                                                      statuses,
-                                                      profilemodel.id != null
-                                                          ? profilemodel.id!
-                                                              .toInt()
-                                                          : 467,
-                                                      index,
-                                                    );
-                                                  },
-                                                ),
+                                                  return listViewItem_new(
+                                                    context,
+                                                    applicant,
+                                                    true,
+                                                    statuses,
+                                                    profilemodel.id != null
+                                                        ? profilemodel.id!
+                                                            .toInt()
+                                                        : 467,
+                                                    index,
+                                                  );
+                                                },
                                               );
                                             }).toList(),
                                           ),
@@ -642,6 +642,10 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                       key: const PageStorageKey<
                                                           String>("sskk"),
                                                       child: ListView.builder(
+                                                        physics:
+                                                            const ClampingScrollPhysics(),
+                                                        controller:
+                                                            ScrollController(),
                                                         shrinkWrap: true,
                                                         itemCount:
                                                             filteredApplicants
@@ -671,27 +675,18 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                               }
                                                             },
                                                             child:
-                                                                SingleChildScrollView(
-                                                              child: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                children: [
-                                                                  listViewItem_new(
-                                                                    context,
-                                                                    applicant,
-                                                                    true,
-                                                                    statuses,
-                                                                    profilemodel.id !=
-                                                                            null
-                                                                        ? profilemodel
-                                                                            .id!
-                                                                            .toInt()
-                                                                        : 467,
-                                                                    index,
-                                                                  ),
-                                                                ],
-                                                              ),
+                                                                listViewItem_new(
+                                                              context,
+                                                              applicant,
+                                                              true,
+                                                              statuses,
+                                                              profilemodel.id !=
+                                                                      null
+                                                                  ? profilemodel
+                                                                      .id!
+                                                                      .toInt()
+                                                                  : 467,
+                                                              index,
                                                             ),
                                                           );
                                                         },
@@ -877,153 +872,163 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                           entry.value)
                                                       .toList();
 
-                                              return ListView.builder(
-                                                // scrollDirection: Axis.vertical,
-                                                scrollDirection: Axis.vertical,
-                                                // Use appropriate scroll physics as needed (e.g., BouncingScrollPhysics())
-                                                physics:
-                                                    const BouncingScrollPhysics(),
-                                                shrinkWrap: true,
-                                                itemCount:
-                                                    filteredApplicants.length,
-                                                itemBuilder: (context, index) {
-                                                  final applicant =
-                                                      filteredApplicants[index];
+                                              return Expanded(
+                                                child: ListView.builder(
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  controller:
+                                                      ScrollController(),
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  // scrollDirection: Axis.vertical,
 
-                                                  return listViewItem_new(
-                                                    context,
-                                                    applicant,
-                                                    true,
-                                                    statuses,
-                                                    profilemodel.id != null
-                                                        ? profilemodel.id!
-                                                            .toInt()
-                                                        : 467,
-                                                    index,
-                                                  );
+                                                  // Use appropriate scroll physics as needed (e.g., BouncingScrollPhysics())
+                                                  /* physics:
+                                                      const BouncingScrollPhysics(), */
+                                                  shrinkWrap: true,
+                                                  itemCount:
+                                                      filteredApplicants.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    final applicant =
+                                                        filteredApplicants[
+                                                            index];
 
-                                                  /*  GestureDetector(
-                                                onTap: () {
-                                                  // Handle tap on the parent widget (outside the Row)
-                                                  if (isSearchVisible) {
-                                                  setState(() {
-                                                      isSearchVisible = false;
-                                                      _animationController
-                                                          .reverse(); // Reverse the animation
-                                                      _searchFocusNode
-                                                          .unfocus(); // Clear focus when it becomes invisible
-                                                  });
-                                                  }
-                                                },
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                  Expanded(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          // Handle tap inside the search container (Expanded)
-                                                          _searchFocusNode
-                                                              .requestFocus();
-                                                          /*  if (!isSearchVisible) {
-                                                            setState(() {
-                                                              isSearchVisible =
-                                                                  true;
-                                                              _animationController
-                                                                  .forward(); // Start the animation
-                                                              _searchFocusNode
-                                                                  .requestFocus(); // Request focus on the search field when it becomes visible
-                                                            });
-                                                          } */
-                                                        },
-                                                        child: AnimatedOpacity(
-                                                          duration: const Duration(
-                                                              milliseconds: 500),
-                                                          opacity: isSearchVisible
-                                                              ? 1.0
-                                                              : 0.0, // Fade in/out the search container
-                                                          child: SlideTransition(
-                                                            position: Tween<Offset>(
-                                                              begin: const Offset(
-                                                                  -1,
-                                                                  0), // Start from the left side of the screen
-                                                              end: const Offset(0,
-                                                                  0), // Slide to the center of the screen
-                                                            ).animate(
-                                                                CurvedAnimation(
-                                                              parent:
-                                                                  _animationController, // Use the same animation controller from your code
-                                                              curve: Curves
-                                                                  .easeInOut, // Set the desired animation curve
-                                                            )),
-                                                            child: Container(
-                                                              height: 50.h,
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 8,
-                                                                      right: 12,
-                                                                      top: 10),
-                                                              child: TextField(
-                                                                focusNode:
-                                                                    _searchFocusNode,
-                                                                style: GoogleFonts
-                                                                    .varela(
-                                                                  color:
-                                                                      Colors.black,
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                ),
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  fillColor:
-                                                                      Colors.white,
-                                                                  focusedBorder:
-                                                                      OutlineInputBorder(
-                                                                    borderSide:
-                                                                        const BorderSide(),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                10),
+                                                    return listViewItem_new(
+                                                      context,
+                                                      applicant,
+                                                      true,
+                                                      statuses,
+                                                      profilemodel.id != null
+                                                          ? profilemodel.id!
+                                                              .toInt()
+                                                          : 467,
+                                                      index,
+                                                    );
+
+                                                    /*  GestureDetector(
+                                                  onTap: () {
+                                                    // Handle tap on the parent widget (outside the Row)
+                                                    if (isSearchVisible) {
+                                                    setState(() {
+                                                        isSearchVisible = false;
+                                                        _animationController
+                                                            .reverse(); // Reverse the animation
+                                                        _searchFocusNode
+                                                            .unfocus(); // Clear focus when it becomes invisible
+                                                    });
+                                                    }
+                                                  },
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                    Expanded(
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            // Handle tap inside the search container (Expanded)
+                                                            _searchFocusNode
+                                                                .requestFocus();
+                                                            /*  if (!isSearchVisible) {
+                                                              setState(() {
+                                                                isSearchVisible =
+                                                                    true;
+                                                                _animationController
+                                                                    .forward(); // Start the animation
+                                                                _searchFocusNode
+                                                                    .requestFocus(); // Request focus on the search field when it becomes visible
+                                                              });
+                                                            } */
+                                                          },
+                                                          child: AnimatedOpacity(
+                                                            duration: const Duration(
+                                                                milliseconds: 500),
+                                                            opacity: isSearchVisible
+                                                                ? 1.0
+                                                                : 0.0, // Fade in/out the search container
+                                                            child: SlideTransition(
+                                                              position: Tween<Offset>(
+                                                                begin: const Offset(
+                                                                    -1,
+                                                                    0), // Start from the left side of the screen
+                                                                end: const Offset(0,
+                                                                    0), // Slide to the center of the screen
+                                                              ).animate(
+                                                                  CurvedAnimation(
+                                                                parent:
+                                                                    _animationController, // Use the same animation controller from your code
+                                                                curve: Curves
+                                                                    .easeInOut, // Set the desired animation curve
+                                                              )),
+                                                              child: Container(
+                                                                height: 50.h,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left: 8,
+                                                                        right: 12,
+                                                                        top: 10),
+                                                                child: TextField(
+                                                                  focusNode:
+                                                                      _searchFocusNode,
+                                                                  style: GoogleFonts
+                                                                      .varela(
+                                                                    color:
+                                                                        Colors.black,
+                                                                    fontSize: 16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
                                                                   ),
-                                                                  filled: true,
-                                                                  contentPadding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                    bottom: 10,
-                                                                    left: 5,
-                                                                    top: 10,
-                                                                  ),
-                                                                  border:
-                                                                      OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                10),
-                                                                  ),
-                                                                  hintText: "Rahul",
-                                                                  suffixIcon:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      // Handle tap on the search icon inside the search container
-                                                                      setState(() {
-                                                                        isSearchVisible =
-                                                                            false;
-                                                                        _animationController
-                                                                            .reverse(); // Reverse the animation
-                                                                        _searchFocusNode
-                                                                            .requestFocus(); // Clear focus on the search field when it becomes invisible
-                                                                      });
-                                                                    },
-                                                                    child:
-                                                                        const Icon(
-                                                                      Icons.search,
-                                                                      size: 24,
-                                                                      color: Colors
-                                                                          .black,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    fillColor:
+                                                                        Colors.white,
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          const BorderSide(),
+                                                                      borderRadius:
+                                                                          BorderRadius
+                                                                              .circular(
+                                                                                  10),
+                                                                    ),
+                                                                    filled: true,
+                                                                    contentPadding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                      bottom: 10,
+                                                                      left: 5,
+                                                                      top: 10,
+                                                                    ),
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius
+                                                                              .circular(
+                                                                                  10),
+                                                                    ),
+                                                                    hintText: "Rahul",
+                                                                    suffixIcon:
+                                                                        GestureDetector(
+                                                                      onTap: () {
+                                                                        // Handle tap on the search icon inside the search container
+                                                                        setState(() {
+                                                                          isSearchVisible =
+                                                                              false;
+                                                                          _animationController
+                                                                              .reverse(); // Reverse the animation
+                                                                          _searchFocusNode
+                                                                              .requestFocus(); // Clear focus on the search field when it becomes invisible
+                                                                        });
+                                                                      },
+                                                                      child:
+                                                                          const Icon(
+                                                                        Icons.search,
+                                                                        size: 24,
+                                                                        color: Colors
+                                                                            .black,
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
@@ -1031,38 +1036,38 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                  ),
-                                                  GestureDetector(
-                                                      onTap: () {
-                                                        // Handle tap on the search icon outside the search container
-                                                        if (!isSearchVisible) {
-                                                          setState(() {
-                                                            isSearchVisible = true;
-                                                            _animationController
-                                                                .forward(); // Start the animation
-                                                            _searchFocusNode
-                                                                .requestFocus(); // Request focus on the search field when it becomes visible
-                                                          });
-                                                        }
-                                                      },
-                                                      child: Visibility(
-                                                        visible: !isSearchVisible,
-                                                        child: const Padding(
-                                                          padding: EdgeInsets.only(
-                                                              right: 20, top: 10),
-                                                          child: Icon(
-                                                            Icons.search,
-                                                            size: 24,
-                                                            color: Colors.black,
+                                                    ),
+                                                    GestureDetector(
+                                                        onTap: () {
+                                                          // Handle tap on the search icon outside the search container
+                                                          if (!isSearchVisible) {
+                                                            setState(() {
+                                                              isSearchVisible = true;
+                                                              _animationController
+                                                                  .forward(); // Start the animation
+                                                              _searchFocusNode
+                                                                  .requestFocus(); // Request focus on the search field when it becomes visible
+                                                            });
+                                                          }
+                                                        },
+                                                        child: Visibility(
+                                                          visible: !isSearchVisible,
+                                                          child: const Padding(
+                                                            padding: EdgeInsets.only(
+                                                                right: 20, top: 10),
+                                                            child: Icon(
+                                                              Icons.search,
+                                                              size: 24,
+                                                              color: Colors.black,
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
+                                                    ),
+                                                    ],
                                                   ),
-                                                  ],
+                                                ) */
+                                                  },
                                                 ),
-                                              ) */
-                                                },
                                               );
                                             }).toList(),
                                           ),
