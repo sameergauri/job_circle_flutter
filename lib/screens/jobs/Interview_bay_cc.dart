@@ -38,8 +38,8 @@ import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
 
-final fetchAllApplicantProvider = FutureProvider.family<List<Applicant>, int>(
-    (ref, id) => _InterViewBayState.fetchAllApplicants(id));
+final fetchAllApplicantProvider = FutureProvider<List<Applicant>>(
+    (ref) => _InterViewBayState.fetchAllApplicants());
 
 class InterViewBay extends ConsumerStatefulWidget {
   const InterViewBay({
@@ -106,7 +106,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      ref.refresh(fetchAllApplicantProvider(profilemodel.id!.toInt()));
+      ref.refresh(fetchAllApplicantProvider);
       // Update the UI with new data
     });
     _refreshController
@@ -162,9 +162,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     }
   }
 
-  static Future<List<Applicant>> fetchAllApplicants(int userId) async {
+  static Future<List<Applicant>> fetchAllApplicants() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId&page=1&size=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&userId2=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -298,7 +300,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
   Future<void> fetchTabData() async {
     try {
-      List<Applicant> data = await fetchAllApplicants(profilemodel.id!.toInt());
+      List<Applicant> data = await fetchAllApplicants();
       setState(() {
         applicants = data;
         isLoading = false;
@@ -320,9 +322,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     if (profilemodel == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
-      var fetchApplicants = profilemodel.id != null
-          ? ref.watch(fetchAllApplicantProvider(profilemodel.id!.toInt()))
-          : null;
+      var fetchApplicants =
+          profilemodel.id != null ? ref.watch(fetchAllApplicantProvider) : null;
 
       // Build your widget's UI with the 'profilemodel' data
       // For example:
@@ -1092,7 +1093,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                     );
                   },
                   loading: () {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   },
                 )
               : const SizedBox());
@@ -1340,7 +1341,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
         Map<String, dynamic> jsonData = changeStatusModel.toJson();
         try {
           await JobPostApiService.changeStatus(jsonData, item.id!.toInt());
-          ref.refresh(fetchAllApplicantProvider(profilemodel.id!.toInt()));
+          ref.refresh(fetchAllApplicantProvider);
           setState(() {});
           // First pop to close the dialog
         } catch (e) {
@@ -1680,8 +1681,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       companyId: item.short_list_for!.toInt(),
                                       item: item,
                                       refreshCallback: () {
-                                        ref.refresh(fetchAllApplicantProvider(
-                                            profilemodel.id!.toInt()));
+                                        ref.refresh(fetchAllApplicantProvider);
                                       },
                                     );
                                   },
@@ -2246,8 +2246,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       try {
                                         await JobPostApiService.changeStatus(
                                             jsonData, item.id!.toInt());
-                                        ref.refresh(fetchAllApplicantProvider(
-                                            profilemodel.id!.toInt()));
+                                        ref.refresh(fetchAllApplicantProvider);
                                         setState(() {});
 
                                         // First pop to close the dialog
@@ -2306,8 +2305,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                           await JobPostApiService.changeStatus(
                                               jsonData, item.id!.toInt());
 
-                                          ref.refresh(fetchAllApplicantProvider(
-                                              profilemodel.id!.toInt()));
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
                                           setState(() {});
                                           // First pop to close the dialog
                                         } catch (e) {
@@ -2369,8 +2368,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         await JobPostApiService.changeStatus(
                                             jsonData, item.id!.toInt());
 
-                                        ref.refresh(fetchAllApplicantProvider(
-                                            profilemodel.id!.toInt()));
+                                        ref.refresh(fetchAllApplicantProvider);
                                         setState(() {});
                                         // First pop to close the dialog
                                       } catch (e) {
@@ -2445,8 +2443,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                           await JobPostApiService.changeStatus(
                                               jsonData, item.id!.toInt());
 
-                                          ref.refresh(fetchAllApplicantProvider(
-                                              profilemodel.id!.toInt()));
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
                                           setState(() {});
                                           // First pop to close the dialog
                                         } catch (e) {
@@ -2504,8 +2502,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                           await JobPostApiService.changeStatus(
                                               jsonData, item.id!.toInt());
 
-                                          ref.refresh(fetchAllApplicantProvider(
-                                              profilemodel.id!.toInt()));
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
                                           setState(() {});
                                           // First pop to close the dialog
                                         } catch (e) {
@@ -2562,8 +2560,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       try {
                                         await JobPostApiService.changeStatus(
                                             jsonData, item.id!.toInt());
-                                        ref.refresh(fetchAllApplicantProvider(
-                                            profilemodel.id!.toInt()));
+                                        ref.refresh(fetchAllApplicantProvider);
                                         setState(() {});
                                         // First pop to close the dialog
                                       } catch (e) {
@@ -2906,8 +2903,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       item: item,
                                       id: item.id!.toInt(),
                                       refreshCallback: () {
-                                        ref.refresh(fetchAllApplicantProvider(
-                                            profilemodel.id!.toInt()));
+                                        ref.refresh(fetchAllApplicantProvider);
                                       },
                                     ),
                                   ],
@@ -2927,14 +2923,12 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   return CustomDialogueForSelect(
                                     item: item,
                                     refreshCallback: () {
-                                      ref.refresh(fetchAllApplicantProvider(
-                                          profilemodel.id!.toInt()));
+                                      ref.refresh(fetchAllApplicantProvider);
                                     },
                                   );
                                 },
                               );
-                              ref.refresh(fetchAllApplicantProvider(
-                                  profilemodel.id!.toInt()));
+                              ref.refresh(fetchAllApplicantProvider);
                               /*    Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
@@ -3017,8 +3011,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   try {
                                     await JobPostApiService.changeStatus(
                                         jsonData, item.id!.toInt());
-                                    ref.refresh(fetchAllApplicantProvider(
-                                        profilemodel.id!.toInt()));
+                                    ref.refresh(fetchAllApplicantProvider);
                                     setState(() {});
                                   } catch (e) {
                                     print('Error: $e');
@@ -3330,8 +3323,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   try {
                                     await JobPostApiService.changeStatus(
                                         jsonData, item.id!.toInt());
-                                    ref.refresh(fetchAllApplicantProvider(
-                                        profilemodel.id!.toInt()));
+                                    ref.refresh(fetchAllApplicantProvider);
                                     setState(() {});
                                     // First pop to close the dialog
                                   } catch (e) {
@@ -3483,8 +3475,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   try {
                                     await JobPostApiService.changeStatus(
                                         jsonData, item.id!.toInt());
-                                    ref.refresh(fetchAllApplicantProvider(
-                                        profilemodel.id!.toInt()));
+                                    ref.refresh(fetchAllApplicantProvider);
                                     setState(() {});
                                   } catch (e) {
                                     print('Error: $e');
@@ -3681,8 +3672,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   try {
                                     await JobPostApiService.changeStatus(
                                         jsonData, item.id!.toInt());
-                                    ref.refresh(fetchAllApplicantProvider(
-                                        profilemodel.id!.toInt()));
+                                    ref.refresh(fetchAllApplicantProvider);
                                     setState(() {});
                                   } catch (e) {
                                     print('Error: $e');

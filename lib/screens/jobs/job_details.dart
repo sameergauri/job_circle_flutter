@@ -13,7 +13,9 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -645,12 +647,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   visible: (usertype == EUserType.jobSeeker.value ||
                       usertype == EUserType.businessPartner.value),
                   child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       if (profilemodel.id != null) {
-                        JobPostApiService.postJobApply(
+                        await JobPostApiService.postJobApply(
                             context: context,
                             jobId: int.parse(jobDetailsModel.id.toString()),
                             userId: int.parse(profilemodel.id.toString()));
+                        ref.refresh(fetchAllApplyProvider);
+                        ref.refresh(fetchAllTalentPool);
                       }
                       /*   Navigator.pushNamed(context, ERoute.application.name,
                           arguments: {
@@ -788,7 +792,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Container(
-          margin: EdgeInsets.only(top: AppBar().preferredSize.height * 1.5.h),
+          margin: EdgeInsets.only(top: AppBar().preferredSize.height * 1.7.h),
           padding: const EdgeInsets.only(
             left: 20,
             right: 20,
@@ -2708,7 +2712,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             if (jobDetailsModel.slabAmount !=
                                                 null)
                                               Text(
-                                                "${(double.tryParse(jobDetailsModel.slabAmount![0])! * 0.6).toStringAsFixed(0)} to ${(double.tryParse(jobDetailsModel.slabAmount![jobDetailsModel.slabAmount!.length - 4])! * 0.6).toStringAsFixed(0)} ",
+                                                "${(double.tryParse(jobDetailsModel.slabAmount![0])!).toStringAsFixed(0)} to ${(double.tryParse(jobDetailsModel.slabAmount![jobDetailsModel.slabAmount!.length - 1])!).toStringAsFixed(0)} ",
                                                 style: GoogleFonts.varela(
                                                   fontSize: 18.sp,
                                                   fontWeight: FontWeight.bold,

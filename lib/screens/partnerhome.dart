@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'jobs/Interview_bay_cc.dart';
@@ -59,7 +60,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         index: selectedIndex,
         children: [
           const NewJobsV1(),
-          //const TalentPool(),
+          const TalentPool(),
           if (role == "3")
             const InterViewBay()
           //CC()
@@ -122,7 +123,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Hiring',
       backgroundColor: Colors.blue,
     ));
-    /*  bottomTabItems.add(BottomNavigationBarItem(
+     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/jobs.png",
         height: 15.h,
@@ -133,7 +134,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       ),
       label: 'Talent Pool',
       backgroundColor: Colors.blue,
-    )); */
+    ));
 
     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(

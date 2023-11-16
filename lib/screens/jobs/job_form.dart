@@ -1716,24 +1716,26 @@ class _JobFormState extends ConsumerState<JobForm> {
 
       if (response.statusCode == 200) {
         print("Commercial added");
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialog(
-              fetchDataFromApi: () {},
-              isFisrt: false,
-              onClose: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => const PartnerHomeScreen()),
-                    (Route<dynamic> route) => false);
-              },
-              title: "Success",
-              subtitle: "Submitted successfully!",
-            );
-          },
-        );
+        widget.formEdit
+            ? ""
+            : showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CustomDialog(
+                    fetchDataFromApi: () {},
+                    isFisrt: false,
+                    onClose: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const PartnerHomeScreen()),
+                          (Route<dynamic> route) => false);
+                    },
+                    title: "Success",
+                    subtitle: "Submitted successfully!",
+                  );
+                },
+              );
       } else {
         print("Error while posting commercial");
       }
@@ -2024,7 +2026,7 @@ class _JobFormState extends ConsumerState<JobForm> {
 
                             Map<String, dynamic> jsonData = model.toJson();
                             await JobPostApiService.postDataToApi(
-                                jsonData, context);
+                                jsonData, context, widget.formEdit);
                             ref.refresh(userJobDataProvider);
                             /* showDialog(
                               barrierDismissible: false,
@@ -2357,8 +2359,9 @@ class _JobFormState extends ConsumerState<JobForm> {
                     );
 
                     Map<String, dynamic> jsonData = model.toJson();
-                    await JobPostApiService.postDataToApi(jsonData, context);
-                    await saveCommercial();
+                    await JobPostApiService.postDataToApi(
+                        jsonData, context, widget.formEdit);
+                    widget.formEdit ? () {} : await saveCommercial();
                     ref.refresh(userJobDataProvider);
                     ref.refresh(jobsProvider);
 

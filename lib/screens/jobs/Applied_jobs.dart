@@ -21,10 +21,9 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
-final fetchAllApplyProvider =
-    FutureProvider.family<List<Applicant>, int>((ref, id) {
+final fetchAllApplyProvider = FutureProvider<List<Applicant>>((ref) {
   Future.delayed(const Duration(seconds: 2));
-  return _AppliedJobState.fetchApplicantsByUserId(id);
+  return _AppliedJobState.fetchApplicantsByUserId();
 });
 //enum Issue { no, incorrect, recruiter, other }
 
@@ -61,7 +60,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      ref.refresh(fetchAllApplyProvider(profilemodel.id!.toInt()));
+      ref.refresh(fetchAllApplyProvider);
       // Update the UI with new data
     });
     _refreshController
@@ -90,9 +89,11 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     }
   }
 
-  static Future<List<Applicant>> fetchApplicantsByUserId(int userId) async {
+  static Future<List<Applicant>> fetchApplicantsByUserId() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userId');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -155,9 +156,8 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     if (profilemodel == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
-      var fetchApplicants = profilemodel.id != null
-          ? ref.watch(fetchAllApplyProvider(profilemodel.id!.toInt()))
-          : null;
+      var fetchApplicants =
+          profilemodel.id != null ? ref.watch(fetchAllApplyProvider) : null;
       // Build your widget's UI with the 'profilemodel' data
       // For example:
       return PageStorage(

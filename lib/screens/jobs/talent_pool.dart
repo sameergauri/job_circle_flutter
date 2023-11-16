@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -10,9 +11,9 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
-import 'package:job_circle/screens/jobs/recruitz.dart';
-import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,17 +29,19 @@ import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
+final fetchAllTalentPool = FutureProvider<List<Applicant>>(
+    (ref) => _TalentPoolState.fetchAllApplicants());
 
-class TalentPool extends StatefulWidget {
+class TalentPool extends ConsumerStatefulWidget {
   const TalentPool({
     super.key,
   });
 
   @override
-  State<TalentPool> createState() => _TalentPoolState();
+  ConsumerState<TalentPool> createState() => _TalentPoolState();
 }
 
-class _TalentPoolState extends State<TalentPool>
+class _TalentPoolState extends ConsumerState<TalentPool>
     with SingleTickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -93,9 +96,11 @@ class _TalentPoolState extends State<TalentPool>
     }
   }
 
-  Future<List<Applicant>> fetchAllApplicants(int userId) async {
+  static Future<List<Applicant>> fetchAllApplicants() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userId&userId2=$userId&page=1&size=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&userId2=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -199,14 +204,218 @@ class _TalentPoolState extends State<TalentPool>
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    if (profilemodel == null) {
-      return const Center(child: CircularProgressIndicator());
-    } else {
-      // Build your widget's UI with the 'profilemodel' data
-      // For example:
-      return FutureBuilder<List<Applicant>>(
+
+    var fetchApplicants = ref.watch(fetchAllTalentPool);
+
+    return PageStorage(
+        bucket: PageStorageBucket(),
+        key: const PageStorageKey<String>("futureKey"),
+        child: fetchApplicants != null
+            ? fetchApplicants.when(
+                data: (fetchdata) {
+                  List<Applicant>? dataList = fetchdata;
+
+                  // Define a flag to track if any item meets the condition
+                  bool anyItemMeetsCondition = false;
+
+                  for (Applicant item in dataList) {
+                    if (item.status_code!.contains("TP")) {
+                      // If the condition is met for any item, set the flag to true and break the loop
+                      anyItemMeetsCondition = true;
+                      break;
+                    }
+                  }
+                  if (anyItemMeetsCondition) {
+                    final data = fetchdata;
+                    final statuses = getStatuses(data);
+                    return DefaultTabController(
+                      length: statuses.length,
+                      child: Scaffold(
+                        appBar: PreferredSize(
+                          preferredSize:
+                              Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                          child: AppBar(
+                            elevation: 0,
+                            backgroundColor: Colors.white,
+                            bottom: TabBar(
+                              labelPadding:
+                                  const EdgeInsets.only(left: 5, right: 5),
+                              labelColor: Colors.black,
+                              isScrollable: true,
+                              unselectedLabelColor: Colors.black,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              splashBorderRadius: BorderRadius.circular(8),
+                              indicatorWeight: 7.h,
+                              indicatorPadding: EdgeInsets.only(
+                                  bottom: 8.h, left: 3.w, right: 3.w),
+                              indicator: BoxDecoration(
+                                color: Constants.borderColor,
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: Constants.borderColor),
+                              ),
+                              tabs: statuses
+                                  .map(
+                                    (status) => customTab(
+                                      status, // Show status in the top-level tab bar
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                        body: RefreshIndicator(
+                          onRefresh: () async {
+                            setState(
+                                () {}); // This will trigger the rebuild of the widget tree
+                          },
+                          child: TabBarView(
+                            children: statuses.map((status) {
+                              // Filter applicants based on the current status
+                              final applicants = data
+                                  .where((applicant) =>
+                                      applicant.status.toString() == status)
+                                  .toList();
+
+                              // Check if sub_status is null or not
+                              final subStatuses = applicants
+                                  .map((applicant) =>
+                                      applicant.sub_status?.toString())
+                                  .where((subStatus) => subStatus != null)
+                                  .toSet()
+                                  .toList()
+                                ..sort();
+
+                              if (subStatuses.isEmpty) {
+                                // No second tab bar needed if subStatuses is empty
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: applicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = applicants[index];
+                                    return listViewItem_new(
+                                      context,
+                                      applicant,
+                                      true,
+                                      statuses,
+                                      profilemodel.id != null
+                                          ? profilemodel.id!.toInt()
+                                          : 467,
+                                      index,
+                                    );
+                                  },
+                                );
+                              } else {
+                                // Second tab bar needed for subStatuses
+                                return DefaultTabController(
+                                  length: subStatuses.length,
+                                  child: Scaffold(
+                                    appBar: PreferredSize(
+                                      preferredSize: const Size(
+                                          double.maxFinite, kTextTabBarHeight),
+                                      child: AppBar(
+                                        //elevation: 0,
+                                        backgroundColor: Colors.white,
+                                        bottom: TabBar(
+                                          isScrollable: true,
+                                          indicatorSize:
+                                              TabBarIndicatorSize.tab,
+                                          //indicatorWeight: 2.0,
+                                          unselectedLabelStyle:
+                                              GoogleFonts.varela(),
+                                          labelStyle: GoogleFonts.varela(
+                                              fontWeight: FontWeight.w600),
+                                          unselectedLabelColor: Colors.black,
+                                          labelColor: Constants.subtitleclr,
+                                          indicatorPadding: EdgeInsets.only(
+                                              bottom: 8.h,
+                                              left: 3.w,
+                                              right: 3.w),
+                                          indicator: isSelect
+                                              ? BoxDecoration(
+                                                  color: Constants.borderColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  border: Border.all(
+                                                      color: Constants
+                                                          .borderColor) // Creates border
+                                                  )
+                                              : null,
+                                          indicatorColor: Constants.borderColor,
+                                          /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                          tabs: subStatuses
+                                              .map((subStatus) =>
+                                                  Tab(text: subStatus!))
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
+                                    body: TabBarView(
+                                      children: subStatuses.map((subStatus) {
+                                        // Filter applicants based on the current status and sub_status
+                                        final filteredApplicants = applicants
+                                            .where((applicant) =>
+                                                applicant.sub_status
+                                                    .toString() ==
+                                                subStatus)
+                                            .toList();
+
+                                        return ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                              context,
+                                              applicant,
+                                              true,
+                                              statuses,
+                                              profilemodel.id != null
+                                                  ? profilemodel.id!.toInt()
+                                                  : 467,
+                                              index,
+                                            );
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                );
+                              }
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    );
+                    // Your code to display the data when at least one item meets the condition
+                  } else {
+                    // Display a "no data" message
+                    return const Center(
+                      child: Text("No data to display."),
+                    );
+                  }
+                },
+                error: (error, stackTrace) {
+                  return const Center(
+                    child: Text("Error while fetching the data"),
+                  );
+                },
+                loading: () {
+                  return const Center(child: CircularProgressIndicator());
+                },
+              )
+            : const SizedBox());
+    // Build your widget's UI with the 'profilemodel' data
+    // For example:
+    /*  return FutureBuilder<List<Applicant>>(
         future: profilemodel.id != null
-            ? fetchAllApplicants(profilemodel.id!.toInt())
+            ? fetchAllApplicants()
             : Future.error("Profile model is null"),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -400,9 +609,9 @@ class _TalentPoolState extends State<TalentPool>
           }
           return const Center(child: Text("No Data to display."));
         },
-      );
+      ); */
 
-      /* FutureBuilder<List<Applicant>>(
+    /* FutureBuilder<List<Applicant>>(
         future: fetchAllApplicants(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -515,7 +724,6 @@ class _TalentPoolState extends State<TalentPool>
           return const SizedBox();
         },
       ); */
-    }
   }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
@@ -526,24 +734,26 @@ class _TalentPoolState extends State<TalentPool>
     return Stack(
       children: [
         InkWell(
-          onTap: () {
+          onTap: () async {
             if (item.status != "Application") {
-              Navigator.push(
+              /*  Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => TalentPoolDetail(
                             applicant: item,
                             Status: status,
-                          )));
+                          ))); */
             } else {
               ChangeStatusModel changeStatusModel = ChangeStatusModel(
                   status: "TP2", sourceId: id, subStatus: "View");
               Map<String, dynamic> jsonData = changeStatusModel.toJson();
               try {
-                JobPostApiService.changeStatus(jsonData, item.id!.toInt());
-                Navigator.pushReplacement(context,
+                await JobPostApiService.changeStatus(
+                    jsonData, item.id!.toInt());
+                ref.refresh(fetchAllTalentPool);
+                /*  Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => const Recruitz()));
-                setState(() {});
+                setState(() {}); */
                 /* showDialog(
                   barrierDismissible: false,
                   context: context,
@@ -580,39 +790,124 @@ class _TalentPoolState extends State<TalentPool>
             iconOnLeftSwipe: Icons.sms_outlined,
             onRightSwipe: item.alternateNo == 0
                 ? () async {
-                    FlutterPhoneDirectCaller.callNumber("+91${item.contactNo}");
+                    if (item.status != "Application") {
+                      FlutterPhoneDirectCaller.callNumber(
+                          "+91${item.contactNo}");
+                    } else {
+                      ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                          status: "TP2", sourceId: id, subStatus: "View");
+                      Map<String, dynamic> jsonData =
+                          changeStatusModel.toJson();
+                      try {
+                        await JobPostApiService.changeStatus(
+                            jsonData, item.id!.toInt());
+                        ref.refresh(fetchAllTalentPool);
+                      } catch (e) {
+                        print('Error: $e');
+                      }
+
+                      FlutterPhoneDirectCaller.callNumber(
+                          "+91${item.contactNo}");
+                    }
                   }
-                : () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return CustomAlertDialog(
-                          phoneNumber1: item.contactNo!.toInt(),
-                          phoneNumber2: item.alternateNo!.toInt(),
-                          isCall: true,
-                        );
-                      },
-                    );
+                : () async {
+                    if (item.status != "Application") {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomAlertDialog(
+                            phoneNumber1: item.contactNo!.toInt(),
+                            phoneNumber2: item.alternateNo!.toInt(),
+                            isCall: true,
+                          );
+                        },
+                      );
+                    } else {
+                      ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                          status: "TP2", sourceId: id, subStatus: "View");
+                      Map<String, dynamic> jsonData =
+                          changeStatusModel.toJson();
+                      try {
+                        await JobPostApiService.changeStatus(
+                            jsonData, item.id!.toInt());
+                        ref.refresh(fetchAllTalentPool);
+                      } catch (e) {
+                        print('Error: $e');
+                      }
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomAlertDialog(
+                            phoneNumber1: item.contactNo!.toInt(),
+                            phoneNumber2: item.alternateNo!.toInt(),
+                            isCall: true,
+                          );
+                        },
+                      );
+                    }
                   },
             onLeftSwipe: item.alternateNo == 0
                 ? () async {
-                    Uri url =
-                        Uri.parse("whatsapp://send?phone=91${item.contactNo}");
-                    await canLaunchUrl(url)
-                        ? await launchUrl(url)
-                        : throw "could not launch $url";
+                    if (item.status != "Application") {
+                      Uri url = Uri.parse(
+                          "whatsapp://send?phone=91${item.contactNo}");
+                      await canLaunchUrl(url)
+                          ? await launchUrl(url)
+                          : throw "could not launch $url";
+                    } else {
+                      ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                          status: "TP2", sourceId: id, subStatus: "View");
+                      Map<String, dynamic> jsonData =
+                          changeStatusModel.toJson();
+                      try {
+                        await JobPostApiService.changeStatus(
+                            jsonData, item.id!.toInt());
+                        ref.refresh(fetchAllTalentPool);
+                      } catch (e) {
+                        print('Error: $e');
+                      }
+                      Uri url = Uri.parse(
+                          "whatsapp://send?phone=91${item.contactNo}");
+                      await canLaunchUrl(url)
+                          ? await launchUrl(url)
+                          : throw "could not launch $url";
+                    }
                   }
-                : () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return CustomAlertDialog(
-                          phoneNumber1: item.contactNo!.toInt(),
-                          phoneNumber2: item.alternateNo!.toInt(),
-                          isCall: false,
-                        );
-                      },
-                    );
+                : () async {
+                    if (item.status != "Application") {
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomAlertDialog(
+                            phoneNumber1: item.contactNo!.toInt(),
+                            phoneNumber2: item.alternateNo!.toInt(),
+                            isCall: false,
+                          );
+                        },
+                      );
+                    } else {
+                      ChangeStatusModel changeStatusModel = ChangeStatusModel(
+                          status: "TP2", sourceId: id, subStatus: "View");
+                      Map<String, dynamic> jsonData =
+                          changeStatusModel.toJson();
+                      try {
+                        await JobPostApiService.changeStatus(
+                            jsonData, item.id!.toInt());
+                        ref.refresh(fetchAllTalentPool);
+                      } catch (e) {
+                        print('Error: $e');
+                      }
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomAlertDialog(
+                            phoneNumber1: item.contactNo!.toInt(),
+                            phoneNumber2: item.alternateNo!.toInt(),
+                            isCall: false,
+                          );
+                        },
+                      );
+                    }
                   },
             child: Card(
               shape: RoundedRectangleBorder(
@@ -784,8 +1079,8 @@ class _TalentPoolState extends State<TalentPool>
 // ...
 
                                 PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    setState(() {
+                                  onSelected: (value) async {
+                                    setState(() async {
                                       String subValue = "0";
                                       for (var app in applicationList!) {
                                         if (app.value.toString() == value &&
@@ -808,19 +1103,21 @@ class _TalentPoolState extends State<TalentPool>
                                       Map<String, dynamic> jsonData =
                                           changeStatusModel.toJson();
                                       try {
-                                        JobPostApiService.changeStatus(
+                                        await JobPostApiService.changeStatus(
                                             jsonData, item.id!.toInt());
-                                        setState(() {});
+                                        ref.refresh(fetchAllTalentPool);
+                                        ref.refresh(fetchAllApplicantProvider);
+                                        ref.refresh(fetchAllMyPipeLineJobs);
                                       } catch (e) {
                                         print('Error: $e');
                                         // Handle error...
                                       }
-                                      Navigator.pushReplacement(
+                                      /*   Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: ((context) => Recruitz(
                                                     key: _talentPollKey,
-                                                  ))));
+                                                  )))); */
                                     });
                                     // setState(() {});
                                   },
@@ -982,18 +1279,46 @@ class _TalentPoolState extends State<TalentPool>
                           color: Constants.themeBgColor,
                         )), */
                   IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PDFViewerScreen(
-                              pdfAssetPath: 'assets/images/cv.pdf',
-                              phoneNumber1: item.contactNo!.toInt(),
-                              phoneNumber2: item.alternateNo!.toInt(),
-                              // Replace with the actual asset path of your PDF file
+                      onPressed: () async {
+                        if (item.status != "Application") {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PDFViewerScreen(
+                                pdfAssetPath: item.resume.toString(),
+                                phoneNumber1: item.contactNo!.toInt(),
+                                phoneNumber2: item.alternateNo!.toInt(),
+                                // Replace with the actual asset path of your PDF file
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          ChangeStatusModel changeStatusModel =
+                              ChangeStatusModel(
+                                  status: "TP2",
+                                  sourceId: id,
+                                  subStatus: "View");
+                          Map<String, dynamic> jsonData =
+                              changeStatusModel.toJson();
+                          try {
+                            await JobPostApiService.changeStatus(
+                                jsonData, item.id!.toInt());
+                            ref.refresh(fetchAllTalentPool);
+                          } catch (e) {
+                            print('Error: $e');
+                          }
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PDFViewerScreen(
+                                pdfAssetPath: item.resume.toString(),
+                                phoneNumber1: item.contactNo!.toInt(),
+                                phoneNumber2: item.alternateNo!.toInt(),
+                                // Replace with the actual asset path of your PDF file
+                              ),
+                            ),
+                          );
+                        }
                       },
                       icon: Image.asset(
                         "assets/images/cv.png",

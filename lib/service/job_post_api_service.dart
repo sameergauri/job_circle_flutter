@@ -10,7 +10,7 @@ import 'package:job_circle/screens/partnerhome.dart';
 
 class JobPostApiService {
   static Future<void> postDataToApi(
-      Map<String, dynamic> jsonData, BuildContext context) async {
+      Map<String, dynamic> jsonData, BuildContext context, bool isEdit) async {
     String apiUrl = 'http://${GlobalConstants.API_Host_one}/jobs/v1';
 
     try {
@@ -20,8 +20,26 @@ class JobPostApiService {
 
       if (response.statusCode == 200) {
         // Successful request
-        print('Data posted successfully');
-       
+        isEdit
+            ? showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CustomDialog(
+                    fetchDataFromApi: () {},
+                    isFisrt: false,
+                    onClose: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const PartnerHomeScreen()),
+                          (Route<dynamic> route) => false);
+                    },
+                    title: "Success",
+                    subtitle: "Submitted successfully!",
+                  );
+                },
+              )
+            : print('Data posted successfully');
       } else {
         // Request failed
         print('Error: ${response.statusCode}');

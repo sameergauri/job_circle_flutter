@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +11,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:timelines/timelines.dart';
@@ -26,16 +28,19 @@ import '../../themes/colors.dart';
 
 //enum Issue { no, incorrect, recruiter, other }
 
-class MyPipeLine extends StatefulWidget {
+final fetchAllMyPipeLineJobs = FutureProvider<List<Applicant>>(
+    (ref) => _MyPipeLineState.fetchAllApplicants());
+
+class MyPipeLine extends ConsumerStatefulWidget {
   const MyPipeLine({
     super.key,
   });
 
   @override
-  State<MyPipeLine> createState() => _MyPipeLineState();
+  ConsumerState<MyPipeLine> createState() => _MyPipeLineState();
 }
 
-class _MyPipeLineState extends State<MyPipeLine>
+class _MyPipeLineState extends ConsumerState<MyPipeLine>
     with SingleTickerProviderStateMixin {
   @override
   Future<List<Applicant>>? _applicantsFuture;
@@ -81,9 +86,11 @@ class _MyPipeLineState extends State<MyPipeLine>
     }
   }
 
-  Future<List<Applicant>> fetchAllApplicants(int userId) async {
+  static Future<List<Applicant>> fetchAllApplicants() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=$userId&page=1&size=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -152,6 +159,8 @@ class _MyPipeLineState extends State<MyPipeLine>
   }
 
   String? selectedStatusValue;
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
@@ -160,6 +169,17 @@ class _MyPipeLineState extends State<MyPipeLine>
         .toSet()
         .toList()
       ..sort();
+  }
+
+  Future<void> _onRefresh() async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      ref.refresh(fetchAllMyPipeLineJobs);
+      // Update the UI with new data
+    });
+    _refreshController
+        .refreshCompleted(); // Call this to end the refresh animation
   }
 
   bool isSelect = false;
@@ -172,198 +192,211 @@ class _MyPipeLineState extends State<MyPipeLine>
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+    if (profilemodel == null) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      var fetchApplicants = ref.watch(fetchAllMyPipeLineJobs);
 
-    // Build your widget's UI with the 'profilemodel' data
-    // For example:
-    return FutureBuilder<List<Applicant>>(
-      future: profilemodel.id != null
-          ? fetchAllApplicants(profilemodel.id!.toInt())
-          : Future.error("Profile model is null"),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasData && snapshot.data != null) {
-          List<Applicant>? dataList = snapshot.data;
-
-          // Define a flag to track if any item meets the condition
-          bool anyItemMeetsCondition = false;
-
-          for (Applicant item in dataList!) {
-            if (item.status_code!.contains("IB")) {
-              // If the condition is met for any item, set the flag to true and break the loop
-              anyItemMeetsCondition = true;
-              break;
-            }
-          }
-
-          if (anyItemMeetsCondition) {
-            final data = snapshot.data!;
-            final statuses = getStatuses(data);
-
-            // Get the statuses here
-
-            return DefaultTabController(
-              length: statuses.length,
-              child: Scaffold(
-                appBar: PreferredSize(
-                  preferredSize:
-                      Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
-                  child: AppBar(
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    bottom: TabBar(
-                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                      labelColor: Colors.black,
-                      isScrollable: true,
-                      unselectedLabelColor: Colors.black,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      splashBorderRadius: BorderRadius.circular(8),
-                      indicatorWeight: 7.h,
-                      indicatorPadding:
-                          EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
-                      indicator: BoxDecoration(
-                        color: Constants.borderColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Constants.borderColor),
-                      ),
-                      tabs: statuses
-                          .map(
-                            (status) => customTab(
-                              status, // Show status in the top-level tab bar
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ),
-                body: RefreshIndicator(
-                  onRefresh: () async {
-                    setState(
-                        () {}); // This will trigger the rebuild of the widget tree
-                  },
-                  child: TabBarView(
-                    children: statuses.map((status) {
-                      // Filter applicants based on the current status
-                      final applicants = data
-                          .where((applicant) =>
-                              applicant.status.toString() == status)
-                          .toList();
-
-                      if (status == 'New') {
-                        // Display applicants directly without sub_status tabs
-                        return ListView.builder(
-                          physics: const ClampingScrollPhysics(),
-                          controller: ScrollController(),
-                          shrinkWrap: true,
-                          itemCount: applicants.length,
-                          itemBuilder: (context, index) {
-                            final applicant = applicants[index];
-                            return listViewItem_new(
-                              context,
-                              applicant,
-                              true,
-                              statuses,
-                              index,
-                            );
-                          },
-                        );
-                      } else if (status == "Select" || status == "Disqualify") {
-                        final subStatuses = applicants
-                            .map(
-                                (applicant) => applicant.sub_status?.toString())
-                            .where((subStatus) => subStatus != null)
-                            .toSet()
-                            .toList()
-                          ..sort();
-                        /* customTabController = TabController(
-                            length: companyTab.length, vsync: this); */
-                        //TODO: Add custom tab controller
-                        return DefaultTabController(
-                          length: subStatuses.length,
-                          child: Scaffold(
-                            appBar: PreferredSize(
-                              preferredSize: const Size(
-                                  double.maxFinite, kTextTabBarHeight),
-                              child: AppBar(
-                                elevation: 0,
-                                backgroundColor: Colors.white,
-                                bottom: TabBar(
-                                  //  controller: customTabController,
-                                  key: const ValueKey("ccTab3"),
-                                  isScrollable: true,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  unselectedLabelStyle: GoogleFonts.varela(),
-                                  labelStyle: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w600),
-                                  unselectedLabelColor: Colors.black,
-                                  labelColor: Constants.subtitleclr,
-                                  indicatorPadding: EdgeInsets.only(
-                                      bottom: 8.h, left: 3.w, right: 3.w),
-                                  indicator: isSelect
-                                      ? BoxDecoration(
-                                          color: Constants.borderColor,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                              color: Constants.borderColor))
-                                      : null,
-                                  indicatorColor: Constants.borderColor,
-                                  tabs: subStatuses
-                                      .map((subStatus) => Tab(text: subStatus!))
-                                      .toList(),
+      return PageStorage(
+          bucket: PageStorageBucket(),
+          key: const PageStorageKey<String>("futureKey"),
+          child: fetchApplicants != null
+              ? fetchApplicants.when(
+                  data: (fetchdata) {
+                    List<Applicant>? dataList = fetchdata;
+                    bool anyItemMeetsCondition = false;
+                    for (Applicant item in dataList) {
+                      if (item.status_code!.contains("IB")) {
+                        // If the condition is met for any item, set the flag to true and break the loop
+                        anyItemMeetsCondition = true;
+                        break;
+                      }
+                    }
+                    if (anyItemMeetsCondition) {
+                      final data = fetchdata;
+                      final statuses = getStatuses(data);
+                      return DefaultTabController(
+                        length: statuses.length,
+                        child: Scaffold(
+                          appBar: PreferredSize(
+                            preferredSize: Size(
+                                double.maxFinite, kTextTabBarHeight / 1.2.h),
+                            child: AppBar(
+                              elevation: 0,
+                              backgroundColor: Colors.white,
+                              bottom: TabBar(
+                                labelPadding:
+                                    const EdgeInsets.only(left: 5, right: 5),
+                                labelColor: Colors.black,
+                                isScrollable: true,
+                                unselectedLabelColor: Colors.black,
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                splashBorderRadius: BorderRadius.circular(8),
+                                indicatorWeight: 7.h,
+                                indicatorPadding: EdgeInsets.only(
+                                    bottom: 8.h, left: 3.w, right: 3.w),
+                                indicator: BoxDecoration(
+                                  color: Constants.borderColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border:
+                                      Border.all(color: Constants.borderColor),
                                 ),
+                                tabs: statuses
+                                    .map(
+                                      (status) => customTab(
+                                        status, // Show status in the top-level tab bar
+                                      ),
+                                    )
+                                    .toList(),
                               ),
                             ),
-                            body: PageStorage(
-                              bucket: PageStorageBucket(),
-                              key: PageStorageKey<String>(status),
-                              child: TabBarView(
-                                // controller: customTabController,
-                                key: const ValueKey("ccTabView3"),
-                                children:
-                                    subStatuses.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final status = entry.value;
-                                  // Filter applicants based on the current status and sub_status
-                                  final filteredApplicants = applicants
-                                      .where((applicant) =>
-                                          applicant.sub_status.toString() ==
-                                          entry.value)
-                                      .toList();
+                          ),
+                          body: SmartRefresher(
+                            enablePullDown: true,
+                            controller: _refreshController,
+                            onRefresh: _onRefresh,
+                            child: TabBarView(
+                              children: statuses.map((status) {
+                                // Filter applicants based on the current status
+                                final applicants = data
+                                    .where((applicant) =>
+                                        applicant.status.toString() == status)
+                                    .toList();
 
-                                  return Column(
-                                    children: [
-                                      PageStorage(
-                                        bucket:
-                                            PageStorageBucket(), // Add this line
-                                        key: const PageStorageKey<String>(
-                                            "sskk"),
-                                        child: ListView.builder(
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          controller: ScrollController(),
-                                          shrinkWrap: true,
-                                          itemCount: filteredApplicants.length,
-                                          itemBuilder: (context, index) {
-                                            final applicant =
-                                                filteredApplicants[index];
-
-                                            return listViewItem_new(
-                                              context,
-                                              applicant,
-                                              true,
-                                              statuses,
-                                              profilemodel.id != null
-                                                  ? profilemodel.id!.toInt()
-                                                  : 467,
-                                            );
-                                          },
+                                if (status == 'New') {
+                                  // Display applicants directly without sub_status tabs
+                                  return ListView.builder(
+                                    physics: const ClampingScrollPhysics(),
+                                    controller: ScrollController(),
+                                    shrinkWrap: true,
+                                    itemCount: applicants.length,
+                                    itemBuilder: (context, index) {
+                                      final applicant = applicants[index];
+                                      return listViewItem_new(
+                                        context,
+                                        applicant,
+                                        true,
+                                        statuses,
+                                        index,
+                                      );
+                                    },
+                                  );
+                                } else if (status == "Select" ||
+                                    status == "Disqualify") {
+                                  final subStatuses = applicants
+                                      .map((applicant) =>
+                                          applicant.sub_status?.toString())
+                                      .where((subStatus) => subStatus != null)
+                                      .toSet()
+                                      .toList()
+                                    ..sort();
+                                  /* customTabController = TabController(
+                            length: companyTab.length, vsync: this); */
+                                  //TODO: Add custom tab controller
+                                  return DefaultTabController(
+                                    length: subStatuses.length,
+                                    child: Scaffold(
+                                      appBar: PreferredSize(
+                                        preferredSize: const Size(
+                                            double.maxFinite,
+                                            kTextTabBarHeight),
+                                        child: AppBar(
+                                          elevation: 0,
+                                          backgroundColor: Colors.white,
+                                          bottom: TabBar(
+                                            //  controller: customTabController,
+                                            key: const ValueKey("ccTab3"),
+                                            isScrollable: true,
+                                            indicatorSize:
+                                                TabBarIndicatorSize.tab,
+                                            unselectedLabelStyle:
+                                                GoogleFonts.varela(),
+                                            labelStyle: GoogleFonts.varela(
+                                                fontWeight: FontWeight.w600),
+                                            unselectedLabelColor: Colors.black,
+                                            labelColor: Constants.subtitleclr,
+                                            indicatorPadding: EdgeInsets.only(
+                                                bottom: 8.h,
+                                                left: 3.w,
+                                                right: 3.w),
+                                            indicator: isSelect
+                                                ? BoxDecoration(
+                                                    color:
+                                                        Constants.borderColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    border: Border.all(
+                                                        color: Constants
+                                                            .borderColor))
+                                                : null,
+                                            indicatorColor:
+                                                Constants.borderColor,
+                                            tabs: subStatuses
+                                                .map((subStatus) =>
+                                                    Tab(text: subStatus!))
+                                                .toList(),
+                                          ),
                                         ),
                                       ),
-                                      //TODO: filter button at the bottom
-                                      /*  const Spacer(),
+                                      body: PageStorage(
+                                        bucket: PageStorageBucket(),
+                                        key: PageStorageKey<String>(status),
+                                        child: TabBarView(
+                                          // controller: customTabController,
+                                          key: const ValueKey("ccTabView3"),
+                                          children: subStatuses
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            final index = entry.key;
+                                            final status = entry.value;
+                                            // Filter applicants based on the current status and sub_status
+                                            final filteredApplicants =
+                                                applicants
+                                                    .where((applicant) =>
+                                                        applicant.sub_status
+                                                            .toString() ==
+                                                        entry.value)
+                                                    .toList();
+
+                                            return Column(
+                                              children: [
+                                                PageStorage(
+                                                  bucket:
+                                                      PageStorageBucket(), // Add this line
+                                                  key: const PageStorageKey<
+                                                      String>("sskk"),
+                                                  child: ListView.builder(
+                                                    physics:
+                                                        const ClampingScrollPhysics(),
+                                                    controller:
+                                                        ScrollController(),
+                                                    shrinkWrap: true,
+                                                    itemCount:
+                                                        filteredApplicants
+                                                            .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      final applicant =
+                                                          filteredApplicants[
+                                                              index];
+
+                                                      return listViewItem_new(
+                                                        context,
+                                                        applicant,
+                                                        true,
+                                                        statuses,
+                                                        profilemodel.id != null
+                                                            ? profilemodel.id!
+                                                                .toInt()
+                                                            : 467,
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                //TODO: filter button at the bottom
+                                                /*  const Spacer(),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -444,113 +477,131 @@ class _MyPipeLineState extends State<MyPipeLine>
                                           ),
                                         ],
                                       ) */
-                                    ],
+                                              ],
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    ),
                                   );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        // Proceed with sub_status tabs for other statuses
-                        final subStatuses = applicants
-                            .map(
-                                (applicant) => applicant.short_name?.toString())
-                            .where((subStatus) => subStatus != null)
-                            .toSet()
-                            .toList()
-                          ..sort();
-                        // Second tab bar needed for subStatuses
-                        return DefaultTabController(
-                          length: subStatuses.length,
-                          child: Scaffold(
-                            appBar: PreferredSize(
-                              preferredSize: const Size(
-                                  double.maxFinite, kTextTabBarHeight),
-                              child: AppBar(
-                                //elevation: 0,
-                                backgroundColor: Colors.white,
-                                bottom: TabBar(
-                                  isScrollable: true,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  //indicatorWeight: 2.0,
-                                  unselectedLabelStyle: GoogleFonts.varela(),
-                                  labelStyle: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w600),
-                                  unselectedLabelColor: Colors.black,
-                                  labelColor: Constants.subtitleclr,
-                                  indicatorPadding: EdgeInsets.only(
-                                      bottom: 8.h, left: 3.w, right: 3.w),
-                                  indicator: isSelect
-                                      ? BoxDecoration(
-                                          color: Constants.borderColor,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                              color: Constants
-                                                  .borderColor) // Creates border
-                                          )
-                                      : null,
-                                  indicatorColor: Constants.borderColor,
-                                  /*  onTap: (value) {
+                                } else {
+                                  // Proceed with sub_status tabs for other statuses
+                                  final subStatuses = applicants
+                                      .map((applicant) =>
+                                          applicant.short_name?.toString())
+                                      .where((subStatus) => subStatus != null)
+                                      .toSet()
+                                      .toList()
+                                    ..sort();
+                                  // Second tab bar needed for subStatuses
+                                  return DefaultTabController(
+                                    length: subStatuses.length,
+                                    child: Scaffold(
+                                      appBar: PreferredSize(
+                                        preferredSize: const Size(
+                                            double.maxFinite,
+                                            kTextTabBarHeight),
+                                        child: AppBar(
+                                          //elevation: 0,
+                                          backgroundColor: Colors.white,
+                                          bottom: TabBar(
+                                            isScrollable: true,
+                                            indicatorSize:
+                                                TabBarIndicatorSize.tab,
+                                            //indicatorWeight: 2.0,
+                                            unselectedLabelStyle:
+                                                GoogleFonts.varela(),
+                                            labelStyle: GoogleFonts.varela(
+                                                fontWeight: FontWeight.w600),
+                                            unselectedLabelColor: Colors.black,
+                                            labelColor: Constants.subtitleclr,
+                                            indicatorPadding: EdgeInsets.only(
+                                                bottom: 8.h,
+                                                left: 3.w,
+                                                right: 3.w),
+                                            indicator: isSelect
+                                                ? BoxDecoration(
+                                                    color:
+                                                        Constants.borderColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    border: Border.all(
+                                                        color: Constants
+                                                            .borderColor) // Creates border
+                                                    )
+                                                : null,
+                                            indicatorColor:
+                                                Constants.borderColor,
+                                            /*  onTap: (value) {
                                   setState(() {
                                     isSelect = !isSelect;
                                   });
                                 }, */
-                                  tabs: subStatuses
-                                      .map((subStatus) => Tab(text: subStatus!))
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                            body: TabBarView(
-                              children: subStatuses.map((subStatus) {
-                                // Filter applicants based on the current status and sub_status
-                                final filteredApplicants = applicants
-                                    .where((applicant) =>
-                                        applicant.short_name.toString() ==
-                                        subStatus)
-                                    .toList();
+                                            tabs: subStatuses
+                                                .map((subStatus) =>
+                                                    Tab(text: subStatus!))
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                      body: TabBarView(
+                                        children: subStatuses.map((subStatus) {
+                                          // Filter applicants based on the current status and sub_status
+                                          final filteredApplicants = applicants
+                                              .where((applicant) =>
+                                                  applicant.short_name
+                                                      .toString() ==
+                                                  subStatus)
+                                              .toList();
 
-                                return ListView.builder(
-                                  physics: const ClampingScrollPhysics(),
-                                  controller: ScrollController(),
-                                  shrinkWrap: true,
-                                  itemCount: filteredApplicants.length,
-                                  itemBuilder: (context, index) {
-                                    final applicant = filteredApplicants[index];
+                                          return ListView.builder(
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            controller: ScrollController(),
+                                            shrinkWrap: true,
+                                            itemCount:
+                                                filteredApplicants.length,
+                                            itemBuilder: (context, index) {
+                                              final applicant =
+                                                  filteredApplicants[index];
 
-                                    return listViewItem_new(
-                                      context,
-                                      applicant,
-                                      true,
-                                      statuses,
-                                      index,
-                                    );
-                                  },
-                                );
+                                              return listViewItem_new(
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                index,
+                                              );
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  );
+                                }
                               }).toList(),
                             ),
                           ),
-                        );
-                      }
-                    }).toList(),
-                  ),
-                ),
-              ),
-            );
-          } else {
-            // Display a "no data" message
-            return const Center(
-              child: Text("No data to display."),
-            );
-          }
-        }
-        return const Center(
-          child: Text("No data to display."),
-        );
-      },
-    );
+                        ),
+                      );
+                    } else {
+                      return const Center(
+                        child: Text("No data to display."),
+                      );
+                    }
+                  },
+                  error: (error, stackTrace) {
+                    return const Center(
+                      child: Text("Error while fetching the data"),
+                    );
+                  },
+                  loading: () {
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                )
+              : const SizedBox());
+    }
   }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue,
@@ -1568,9 +1619,11 @@ class _MyPipeLineState extends State<MyPipeLine>
                           context,
                           MaterialPageRoute(
                             builder: (context) => PDFViewerScreen(
-                              pdfAssetPath: 'assets/images/cv.pdf',
+                              pdfAssetPath: item.resume.toString(),
                               phoneNumber1: item.contactNo!.toInt(),
-                              phoneNumber2: item.alternateNo!.toInt(),
+                              phoneNumber2: item.alternateNo != null
+                                  ? item.alternateNo!.toInt()
+                                  : 0,
                               // Replace with the actual asset path of your PDF file
                             ),
                           ),

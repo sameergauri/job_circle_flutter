@@ -863,7 +863,7 @@ class _AddResumeState extends State<AddResume> {
                   const SizedBox(
                     height: 10,
                   ),
-                  if (widget.isRefer)
+                  /* if (widget.isRefer) //TODO: 30 days statement.
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -982,7 +982,7 @@ class _AddResumeState extends State<AddResume> {
                                                     ), */
                                   )),
                       ],
-                    ),
+                    ), */
                 ],
               ),
             ),

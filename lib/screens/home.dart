@@ -21,16 +21,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: PageView(
-          controller: pageController,
-          children: const [NewJobsV1(), TrackApplication()],
-          onPageChanged: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-        ),
+      body: PageView(
+        controller: pageController,
+        children: const [NewJobsV1(), TrackApplication()],
+        onPageChanged: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(

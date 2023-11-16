@@ -4,7 +4,6 @@ import 'package:job_circle/screens/refer_now.dart';
 
 import '../../themes/colors.dart';
 
-
 class TrackApplication extends StatefulWidget {
   const TrackApplication({Key? key}) : super(key: key);
 
@@ -18,34 +17,36 @@ class _TrackApplicationState extends State<TrackApplication> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        //   decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
-        //   margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-        child: Column(
-          children: [
-            CustomTabBar(
-              tabs: const ["Applie's", "Referral +"],
-              selectedIndex: selectedIndex,
-              onTabChanged: (index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-                pageController.jumpToPage(index);
-              },
-            ),
-            Expanded(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (index) {
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          //   decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
+          //   margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+          child: Column(
+            children: [
+              CustomTabBar(
+                tabs: const ["Applie's", "Referral +"],
+                selectedIndex: selectedIndex,
+                onTabChanged: (index) {
                   setState(() {
                     selectedIndex = index;
                   });
+                  pageController.jumpToPage(index);
                 },
-                children: const [AppliedJob(), AllReferStatus()],
               ),
-            ),
-          ],
+              Expanded(
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                  children: const [AppliedJob(), AllReferStatus()],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

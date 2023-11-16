@@ -12,6 +12,7 @@ import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
 import 'package:job_circle/screens/new_jobs/location_selector.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
@@ -213,9 +214,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     child: Padding(
                       padding: EdgeInsets.only(
                           left: 20.w,
-                          top: data.usertype != 1
+                          /* top: data.usertype != 1
                               ? kToolbarHeight
-                              : kToolbarHeight / 2,
+                              : kToolbarHeight / 2, */
+                          top: kToolbarHeight,
                           bottom: 10.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1455,9 +1457,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         context:
                                                                             context);
                                                                     ref.refresh(
-                                                                        fetchAllApplyProvider(data
-                                                                            .id!
-                                                                            .toInt()));
+                                                                        fetchAllApplyProvider);
+                                                                    ref.refresh(
+                                                                        fetchAllTalentPool);
                                                                   },
                                                                   child:
                                                                       Container(
