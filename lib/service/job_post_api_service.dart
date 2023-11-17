@@ -202,7 +202,6 @@ class JobPostApiService {
                 onClose: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  Navigator.pop(context);
                 },
                 subtitle: "Submitted successfully!",
               );

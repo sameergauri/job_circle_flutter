@@ -4,9 +4,13 @@ import 'package:job_circle/themes/colors.dart';
 class CustomImage extends StatefulWidget {
   final String imageUrl;
   final String defaultImageUrl;
+  final double? height;
 
   const CustomImage(
-      {super.key, required this.imageUrl, required this.defaultImageUrl});
+      {super.key,
+      required this.imageUrl,
+      required this.defaultImageUrl,
+      this.height});
 
   @override
   _CustomImageState createState() => _CustomImageState();
@@ -20,6 +24,7 @@ class _CustomImageState extends State<CustomImage> {
     return Image.network(
       widget.imageUrl,
       fit: BoxFit.contain,
+      height: widget.height,
       loadingBuilder: (BuildContext context, Widget child,
           ImageChunkEvent? loadingProgress) {
         if (loadingProgress == null) {

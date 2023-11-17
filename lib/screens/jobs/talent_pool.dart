@@ -16,6 +16,7 @@ import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -157,16 +158,22 @@ class _TalentPoolState extends ConsumerState<TalentPool>
   }
 
   int calculateAge(String dateOfBirth) {
-    DateTime now = DateTime.now();
-    DateTime dob = DateTime.parse(dateOfBirth);
+    try {
+      DateTime now = DateTime.now();
+      DateTime dob = DateTime.parse(dateOfBirth + "T00:00:00.000Z");
 
-    int age = now.year - dob.year;
-    if (now.month < dob.month ||
-        (now.month == dob.month && now.day < dob.day)) {
-      age--;
+      int age = now.year - dob.year;
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      print("Error parsing date: $e");
+      // You might want to handle the error or return a default value here
+      return 0; // or throw an exception, depending on your use case
     }
-
-    return age;
   }
 
   String? selectedStatusValue;
@@ -193,6 +200,19 @@ class _TalentPoolState extends ConsumerState<TalentPool>
         .toList()
       ..sort();
   } */
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  Future<void> _onRefresh() async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      ref.refresh(fetchAllTalentPool);
+      // Update the UI with new data
+    });
+    _refreshController
+        .refreshCompleted(); // Call this to end the refresh animation
+  }
 
   bool isSelect = false;
 
@@ -264,131 +284,141 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             ),
                           ),
                         ),
-                        body: RefreshIndicator(
-                          onRefresh: () async {
-                            setState(
-                                () {}); // This will trigger the rebuild of the widget tree
-                          },
-                          child: TabBarView(
-                            children: statuses.map((status) {
-                              // Filter applicants based on the current status
-                              final applicants = data
-                                  .where((applicant) =>
-                                      applicant.status.toString() == status)
-                                  .toList();
+                        body: SmartRefresher(
+                          enablePullDown: true,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          child: NestedScrollView(
+                            headerSliverBuilder: (BuildContext context,
+                                bool innerBoxIsScrolled) {
+                              return <Widget>[];
+                            },
+                            body: TabBarView(
+                              children: statuses.map((status) {
+                                // Filter applicants based on the current status
+                                final applicants = data
+                                    .where((applicant) =>
+                                        applicant.status.toString() == status)
+                                    .toList();
 
-                              // Check if sub_status is null or not
-                              final subStatuses = applicants
-                                  .map((applicant) =>
-                                      applicant.sub_status?.toString())
-                                  .where((subStatus) => subStatus != null)
-                                  .toSet()
-                                  .toList()
-                                ..sort();
+                                // Check if sub_status is null or not
+                                final subStatuses = applicants
+                                    .map((applicant) =>
+                                        applicant.sub_status?.toString())
+                                    .where((subStatus) => subStatus != null)
+                                    .toSet()
+                                    .toList()
+                                  ..sort();
 
-                              if (subStatuses.isEmpty) {
-                                // No second tab bar needed if subStatuses is empty
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: applicants.length,
-                                  itemBuilder: (context, index) {
-                                    final applicant = applicants[index];
-                                    return listViewItem_new(
-                                      context,
-                                      applicant,
-                                      true,
-                                      statuses,
-                                      profilemodel.id != null
-                                          ? profilemodel.id!.toInt()
-                                          : 467,
-                                      index,
-                                    );
-                                  },
-                                );
-                              } else {
-                                // Second tab bar needed for subStatuses
-                                return DefaultTabController(
-                                  length: subStatuses.length,
-                                  child: Scaffold(
-                                    appBar: PreferredSize(
-                                      preferredSize: const Size(
-                                          double.maxFinite, kTextTabBarHeight),
-                                      child: AppBar(
-                                        //elevation: 0,
-                                        backgroundColor: Colors.white,
-                                        bottom: TabBar(
-                                          isScrollable: true,
-                                          indicatorSize:
-                                              TabBarIndicatorSize.tab,
-                                          //indicatorWeight: 2.0,
-                                          unselectedLabelStyle:
-                                              GoogleFonts.varela(),
-                                          labelStyle: GoogleFonts.varela(
-                                              fontWeight: FontWeight.w600),
-                                          unselectedLabelColor: Colors.black,
-                                          labelColor: Constants.subtitleclr,
-                                          indicatorPadding: EdgeInsets.only(
-                                              bottom: 8.h,
-                                              left: 3.w,
-                                              right: 3.w),
-                                          indicator: isSelect
-                                              ? BoxDecoration(
-                                                  color: Constants.borderColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  border: Border.all(
-                                                      color: Constants
-                                                          .borderColor) // Creates border
-                                                  )
-                                              : null,
-                                          indicatorColor: Constants.borderColor,
-                                          /*  onTap: (value) {
-                                  setState(() {
-                                    isSelect = !isSelect;
-                                  });
-                                }, */
-                                          tabs: subStatuses
-                                              .map((subStatus) =>
-                                                  Tab(text: subStatus!))
-                                              .toList(),
+                                if (subStatuses.isEmpty) {
+                                  // No second tab bar needed if subStatuses is empty
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: applicants.length,
+                                    itemBuilder: (context, index) {
+                                      final applicant = applicants[index];
+                                      return listViewItem_new(
+                                        context,
+                                        applicant,
+                                        true,
+                                        statuses,
+                                        profilemodel.id != null
+                                            ? profilemodel.id!.toInt()
+                                            : 467,
+                                        index,
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // Second tab bar needed for subStatuses
+                                  return DefaultTabController(
+                                    length: subStatuses.length,
+                                    child: Scaffold(
+                                      appBar: PreferredSize(
+                                        preferredSize: const Size(
+                                            double.maxFinite,
+                                            kTextTabBarHeight),
+                                        child: AppBar(
+                                          //elevation: 0,
+                                          backgroundColor: Colors.white,
+                                          bottom: TabBar(
+                                            isScrollable: true,
+                                            indicatorSize:
+                                                TabBarIndicatorSize.tab,
+                                            //indicatorWeight: 2.0,
+                                            unselectedLabelStyle:
+                                                GoogleFonts.varela(),
+                                            labelStyle: GoogleFonts.varela(
+                                                fontWeight: FontWeight.w600),
+                                            unselectedLabelColor: Colors.black,
+                                            labelColor: Constants.subtitleclr,
+                                            indicatorPadding: EdgeInsets.only(
+                                                bottom: 8.h,
+                                                left: 3.w,
+                                                right: 3.w),
+                                            indicator: isSelect
+                                                ? BoxDecoration(
+                                                    color:
+                                                        Constants.borderColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    border: Border.all(
+                                                        color: Constants
+                                                            .borderColor) // Creates border
+                                                    )
+                                                : null,
+                                            indicatorColor:
+                                                Constants.borderColor,
+                                            /*  onTap: (value) {
+                                    setState(() {
+                                      isSelect = !isSelect;
+                                    });
+                                  }, */
+                                            tabs: subStatuses
+                                                .map((subStatus) =>
+                                                    Tab(text: subStatus!))
+                                                .toList(),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    body: TabBarView(
-                                      children: subStatuses.map((subStatus) {
-                                        // Filter applicants based on the current status and sub_status
-                                        final filteredApplicants = applicants
-                                            .where((applicant) =>
-                                                applicant.sub_status
-                                                    .toString() ==
-                                                subStatus)
-                                            .toList();
+                                      body: TabBarView(
+                                        children: subStatuses.map((subStatus) {
+                                          // Filter applicants based on the current status and sub_status
+                                          final filteredApplicants = applicants
+                                              .where((applicant) =>
+                                                  applicant.sub_status
+                                                      .toString() ==
+                                                  subStatus)
+                                              .toList();
 
-                                        return ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredApplicants.length,
-                                          itemBuilder: (context, index) {
-                                            final applicant =
-                                                filteredApplicants[index];
+                                          return ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount:
+                                                filteredApplicants.length,
+                                            itemBuilder: (context, index) {
+                                              final applicant =
+                                                  filteredApplicants[index];
 
-                                            return listViewItem_new(
-                                              context,
-                                              applicant,
-                                              true,
-                                              statuses,
-                                              profilemodel.id != null
-                                                  ? profilemodel.id!.toInt()
-                                                  : 467,
-                                              index,
-                                            );
-                                          },
-                                        );
-                                      }).toList(),
+                                              return listViewItem_new(
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                index,
+                                              );
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
-                            }).toList(),
+                                  );
+                                }
+                              }).toList(),
+                            ),
                           ),
                         ),
                       ),
@@ -946,11 +976,12 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  " (${calculateAge(item.dateOfBirth.toString())} yr's)",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.black54, fontSize: 12.sp),
-                                )
+                                if (item.dateOfBirth != null)
+                                  Text(
+                                    " (${calculateAge(item.dateOfBirth.toString())} yr's)",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.black54, fontSize: 12.sp),
+                                  )
                               ],
                             ),
                             Row(

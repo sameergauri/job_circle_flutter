@@ -1414,7 +1414,7 @@ class _AddResumeState extends State<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } else if (!termAndConditionOne || !termAndConditionTwo) {
+    } else if (!termAndConditionOne && widget.isRefer) {
       showDialog(
         context: context,
         builder: (context) {

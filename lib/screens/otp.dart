@@ -4,13 +4,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/utils.dart';
@@ -282,6 +286,49 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
     });
   }
 
+  SnackBar customSnackbar(String title, bool error) {
+    return SnackBar(
+      elevation: 1.0,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 5),
+      backgroundColor: Constants.themeBgColorLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 8), // Remove shadow
+      content: Row(
+        children: [
+          error
+              ? Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 15.h,
+                )
+              : Image.asset(
+                  "assets/images/check.png",
+                  color: Constants.themeBgColor,
+                  height: 15.h,
+                ),
+          /* Icon(
+                  Icons.check,
+                  color: Constants.themeBgColor,
+                  size: 15.h,
+                ),  */ // Add an icon if needed
+          const SizedBox(width: 8.0), // Add spacing between icon and text
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black, // Text color
+              fontSize: 14.0, // Text size
+            ),
+          ),
+        ],
+      ),
+      // duration: const Duration(seconds: 3),
+    );
+  }
+
   varifyOTP() async {
     SharedPreferences pres = await Utils.getSharedPreferences();
 
@@ -331,11 +378,11 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         ref.refresh(userJobDataProvider);
         ref.refresh(userDataProvider);
         ref.refresh(profileSummaryProvider);
+        ref.refresh(fetchAllTalentPool);
         Utils.gotoScreen(context, data, model.mobile);
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("OTP Verified Successfully"),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+            title: "OTP Verified Successfully", error: false));
       }
     }
   }

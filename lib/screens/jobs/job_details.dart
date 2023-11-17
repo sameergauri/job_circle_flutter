@@ -2791,7 +2791,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                       alignment:
                                                           Alignment.center,
                                                       child: Text(
-                                                        "Amount",
+                                                        "Amt",
                                                         style:
                                                             GoogleFonts.varela(
                                                           color: Constants
@@ -2847,10 +2847,13 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
-                                                            _formatSlab(
+                                                            jobDetailsModel
+                                                                    .maxCount![
+                                                                index],
+                                                            /* _formatSlab(   //TODO: chnages dont to display &above.
                                                                 jobDetailsModel
                                                                         .maxCount![
-                                                                    index]),
+                                                                    index]), */
                                                             style: GoogleFonts
                                                                 .varela(
                                                               color: Constants
@@ -3171,7 +3174,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 
   String _formatSlab(String? stringValue) {
     if (stringValue == null) {
-      return 'N/A'; // Handle null values gracefully
+      return '& above'; // Handle null values gracefully
     }
 
     try {

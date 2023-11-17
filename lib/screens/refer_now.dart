@@ -21,10 +21,11 @@ import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
-final fetchAllReferalProvider =
-    FutureProvider.family<List<Applicant>, int>((ref, id) {
+final fetchAllReferalProvider = FutureProvider<List<Applicant>>((
+  ref,
+) {
   Future.delayed(const Duration(seconds: 2));
-  return _AllReferStatusState.fetchApplicantsByUserId(id);
+  return _AllReferStatusState.fetchApplicantsByUserId();
 });
 //enum Issue { no, incorrect, recruiter, other }
 
@@ -76,9 +77,11 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     }
   }
 
-  static Future<List<Applicant>> fetchApplicantsByUserId(int userId) async {
+  static Future<List<Applicant>> fetchApplicantsByUserId() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userId&pageNumber=1&pageSize=1000000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=1000000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -106,7 +109,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      ref.refresh(fetchAllReferalProvider(profilemodel.id!.toInt()));
+      ref.refresh(fetchAllReferalProvider);
       // Update the UI with new data
     });
     _refreshController
@@ -155,9 +158,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     if (profilemodel == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
-      var fetchApplicants = profilemodel.id != null
-          ? ref.watch(fetchAllReferalProvider(profilemodel.id!.toInt()))
-          : null;
+      var fetchApplicants =
+          profilemodel.id != null ? ref.watch(fetchAllReferalProvider) : null;
       // Build your widget's UI with the 'profilemodel' data
       // For example:
       return PageStorage(

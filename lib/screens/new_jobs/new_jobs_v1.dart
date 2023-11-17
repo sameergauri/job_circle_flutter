@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/app_utils.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/assets_images_url.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
@@ -115,7 +116,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
         padding: const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8.r),
-            color: cutTab == select ? Constants.borderColor : Colors.white,
+            color: cutTab == select
+                ? isTabFilterSelected(model)
+                    ? Constants.borderColor
+                    : Colors.white
+                : Colors.white,
             border: Border.all(color: Constants.borderColor, width: 1)),
         child: cutTab == select
             ? isTabFilterSelected(model)
@@ -137,19 +142,19 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                 : Row(
                     children: [
                       Text(title),
-                      Icon(
+                      /* Icon(
                         Icons.add,
                         size: 15.h,
-                      )
+                      ) */
                     ],
                   )
             : Row(
                 children: [
                   Text(title),
-                  Icon(
+                  /*  Icon(
                     Icons.add,
                     size: 15.h,
-                  )
+                  ) */
                 ],
               ));
   }
@@ -192,6 +197,15 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
   Widget build(BuildContext context) {
     final jobsController = ref.watch(jobsProvider);
     final profileProfile = ref.watch(profileSummaryProvider);
+    var userid =
+        Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    List<JobsModel> favoriteJobs = jobsController.jobs
+        .where((job) => job.isFav == 1)
+        .where((element) => element.userId == profileProfile.value!.id)
+        .where((element) => element.active == 1)
+        .toList();
+
+    // print(favoriteJobs);
     String _colorName;
     Color _color;
     return profileProfile.when(
@@ -496,7 +510,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     const SizedBox(
                       width: 5,
                     ),
-                  if (data.usertype == 1)
+                  if (data.usertype == 1 && favoriteJobs.isNotEmpty)
                     InkWell(
                         onTap: () {
                           cutTab = 1;
@@ -504,7 +518,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           jobsController.toggleFavoriteJobs(data);
                         },
                         child: customTab(
-                            "Save Jobs", "assets/images/check.png", 1, data)),
+                            "Saved Jobs", "assets/images/check.png", 1, data)),
                   const SizedBox(
                     width: 5,
                   ),

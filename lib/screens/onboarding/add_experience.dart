@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:job_circle/constants/custom_snackbar';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -418,36 +418,44 @@ class _AddExperienceState extends State<AddExperience> {
                   onTap: () async {
                     if (jobTitleController.text.isEmpty && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackBar(
-                              title: "Job title is not optional")));
+                          content: CustomSnackbarfinal(
+                        title: "Job title is not optional",
+                        error: true,
+                      )));
                     } else if (companyController.text.isEmpty && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackBar(
-                              title: "Company is not optional")));
+                          content: CustomSnackbarfinal(
+                        title: "Company is not optional",
+                        error: true,
+                      )));
                     } else if (!isPartTime &&
                         !isFullTime &&
                         !isContract &&
                         !isIntern &&
                         !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackBar(
-                              title: "Select any one option from emp type.")));
+                          content: CustomSnackbarfinal(
+                        title: "Select any one option from emp type.",
+                        error: true,
+                      )));
                     } else if (companyLocationController.text.isEmpty && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content:
-                              CustomSnackBar(title: "Enter your location")));
+                          content: CustomSnackbarfinal(
+                              title: "Enter your location", error: true)));
                     } else if (!isOnsite && !isHybrid && !isWfh && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackBar(
-                              title: "Select any one option form work mode")));
+                          content: CustomSnackbarfinal(
+                              title: "Select any one option form work mode",
+                              error: true)));
                     } /* else if (fetchApiskill.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           customSnackbar("Add atleast one skill"));
                     } */
                     else if (joiningDataController.text.isEmpty && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackBar(
-                              title: "Provide your joining dare")));
+                          content: CustomSnackbarfinal(
+                              title: "Provide your joining dare",
+                              error: true)));
                     } /*  else if (!currentlyWorking &&
                         lastWorkingController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1455,7 +1463,7 @@ class _AddExperienceState extends State<AddExperience> {
                         CustomTextFieldComapanyLocation(
                           degree: false,
                           university: false,
-              hsc: false,
+                          hsc: false,
 
                           isCompany: false,
                           name: "city",
