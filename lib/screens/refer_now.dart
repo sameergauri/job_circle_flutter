@@ -228,6 +228,65 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                               return <Widget>[];
                             },
                             body: TabBarView(
+                              children: statuses.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final status = entry.value;
+                                final applicants = data
+                                    .where((applicant) =>
+                                        applicant.status.toString() == status)
+                                    .toList();
+
+                                // Create widgets based on the applicants list
+
+                                // Return the list of widgets for this status
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  // physics: const BouncingScrollPhysics(),
+                                  itemCount: applicants.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return listViewItem_new(
+                                        context, applicants[index], true);
+                                  },
+                                );
+                              }).toList(),
+
+                              /* children: [
+                                ListView.builder(
+                                  itemCount: statuses.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final filteredData = data
+                                        .where((applicant) =>
+                                            applicant.status.toString() ==
+                                            statuses[index])
+                                        .toList();
+                          
+                                    return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemCount: filteredData.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return listViewItem_new(
+                                            context, filteredData[index], true);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ], */
+                            ),
+                          ),
+                        ),
+                        /* SmartRefresher(
+                          enablePullDown: true,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          child: NestedScrollView(
+                            headerSliverBuilder: (BuildContext context,
+                                bool innerBoxIsScrolled) {
+                              return <Widget>[];
+                            },
+                            body: TabBarView(
                               children: statuses
                                   .map(
                                     (e) => ListView(
@@ -248,7 +307,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                   .toList(),
                             ),
                           ),
-                        ),
+                        ), */
                       ),
                     );
                   } else {
@@ -263,7 +322,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                 }, loading: () {
                   return const Center(child: CircularProgressIndicator());
                 })
-              : const Center(child: SizedBox()));
+              : const SizedBox());
     }
   }
 
@@ -434,7 +493,9 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                                   ? "Interview Schedule"
                                                   : item.status == "Assign"
                                                       ? "Assign"
-                                                      : "",
+                                                      : item.status == "New"
+                                                          ? "New"
+                                                          : "",
                                   style: GoogleFonts.varela(
                                       color: Colors.amber,
                                       fontWeight: FontWeight.w600,

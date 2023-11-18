@@ -220,33 +220,59 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                           enablePullDown: true,
                           controller: _refreshController,
                           onRefresh: _onRefresh,
-                          child: ListView.builder(
-                            itemCount: statuses.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final filteredData = data
-                                  .where((applicant) =>
-                                      applicant.status.toString() ==
-                                      statuses[index])
-                                  .toList();
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Add a header or any other UI element if needed
-                                  // Text(statuses[index]),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: filteredData.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return listViewItem_new(
-                                          context, filteredData[index], true);
-                                    },
-                                  ),
-                                ],
-                              );
+                          child: NestedScrollView(
+                            headerSliverBuilder: (BuildContext context,
+                                bool innerBoxIsScrolled) {
+                              return <Widget>[];
                             },
+                            body: TabBarView(
+                              children: statuses.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final status = entry.value;
+                                final applicants = data
+                                    .where((applicant) =>
+                                        applicant.status.toString() == status)
+                                    .toList();
+
+                                // Create widgets based on the applicants list
+
+                                // Return the list of widgets for this status
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  // physics: const BouncingScrollPhysics(),
+                                  itemCount: applicants.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return listViewItem_new(
+                                        context, applicants[index], true);
+                                  },
+                                );
+                              }).toList(),
+
+                              /* children: [
+                                ListView.builder(
+                                  itemCount: statuses.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final filteredData = data
+                                        .where((applicant) =>
+                                            applicant.status.toString() ==
+                                            statuses[index])
+                                        .toList();
+                          
+                                    return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemCount: filteredData.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return listViewItem_new(
+                                            context, filteredData[index], true);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ], */
+                            ),
                           ),
                         ),
 

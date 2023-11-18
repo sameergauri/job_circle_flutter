@@ -2025,9 +2025,13 @@ class _JobFormState extends ConsumerState<JobForm> {
                             );
 
                             Map<String, dynamic> jsonData = model.toJson();
-                            await JobPostApiService.postDataToApi(
-                                jsonData, context, widget.formEdit);
+                            await JobPostApiService.postDataSaveAsDraft(
+                              jsonData,
+                              context,
+                            );
                             ref.refresh(userJobDataProvider);
+                            ref.refresh(jobsProvider);
+
                             /* showDialog(
                               barrierDismissible: false,
                               context: context,

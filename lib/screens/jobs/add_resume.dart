@@ -5,11 +5,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/models/add_resume_model.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
+import 'package:job_circle/screens/refer_now.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../enums/enums.dart';
@@ -21,7 +27,7 @@ import '../../service/data_get_api_service.dart';
 import '../../service/job_post_api_service.dart';
 import '../../themes/colors.dart';
 
-class AddResume extends StatefulWidget {
+class AddResume extends ConsumerStatefulWidget {
   final String company_name, role, process, nature_of_work, sourceName;
   final int company_id, jobId, spocId, sourceId;
   final bool isRefer;
@@ -40,10 +46,10 @@ class AddResume extends StatefulWidget {
       required this.isRefer});
 
   @override
-  State<AddResume> createState() => _AddResumeState();
+  ConsumerState<AddResume> createState() => _AddResumeState();
 }
 
-class _AddResumeState extends State<AddResume> {
+class _AddResumeState extends ConsumerState<AddResume> {
   @override
   void initState() {
     //fetchData();
@@ -1207,6 +1213,11 @@ class _AddResumeState extends State<AddResume> {
           );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
           setState(() {
             isLoading = false;
           });
@@ -1241,6 +1252,11 @@ class _AddResumeState extends State<AddResume> {
           );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
           setState(() {
             isLoading = false;
           });
@@ -1277,6 +1293,11 @@ class _AddResumeState extends State<AddResume> {
               );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
           setState(() {
             isLoading = false;
           });
@@ -1310,6 +1331,11 @@ class _AddResumeState extends State<AddResume> {
               dol: DateTime.now());
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
           setState(() {
             isLoading = false;
           });

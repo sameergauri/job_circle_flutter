@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Import your Constants class here
 
@@ -41,7 +40,10 @@ class _LocationSelectorState extends State<LocationSelector> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r))),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 5),
       height: MediaQuery.of(context).size.height * 0.9,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,17 +69,14 @@ class _LocationSelectorState extends State<LocationSelector> {
               )
             ],
           ),
-          SizedBox(
-            height: 35.h,
-          ),
           TextField(
             controller: searchController,
             onChanged: onSearch,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: "Type to search...",
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
               itemCount: filteredList.length,

@@ -64,6 +64,59 @@ class JobPostApiService {
     }
   }
 
+  static Future<void> postDataSaveAsDraft(
+      Map<String, dynamic> jsonData, BuildContext context) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host_one}/jobs/v1';
+
+    try {
+      var response = await http.post(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+              fetchDataFromApi: () {},
+              isFisrt: false,
+              onClose: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => const PartnerHomeScreen()),
+                    (Route<dynamic> route) => false);
+              },
+              title: "Success",
+              subtitle: "Submitted successfully!",
+            );
+          },
+        );
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+              fetchDataFromApi: () {},
+              isFisrt: false,
+              onClose: () {
+                Navigator.pop(context);
+              },
+              title: "Failed",
+              subtitle: "Failed while posting!",
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   static Future<void> updateLanguages(
       Map<String, dynamic> jsonData, int id) async {
     String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/$id/languges';

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:circular_menu/circular_menu.dart';
@@ -186,12 +187,23 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       prefs = await SharedPreferences.getInstance();
     });
+    startSearchFieldAnimation();
 
     super.initState();
   }
 
   List<String> updatedList = [];
   List<String> myString = [];
+  late Timer timer;
+
+  void startSearchFieldAnimation() {
+    timer = Timer.periodic(const Duration(seconds: 2), (Timer t) {
+      setState(() {
+        currentSearchFieldIndex =
+            (currentSearchFieldIndex + 1) % searchFields.length;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +228,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
           );
         }
         return Scaffold(
+          backgroundColor: Colors.white,
           drawer: ClipRRect(
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(15)),
@@ -627,7 +640,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
               ) */
               ,
             ),
-            toolbarHeight: MediaQuery.of(context).size.width * 0.17,
+            toolbarHeight: MediaQuery.of(context).size.width *
+                0.11, //TODO : AppBar height and remove extra space above the appbar.
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -684,6 +698,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           final selected = await showModalBottomSheet<String>(
                             context: context,
                             isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16.0)),
+                            ),
                             builder: (BuildContext context) {
                               return LocationSelector(
                                 locationList: jobsController.locationList,
@@ -718,380 +736,410 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
             backgroundColor: Colors.white,
           ),
           body: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: double.infinity,
-                        margin: const EdgeInsets.only(top: 0),
-                        padding: const EdgeInsets.only(top: 0),
-                        decoration: const BoxDecoration(
-                          color: Constants.bgPanelColor,
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    if (isbannerVisible)
-                                      SizedBox(
-                                        height: 10.h,
-                                      ),
-                                    if (isbannerVisible)
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Color.fromARGB(
-                                                    255, 192, 192, 192),
-                                                blurRadius: 2.0,
-                                                spreadRadius: 1),
-                                          ],
-                                          color: Constants.bgPanelColor,
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(bannerUrl)),
-
-                                          //  color: Color(0xfff0f1fe),
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: double.infinity,
+                          margin: const EdgeInsets.only(top: 0),
+                          padding: const EdgeInsets.only(top: 0),
+                          decoration: const BoxDecoration(
+                            color: Constants.bgPanelColor,
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      if (isbannerVisible)
+                                        SizedBox(
+                                          height: 10.h,
                                         ),
-                                        height: 80.h,
-                                        margin: const EdgeInsets.only(
-                                            left: 20.0, right: 20.0),
-                                        width: double.infinity,
-                                      ),
-                                    Visibility(
-                                      visible:
-                                          jobsController.filteredJobs.isEmpty,
-                                      child: Center(
-                                        child: Column(
-                                          children: [
-                                            Image.asset(
-                                              "./assets/images/unboxing.gif",
-                                              height: 125.0.h,
-                                              width: 125.0.w,
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                              child: Text(
-                                                "Please choose the city where you are currently searching for job opportunities.",
-                                                textAlign: TextAlign.center,
-                                                style: GoogleFonts.varela(
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                      if (isbannerVisible)
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                  color: Color.fromARGB(
+                                                      255, 192, 192, 192),
+                                                  blurRadius: 2.0,
+                                                  spreadRadius: 1),
+                                            ],
+                                            color: Constants.bgPanelColor,
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: NetworkImage(bannerUrl)),
+
+                                            //  color: Color(0xfff0f1fe),
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                          ),
+                                          height: 80.h,
+                                          margin: const EdgeInsets.only(
+                                              left: 20.0, right: 20.0),
+                                          width: double.infinity,
+                                        ),
+                                      Visibility(
+                                        visible:
+                                            jobsController.filteredJobs.isEmpty,
+                                        child: Center(
+                                          child: Column(
+                                            children: [
+                                              Image.asset(
+                                                "./assets/images/unboxing.gif",
+                                                height: 125.0.h,
+                                                width: 125.0.w,
                                               ),
-                                            )
-                                          ],
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20),
+                                                child: Text(
+                                                  "Please choose the city where you are currently searching for job opportunities.",
+                                                  textAlign: TextAlign.center,
+                                                  style: GoogleFonts.varela(
+                                                    fontSize: 15.sp,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    // Visibility(
-                                    //   visible: selectedLocation != null &&
-                                    //       selectedLocation.isEmpty &&
-                                    //       data.jobs.isNotEmpty,
-                                    //   child: Center(
-                                    //     child: Column(
-                                    //       children: [
-                                    //         Image.asset(
-                                    //           "./assets/images/unboxing.gif",
-                                    //           height: 125.0.h,
-                                    //           width: 125.0.w,
-                                    //         ),
-                                    //         Padding(
-                                    //           padding:
-                                    //               const EdgeInsets.symmetric(
-                                    //                   horizontal: 20),
-                                    //           child: Text(
-                                    //             "Please choose the city where you are currently searching for job opportunities.",
-                                    //             textAlign: TextAlign.center,
-                                    //             style: GoogleFonts.varela(
-                                    //               fontSize: 15.sp,
-                                    //               fontWeight: FontWeight.bold,
-                                    //             ),
-                                    //           ),
-                                    //         )
-                                    //       ],
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    if (jobsController.filteredJobs.isNotEmpty)
-                                      ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: jobsController.filteredJobs
-                                            .where((job) => job.active == 1)
-                                            .length,
-                                        itemBuilder: (context, index) {
-                                          var filteredJobs = jobsController
-                                              .filteredJobs
+                                      // Visibility(
+                                      //   visible: selectedLocation != null &&
+                                      //       selectedLocation.isEmpty &&
+                                      //       data.jobs.isNotEmpty,
+                                      //   child: Center(
+                                      //     child: Column(
+                                      //       children: [
+                                      //         Image.asset(
+                                      //           "./assets/images/unboxing.gif",
+                                      //           height: 125.0.h,
+                                      //           width: 125.0.w,
+                                      //         ),
+                                      //         Padding(
+                                      //           padding:
+                                      //               const EdgeInsets.symmetric(
+                                      //                   horizontal: 20),
+                                      //           child: Text(
+                                      //             "Please choose the city where you are currently searching for job opportunities.",
+                                      //             textAlign: TextAlign.center,
+                                      //             style: GoogleFonts.varela(
+                                      //               fontSize: 15.sp,
+                                      //               fontWeight: FontWeight.bold,
+                                      //             ),
+                                      //           ),
+                                      //         )
+                                      //       ],
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      if (jobsController
+                                          .filteredJobs.isNotEmpty)
+                                        ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: jobsController.filteredJobs
                                               .where((job) => job.active == 1)
-                                              .toList(); // Convert the filtered iterable to a list
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            var filteredJobs = jobsController
+                                                .filteredJobs
+                                                .where((job) => job.active == 1)
+                                                .toList(); // Convert the filtered iterable to a list
 
-                                          var item = filteredJobs[index];
-                                          /*  var item = jobsController
-                                              .filteredJobs[index]; */
+                                            var item = filteredJobs[index];
+                                            /*  var item = jobsController
+                                                .filteredJobs[index]; */
 
-/* 
-                                             */
-                                          if (item.skills != null) {
-                                            myString = item.skills!;
-                                            updatedList = myString
-                                                .map((item) => item.trim())
-                                                .toList();
+                                            /* 
+                                               */
+                                            if (item.skills != null) {
+                                              myString = item.skills!;
+                                              updatedList = myString
+                                                  .map((item) => item.trim())
+                                                  .toList();
 
-                                            // do something with the parts array
-                                          } else {
-                                            // handle the case where str is null
-                                          }
-                                          return GestureDetector(
-                                            onTap: () {
-                                              Navigator.pushNamed(
-                                                context,
-                                                ERoute.jobsdetail.name,
-                                                arguments: {'id': item.id},
-                                              );
-                                            },
-                                            child: Stack(
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 10),
-                                                  child: Card(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10.r),
-                                                    ),
-                                                    elevation: 4,
-                                                    margin:
+                                              // do something with the parts array
+                                            } else {
+                                              // handle the case where str is null
+                                            }
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  ERoute.jobsdetail.name,
+                                                  arguments: {'id': item.id},
+                                                );
+                                              },
+                                              child: Stack(
+                                                children: [
+                                                  Padding(
+                                                    padding:
                                                         const EdgeInsets.only(
-                                                            left: 10,
-                                                            right: 10,
-                                                            top: 1),
-                                                    child: Padding(
-                                                      padding: EdgeInsets.only(
-                                                          left: 5.w,
-                                                          right: 5.w,
-                                                          bottom: 5.h,
-                                                          top: 5.h),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            10),
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      item.roleName ??
-                                                                          '',
-                                                                      maxLines:
-                                                                          2,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style: GoogleFonts.varela(
-                                                                          fontWeight: FontWeight
-                                                                              .bold,
-                                                                          fontSize:
-                                                                              16.sp),
-                                                                    ),
+                                                            bottom: 10),
+                                                    child: Card(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.r),
+                                                      ),
+                                                      elevation: 4,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              left: 10,
+                                                              right: 10,
+                                                              top: 1),
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 5.w,
+                                                                right: 5.w,
+                                                                bottom: 5.h,
+                                                                top: 5.h),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left: 10),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        item.roleName ??
+                                                                            '',
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: GoogleFonts.varela(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize: 16.sp),
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        children: [
+                                                                          if (item.process !=
+                                                                              null)
+                                                                            Text(
+                                                                              item.process.toString(),
+                                                                              style: GoogleFonts.varela(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                                                                            ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                2,
+                                                                          ),
+                                                                          Text(
+                                                                            "||",
+                                                                            style:
+                                                                                GoogleFonts.varela(
+                                                                              fontWeight: FontWeight.w500,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                2,
+                                                                          ),
+                                                                          // if (item["0"] != null)
+                                                                          Text(
+                                                                            item.natureOfWork.toString(),
+                                                                            style:
+                                                                                GoogleFonts.varela(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5.h,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 10),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.only(top: 1),
+                                                                        child: Image
+                                                                            .asset(
+                                                                          "assets/images/cmpny.png",
+                                                                          height:
+                                                                              12.h,
+                                                                        ),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        width:
+                                                                            8.w,
+                                                                      ),
+                                                                      Text(
+                                                                        item.companyName
+                                                                            .toString(),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: GoogleFonts.varela(
+                                                                            // color: Colors.black54,
+                                                                            color: Constants.subtitleclr,
+                                                                            fontWeight: FontWeight.normal,
+                                                                            fontSize: 13.sp),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  item.isFresher ==
+                                                                          "Fresher"
+                                                                      ? Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.start,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.center,
+                                                                          children: [
+                                                                            Image.asset(
+                                                                              "assets/images/bag.png",
+                                                                              height: 12.h,
+                                                                              //  color: Constants.subtitleclr,
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 8.w,
+                                                                            ),
+                                                                            Text(
+                                                                              "Fresher can apply.",
+                                                                              style: GoogleFonts.varela(
+                                                                                  // color: Colors.black54,
+                                                                                  color: Constants.subtitleclr,
+                                                                                  fontWeight: FontWeight.normal,
+                                                                                  fontSize: 13.sp),
+                                                                            )
+                                                                          ],
+                                                                        )
+                                                                      : (item.totalExperience !=
+                                                                              null)
+                                                                          ? Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                                                              children: [
+                                                                                Image.asset(
+                                                                                  "assets/images/bag.png",
+                                                                                  height: 12.h,
+                                                                                  //  color: Constants.subtitleclr,
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  width: 8.w,
+                                                                                ),
+                                                                                item.maxExperience == "& above"
+                                                                                    ? item.minExperience == "0.6"
+                                                                                        ? Text(
+                                                                                            // "${item.minexperience.replaceAll(".0", "")} Years & above.",
+                                                                                            "6 Month & Above.",
+                                                                                            style: GoogleFonts.varela(
+                                                                                                // color: Colors.black54,
+                                                                                                color: Constants.subtitleclr,
+                                                                                                fontWeight: FontWeight.normal,
+                                                                                                fontSize: 13.sp),
+                                                                                          )
+                                                                                        : Text(
+                                                                                            "${item.minExperience?.replaceAll(".0", "")} Years & above.",
+                                                                                            style: GoogleFonts.varela(
+                                                                                                // color: Colors.black54,
+                                                                                                color: Constants.subtitleclr,
+                                                                                                fontWeight: FontWeight.normal,
+                                                                                                fontSize: 13.sp),
+                                                                                          )
+                                                                                    : Text(
+                                                                                        "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years",
+                                                                                        style: GoogleFonts.varela(
+                                                                                            // color: Colors.black54,
+                                                                                            color: Constants.subtitleclr,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                            fontSize: 13.sp),
+                                                                                      )
+                                                                              ],
+                                                                            )
+                                                                          : const SizedBox(),
+                                                                  if (item.minCTC !=
+                                                                      null)
                                                                     Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
                                                                               .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .center,
                                                                       children: [
-                                                                        if (item.process !=
-                                                                            null)
-                                                                          Text(
-                                                                            item.process.toString(),
-                                                                            style:
-                                                                                GoogleFonts.varela(fontWeight: FontWeight.w500, fontSize: 14.sp),
-                                                                          ),
-                                                                        const SizedBox(
+                                                                        Image
+                                                                            .network(
+                                                                          ConstImageUrl
+                                                                              .wallet,
+                                                                          height:
+                                                                              14.h,
+                                                                        ),
+                                                                        SizedBox(
                                                                           width:
-                                                                              2,
+                                                                              6.w,
                                                                         ),
                                                                         Text(
-                                                                          "||",
+                                                                          formatSalaryRange(
+                                                                              item.minCTC!.toInt(),
+                                                                              item.maxCTC!.toInt()),
                                                                           style:
                                                                               GoogleFonts.varela(
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
+                                                                            fontSize:
+                                                                                13.sp,
+                                                                            color:
+                                                                                Constants.subtitleclr,
                                                                           ),
                                                                         ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              2,
-                                                                        ),
-                                                                        // if (item["0"] != null)
-                                                                        Text(
-                                                                          item.natureOfWork
-                                                                              .toString(),
-                                                                          style: GoogleFonts.varela(
-                                                                              fontWeight: FontWeight.w500,
-                                                                              fontSize: 14.sp),
-                                                                        )
+                                                                        if (item.isMonthly !=
+                                                                            "")
+                                                                          Text(
+                                                                            " ${item.isMonthly}",
+                                                                            style:
+                                                                                GoogleFonts.varela(
+                                                                              fontSize: 13.sp,
+                                                                              color: Constants.subtitleclr,
+                                                                            ),
+                                                                          )
                                                                       ],
                                                                     ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          SizedBox(
-                                                            height: 5.h,
-                                                          ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 10),
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                              .only(
-                                                                          top:
-                                                                              1),
-                                                                      child: Image
-                                                                          .asset(
-                                                                        "assets/images/cmpny.png",
-                                                                        height:
-                                                                            12.h,
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      width:
-                                                                          8.w,
-                                                                    ),
-                                                                    Text(
-                                                                      item.companyName
-                                                                          .toString(),
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style: GoogleFonts.varela(
-                                                                          // color: Colors.black54,
-                                                                          color: Constants.subtitleclr,
-                                                                          fontWeight: FontWeight.normal,
-                                                                          fontSize: 13.sp),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                item.isFresher ==
-                                                                        "Fresher"
-                                                                    ? Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.start,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.center,
-                                                                        children: [
-                                                                          Image
-                                                                              .asset(
-                                                                            "assets/images/bag.png",
-                                                                            height:
-                                                                                12.h,
-                                                                            //  color: Constants.subtitleclr,
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                8.w,
-                                                                          ),
-                                                                          Text(
-                                                                            "Fresher can apply.",
-                                                                            style: GoogleFonts.varela(
-                                                                                // color: Colors.black54,
-                                                                                color: Constants.subtitleclr,
-                                                                                fontWeight: FontWeight.normal,
-                                                                                fontSize: 13.sp),
-                                                                          )
-                                                                        ],
-                                                                      )
-                                                                    : (item.totalExperience !=
-                                                                            null)
-                                                                        ? Row(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.start,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.center,
-                                                                            children: [
-                                                                              Image.asset(
-                                                                                "assets/images/bag.png",
-                                                                                height: 12.h,
-                                                                                //  color: Constants.subtitleclr,
-                                                                              ),
-                                                                              SizedBox(
-                                                                                width: 8.w,
-                                                                              ),
-                                                                              item.maxExperience == "& above"
-                                                                                  ? item.minExperience == "0.6"
-                                                                                      ? Text(
-                                                                                          // "${item.minexperience.replaceAll(".0", "")} Years & above.",
-                                                                                          "6 Month & Above.",
-                                                                                          style: GoogleFonts.varela(
-                                                                                              // color: Colors.black54,
-                                                                                              color: Constants.subtitleclr,
-                                                                                              fontWeight: FontWeight.normal,
-                                                                                              fontSize: 13.sp),
-                                                                                        )
-                                                                                      : Text(
-                                                                                          "${item.minExperience?.replaceAll(".0", "")} Years & above.",
-                                                                                          style: GoogleFonts.varela(
-                                                                                              // color: Colors.black54,
-                                                                                              color: Constants.subtitleclr,
-                                                                                              fontWeight: FontWeight.normal,
-                                                                                              fontSize: 13.sp),
-                                                                                        )
-                                                                                  : Text(
-                                                                                      "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years",
-                                                                                      style: GoogleFonts.varela(
-                                                                                          // color: Colors.black54,
-                                                                                          color: Constants.subtitleclr,
-                                                                                          fontWeight: FontWeight.normal,
-                                                                                          fontSize: 13.sp),
-                                                                                    )
-                                                                            ],
-                                                                          )
-                                                                        : const SizedBox(),
-                                                                if (item.minCTC !=
-                                                                    null)
                                                                   Row(
                                                                     mainAxisAlignment:
                                                                         MainAxisAlignment
@@ -1101,20 +1149,22 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             .center,
                                                                     children: [
                                                                       Image
-                                                                          .network(
-                                                                        ConstImageUrl
-                                                                            .wallet,
+                                                                          .asset(
+                                                                        "assets/images/loc.png",
                                                                         height:
-                                                                            14.h,
+                                                                            14.sp,
                                                                       ),
                                                                       SizedBox(
                                                                         width:
                                                                             6.w,
                                                                       ),
                                                                       Text(
-                                                                        formatSalaryRange(
-                                                                            item.minCTC!.toInt(),
-                                                                            item.maxCTC!.toInt()),
+                                                                        item.location ??
+                                                                            '',
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
                                                                         style: GoogleFonts
                                                                             .varela(
                                                                           fontSize:
@@ -1123,293 +1173,154 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                               Constants.subtitleclr,
                                                                         ),
                                                                       ),
-                                                                      if (item.isMonthly !=
-                                                                          "")
-                                                                        Text(
-                                                                          " ${item.isMonthly}",
-                                                                          style:
-                                                                              GoogleFonts.varela(
-                                                                            fontSize:
-                                                                                13.sp,
-                                                                            color:
-                                                                                Constants.subtitleclr,
-                                                                          ),
-                                                                        )
                                                                     ],
                                                                   ),
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Image.asset(
-                                                                      "assets/images/loc.png",
-                                                                      height:
-                                                                          14.sp,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      width:
-                                                                          6.w,
-                                                                    ),
-                                                                    Text(
-                                                                      item.location ??
-                                                                          '',
-                                                                      maxLines:
-                                                                          2,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            13.sp,
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            height: 3.h,
-                                                          ),
-                                                          if (updatedList !=
-                                                              null)
-                                                            Wrap(
-                                                              alignment:
-                                                                  WrapAlignment
-                                                                      .start,
-                                                              spacing: 8.0,
-                                                              children: [
-                                                                ...updatedList
-                                                                    .take(5)
-                                                                    .map(
-                                                                      (skillItem) =>
-                                                                          Container(
-                                                                        margin: const EdgeInsets.only(
-                                                                            bottom:
-                                                                                5),
-                                                                        padding: const EdgeInsets.symmetric(
-                                                                            vertical:
-                                                                                4,
-                                                                            horizontal:
-                                                                                8),
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color: Colors
-                                                                              .grey
-                                                                              .shade200,
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(8),
-                                                                        ),
-                                                                        child:
-                                                                            Text(
-                                                                          "#$skillItem"
-                                                                              .replaceAll('"', '')
-                                                                              .replaceAll('[', '')
-                                                                              .replaceAll(']', ''),
-                                                                          style:
-                                                                              GoogleFonts.varela(
-                                                                            color:
-                                                                                Colors.black54,
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize:
-                                                                                13.sp,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    )
-                                                                    .toList(),
-                                                                if (updatedList
-                                                                        .length >
-                                                                    5)
-                                                                  Container(
-                                                                    margin: const EdgeInsets
-                                                                            .only(
-                                                                        bottom:
-                                                                            5),
-                                                                    padding: const EdgeInsets
-                                                                            .symmetric(
-                                                                        vertical:
-                                                                            4,
-                                                                        horizontal:
-                                                                            8),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: Constants
-                                                                          .borderColor,
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                    ),
-                                                                    child: Text(
-                                                                      '+${updatedList.length - 5}'
-                                                                          .replaceAll(
-                                                                              '"',
-                                                                              '')
-                                                                          .replaceAll(
-                                                                              '[',
-                                                                              '')
-                                                                          .replaceAll(
-                                                                              ']',
-                                                                              ''),
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontSize:
-                                                                            13.sp,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                              ],
-                                                            ),
-                                                          Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
-                                                                    vertical:
-                                                                        5.h),
-                                                            color: Colors
-                                                                .grey.shade400,
-                                                            width: double
-                                                                .maxFinite,
-                                                            height: 0.5.h,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Column(
-                                                                children: [
-                                                                  data.usertype ==
-                                                                              3 &&
-                                                                          data.id ==
-                                                                              item.spoc
-                                                                      ? InkWell(
-                                                                          onTap:
-                                                                              () {
-                                                                            Navigator.push(context,
-                                                                                MaterialPageRoute(builder: (context) => const MatchingJobs()));
-                                                                          },
-                                                                          child:
-                                                                              Container(
-                                                                            margin:
-                                                                                const EdgeInsets.only(right: 10),
-                                                                            padding:
-                                                                                EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              border: Border.all(color: Constants.subtitleclr),
-                                                                              borderRadius: BorderRadius.circular(8),
-                                                                            ),
-                                                                            child:
-                                                                                Row(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                Text(
-                                                                                  "Matching CV",
-                                                                                  style: TextStyle(
-                                                                                    color: Constants.subtitleclr,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: 15.h,
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          ),
-                                                                        )
-                                                                      : const SizedBox()
                                                                 ],
                                                               ),
-                                                              const Spacer(),
-                                                              Visibility(
-                                                                visible:
-                                                                    data.usertype ==
-                                                                        3,
-                                                                child: InkWell(
-                                                                  onTap: () {
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => AddResume(
-                                                                                  company_name: item.companyName.toString(),
-                                                                                  role: item.roleName.toString(),
-                                                                                  process: item.process.toString(),
-                                                                                  nature_of_work: item.natureOfWork.toString(),
-                                                                                  company_id: item.companyId!.toInt(),
-                                                                                  jobId: item.id!.toInt(),
-                                                                                  sourceId: data.id != null ? data.id!.toInt() : 0,
-                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                  isRefer: false,
-                                                                                  spocId: item.spoc!.toInt(),
-                                                                                )));
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                    margin: const EdgeInsets
-                                                                            .only(
-                                                                        right:
-                                                                            10),
-                                                                    padding: EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            4.h,
-                                                                        horizontal:
-                                                                            8.w),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      border: Border.all(
-                                                                          color:
-                                                                              Constants.themeBgColor),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                    ),
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        Icon(
-                                                                          Icons
-                                                                              .add,
-                                                                          color:
-                                                                              Constants.themeBgColor,
-                                                                          size:
-                                                                              15.h,
-                                                                        ),
-                                                                        Text(
-                                                                          "Resume",
-                                                                          style:
-                                                                              TextStyle(
+                                                            ),
+                                                            SizedBox(
+                                                              height: 3.h,
+                                                            ),
+                                                            if (updatedList !=
+                                                                null)
+                                                              Wrap(
+                                                                alignment:
+                                                                    WrapAlignment
+                                                                        .start,
+                                                                spacing: 8.0,
+                                                                children: [
+                                                                  ...updatedList
+                                                                      .take(5)
+                                                                      .map(
+                                                                        (skillItem) =>
+                                                                            Container(
+                                                                          margin:
+                                                                              const EdgeInsets.only(bottom: 5),
+                                                                          padding: const EdgeInsets.symmetric(
+                                                                              vertical: 4,
+                                                                              horizontal: 8),
+                                                                          decoration:
+                                                                              BoxDecoration(
                                                                             color:
-                                                                                Constants.themeBgColor,
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize:
-                                                                                15.h,
+                                                                                Colors.grey.shade200,
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(8),
+                                                                          ),
+                                                                          child:
+                                                                              Text(
+                                                                            "#$skillItem".replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+                                                                                ''),
+                                                                            style:
+                                                                                GoogleFonts.varela(
+                                                                              color: Colors.black54,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontSize: 13.sp,
+                                                                            ),
                                                                           ),
                                                                         ),
-                                                                      ],
+                                                                      )
+                                                                      .toList(),
+                                                                  if (updatedList
+                                                                          .length >
+                                                                      5)
+                                                                    Container(
+                                                                      margin: const EdgeInsets
+                                                                              .only(
+                                                                          bottom:
+                                                                              5),
+                                                                      padding: const EdgeInsets
+                                                                              .symmetric(
+                                                                          vertical:
+                                                                              4,
+                                                                          horizontal:
+                                                                              8),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: Constants
+                                                                            .borderColor,
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(8),
+                                                                      ),
+                                                                      child:
+                                                                          Text(
+                                                                        '+${updatedList.length - 5}'
+                                                                            .replaceAll('"',
+                                                                                '')
+                                                                            .replaceAll('[',
+                                                                                '')
+                                                                            .replaceAll(']',
+                                                                                ''),
+                                                                        style: GoogleFonts
+                                                                            .varela(
+                                                                          color:
+                                                                              Colors.black,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontSize:
+                                                                              13.sp,
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                  ),
-                                                                ),
+                                                                ],
                                                               ),
-                                                              if (item.payoutType !=
-                                                                  null)
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .symmetric(
+                                                                      vertical:
+                                                                          5.h),
+                                                              color: Colors.grey
+                                                                  .shade400,
+                                                              width: double
+                                                                  .maxFinite,
+                                                              height: 0.5.h,
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Column(
+                                                                  children: [
+                                                                    data.usertype ==
+                                                                                3 &&
+                                                                            data.id ==
+                                                                                item.spoc
+                                                                        ? InkWell(
+                                                                            onTap:
+                                                                                () {
+                                                                              Navigator.push(context, MaterialPageRoute(builder: (context) => const MatchingJobs()));
+                                                                            },
+                                                                            child:
+                                                                                Container(
+                                                                              margin: const EdgeInsets.only(right: 10),
+                                                                              padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                                                                              decoration: BoxDecoration(
+                                                                                border: Border.all(color: Constants.subtitleclr),
+                                                                                borderRadius: BorderRadius.circular(8),
+                                                                              ),
+                                                                              child: Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    "Matching CV",
+                                                                                    style: TextStyle(
+                                                                                      color: Constants.subtitleclr,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontSize: 15.h,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          )
+                                                                        : const SizedBox()
+                                                                  ],
+                                                                ),
+                                                                const Spacer(),
                                                                 Visibility(
                                                                   visible:
                                                                       data.usertype ==
-                                                                          1,
+                                                                          3,
                                                                   child:
                                                                       InkWell(
                                                                     onTap: () {
-                                                                      var profilemodel;
                                                                       Navigator.push(
                                                                           context,
                                                                           MaterialPageRoute(
@@ -1419,13 +1330,132 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                     process: item.process.toString(),
                                                                                     nature_of_work: item.natureOfWork.toString(),
                                                                                     company_id: item.companyId!.toInt(),
-                                                                                    //anyId!.toInt(),
                                                                                     jobId: item.id!.toInt(),
-                                                                                    sourceId: data.id!.toInt(),
+                                                                                    sourceId: data.id != null ? data.id!.toInt() : 0,
                                                                                     sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                    isRefer: true,
+                                                                                    isRefer: false,
                                                                                     spocId: item.spoc!.toInt(),
                                                                                   )));
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      margin: const EdgeInsets
+                                                                              .only(
+                                                                          right:
+                                                                              10),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical: 4
+                                                                              .h,
+                                                                          horizontal:
+                                                                              8.w),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        border: Border.all(
+                                                                            color:
+                                                                                Constants.themeBgColor),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(8),
+                                                                      ),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.add,
+                                                                            color:
+                                                                                Constants.themeBgColor,
+                                                                            size:
+                                                                                15.h,
+                                                                          ),
+                                                                          Text(
+                                                                            "Resume",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Constants.themeBgColor,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontSize: 15.h,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                if (item.payoutType !=
+                                                                    null)
+                                                                  Visibility(
+                                                                    visible:
+                                                                        data.usertype ==
+                                                                            1,
+                                                                    child:
+                                                                        InkWell(
+                                                                      onTap:
+                                                                          () {
+                                                                        var profilemodel;
+                                                                        Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => AddResume(
+                                                                                      company_name: item.companyName.toString(),
+                                                                                      role: item.roleName.toString(),
+                                                                                      process: item.process.toString(),
+                                                                                      nature_of_work: item.natureOfWork.toString(),
+                                                                                      company_id: item.companyId!.toInt(),
+                                                                                      //anyId!.toInt(),
+                                                                                      jobId: item.id!.toInt(),
+                                                                                      sourceId: data.id!.toInt(),
+                                                                                      sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                      isRefer: true,
+                                                                                      spocId: item.spoc!.toInt(),
+                                                                                    )));
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        margin:
+                                                                            const EdgeInsets.only(
+                                                                          left:
+                                                                              10,
+                                                                        ),
+                                                                        padding: EdgeInsets.symmetric(
+                                                                            vertical:
+                                                                                4.h,
+                                                                            horizontal: 10.w),
+                                                                        decoration: BoxDecoration(
+                                                                            border:
+                                                                                Border.all(color: Constants.themeBgColor),
+                                                                            borderRadius: BorderRadius.circular(8)),
+                                                                        child:
+                                                                            Text(
+                                                                          "Refer Now",
+                                                                          style: GoogleFonts.varela(
+                                                                              color: Constants.themeBgColor,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                Visibility(
+                                                                  visible:
+                                                                      data.usertype ==
+                                                                          1,
+                                                                  child:
+                                                                      InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      await JobPostApiService.postJobApply(
+                                                                          jobId: item
+                                                                              .id!
+                                                                              .toInt(),
+                                                                          userId: int.parse(data
+                                                                              .id
+                                                                              .toString()),
+                                                                          context:
+                                                                              context);
+                                                                      ref.refresh(
+                                                                          fetchAllApplyProvider);
+                                                                      ref.refresh(
+                                                                          fetchAllTalentPool);
                                                                     },
                                                                     child:
                                                                         Container(
@@ -1438,14 +1468,14 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           vertical: 4
                                                                               .h,
                                                                           horizontal:
-                                                                              10.w),
+                                                                              16.w),
                                                                       decoration: BoxDecoration(
                                                                           border:
                                                                               Border.all(color: Constants.themeBgColor),
                                                                           borderRadius: BorderRadius.circular(8)),
                                                                       child:
                                                                           Text(
-                                                                        "Refer Now",
+                                                                        "Apply",
                                                                         style: GoogleFonts.varela(
                                                                             color:
                                                                                 Constants.themeBgColor,
@@ -1453,389 +1483,340 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                ),
-                                                              Visibility(
-                                                                visible:
-                                                                    data.usertype ==
-                                                                        1,
-                                                                child: InkWell(
-                                                                  onTap:
-                                                                      () async {
-                                                                    await JobPostApiService.postJobApply(
-                                                                        jobId: item
-                                                                            .id!
-                                                                            .toInt(),
-                                                                        userId: int.parse(data
-                                                                            .id
-                                                                            .toString()),
-                                                                        context:
-                                                                            context);
-                                                                    ref.refresh(
-                                                                        fetchAllApplyProvider);
-                                                                    ref.refresh(
-                                                                        fetchAllTalentPool);
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                    margin:
-                                                                        const EdgeInsets
-                                                                            .only(
-                                                                      left: 10,
-                                                                    ),
-                                                                    padding: EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            4.h,
-                                                                        horizontal:
-                                                                            16.w),
-                                                                    decoration: BoxDecoration(
-                                                                        border: Border.all(
-                                                                            color: Constants
-                                                                                .themeBgColor),
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8)),
-                                                                    child: Text(
-                                                                      "Apply",
-                                                                      style: GoogleFonts.varela(
-                                                                          color: Constants
-                                                                              .themeBgColor,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ],
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                item.spoc.toString() ==
-                                                        data.id.toString()
-                                                    ? Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 15.w),
-                                                        child: CircularMenu(
-                                                          toggleButtonOnPressed:
-                                                              () {
-                                                            setState(() {
-                                                              isMenuOpen =
-                                                                  !isMenuOpen; // Toggle the menu open/close state
-                                                            });
-                                                          },
-                                                          radius: 35.r,
-                                                          alignment: Alignment
-                                                              .topRight,
-                                                          backgroundWidget:
-                                                              Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Center(
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          100.0),
+                                                  item.spoc.toString() ==
+                                                          data.id.toString()
+                                                      ? Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  right: 15.w),
+                                                          child: CircularMenu(
+                                                            toggleButtonOnPressed:
+                                                                () {
+                                                              setState(() {
+                                                                isMenuOpen =
+                                                                    !isMenuOpen; // Toggle the menu open/close state
+                                                              });
+                                                            },
+                                                            radius: 35.r,
+                                                            alignment: Alignment
+                                                                .topRight,
+                                                            backgroundWidget:
+                                                                Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Center(
                                                                   child:
-                                                                      RichText(
-                                                                    text:
-                                                                        TextSpan(
-                                                                      style: GoogleFonts.varela(
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontSize:
-                                                                              20,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                      children: const <
-                                                                          TextSpan>[
-                                                                        //  TextSpan(text: 'Press the menu button'),
-                                                                      ],
+                                                                      Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .all(
+                                                                        100.0),
+                                                                    child:
+                                                                        RichText(
+                                                                      text:
+                                                                          TextSpan(
+                                                                        style: GoogleFonts.varela(
+                                                                            color: Colors
+                                                                                .black,
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                        children: const <
+                                                                            TextSpan>[
+                                                                          //  TextSpan(text: 'Press the menu button'),
+                                                                        ],
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ),
+                                                              ],
+                                                            ),
+                                                            toggleButtonSize:
+                                                                isMenuOpen
+                                                                    ? 24.h
+                                                                    : 18.h,
+                                                            toggleButtonMargin:
+                                                                10,
+                                                            toggleButtonPadding:
+                                                                0,
+                                                            startingAngleInRadian:
+                                                                0.4 * pi,
+                                                            endingAngleInRadian:
+                                                                3.4,
+                                                            curve: Curves
+                                                                .bounceInOut,
+                                                            reverseCurve: Curves
+                                                                .bounceInOut,
+                                                            toggleButtonIconColor:
+                                                                Constants
+                                                                    .themeBgColor,
+                                                            toggleButtonColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            items: [
+                                                              CircularMenuItem(
+                                                                  icon: Icons
+                                                                      .delete_outlined,
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  iconColor:
+                                                                      Colors
+                                                                          .red,
+                                                                  iconSize:
+                                                                      18.h,
+                                                                  onTap: () {
+                                                                    setState(
+                                                                        () {
+                                                                      _color =
+                                                                          Colors
+                                                                              .red;
+                                                                      _colorName =
+                                                                          'red';
+                                                                    });
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (context) {
+                                                                        return AlertDialog(
+                                                                          title:
+                                                                              const Text('Dialog Title'),
+                                                                          content:
+                                                                              const Text('This is the dialog content.'),
+                                                                          actions: [
+                                                                            ElevatedButton(
+                                                                              child: const Text('Cancel'),
+                                                                              onPressed: () {
+                                                                                Navigator.of(context).pop();
+                                                                              },
+                                                                            ),
+                                                                            ElevatedButton(
+                                                                              child: const Text('OK'),
+                                                                              onPressed: () async {
+                                                                                Navigator.pop(context);
+                                                                                // Perform any action here
+                                                                                // Navigator.of(context).pop();
+                                                                                Autogenerated model = Autogenerated(active: 0
+                                                                                    /*  active: 0,
+                                            id: jobDetailsModel.id,
+                                            companyId: jobDetailsModel.compnayid,
+                                            roleName:jobDetailsModel.rolename,
+                                            natureOfWork:
+                                               jobDetailsModel.naturofwork,
+                                            process:jobDetailsModel.process,
+                                            noOfVacancy: jobDetailsModel.no_of_vacancy,
+                                            ageGroup: jobDetailsModel.age_group,
+                                            boundry_limits: jobDetailsModel.boundarylimits,
+                                            education: jobDetailsModel.education,
+                                            eligible: jobDetailsModel.eligible,
+                                            gender: jobDetailsModel.gender,
+                                            skills: jobDetailsModel.skills,
+                                          keyResponsible: jobDetailsModel.key_responsible,
+                                          minExperience: jobDetailsModel.minexperience.toString(),
+                                          maxExperience: jobDetailsModel.maxexperience.toString(),
+                                          minCtc: jobDetailsModel.minctc!.toInt(),
+                                          maxCtc: jobDetailsModel.maxctc!.toInt(),
+                                         // minAge:jobDetailsModel.minAge,
+                                         // maxAge: jobDetailsModel.maxAge,
+                                         isFresher: jobDetailsModel.isfresher,
+                                         isMonthly: jobDetailsModel.ismonthly,
+                                         empType: jobDetailsModel.emptype,
+                                         shiftDesc: jobDetailsModel.shiftdesc,
+                                         shiftTime: jobDetailsModel.shifttime,
+                                         interviewRounds: jobDetailsModel.inteviewrounds,
+                                         jobBenefits: jobDetailsModel.job_benifits,
+                                        languageKnown: jobDetailsModel.languageknown, */
+
+                                                                                    );
+                                                                                Map<String, dynamic> jsonData = model.toJson();
+                                                                                await JobPostApiService.jobInActive(jsonData, item.id!.toInt());
+                                                                                ref.refresh(jobsProvider);
+                                                                                // ref.refresh(profileSummaryProvider);
+                                                                              },
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  }),
+                                                              /*  CircularMenuItem(
+                                                                  icon: Icons
+                                                                      .bookmark_add_outlined,
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  iconColor:
+                                                                      Colors
+                                                                          .brown,
+                                                                  iconSize: 18.h,
+                                                                  onTap: () {
+                                                                    setState(() {
+                                                                      _color = Colors
+                                                                          .brown;
+                                                                      _colorName =
+                                                                          'Brown';
+                                                                    });
+                                                                  }), */
+                                                              /*  CircularMenuItem(
+                                                                  icon:
+                                                                      Icons.share,
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  iconColor:
+                                                                      Colors
+                                                                          .green,
+                                                                  iconSize: 18.h,
+                                                                  onTap:
+                                                                      () async {
+                                                                    setState(() {
+                                                                      _color = Colors
+                                                                          .green;
+                                                                      _colorName =
+                                                                          'Green';
+                                                                    });
+                                                                    const url =
+                                                                        "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                                                                    if (await canLaunch(
+                                                                        url)) {
+                                                                      await launch(
+                                                                          url);
+                                                                    } else {
+                                                                      throw 'Could not launch $url';
+                                                                    }
+                                                                  }), */
+                                                              CircularMenuItem(
+                                                                  icon: Icons
+                                                                      .edit,
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  iconColor:
+                                                                      Colors
+                                                                          .red,
+                                                                  iconSize:
+                                                                      18.h,
+                                                                  onTap: () {
+                                                                    setState(
+                                                                        () {
+                                                                      /* _color =
+                                                                          Colors
+                                                                              .red;
+                                                                      _colorName =
+                                                                          'red'; */
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => JobForm(
+                                                                                    formEdit: true,
+                                                                                    companyName: item.companyName.toString(),
+                                                                                    companyId: item.companyId.toString(),
+                                                                                    jobTitle: item.roleName.toString(),
+                                                                                    natureOfWork: item.natureOfWork.toString(),
+                                                                                    process: item.process.toString(),
+                                                                                  )));
+                                                                    });
+                                                                  }),
                                                             ],
                                                           ),
-                                                          toggleButtonSize:
-                                                              isMenuOpen
-                                                                  ? 24.h
-                                                                  : 18.h,
-                                                          toggleButtonMargin:
-                                                              10,
-                                                          toggleButtonPadding:
-                                                              0,
-                                                          startingAngleInRadian:
-                                                              0.4 * pi,
-                                                          endingAngleInRadian:
-                                                              3.4,
-                                                          curve: Curves
-                                                              .bounceInOut,
-                                                          reverseCurve: Curves
-                                                              .bounceInOut,
-                                                          toggleButtonIconColor:
-                                                              Constants
-                                                                  .themeBgColor,
-                                                          toggleButtonColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          items: [
-                                                            CircularMenuItem(
-                                                                icon: Icons
-                                                                    .delete_outlined,
-                                                                color: Colors
-                                                                    .transparent,
-                                                                iconColor:
-                                                                    Colors.red,
-                                                                iconSize: 18.h,
-                                                                onTap: () {
-                                                                  setState(() {
-                                                                    _color =
-                                                                        Colors
-                                                                            .red;
-                                                                    _colorName =
-                                                                        'red';
-                                                                  });
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return AlertDialog(
-                                                                        title: const Text(
-                                                                            'Dialog Title'),
-                                                                        content:
-                                                                            const Text('This is the dialog content.'),
-                                                                        actions: [
-                                                                          ElevatedButton(
-                                                                            child:
-                                                                                const Text('Cancel'),
-                                                                            onPressed:
-                                                                                () {
-                                                                              Navigator.of(context).pop();
-                                                                            },
-                                                                          ),
-                                                                          ElevatedButton(
-                                                                            child:
-                                                                                const Text('OK'),
-                                                                            onPressed:
-                                                                                () async {
-                                                                              Navigator.pop(context);
-                                                                              // Perform any action here
-                                                                              // Navigator.of(context).pop();
-                                                                              Autogenerated model = Autogenerated(active: 0
-                                                                                  /*  active: 0,
-                                          id: jobDetailsModel.id,
-                                          companyId: jobDetailsModel.compnayid,
-                                          roleName:jobDetailsModel.rolename,
-                                          natureOfWork:
-                                             jobDetailsModel.naturofwork,
-                                          process:jobDetailsModel.process,
-                                          noOfVacancy: jobDetailsModel.no_of_vacancy,
-                                          ageGroup: jobDetailsModel.age_group,
-                                          boundry_limits: jobDetailsModel.boundarylimits,
-                                          education: jobDetailsModel.education,
-                                          eligible: jobDetailsModel.eligible,
-                                          gender: jobDetailsModel.gender,
-                                          skills: jobDetailsModel.skills,
-                                        keyResponsible: jobDetailsModel.key_responsible,
-                                        minExperience: jobDetailsModel.minexperience.toString(),
-                                        maxExperience: jobDetailsModel.maxexperience.toString(),
-                                        minCtc: jobDetailsModel.minctc!.toInt(),
-                                        maxCtc: jobDetailsModel.maxctc!.toInt(),
-                                       // minAge:jobDetailsModel.minAge,
-                                       // maxAge: jobDetailsModel.maxAge,
-                                       isFresher: jobDetailsModel.isfresher,
-                                       isMonthly: jobDetailsModel.ismonthly,
-                                       empType: jobDetailsModel.emptype,
-                                       shiftDesc: jobDetailsModel.shiftdesc,
-                                       shiftTime: jobDetailsModel.shifttime,
-                                       interviewRounds: jobDetailsModel.inteviewrounds,
-                                       jobBenefits: jobDetailsModel.job_benifits,
-                                      languageKnown: jobDetailsModel.languageknown, */
-
-                                                                                  );
-                                                                              Map<String, dynamic> jsonData = model.toJson();
-                                                                              await JobPostApiService.jobInActive(jsonData, item.id!.toInt());
-                                                                              ref.refresh(jobsProvider);
-                                                                              // ref.refresh(profileSummaryProvider);
-                                                                            },
-                                                                          ),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                }),
-                                                            /*  CircularMenuItem(
-                                                                icon: Icons
-                                                                    .bookmark_add_outlined,
-                                                                color: Colors
-                                                                    .transparent,
-                                                                iconColor:
-                                                                    Colors
-                                                                        .brown,
-                                                                iconSize: 18.h,
-                                                                onTap: () {
-                                                                  setState(() {
-                                                                    _color = Colors
-                                                                        .brown;
-                                                                    _colorName =
-                                                                        'Brown';
-                                                                  });
-                                                                }), */
-                                                            /*  CircularMenuItem(
-                                                                icon:
-                                                                    Icons.share,
-                                                                color: Colors
-                                                                    .transparent,
-                                                                iconColor:
-                                                                    Colors
-                                                                        .green,
-                                                                iconSize: 18.h,
-                                                                onTap:
-                                                                    () async {
-                                                                  setState(() {
-                                                                    _color = Colors
-                                                                        .green;
-                                                                    _colorName =
-                                                                        'Green';
-                                                                  });
-                                                                  const url =
-                                                                      "https://wa.me/?text=Hey buddy, try this super cool new app!";
-                                                                  if (await canLaunch(
-                                                                      url)) {
-                                                                    await launch(
-                                                                        url);
-                                                                  } else {
-                                                                    throw 'Could not launch $url';
-                                                                  }
-                                                                }), */
-                                                            CircularMenuItem(
-                                                                icon:
-                                                                    Icons.edit,
-                                                                color: Colors
-                                                                    .transparent,
-                                                                iconColor:
-                                                                    Colors.red,
-                                                                iconSize: 18.h,
-                                                                onTap: () {
-                                                                  setState(() {
-                                                                    /* _color =
-                                                                        Colors
-                                                                            .red;
-                                                                    _colorName =
-                                                                        'red'; */
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => JobForm(
-                                                                                  formEdit: true,
-                                                                                  companyName: item.companyName.toString(),
-                                                                                  companyId: item.companyId.toString(),
-                                                                                  jobTitle: item.roleName.toString(),
-                                                                                  natureOfWork: item.natureOfWork.toString(),
-                                                                                  process: item.process.toString(),
-                                                                                )));
-                                                                  });
-                                                                }),
-                                                          ],
-                                                        ),
-                                                      )
-                                                    : Positioned(
-                                                        top: 0,
-                                                        right: 6.w,
-                                                        child: jobsController
-                                                                .isFavLoading
-                                                            ? const Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            16.0),
-                                                                child: SizedBox
-                                                                    .square(
-                                                                  dimension: 10,
-                                                                  child:
-                                                                      CircularProgressIndicator(
-                                                                    strokeWidth:
-                                                                        1,
+                                                        )
+                                                      : Positioned(
+                                                          top: 0,
+                                                          right: 6.w,
+                                                          child: jobsController
+                                                                  .isFavLoading
+                                                              ? const Padding(
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              16.0),
+                                                                  child: SizedBox
+                                                                      .square(
+                                                                    dimension:
+                                                                        10,
+                                                                    child:
+                                                                        CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          1,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              )
-                                                            : IconButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  if ((item.isFav ??
-                                                                          0) ==
-                                                                      1) {
-                                                                    await jobsController.removeFromFav(
-                                                                        item.favJobId!
-                                                                            .toInt(),
-                                                                        data);
-                                                                  } else {
-                                                                    await jobsController.addToFav(
-                                                                        item.id ??
-                                                                            0,
-                                                                        data);
-                                                                  }
-                                                                },
-                                                                icon: Icon(
-                                                                    /*   jobs[index]["id"].toString() ==
-                                      item[index]["id"].toString() */
-                                                                    (item.isFav) ==
-                                                                                1 &&
-                                                                            (item.userId ==
-                                                                                data
-                                                                                    .id)
-                                                                        ? Icons
-                                                                            .bookmark
-                                                                        : Icons
-                                                                            .bookmark_add_outlined,
-                                                                    size: 22.h,
-                                                                    color: Constants
-                                                                        .themeBgColor)),
-                                                      )
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        /* itemCount: _searchController
-                                                .text.isEmpty
-                                            ? (selectedLocation != null &&
-                                                    selectedLocation.isNotEmpty
-                                                ? filteredData.isNotEmpty
-                                                    ? filteredData.length
-                                                    : data.jobs.length
-                                                : data.jobs.length)
-                                            : searchResults.length, */
+                                                                )
+                                                              : IconButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    if ((item.isFav ??
+                                                                            0) ==
+                                                                        1) {
+                                                                      await jobsController.removeFromFav(
+                                                                          item.favJobId!
+                                                                              .toInt(),
+                                                                          data);
+                                                                    } else {
+                                                                      await jobsController.addToFav(
+                                                                          item.id ??
+                                                                              0,
+                                                                          data);
+                                                                    }
+                                                                  },
+                                                                  icon: Icon(
+                                                                      /*   jobs[index]["id"].toString() ==
+                                        item[index]["id"].toString() */
+                                                                      (item.isFav) == 1 && (item.userId == data.id)
+                                                                          ? Icons
+                                                                              .bookmark
+                                                                          : Icons
+                                                                              .bookmark_add_outlined,
+                                                                      size:
+                                                                          22.h,
+                                                                      color: Constants
+                                                                          .themeBgColor)),
+                                                        )
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          /* itemCount: _searchController
+                                                  .text.isEmpty
+                                              ? (selectedLocation != null &&
+                                                      selectedLocation.isNotEmpty
+                                                  ? filteredData.isNotEmpty
+                                                      ? filteredData.length
+                                                      : data.jobs.length
+                                                  : data.jobs.length)
+                                              : searchResults.length, */
 
-                                        padding: const EdgeInsets.only(
-                                            bottom: 5, left: 5, right: 5),
-                                        scrollDirection: Axis.vertical,
-                                      ),
-                                    /*       if (_isLoadMoreRunning == true)
-                                        const Padding(
-                                          padding: EdgeInsets.only(
-                                              //  top: 10,
-                                              bottom: 40),
-                                          child: Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        ), */
-                                  ],
+                                          padding: const EdgeInsets.only(
+                                              bottom: 5, left: 5, right: 5),
+                                          scrollDirection: Axis.vertical,
+                                        ),
+                                      /*       if (_isLoadMoreRunning == true)
+                                          const Padding(
+                                            padding: EdgeInsets.only(
+                                                //  top: 10,
+                                                bottom: 40),
+                                            child: Center(
+                                              child: CircularProgressIndicator(),
+                                            ),
+                                          ), */
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           floatingActionButtonLocation:
