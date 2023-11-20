@@ -517,7 +517,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       width: 10,
                     )
                   : const SizedBox(),
-              Visibility(
+              /*   Visibility(   //TODO: coming soon
                 visible: (usertype == EUserType.jobSeeker.value),
                 child: InkWell(
                   onTap: () {
@@ -548,7 +548,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ),
                   ),
                 ),
-              ),
+              ), */
               const Spacer(),
               Visibility(
                   visible: (usertype == EUserType.jobSeeker.value ||
@@ -2731,11 +2731,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                 columns: [
                                                   DataColumn(
                                                     label: Container(
-                                                      width: 52,
+                                                      //width: 52,
                                                       alignment:
                                                           Alignment.center,
                                                       child: Text(
-                                                        "Min Count",
+                                                        "Min",
                                                         style:
                                                             GoogleFonts.varela(
                                                           color: Constants
@@ -2759,11 +2759,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                   //   ),
                                                   DataColumn(
                                                     label: Container(
-                                                      width: 55,
+                                                      // width: 55,
                                                       alignment:
                                                           Alignment.center,
                                                       child: Text(
-                                                        "Max Count",
+                                                        "Max",
                                                         style:
                                                             GoogleFonts.varela(
                                                           color: Constants
@@ -2787,7 +2787,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                   // ),
                                                   DataColumn(
                                                     label: Container(
-                                                      width: 40,
+                                                      // width: 40,
                                                       alignment:
                                                           Alignment.center,
                                                       child: Text(
@@ -2811,7 +2811,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                     cells: [
                                                       DataCell(
                                                         Container(
-                                                          width: 52,
+                                                          // width: 52,
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
@@ -2841,16 +2841,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                       //     ),
                                                       //   ),
                                                       // ),
-                                                      DataCell(
+                                                      /* DataCell(
                                                         Container(
-                                                          width: 55,
+                                                          // width: 55,
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
                                                             jobDetailsModel
                                                                     .maxCount![
                                                                 index],
-                                                            /* _formatSlab(   //TODO: chnages dont to display &above.
+                                                            /* _formatSlab(   //TODO: chnages done to display &above.
                                                                 jobDetailsModel
                                                                         .maxCount![
                                                                     index]), */
@@ -2865,6 +2865,51 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                             ),
                                                           ),
                                                         ),
+                                                      ), */
+                                                      DataCell(
+                                                        jobDetailsModel.maxCount![
+                                                                    index] !=
+                                                                null
+                                                            ? Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                child: Text(
+                                                                  jobDetailsModel
+                                                                          .maxCount![
+                                                                      index],
+                                                                  style:
+                                                                      GoogleFonts
+                                                                          .varela(
+                                                                    color: Constants
+                                                                        .subtitleclr,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal,
+                                                                    fontSize:
+                                                                        13.sp,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                child: Text(
+                                                                  "& above",
+                                                                  style:
+                                                                      GoogleFonts
+                                                                          .varela(
+                                                                    color: Constants
+                                                                        .subtitleclr,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal,
+                                                                    fontSize:
+                                                                        13.sp,
+                                                                  ),
+                                                                ),
+                                                              ), // Empty container if maxCount[index] is null or empty
                                                       ),
                                                       // DataCell(
                                                       //   Text(
@@ -2878,7 +2923,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                       // ),
                                                       DataCell(
                                                         Container(
-                                                          width: 40,
+                                                          // width: 40,
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
@@ -2934,13 +2979,32 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             child: const Divider(
                                               thickness: 1.5,
                                             )),
-                                        Text(
-                                          "${(jobDetailsModel.ctcPrecent)} % of Annual CTC",
+                                        RichText(
+                                          text: TextSpan(
+                                              text:
+                                                  "${jobDetailsModel.ctcPrecent!.toStringAsFixed(0)}%",
+                                              style: GoogleFonts.varela(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.indigo),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: " of Annual CTC",
+                                                  style: GoogleFonts.varela(
+                                                      fontSize: 14.sp,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.indigo),
+                                                )
+                                              ]),
+                                        ),
+                                        /*   Text(
+                                          "${jobDetailsModel.ctcPrecent!.toStringAsFixed(0)} % of Annual CTC",
                                           style: GoogleFonts.varela(
                                               fontSize: 18.sp,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.indigo),
-                                        ),
+                                        ), */
                                         Text(
                                           "(excluding gratuity & variables)",
                                           style: GoogleFonts.varela(

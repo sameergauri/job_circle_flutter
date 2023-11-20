@@ -328,6 +328,8 @@ class _JobFormState extends ConsumerState<JobForm> {
     }
   }
 
+  int? commercialid;
+
   var user_id = "";
   ProfileSummaryModel profileSummaryModel = ProfileSummaryModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -438,6 +440,10 @@ class _JobFormState extends ConsumerState<JobForm> {
             ERoute.jobsdetail.name,
             arguments: {'id': jobData.id},
           ); */
+        }
+
+        if (jobData.active == 0) {
+          commercialid = jobData.commercial_id;
         }
         isNumberOfOpenings = true;
         functionalAreaId = jobData.crpf_id;
@@ -1748,6 +1754,55 @@ class _JobFormState extends ConsumerState<JobForm> {
     // ref.refresh(commercialProvider);
   }
 
+  Future<void> InActiveCommercial() async {
+    Commercial commercial =
+        Commercial(jobActive: 1, isConfirm: 0, commercial_id: commercialid);
+    Map<String, dynamic> requestBody = commercial.toJson();
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'http://${GlobalConstants.API_Host}/commercial/v1/$commercialid/jobActive'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print("Commercial added");
+        widget.formEdit
+            ? ""
+            : showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CustomDialog(
+                    fetchDataFromApi: () {},
+                    isFisrt: false,
+                    onClose: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const PartnerHomeScreen()),
+                          (Route<dynamic> route) => false);
+                    },
+                    title: "Success",
+                    subtitle: "Submitted successfully!",
+                  );
+                },
+              );
+      } else {
+        print("Error while posting commercial");
+      }
+    } catch (e) {
+      print('Error saving data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred')),
+      );
+    }
+    // ref.refresh(commercialProvider);
+  }
+
   //isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
   @override
   Widget build(BuildContext context) {
@@ -2365,7 +2420,9 @@ class _JobFormState extends ConsumerState<JobForm> {
                     Map<String, dynamic> jsonData = model.toJson();
                     await JobPostApiService.postDataToApi(
                         jsonData, context, widget.formEdit);
-                    widget.formEdit ? () {} : await saveCommercial();
+                    widget.formEdit && commercialid != 0
+                        ? InActiveCommercial
+                        : await saveCommercial();
                     ref.refresh(userJobDataProvider);
                     ref.refresh(jobsProvider);
 

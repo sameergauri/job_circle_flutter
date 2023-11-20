@@ -14,7 +14,7 @@ class Constants {
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,
-  <int, Color>{
+    <int, Color>{
       50: Color(0xFFFFEBEE),
       100: Color(0xFFFFCDD2),
       200: Color(0xFFEF9A9A),

@@ -727,7 +727,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                 ? Row(
                                     children: [
                                       Text(
-                                        "${item.process} - ${item.leadLevel}",
+                                        "${item.process} - ${item.lead_level}",
                                         style: GoogleFonts.varela(
                                           color: Colors.black54,
                                           // fontWeight: FontWeight.bold,
@@ -1267,7 +1267,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    "${item.process} - ${item.leadLevel}",
+                                    "${item.process} - ${item.lead_level}",
                                     style: GoogleFonts.varela(
                                         color: Colors.black54, fontSize: 13.sp
                                         // fontWeight: FontWeight.bold,
@@ -1620,6 +1620,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                           MaterialPageRoute(
                             builder: (context) => PDFViewerScreen(
                               pdfAssetPath: item.resume.toString(),
+                              isref: false,
                               phoneNumber1: item.contactNo!.toInt(),
                               phoneNumber2: item.alternateNo != null
                                   ? item.alternateNo!.toInt()

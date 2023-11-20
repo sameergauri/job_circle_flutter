@@ -334,7 +334,7 @@ class _TalentPoolDetailState extends State<TalentPoolDetail>
                             companyName:
                                 widget.applicant.companyName.toString(),
                             process: widget.applicant.process.toString(),
-                            role: widget.applicant.leadLevel.toString(),
+                            role: widget.applicant.lead_level.toString(),
                             isEdit: true,
                           );
                         },
@@ -369,7 +369,7 @@ class _TalentPoolDetailState extends State<TalentPoolDetail>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                "${widget.applicant.process} - ${widget.applicant.leadLevel}",
+                                "${widget.applicant.process} - ${widget.applicant.lead_level}",
                                 style: GoogleFonts.varela(
                                     color: Colors.black54,
                                     fontWeight: FontWeight.w500

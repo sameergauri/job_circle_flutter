@@ -81,54 +81,55 @@ class JobData {
   final String isMonthly;
   final double maxctc;
   final String gender;
+  final int commercial_id;
 
-  JobData({
-    required this.shiftTime,
-    required this.spoc,
-    required this.crpf_id,
-    required this.gender,
-    required this.maxExperience,
-    required this.rating,
-    required this.eligible,
-    required this.reasonInActive,
-    required this.jobSkills,
-    required this.skills,
-    required this.jobBenefits,
-    required this.inteviewrounds,
-    required this.isFresher,
-    required this.maxAge,
-    required this.industry,
-    required this.city,
-    required this.empType,
-    required this.shiftDesc,
-    required this.noOfVacancy,
-    required this.reasonSpocChange,
-    required this.minctc,
-    required this.minExperience,
-    required this.languageKnown,
-    required this.education,
-    required this.workCity,
-    required this.totalSalary,
-    required this.natureOfWorkId,
-    required this.roleName,
-    required this.id,
-    required this.key_responsible,
-    required this.companyId,
-    required this.textResponsible,
-    required this.active,
-    required this.totalExperience,
-    required this.boundry_limits,
-    required this.location,
-    required this.minAge,
-    required this.workLocation,
-    required this.process,
-    required this.functionalArea,
-    required this.moredetails,
-    required this.spocInactive,
-    required this.is_graduate,
-    required this.isMonthly,
-    required this.maxctc,
-  });
+  JobData(
+      {required this.shiftTime,
+      required this.spoc,
+      required this.crpf_id,
+      required this.gender,
+      required this.maxExperience,
+      required this.rating,
+      required this.eligible,
+      required this.reasonInActive,
+      required this.jobSkills,
+      required this.skills,
+      required this.jobBenefits,
+      required this.inteviewrounds,
+      required this.isFresher,
+      required this.maxAge,
+      required this.industry,
+      required this.city,
+      required this.empType,
+      required this.shiftDesc,
+      required this.noOfVacancy,
+      required this.reasonSpocChange,
+      required this.minctc,
+      required this.minExperience,
+      required this.languageKnown,
+      required this.education,
+      required this.workCity,
+      required this.totalSalary,
+      required this.natureOfWorkId,
+      required this.roleName,
+      required this.id,
+      required this.key_responsible,
+      required this.companyId,
+      required this.textResponsible,
+      required this.active,
+      required this.totalExperience,
+      required this.boundry_limits,
+      required this.location,
+      required this.minAge,
+      required this.workLocation,
+      required this.process,
+      required this.functionalArea,
+      required this.moredetails,
+      required this.spocInactive,
+      required this.is_graduate,
+      required this.isMonthly,
+      required this.maxctc,
+      required this.commercial_id});
 
   factory JobData.fromJson(Map<String, dynamic> json) {
     /* List<String> decodeListString(String jsonString) {
@@ -140,78 +141,97 @@ class JobData {
     } */
 
     return JobData(
-        shiftTime: json['shifttime'] ?? '',
-        spoc: json['spoc'] ?? '',
-        crpf_id: json['crpf_id'] ?? 0,
-        maxExperience: json['maxexperience'] ?? '',
-        gender: json['gender'] ?? '',
-        rating: json['rating'] ?? '',
-        // location: decodeListString(json['location']),
-        /*  location: json['location'] != null && json['location'] != ''
+      shiftTime: json['shifttime'] ?? '',
+      spoc: json['spoc'] ?? '',
+      crpf_id: json['crpf_id'] ?? 0,
+      maxExperience: json['maxexperience'] ?? '',
+      gender: json['gender'] ?? '',
+      rating: json['rating'] ?? '',
+      // location: decodeListString(json['location']),
+      /*  location: json['location'] != null && json['location'] != ''
             ? List<String>.from(jsonDecode(json['location']).map((loc) => loc))
             : [], */
-        location: List<Location>.from(
-            json['location'].map((data) => Location.fromJson(data))),
-        eligible: json['eligible'] != null && json['eligible'] != ''
-            ? List<String>.from(
-                jsonDecode(json['eligible']).map((eligible) => eligible))
-            : [],
-        reasonInActive: json['reason_in_active'] ?? '',
-        jobSkills: json['job_skills'] != null
-            ? List<String>.from(
-                jsonDecode(json['job_skills']).map((skill) => skill))
-            : [],
-        skills: json['skills'] != null
-            ? List<String>.from(
-                jsonDecode(json['skills']).map((skill) => skill))
-            : [],
-        process: json['process'] ?? '',
-        city: json['city'] ?? '',
-        jobBenefits: json['job_benifits'] != null
-            ? List<String>.from(
-                jsonDecode(json['job_benifits']).map((benefit) => benefit))
-            : [],
-        inteviewrounds: json['inteviewrounds'] != null
-            ? List<int>.from(
-                jsonDecode(json['inteviewrounds']).map((rounds) => rounds))
-            : [],
-        isFresher: json['isfresher'] ?? '',
-        maxAge: json['max_age'] != null ? json['max_age'].toInt() : 0,
-        industry: json['industry'] ?? '',
-        empType: json['emptype'] ?? '',
-        shiftDesc: json['shiftdesc'] ?? '',
-        noOfVacancy: json['no_of_vacancy'] ?? 0,
-        reasonSpocChange: json['reason_spoc_change'] ?? '',
-        minctc: (json['minctc'] ?? 0.0),
-        minExperience: json['minexperience'] ?? '',
-        languageKnown: json['languageknown'] != null
-            ? List<String>.from(
-                jsonDecode(json['languageknown']).map((language) => language))
-            : [],
-        education: json['education'] ?? '',
-        workCity: json['work_city'] != null ? json['work_city'].toInt() : 0,
-        totalSalary: json['total_salary'] ?? '',
-        natureOfWorkId:
-            json['naturofworkid'] != null ? json['naturofworkid'].toInt() : 0,
-        roleName: json['rolename'] ?? '',
-        id: json['id'] != null ? json['id'].toInt() : 0,
-        key_responsible:
-            json['key_responsible'] != null && json['key_responsible'] != ''
-                ? List<String>.from(jsonDecode(json['key_responsible']).map((loc) => loc))
-                : [],
-        companyId: json['compnayid'] != null ? json['compnayid'].toInt() : 0,
-        textResponsible: json['text_responsible'] ?? '',
-        active: json['active'] ?? 0,
-        totalExperience: json['total_experience'] ?? '',
-        boundry_limits: json['boundry_limits'] != null && json['boundry_limits'] != '' ? List<String>.from(jsonDecode(json['boundry_limits']).map((limit) => limit)) : [],
-        minAge: json['min_age'] != null ? json['min_age'].toInt() : 0,
-        workLocation: json['work_location'] != null ? List<int>.from(jsonDecode(json['work_location']).map((location) => location)) : [],
-        functionalArea: json['functional_area'] != null && json['functional_area'] != '' ? List<String>.from(jsonDecode(json['functional_area']).map((area) => area)) : [],
-        moredetails: json['moredetails'] != null && json['moredetails'] != '' ? List<String>.from(jsonDecode(json['moredetails']).map((detail) => detail)) : [],
-        spocInactive: json['spoc_inactive'] != null ? json['spoc_inactive'].toInt() : 0,
-        is_graduate: json['is_graduate'] != null ? json['is_graduate'].toInt() : 0,
-        isMonthly: json['ismonthly'] ?? '',
-        maxctc: (json['maxctc'] ?? 0.0));
+      location: List<Location>.from(
+          json['location'].map((data) => Location.fromJson(data))),
+      eligible: json['eligible'] != null && json['eligible'] != ''
+          ? List<String>.from(
+              jsonDecode(json['eligible']).map((eligible) => eligible))
+          : [],
+      reasonInActive: json['reason_in_active'] ?? '',
+      jobSkills: json['job_skills'] != null
+          ? List<String>.from(
+              jsonDecode(json['job_skills']).map((skill) => skill))
+          : [],
+      skills: json['skills'] != null
+          ? List<String>.from(jsonDecode(json['skills']).map((skill) => skill))
+          : [],
+      process: json['process'] ?? '',
+      city: json['city'] ?? '',
+      jobBenefits: json['job_benifits'] != null
+          ? List<String>.from(
+              jsonDecode(json['job_benifits']).map((benefit) => benefit))
+          : [],
+      inteviewrounds: json['inteviewrounds'] != null
+          ? List<int>.from(
+              jsonDecode(json['inteviewrounds']).map((rounds) => rounds))
+          : [],
+      isFresher: json['isfresher'] ?? '',
+      maxAge: json['max_age'] != null ? json['max_age'].toInt() : 0,
+      industry: json['industry'] ?? '',
+      empType: json['emptype'] ?? '',
+      shiftDesc: json['shiftdesc'] ?? '',
+      noOfVacancy: json['no_of_vacancy'] ?? 0,
+      reasonSpocChange: json['reason_spoc_change'] ?? '',
+      minctc: (json['minctc'] ?? 0.0),
+      minExperience: json['minexperience'] ?? '',
+      languageKnown: json['languageknown'] != null
+          ? List<String>.from(
+              jsonDecode(json['languageknown']).map((language) => language))
+          : [],
+      education: json['education'] ?? '',
+      workCity: json['work_city'] != null ? json['work_city'].toInt() : 0,
+      totalSalary: json['total_salary'] ?? '',
+      natureOfWorkId:
+          json['naturofworkid'] != null ? json['naturofworkid'].toInt() : 0,
+      roleName: json['rolename'] ?? '',
+      id: json['id'] != null ? json['id'].toInt() : 0,
+      key_responsible:
+          json['key_responsible'] != null && json['key_responsible'] != ''
+              ? List<String>.from(
+                  jsonDecode(json['key_responsible']).map((loc) => loc))
+              : [],
+      companyId: json['compnayid'] != null ? json['compnayid'].toInt() : 0,
+      textResponsible: json['text_responsible'] ?? '',
+      active: json['active'] ?? 0,
+      totalExperience: json['total_experience'] ?? '',
+      boundry_limits:
+          json['boundry_limits'] != null && json['boundry_limits'] != ''
+              ? List<String>.from(
+                  jsonDecode(json['boundry_limits']).map((limit) => limit))
+              : [],
+      minAge: json['min_age'] != null ? json['min_age'].toInt() : 0,
+      workLocation: json['work_location'] != null
+          ? List<int>.from(
+              jsonDecode(json['work_location']).map((location) => location))
+          : [],
+      functionalArea:
+          json['functional_area'] != null && json['functional_area'] != ''
+              ? List<String>.from(
+                  jsonDecode(json['functional_area']).map((area) => area))
+              : [],
+      moredetails: json['moredetails'] != null && json['moredetails'] != ''
+          ? List<String>.from(
+              jsonDecode(json['moredetails']).map((detail) => detail))
+          : [],
+      spocInactive:
+          json['spoc_inactive'] != null ? json['spoc_inactive'].toInt() : 0,
+      is_graduate:
+          json['is_graduate'] != null ? json['is_graduate'].toInt() : 0,
+      isMonthly: json['ismonthly'] ?? '',
+      maxctc: (json['maxctc'] ?? 0.0),
+      commercial_id:
+          json['commercial_id'] != null ? json['commercial_id'].toInt() : 0,
+    );
     // maxCtc: json['maxctc'] ?? 0.0);
   }
 

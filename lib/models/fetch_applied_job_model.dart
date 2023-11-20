@@ -70,7 +70,7 @@ class Applicant {
   int? spoc;
   List<String>? skills;
   String? salaryPrevious;
-  String? leadLevel;
+  String? lead_level;
   String? joiningDatePrevious;
   String? salaryRecent;
   int? id;
@@ -131,7 +131,7 @@ class Applicant {
     this.spoc,
     this.skills,
     this.salaryPrevious,
-    this.leadLevel,
+    this.lead_level,
     this.joiningDatePrevious,
     this.salaryRecent,
     this.id,
@@ -193,7 +193,7 @@ class Applicant {
       companyNamePrevious: json['company_name_previous'],
       spoc: json['spoc'],
       salaryPrevious: json['salary_previous'],
-      leadLevel: json['level'],
+      lead_level: json['lead_level'],
       joiningDatePrevious: json['joining_date_previous'],
       salaryRecent: json['salary_recent'],
       id: json['id'],
@@ -294,7 +294,7 @@ class Applicant {
       'spoc': spoc,
       'skills': skills, // Assuming skills is already a List<String>
       'salary_previous': salaryPrevious,
-      'lead_level': leadLevel,
+      'lead_level': lead_level,
       'joining_date_previous': joiningDatePrevious,
       'salary_recent': salaryRecent,
       'id': id,

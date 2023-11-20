@@ -1474,7 +1474,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         item.role_code != null &&
                                                 item.role_code != ""
                                             ? "${item.process} - ${item.role_code}"
-                                            : "${item.process} - ${item.leadLevel}",
+                                            : "${item.process} - ${item.lead_level}",
                                         style: GoogleFonts.varela(
                                           color: Colors.black54,
                                           // fontWeight: FontWeight.bold,
@@ -1574,7 +1574,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       nature_of_work:
                                           item.natureOfWork.toString(),
                                       process: item.process.toString(),
-                                      role: item.leadLevel.toString(),
+                                      role: item.lead_level.toString(),
                                       companyId: item.short_list_for!.toInt(),
                                       item: item,
                                       refreshCallback: () {
@@ -1791,7 +1791,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                             item.role_code != null &&
                                                     item.role_code != ""
                                                 ? "${item.process} - ${item.role_code}"
-                                                : "${item.process} - ${item.leadLevel}",
+                                                : "${item.process} - ${item.lead_level}",
                                             style: GoogleFonts.varela(
                                               color: Colors.black54,
                                               // fontWeight: FontWeight.bold,
@@ -3670,6 +3670,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                             builder: (context) => PDFViewerScreen(
                               pdfAssetPath: item.resume.toString(),
                               phoneNumber1: item.contactNo!.toInt(),
+                              isref: false,
                               phoneNumber2: item.alternateNo != null
                                   ? item.alternateNo!.toInt()
                                   : 0,

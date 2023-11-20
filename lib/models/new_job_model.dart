@@ -33,7 +33,7 @@ class JobsModel {
   final int? uid;
   final List<String>? eligibility;
   final String? payoutType;
-  final int? active;
+  late final int? active;
 
   JobsModel({
     this.id,

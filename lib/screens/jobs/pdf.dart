@@ -8,12 +8,15 @@ import 'package:url_launcher/url_launcher.dart';
 class PDFViewerScreen extends StatefulWidget {
   final String pdfAssetPath;
   final int phoneNumber1, phoneNumber2;
+  final bool isref;
 
-  const PDFViewerScreen(
-      {super.key,
-      required this.pdfAssetPath,
-      required this.phoneNumber1,
-      required this.phoneNumber2});
+  const PDFViewerScreen({
+    super.key,
+    required this.pdfAssetPath,
+    required this.phoneNumber1,
+    required this.phoneNumber2,
+    required this.isref,
+  });
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
@@ -63,58 +66,60 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      floatingActionButton: widget.phoneNumber2 == 0
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  mini: true,
-                  backgroundColor: Colors.green[900],
-                  onPressed: () async {
-                    Uri url = Uri.parse(
-                        "whatsapp://send?phone=91${widget.phoneNumber1}");
-                    await canLaunchUrl(url)
-                        ? await launchUrl(url)
-                        : throw "could not launch $url";
-                  },
-                  child: Icon(
-                    Icons.sms_outlined,
-                    size: 18.h,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                FloatingActionButton(
-                  mini: true,
-                  onPressed: () {
-                    FlutterPhoneDirectCaller.callNumber(
-                        "+91${widget.phoneNumber1}");
-                  },
-                  child: Icon(
-                    Icons.call,
-                    size: 18.h,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CustomFloatCall(
-                  isCall: false,
-                  phoneNumber1: widget.phoneNumber1,
-                  phoneNumber2: widget.phoneNumber2,
-                ),
-                const SizedBox(
-                    width: 10), // Add some spacing between the buttons
-                CustomFloatCall(
-                  isCall: true,
-                  phoneNumber1: widget.phoneNumber1,
-                  phoneNumber2: widget.phoneNumber2,
-                ),
-              ],
-            ),
+      floatingActionButton: widget.isref!=true
+          ? widget.phoneNumber2 == 0
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FloatingActionButton(
+                      mini: true,
+                      backgroundColor: Colors.green[900],
+                      onPressed: () async {
+                        Uri url = Uri.parse(
+                            "whatsapp://send?phone=91${widget.phoneNumber1}");
+                        await canLaunchUrl(url)
+                            ? await launchUrl(url)
+                            : throw "could not launch $url";
+                      },
+                      child: Icon(
+                        Icons.sms_outlined,
+                        size: 18.h,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    FloatingActionButton(
+                      mini: true,
+                      onPressed: () {
+                        FlutterPhoneDirectCaller.callNumber(
+                            "+91${widget.phoneNumber1}");
+                      },
+                      child: Icon(
+                        Icons.call,
+                        size: 18.h,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomFloatCall(
+                      isCall: false,
+                      phoneNumber1: widget.phoneNumber1,
+                      phoneNumber2: widget.phoneNumber2,
+                    ),
+                    const SizedBox(
+                        width: 10), // Add some spacing between the buttons
+                    CustomFloatCall(
+                      isCall: true,
+                      phoneNumber1: widget.phoneNumber1,
+                      phoneNumber2: widget.phoneNumber2,
+                    ),
+                  ],
+                )
+          : const SizedBox(),
       body: FutureBuilder<PDFDocument>(
         future: PDFDocument.fromURL(
             "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.pdfAssetPath}"),

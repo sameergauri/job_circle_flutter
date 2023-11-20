@@ -123,9 +123,7 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
             ),
             actions: [
               TextButton(
-                style: ButtonStyle(
-                  
-                ),
+                style: const ButtonStyle(),
                 onPressed: () {
                   setState(() {
                     clearAll();
@@ -380,6 +378,7 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
         if (isCategorySelected && isFirstCategory) {
           leadsList = jobController.jobs
               .where((element) => _getColumnValue(element, columnName) != null)
+              .where((element) => element.active == 1)//TODO: to avoid inactive jobs.
               .toList();
         } else if (appliedColumn != columnName &&
             widget.storedSelectedColumn.isNotEmpty) {

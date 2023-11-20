@@ -12,6 +12,7 @@ import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
+import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -349,273 +350,347 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
         elevation: 4,
 
         margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
-        child: Padding(
-          padding:
-              const EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start, // Ad
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
+              decoration: BoxDecoration(
+                  color: Constants.borderColor,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8.r),
+                      topRight: Radius.circular(8.r)),
+                  border: Border.all(color: Constants.maintheme_light_color)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (item.applicantName != null)
-                    Text(
-                      item.applicantName.toString(),
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  if (item.process != null)
-                    Text(
-                      item.process.toString(),
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  if (item.leadLevel != null)
-                    Text(
-                      " - ",
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  if (item.leadLevel != null)
-                    Text(
-                      item.leadLevel == ""
-                          ? "Role Name**"
-                          : item.leadLevel.toString(),
-                      // overflow: TextOverflow.visible,
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  const Spacer(),
-                  Icon(
-                    Icons.more_horiz,
-                    size: 17.h,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.person_2_outlined,
+                              size: 17.h, color: Constants.themeBgColor),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(
+                            item.applicantName.toString(),
+                            // maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16.sp),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(item.qualification.toString()),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          const Text("|"),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(item.isExperienced.toString()),
+                        ],
+                      ),
+                    ],
                   ),
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PDFViewerScreen(
+                                pdfAssetPath: item.resume.toString(),
+                                isref: true,
+                                phoneNumber1: item.spocContactNo!.toInt(),
+                                phoneNumber2: item.alternateNo != null
+                                    ? item.alternateNo!.toInt()
+                                    : 0,
+
+                                // Replace with the actual asset path of your PDF file
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Image.asset(
+                          "assets/images/cv.png",
+                          height: 20.h,
+                        ),
+                      )
+                    ],
+                  )
                 ],
               ),
-              if (item.companyName != null)
-                Text(
-                  item.companyName.toString(),
-                  style: GoogleFonts.varela(
-                      // color: Colors.black54,
-                      color: Constants.subtitleclr,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 13.sp),
-                ),
-              if (item.totalSalary != null)
-                Padding(
-                  padding: EdgeInsets.only(top: 4.h, left: 4.w),
-                  child: Row(
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start, // Ad
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        "assets/images/wallet.png",
-                        height: 14.h,
-                      ),
-                      const SizedBox(
-                        width: 3,
-                      ),
-                      Text(
-                        convertSalaryFormat(item.totalSalary.toString()),
-                        style: GoogleFonts.varela(
-                            // color: Colors.black54,
-                            color: Constants.subtitleclr,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 13.sp),
-                      ),
+                      if (item.process != null)
+                        Text(
+                          item.process.toString(),
+                          style: GoogleFonts.varela(
+                              fontWeight: FontWeight.bold, fontSize: 14.sp),
+                        ),
+                      if (item.lead_level != null)
+                        Text(
+                          " || ",
+                          style: GoogleFonts.varela(
+                              fontWeight: FontWeight.bold, fontSize: 14.sp),
+                        ),
+                      if (item.lead_level != null)
+                        Text(
+                          item.lead_level == ""
+                              ? "Role Name**"
+                              : item.lead_level.toString(),
+                          // overflow: TextOverflow.visible,
+                          style: GoogleFonts.varela(
+                              fontWeight: FontWeight.bold, fontSize: 14.sp),
+                        ),
                     ],
                   ),
-                ),
-              if (item.workLocation != null)
-                Padding(
-                  padding: EdgeInsets.only(left: 4.w),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "assets/images/loc.png",
-                        height: 14.sp,
+                  if (item.companyName != null)
+                    Text(
+                      item.companyName.toString(),
+                      style: GoogleFonts.varela(
+                          // color: Colors.black54,
+                          color: Constants.subtitleclr,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 13.sp),
+                    ),
+                  if (item.totalSalary != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: 4.h, left: 4.w),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/wallet.png",
+                            height: 14.h,
+                          ),
+                          const SizedBox(
+                            width: 3,
+                          ),
+                          Text(
+                            convertSalaryFormat(item.totalSalary.toString()),
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          ),
+                        ],
                       ),
-                      const SizedBox(
-                        width: 3,
+                    ),
+                  if (item.workLocation != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 4.w),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/loc.png",
+                            height: 14.sp,
+                          ),
+                          const SizedBox(
+                            width: 3,
+                          ),
+                          Text(
+                            item.workLocation.toString(),
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          ),
+                        ],
                       ),
-                      Text(
-                        item.workLocation.toString(),
-                        style: GoogleFonts.varela(
-                            // color: Colors.black54,
-                            color: Constants.subtitleclr,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 13.sp),
-                      ),
-                    ],
+                    ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 6),
+                    padding: const EdgeInsets.only(
+                        top: 6, bottom: 6, right: 10, left: 10),
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        // border: Border.all(color: Colors.amber),
+                        //color: Colors.amberAccent.shade100,
+                        borderRadius: BorderRadius.circular(08)),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Icon(
+                              Icons.add_alert,
+                              color: Colors.amber,
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      item.status_code == "TP1"
+                                          ? "Application sent"
+                                          : item.status_code == "IB7"
+                                              ? "You are selected for this job"
+                                              : item.status_code == "IB6"
+                                                  ? "Rejected"
+                                                  : item.status_code == "IB5"
+                                                      ? "CV is in process"
+                                                      : item.status_code ==
+                                                              "TP2"
+                                                          ? "Assign"
+                                                          : item.status_code ==
+                                                                  "IB4"
+                                                              ? "CV is shortlisted"
+                                                              : item.status_code ==
+                                                                      "TP3"
+                                                                  ? "Screening Rejected"
+                                                                  : "",
+                                      style: GoogleFonts.varela(
+                                          color: Colors.amber,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14.sp),
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (item.remark != null)
+                                Text(
+                                  item.remark.toString(),
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.sp),
+                                )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              Container(
-                margin: const EdgeInsets.only(top: 6),
-                padding: const EdgeInsets.only(
-                    top: 6, bottom: 6, right: 10, left: 10),
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    // border: Border.all(color: Colors.amber),
-                    //color: Colors.amberAccent.shade100,
-                    borderRadius: BorderRadius.circular(08)),
-                width: double.maxFinite,
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: const [
-                        Icon(
-                          Icons.add_alert,
-                          color: Colors.amber,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomeScreen()));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                                // border: Border.all(color: Constants.themeBgColor),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  "assets/images/similar.png",
+                                  height: 15.h,
+                                ),
+                                const SizedBox(
+                                  width: 3,
+                                ),
+                                Text(
+                                  "View More Jobs",
+                                  style: GoogleFonts.varela(
+                                      color: Constants.themeBgColor,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        RestrictedButton(
+                          isChat: true,
+                          onTap: () async {
+                            Uri url = Uri.parse(
+                                "whatsapp://send?phone=91${item.spocContactNo}");
+                            await canLaunchUrl(url)
+                                ? await launchUrl(url)
+                                : throw "could not launch $url";
+                          },
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        RestrictedButton(
+                          isChat: false,
+                          onTap: () async {
+                            FlutterPhoneDirectCaller.callNumber(
+                                "+91${item.spocContactNo}");
+                          },
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  item.status == "Application"
-                                      ? "Application sent"
-                                      : item.status == "Select"
-                                          ? "You are selected for thi job"
-                                          : item.status == "Reject"
-                                              ? "Rejected"
-                                              : item.status ==
-                                                      "Interview Schedule"
-                                                  ? "Interview Schedule"
-                                                  : item.status == "Assign"
-                                                      ? "Assign"
-                                                      : item.status == "New"
-                                                          ? "New"
-                                                          : "",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.amber,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14.sp),
-                                  softWrap: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (item.remark != null)
-                            Text(
-                              item.remark.toString(),
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.w500, fontSize: 14.sp),
-                            )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                            // border: Border.all(color: Constants.themeBgColor),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              "assets/images/similar.png",
-                              height: 15.h,
-                            ),
-                            const SizedBox(
-                              width: 3,
-                            ),
-                            Text(
-                              "View More Jobs",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    RestrictedButton(
-                      isChat: true,
-                      onTap: () async {
-                        Uri url = Uri.parse(
-                            "whatsapp://send?phone=91${item.spocContactNo}");
-                        await canLaunchUrl(url)
-                            ? await launchUrl(url)
-                            : throw "could not launch $url";
-                      },
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    RestrictedButton(
-                      isChat: false,
-                      onTap: () async {
-                        FlutterPhoneDirectCaller.callNumber(
-                            "+91${item.spocContactNo}");
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 5.h),
-                color: Colors.grey.shade400,
-                width: double.maxFinite,
-                height: 0.5.h,
-              ),
-              Row(
-                children: [
-                  Column(
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 5.h),
+                    color: Colors.grey.shade400,
+                    width: double.maxFinite,
+                    height: 0.5.h,
+                  ),
+                  Row(
                     children: [
-                      SizedBox(
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              "assets/images/verified.png",
-                              height: 16.h,
-                              color: Constants.themeBgColor,
+                      Column(
+                        children: [
+                          SizedBox(
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  "assets/images/verified.png",
+                                  height: 16.h,
+                                  color: Constants.themeBgColor,
+                                ),
+                                const SizedBox(
+                                  width: 2,
+                                ),
+                                Text(
+                                  //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
+                                  "100% free and verified Job",
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr),
+                                ),
+                              ],
                             ),
-                            const SizedBox(
-                              width: 2,
-                            ),
-                            Text(
-                              //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
-                              "100% free and verified Job",
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -111,6 +111,7 @@ class _MyTeamDetailState extends ConsumerState<MyTeamDetail> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   PDFViewerScreen(
+                                                    isref: false,
                                                 pdfAssetPath: widget
                                                     .leadModel.resume
                                                     .toString(),

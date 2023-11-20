@@ -367,17 +367,17 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
-                  if (item.leadLevel != null)
+                  if (item.lead_level != null)
                     Text(
                       " - ",
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
-                  if (item.leadLevel != null)
+                  if (item.lead_level != null)
                     Text(
-                      item.leadLevel == ""
+                      item.lead_level == ""
                           ? "Role Name**"
-                          : item.leadLevel.toString(),
+                          : item.lead_level.toString(),
                       // overflow: TextOverflow.visible,
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),

@@ -21,6 +21,7 @@ class Commercial {
   String? specialPaymentClause;
   DateTime? startDate;
   String? startMonth;
+  int? commercial_id;
 
   Commercial({
     this.amount,
@@ -45,6 +46,7 @@ class Commercial {
     this.specialPaymentClause,
     this.startDate,
     this.startMonth,
+    this.commercial_id,
   });
 
   Map<String, dynamic> toJson() {
@@ -71,6 +73,7 @@ class Commercial {
       "spl_payment_cluase": specialPaymentClause,
       "start_date": startDate?.toIso8601String(),
       "start_month": startMonth,
+      "commercial_id": commercial_id,
     };
   }
 }

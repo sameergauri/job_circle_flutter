@@ -205,6 +205,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     });
   }
 
+  final FocusNode _dearchFocus = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final jobsController = ref.watch(jobsProvider);
@@ -652,6 +654,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     height: MediaQuery.of(context).size.height / 26.h,
                     width: MediaQuery.of(context).size.width / 1.65.w,
                     child: TextField(
+                      onTapOutside: (event) {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                      focusNode: _dearchFocus,
                       controller: jobsController.searchController,
                       enableInteractiveSelection: false,
                       decoration: InputDecoration(
@@ -1758,6 +1764,12 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           item.favJobId!
                                                                               .toInt(),
                                                                           data);
+                                                                      setState(
+                                                                          () {
+                                                                        jobsController.toggleLocationFilter(
+                                                                            jobs:
+                                                                                jobsController.jobs);
+                                                                      });
                                                                     } else {
                                                                       await jobsController.addToFav(
                                                                           item.id ??

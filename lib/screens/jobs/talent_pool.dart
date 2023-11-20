@@ -1091,7 +1091,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                                         item.role_code != null &&
                                                 item.role_code != ""
                                             ? "${item.process} - ${item.role_code}"
-                                            : "${item.process} - ${item.leadLevel}",
+                                            : "${item.process} - ${item.lead_level}",
                                         style: GoogleFonts.varela(
                                           color: Colors.black54,
                                           // fontWeight: FontWeight.bold,
@@ -1316,6 +1316,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             context,
                             MaterialPageRoute(
                               builder: (context) => PDFViewerScreen(
+                                isref: false,
                                 pdfAssetPath: item.resume.toString(),
                                 phoneNumber1: item.contactNo!.toInt(),
                                 phoneNumber2: item.alternateNo!.toInt(),
@@ -1342,6 +1343,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             context,
                             MaterialPageRoute(
                               builder: (context) => PDFViewerScreen(
+                                isref: false,
                                 pdfAssetPath: item.resume.toString(),
                                 phoneNumber1: item.contactNo!.toInt(),
                                 phoneNumber2: item.alternateNo!.toInt(),
