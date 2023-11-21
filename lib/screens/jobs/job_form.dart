@@ -2420,7 +2420,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                     Map<String, dynamic> jsonData = model.toJson();
                     await JobPostApiService.postDataToApi(
                         jsonData, context, widget.formEdit);
-                    commercialid != 0 || commercialid != null
+                    commercialid != 0
                         ? InActiveCommercial
                         : await saveCommercial();
                     ref.refresh(userJobDataProvider);

@@ -12,7 +12,7 @@ class GlobalConstants {
 
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-  //"192.168.1.102:9080";
+  // "192.168.1.102:9080";
 
   // 'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";

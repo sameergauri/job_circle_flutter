@@ -605,6 +605,7 @@ class _JobsState extends ConsumerState<Jobs>
                             (Route<dynamic> route) => false);
                         // Navigator.pushReplacementNamed(context, nextRoute.value);
                       });
+                      
                       Navigator.pop(context);
                     },
                   ),

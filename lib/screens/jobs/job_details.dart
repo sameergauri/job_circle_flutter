@@ -2564,6 +2564,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         (jobDetailsModel.partnerPayout == 'Flat' ||
                             jobDetailsModel.partnerPayout == 'Slab' ||
                             jobDetailsModel.partnerPayout == 'CTC Based' ||
+                            jobDetailsModel.partnerPayout == "Work Pay" ||
                             jobDetailsModel.specialClause != null ||
                             jobDetailsModel.specialClause != ""))
                       Visibility(
@@ -3012,6 +3013,221 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                               letterSpacing: 1,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.indigo),
+                                        ),
+                                      ],
+                                    ),
+                                  if (jobDetailsModel.partnerPayout ==
+                                      "Work Pay")
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                            width: 50.w,
+                                            child: const Divider(
+                                              thickness: 1.5,
+                                            )),
+                                        Text(
+                                          "Fresher :",
+                                          style: GoogleFonts.varela(
+                                            fontSize: 15.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        jobDetailsModel.is_fresh_ctc == 0
+                                            ? Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons
+                                                        .currency_rupee_outlined,
+                                                    color: Colors.amber,
+                                                    //size: 15.sp,
+                                                  ),
+                                                  Text(
+                                                    "${(jobDetailsModel.partner_fresher_pay)?.toStringAsFixed(0)}/-",
+                                                    style: GoogleFonts.varela(
+                                                        fontSize: 20.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.indigo),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      const Text(""),
+                                                      Text(
+                                                        " Per Referral",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                          fontSize: 8.sp,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            : Row(
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                      RichText(
+                                                        text: TextSpan(
+                                                            text:
+                                                                "${jobDetailsModel.partner_fresher_pay!.toStringAsFixed(0)}%",
+                                                            style: GoogleFonts.varela(
+                                                                fontSize: 18.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Colors
+                                                                    .indigo),
+                                                            children: <
+                                                                TextSpan>[
+                                                              TextSpan(
+                                                                text:
+                                                                    " of Annual CTC",
+                                                                style: GoogleFonts.varela(
+                                                                    fontSize:
+                                                                        14.sp,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    color: Colors
+                                                                        .indigo),
+                                                              )
+                                                            ]),
+                                                      ),
+                                                      Text(
+                                                        "(excluding gratuity & variables)",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize: 8.sp,
+                                                                letterSpacing:
+                                                                    1,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .indigo),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                        const Divider(),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Experience :",
+                                              style: GoogleFonts.varela(
+                                                fontSize: 15.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            jobDetailsModel.is_exp_ctc == 0
+                                                ? Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons
+                                                            .currency_rupee_outlined,
+                                                        color: Colors.amber,
+                                                        //size: 15.sp,
+                                                      ),
+                                                      Text(
+                                                        "${(jobDetailsModel.partner_exp_pay)?.toStringAsFixed(0)}/-",
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontSize: 20.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .indigo),
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          const Text(""),
+                                                          Text(
+                                                            " Per Referral",
+                                                            style: GoogleFonts
+                                                                .varela(
+                                                              fontSize: 8.sp,
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .italic,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Row(
+                                                    children: [
+                                                      Column(
+                                                        children: [
+                                                          RichText(
+                                                            text: TextSpan(
+                                                                text:
+                                                                    "${jobDetailsModel.partner_exp_pay!.toStringAsFixed(0)}%",
+                                                                style: GoogleFonts.varela(
+                                                                    fontSize:
+                                                                        18.sp,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    color: Colors
+                                                                        .indigo),
+                                                                children: <
+                                                                    TextSpan>[
+                                                                  TextSpan(
+                                                                    text:
+                                                                        " of Annual CTC",
+                                                                    style: GoogleFonts.varela(
+                                                                        fontSize: 14
+                                                                            .sp,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        color: Colors
+                                                                            .indigo),
+                                                                  )
+                                                                ]),
+                                                          ),
+                                                          Text(
+                                                            "(excluding gratuity & variables)",
+                                                            style: GoogleFonts.varela(
+                                                                fontSize: 8.sp,
+                                                                letterSpacing:
+                                                                    1,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .indigo),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                          ],
                                         ),
                                       ],
                                     ),
