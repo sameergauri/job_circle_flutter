@@ -1755,12 +1755,15 @@ class _JobFormState extends ConsumerState<JobForm> {
   }
 
   Future<void> InActiveCommercial() async {
-    Commercial commercial =
-        Commercial(jobActive: 1, isConfirm: 0, commercial_id: commercialid);
+    Commercial commercial = Commercial(
+        jobActive: 1,
+        isConfirm: 0,
+        commercial_id: commercialid,
+        commercialActive: 0);
     Map<String, dynamic> requestBody = commercial.toJson();
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse(
             'http://${GlobalConstants.API_Host}/commercial/v1/$commercialid/jobActive'),
         headers: {
@@ -2421,7 +2424,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                     await JobPostApiService.postDataToApi(
                         jsonData, context, widget.formEdit);
                     commercialid != 0
-                        ? InActiveCommercial
+                        ? await InActiveCommercial()
                         : await saveCommercial();
                     ref.refresh(userJobDataProvider);
                     ref.refresh(jobsProvider);

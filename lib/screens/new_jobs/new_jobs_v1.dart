@@ -1164,7 +1164,26 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         width:
                                                                             6.w,
                                                                       ),
-                                                                      Text(
+                                                                      Expanded(
+                                                                        child:
+                                                                            Text(
+                                                                          item.location ??
+                                                                              '',
+                                                                          maxLines:
+                                                                              2,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          style:
+                                                                              GoogleFonts.varela(
+                                                                            fontSize:
+                                                                                13.sp,
+                                                                            color:
+                                                                                Constants.subtitleclr,
+                                                                          ),
+                                                                        ),
+                                                                      )
+
+                                                                      /* Text(
                                                                         item.location ??
                                                                             '',
                                                                         maxLines:
@@ -1174,11 +1193,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         style: GoogleFonts
                                                                             .varela(
                                                                           fontSize:
-                                                                              13.sp,
+                                                                              18.sp,
                                                                           color:
                                                                               Constants.subtitleclr,
                                                                         ),
-                                                                      ),
+                                                                        softWrap:
+                                                                            true,
+                                                                      ), */
                                                                     ],
                                                                   ),
                                                                 ],
@@ -1596,9 +1617,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           (context) {
                                                                         return AlertDialog(
                                                                           title:
-                                                                              const Text('Dialog Title'),
+                                                                              const Text('Inavtive'),
                                                                           content:
-                                                                              const Text('This is the dialog content.'),
+                                                                              const Text('Clicking on the OK button will inctivate the job'),
                                                                           actions: [
                                                                             ElevatedButton(
                                                                               child: const Text('Cancel'),

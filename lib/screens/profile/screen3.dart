@@ -704,6 +704,9 @@ class _Screen3State extends ConsumerState<Screen3> {
                       ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
                           "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
                           true));
+                    } else if (currentSalaryController.text.isEmpty && yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Specify your current salary.", true));
                     } else {
                       var payload = {
                         "stage": "experience",
