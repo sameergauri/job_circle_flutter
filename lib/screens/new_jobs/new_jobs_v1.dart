@@ -178,6 +178,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       return jobController.isMyJobsTabSelected;
     } else if (cutTab == 2) {
       return jobController.isFreshersTabSelected;
+    } else if (cutTab == 3) {
+      return jobController.isLanguilTabSelected;
     }
     return false;
   }
@@ -545,6 +547,18 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       },
                       child: customTab(
                           "Fresher", "assets/images/check.png", 2, data)),
+                  // if (data.usertype == 1)
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  // if (data.usertype == 1)
+                  InkWell(
+                      onTap: () {
+                        cutTab = 3;
+                        jobsController.toggleLanguilJobs(data);
+                      },
+                      child: customTab(
+                          "Linguistic", "assets/images/check.png", 3, data)),
                 ],
               )
               /* TabBar(
@@ -933,17 +947,30 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         CrossAxisAlignment
                                                                             .start,
                                                                     children: [
-                                                                      Text(
-                                                                        item.roleName ??
-                                                                            '',
-                                                                        maxLines:
-                                                                            2,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                        style: GoogleFonts.varela(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize: 16.sp),
+                                                                      Row(
+                                                                        children: [
+                                                                          Text(
+                                                                            item.roleName ??
+                                                                                '',
+                                                                            maxLines:
+                                                                                2,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            style:
+                                                                                GoogleFonts.varela(fontWeight: FontWeight.bold, fontSize: 16.sp),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width:
+                                                                                5.w,
+                                                                          ),
+                                                                          if (item
+                                                                              .languagesKnown!
+                                                                              .isNotEmpty)
+                                                                            Image.network(
+                                                                              "https://cdn.discordapp.com/attachments/1095606068614283337/1177834889115074610/5665479-middle-removebg-preview.png?ex=6573f338&is=65617e38&hm=6b274668f0c3fdf32153d15150ee7679b7c29644241fd51c52c18afe745c7c35&",
+                                                                              height: 18.h,
+                                                                            )
+                                                                        ],
                                                                       ),
                                                                       Row(
                                                                         mainAxisAlignment:
@@ -1362,6 +1389,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                     sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
                                                                                     isRefer: false,
                                                                                     spocId: item.spoc!.toInt(),
+                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
                                                                                   )));
                                                                     },
                                                                     child:
@@ -1435,6 +1464,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                       sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
                                                                                       isRefer: true,
                                                                                       spocId: item.spoc!.toInt(),
+                                                                                      is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                      is30: item.payment_clause == "30 Days" ? true : false,
                                                                                     )));
                                                                       },
                                                                       child:
@@ -1520,121 +1551,119 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                   ),
                                                   item.spoc.toString() ==
                                                           data.id.toString()
-                                                      ? Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  right: 15.w),
-                                                          child: CircularMenu(
-                                                            toggleButtonOnPressed:
-                                                                () {
-                                                              setState(() {
-                                                                isMenuOpen =
-                                                                    !isMenuOpen; // Toggle the menu open/close state
-                                                              });
-                                                            },
-                                                            radius: 35.r,
-                                                            alignment: Alignment
-                                                                .topRight,
-                                                            backgroundWidget:
-                                                                Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Center(
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .all(
-                                                                        100.0),
-                                                                    child:
-                                                                        RichText(
-                                                                      text:
-                                                                          TextSpan(
-                                                                        style: GoogleFonts.varela(
-                                                                            color: Colors
-                                                                                .black,
-                                                                            fontSize:
-                                                                                20,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                        children: const <
-                                                                            TextSpan>[
-                                                                          //  TextSpan(text: 'Press the menu button'),
-                                                                        ],
+                                                      ? Column(
+                                                          children: [
+                                                            Padding(
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                      right:
+                                                                          15.w),
+                                                              child:
+                                                                  CircularMenu(
+                                                                toggleButtonOnPressed:
+                                                                    () {
+                                                                  setState(() {
+                                                                    isMenuOpen =
+                                                                        !isMenuOpen; // Toggle the menu open/close state
+                                                                  });
+                                                                },
+                                                                radius: 35.r,
+                                                                alignment:
+                                                                    Alignment
+                                                                        .topRight,
+                                                                backgroundWidget:
+                                                                    Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Center(
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(100.0),
+                                                                        child:
+                                                                            RichText(
+                                                                          text:
+                                                                              TextSpan(
+                                                                            style: GoogleFonts.varela(
+                                                                                color: Colors.black,
+                                                                                fontSize: 20,
+                                                                                fontWeight: FontWeight.bold),
+                                                                            children: const <TextSpan>[
+                                                                              //  TextSpan(text: 'Press the menu button'),
+                                                                            ],
+                                                                          ),
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  ),
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ),
-                                                            toggleButtonSize:
-                                                                isMenuOpen
-                                                                    ? 24.h
-                                                                    : 18.h,
-                                                            toggleButtonMargin:
-                                                                10,
-                                                            toggleButtonPadding:
-                                                                0,
-                                                            startingAngleInRadian:
-                                                                0.4 * pi,
-                                                            endingAngleInRadian:
-                                                                3.4,
-                                                            curve: Curves
-                                                                .bounceInOut,
-                                                            reverseCurve: Curves
-                                                                .bounceInOut,
-                                                            toggleButtonIconColor:
-                                                                Constants
-                                                                    .themeBgColor,
-                                                            toggleButtonColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            items: [
-                                                              CircularMenuItem(
-                                                                  icon: Icons
-                                                                      .delete_outlined,
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                  iconColor:
-                                                                      Colors
-                                                                          .red,
-                                                                  iconSize:
-                                                                      18.h,
-                                                                  onTap: () {
-                                                                    setState(
-                                                                        () {
-                                                                      _color =
+                                                                toggleButtonSize:
+                                                                    isMenuOpen
+                                                                        ? 24.h
+                                                                        : 18.h,
+                                                                toggleButtonMargin:
+                                                                    10,
+                                                                toggleButtonPadding:
+                                                                    0,
+                                                                startingAngleInRadian:
+                                                                    0.4 * pi,
+                                                                endingAngleInRadian:
+                                                                    3.4,
+                                                                curve: Curves
+                                                                    .bounceInOut,
+                                                                reverseCurve: Curves
+                                                                    .bounceInOut,
+                                                                toggleButtonIconColor:
+                                                                    Constants
+                                                                        .themeBgColor,
+                                                                toggleButtonColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                items: [
+                                                                  CircularMenuItem(
+                                                                      icon: Icons
+                                                                          .delete_outlined,
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      iconColor:
                                                                           Colors
-                                                                              .red;
-                                                                      _colorName =
-                                                                          'red';
-                                                                    });
-                                                                    showDialog(
-                                                                      context:
-                                                                          context,
-                                                                      builder:
-                                                                          (context) {
-                                                                        return AlertDialog(
-                                                                          title:
-                                                                              const Text('Inavtive'),
-                                                                          content:
-                                                                              const Text('Clicking on the OK button will inctivate the job'),
-                                                                          actions: [
-                                                                            ElevatedButton(
-                                                                              child: const Text('Cancel'),
-                                                                              onPressed: () {
-                                                                                Navigator.of(context).pop();
-                                                                              },
-                                                                            ),
-                                                                            ElevatedButton(
-                                                                              child: const Text('OK'),
-                                                                              onPressed: () async {
-                                                                                Navigator.pop(context);
-                                                                                // Perform any action here
-                                                                                // Navigator.of(context).pop();
-                                                                                Autogenerated model = Autogenerated(active: 0
-                                                                                    /*  active: 0,
+                                                                              .red,
+                                                                      iconSize:
+                                                                          18.h,
+                                                                      onTap:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          _color =
+                                                                              Colors.red;
+                                                                          _colorName =
+                                                                              'red';
+                                                                        });
+                                                                        showDialog(
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return AlertDialog(
+                                                                              title: const Text('Inavtive'),
+                                                                              content: const Text('Clicking on the OK button will inctivate the job'),
+                                                                              actions: [
+                                                                                ElevatedButton(
+                                                                                  child: const Text('Cancel'),
+                                                                                  onPressed: () {
+                                                                                    Navigator.of(context).pop();
+                                                                                  },
+                                                                                ),
+                                                                                ElevatedButton(
+                                                                                  child: const Text('OK'),
+                                                                                  onPressed: () async {
+                                                                                    Navigator.pop(context);
+                                                                                    // Perform any action here
+                                                                                    // Navigator.of(context).pop();
+                                                                                    Autogenerated model = Autogenerated(active: 0
+                                                                                        /*  active: 0,
                                             id: jobDetailsModel.id,
                                             companyId: jobDetailsModel.compnayid,
                                             roleName:jobDetailsModel.rolename,
@@ -1664,153 +1693,148 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                          jobBenefits: jobDetailsModel.job_benifits,
                                         languageKnown: jobDetailsModel.languageknown, */
 
-                                                                                    );
-                                                                                Map<String, dynamic> jsonData = model.toJson();
-                                                                                await JobPostApiService.jobInActive(jsonData, item.id!.toInt());
-                                                                                ref.refresh(jobsProvider);
-                                                                                // ref.refresh(profileSummaryProvider);
-                                                                              },
-                                                                            ),
-                                                                          ],
+                                                                                        );
+                                                                                    Map<String, dynamic> jsonData = model.toJson();
+                                                                                    await JobPostApiService.jobInActive(jsonData, item.id!.toInt());
+                                                                                    ref.refresh(jobsProvider);
+                                                                                    // ref.refresh(profileSummaryProvider);
+                                                                                  },
+                                                                                ),
+                                                                              ],
+                                                                            );
+                                                                          },
                                                                         );
-                                                                      },
-                                                                    );
-                                                                  }),
-                                                              /*  CircularMenuItem(
-                                                                  icon: Icons
-                                                                      .bookmark_add_outlined,
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                  iconColor:
-                                                                      Colors
-                                                                          .brown,
-                                                                  iconSize: 18.h,
-                                                                  onTap: () {
-                                                                    setState(() {
-                                                                      _color = Colors
-                                                                          .brown;
-                                                                      _colorName =
-                                                                          'Brown';
-                                                                    });
-                                                                  }), */
-                                                              /*  CircularMenuItem(
-                                                                  icon:
-                                                                      Icons.share,
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                  iconColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  iconSize: 18.h,
-                                                                  onTap:
-                                                                      () async {
-                                                                    setState(() {
-                                                                      _color = Colors
-                                                                          .green;
-                                                                      _colorName =
-                                                                          'Green';
-                                                                    });
-                                                                    const url =
-                                                                        "https://wa.me/?text=Hey buddy, try this super cool new app!";
-                                                                    if (await canLaunch(
-                                                                        url)) {
-                                                                      await launch(
-                                                                          url);
-                                                                    } else {
-                                                                      throw 'Could not launch $url';
-                                                                    }
-                                                                  }), */
-                                                              CircularMenuItem(
-                                                                  icon: Icons
-                                                                      .edit,
-                                                                  color: Colors
-                                                                      .transparent,
-                                                                  iconColor:
-                                                                      Colors
-                                                                          .red,
-                                                                  iconSize:
-                                                                      18.h,
-                                                                  onTap: () {
-                                                                    setState(
-                                                                        () {
-                                                                      /* _color =
+                                                                      }),
+                                                                  /*  CircularMenuItem(
+                                                                      icon: Icons
+                                                                          .bookmark_add_outlined,
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      iconColor:
                                                                           Colors
-                                                                              .red;
-                                                                      _colorName =
-                                                                          'red'; */
-                                                                      Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) => JobForm(
-                                                                                    formEdit: true,
-                                                                                    companyName: item.companyName.toString(),
-                                                                                    companyId: item.companyId.toString(),
-                                                                                    jobTitle: item.roleName.toString(),
-                                                                                    natureOfWork: item.natureOfWork.toString(),
-                                                                                    process: item.process.toString(),
-                                                                                  )));
-                                                                    });
-                                                                  }),
-                                                            ],
-                                                          ),
+                                                                              .brown,
+                                                                      iconSize: 18.h,
+                                                                      onTap: () {
+                                                                        setState(() {
+                                                                          _color = Colors
+                                                                              .brown;
+                                                                          _colorName =
+                                                                              'Brown';
+                                                                        });
+                                                                      }), */
+                                                                  /*  CircularMenuItem(
+                                                                      icon:
+                                                                          Icons.share,
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      iconColor:
+                                                                          Colors
+                                                                              .green,
+                                                                      iconSize: 18.h,
+                                                                      onTap:
+                                                                          () async {
+                                                                        setState(() {
+                                                                          _color = Colors
+                                                                              .green;
+                                                                          _colorName =
+                                                                              'Green';
+                                                                        });
+                                                                        const url =
+                                                                            "https://wa.me/?text=Hey buddy, try this super cool new app!";
+                                                                        if (await canLaunch(
+                                                                            url)) {
+                                                                          await launch(
+                                                                              url);
+                                                                        } else {
+                                                                          throw 'Could not launch $url';
+                                                                        }
+                                                                      }), */
+                                                                  CircularMenuItem(
+                                                                      icon: Icons
+                                                                          .edit,
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      iconColor:
+                                                                          Colors
+                                                                              .red,
+                                                                      iconSize:
+                                                                          18.h,
+                                                                      onTap:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          /* _color =
+                                                                              Colors
+                                                                                  .red;
+                                                                          _colorName =
+                                                                              'red'; */
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => JobForm(
+                                                                                        formEdit: true,
+                                                                                        companyName: item.companyName.toString(),
+                                                                                        companyId: item.companyId.toString(),
+                                                                                        jobTitle: item.roleName.toString(),
+                                                                                        natureOfWork: item.natureOfWork.toString(),
+                                                                                        process: item.process.toString(),
+                                                                                      )));
+                                                                        });
+                                                                      }),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
                                                         )
                                                       : Positioned(
                                                           top: 0,
                                                           right: 6.w,
-                                                          child: jobsController
-                                                                  .isFavLoading
-                                                              ? const Padding(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .all(
+                                                          child: Column(
+                                                            children: [
+                                                              jobsController
+                                                                      .isFavLoading
+                                                                  ? const Padding(
+                                                                      padding:
+                                                                          EdgeInsets.all(
                                                                               16.0),
-                                                                  child: SizedBox
-                                                                      .square(
-                                                                    dimension:
-                                                                        10,
-                                                                    child:
-                                                                        CircularProgressIndicator(
-                                                                      strokeWidth:
-                                                                          1,
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              : IconButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    if ((item.isFav ??
-                                                                            0) ==
-                                                                        1) {
-                                                                      await jobsController.removeFromFav(
-                                                                          item.favJobId!
-                                                                              .toInt(),
-                                                                          data);
-                                                                      setState(
-                                                                          () {
-                                                                        jobsController.toggleLocationFilter(
-                                                                            jobs:
-                                                                                jobsController.jobs);
-                                                                      });
-                                                                    } else {
-                                                                      await jobsController.addToFav(
-                                                                          item.id ??
-                                                                              0,
-                                                                          data);
-                                                                    }
-                                                                  },
-                                                                  icon: Icon(
-                                                                      /*   jobs[index]["id"].toString() ==
+                                                                      child: SizedBox
+                                                                          .square(
+                                                                        dimension:
+                                                                            10,
+                                                                        child:
+                                                                            CircularProgressIndicator(
+                                                                          strokeWidth:
+                                                                              1,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  : IconButton(
+                                                                      onPressed:
+                                                                          () async {
+                                                                        if ((item.isFav ??
+                                                                                0) ==
+                                                                            1) {
+                                                                          await jobsController.removeFromFav(
+                                                                              item.favJobId!.toInt(),
+                                                                              data);
+                                                                          setState(
+                                                                              () {
+                                                                            jobsController.toggleLocationFilter(jobs: jobsController.jobs);
+                                                                          });
+                                                                        } else {
+                                                                          await jobsController.addToFav(
+                                                                              item.id ?? 0,
+                                                                              data);
+                                                                        }
+                                                                      },
+                                                                      icon: Icon(
+                                                                          /*   jobs[index]["id"].toString() ==
                                         item[index]["id"].toString() */
-                                                                      (item.isFav) == 1 && (item.userId == data.id)
-                                                                          ? Icons
-                                                                              .bookmark
-                                                                          : Icons
-                                                                              .bookmark_add_outlined,
-                                                                      size:
-                                                                          22.h,
-                                                                      color: Constants
-                                                                          .themeBgColor)),
-                                                        )
+                                                                          (item.isFav) == 1 && (item.userId == data.id) ? Icons.bookmark : Icons.bookmark_add_outlined,
+                                                                          size: 22.h,
+                                                                          color: Constants.themeBgColor)),
+                                                            ],
+                                                          ))
                                                 ],
                                               ),
                                             );

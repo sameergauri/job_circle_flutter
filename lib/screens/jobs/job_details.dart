@@ -715,6 +715,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                       "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                   isRefer: false,
                                   spocId: jobDetailsModel.spoc!.toInt(),
+                                  is90: jobDetailsModel.payment_clause ==
+                                          "90 Days"
+                                      ? true
+                                      : false,
+                                  is30: jobDetailsModel.payment_clause ==
+                                          "30 Days"
+                                      ? true
+                                      : false,
                                 )));
                     /* JobPostApiService.postJobApply(
                               jobId: item['id'],
@@ -3263,6 +3271,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                     spocId: jobDetailsModel
                                                         .spoc!
                                                         .toInt(),
+                                                    is90: jobDetailsModel
+                                                                .payment_clause ==
+                                                            "90 Days"
+                                                        ? true
+                                                        : false,
+                                                    is30: jobDetailsModel
+                                                                .payment_clause ==
+                                                            "30 Days"
+                                                        ? true
+                                                        : false,
                                                   )));
                                     },
                                     child: Container(

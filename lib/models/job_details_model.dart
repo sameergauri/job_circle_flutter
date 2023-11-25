@@ -62,6 +62,7 @@ class JobDetailsModel {
   double? partner_exp_pay;
   int? is_fresh_ctc;
   int? is_exp_ctc;
+  String? payment_clause;
 
   JobDetailsModel({
     this.id,
@@ -125,6 +126,7 @@ class JobDetailsModel {
     this.partner_fresher_pay,
     this.is_exp_ctc,
     this.is_fresh_ctc,
+    this.payment_clause,
   });
 
   factory JobDetailsModel.fromMap(Map<String, dynamic> map) {
@@ -219,7 +221,10 @@ class JobDetailsModel {
         partner_exp_pay: map["partner_exp_pay"],
         is_fresh_ctc: map['is_fresh_ctc'],
         is_exp_ctc: map['is_exp_ctc'],
-        partner_fresher_pay: map['partner_fresher_pay']);
+        partner_fresher_pay: map['partner_fresher_pay'],
+        payment_clause:map['payment_clause'],
+        
+        );
   }
 
   static List<String>? parseLanguageKnown(String? value) {

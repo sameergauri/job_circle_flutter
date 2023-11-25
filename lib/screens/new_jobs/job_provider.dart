@@ -81,6 +81,8 @@ class JobProvider extends ChangeNotifier {
       toggleMyJobsFilter(model, unSelectTab: false, jobs: filteredJobs);
     } else if (isFreshersTabSelected) {
       toggleFreshersFilter(model, unSelectTab: false, jobs: filteredJobs);
+    } else if (isLanguilTabSelected) {
+      toggleLanguilJobs(model, unSelectTab: false, jobs: filteredJobs);
     }
   }
 
@@ -105,6 +107,15 @@ class JobProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+ 
+
+  bool _isLanguilTabSelected = false;
+  bool get isLanguilTabSelected => _isLanguilTabSelected;
+  set isLanguilTabSelected(bool value) {
+    _isLanguilTabSelected = value;
+    notifyListeners();
+  }
+
   bool isFilterApplied = false;
   bool contains(dynamic? value, dynamic searchTerm) {
     if (value is int && searchTerm is int) {
@@ -123,6 +134,7 @@ class JobProvider extends ChangeNotifier {
     }
     isFreshersTabSelected = false;
     isMyJobsTabSelected = false;
+    isLanguilTabSelected = false;
     if (isFavoriteTabSelected) {
       _applyFavFilter(profileModel, jobs);
       toggleLocationFilter(jobs: filteredJobs);
@@ -140,6 +152,29 @@ class JobProvider extends ChangeNotifier {
     isFilterApplied = true;
   }
 
+//TODO filter for linguil....
+
+  void toggleLanguilJobs(ProfileModel model,
+      {bool unSelectTab = true, List<JobsModel>? jobs}) {
+    if (unSelectTab) {
+      isLanguilTabSelected = !isLanguilTabSelected;
+    }
+
+    isMyJobsTabSelected = false;
+    isFavoriteTabSelected = false;
+    isFreshersTabSelected = false;
+    if (isLanguilTabSelected) {
+      filteredJobs = (jobs ?? this.jobs)
+          .where((job) => job.languagesKnown!.isNotEmpty)
+          .toList();
+      toggleLocationFilter(jobs: filteredJobs);
+    } else {
+      filteredJobs = List.from(jobs ?? this.jobs);
+    }
+  }
+
+  //TODO::
+
   void toggleMyJobsFilter(ProfileModel profileModel,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
@@ -147,6 +182,7 @@ class JobProvider extends ChangeNotifier {
     }
     isFreshersTabSelected = false;
     isFavoriteTabSelected = false;
+    isLanguilTabSelected = false;
     if (isMyJobsTabSelected) {
       if (role == "1" && profileModel.usertype == 3) {
         _applySpocFilter(profileModel, jobs);
@@ -183,6 +219,7 @@ class JobProvider extends ChangeNotifier {
 
     isMyJobsTabSelected = false;
     isFavoriteTabSelected = false;
+    isLanguilTabSelected = false;
     if (isFreshersTabSelected) {
       filteredJobs = (jobs ?? this.jobs)
           .where((job) => job.isFresher == "Fresher")
@@ -297,6 +334,8 @@ class JobProvider extends ChangeNotifier {
           toggleMyJobsFilter(model, unSelectTab: false, jobs: filteredJobs);
         } else if (isFreshersTabSelected) {
           toggleFreshersFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isLanguilTabSelected) {
+          toggleLanguilJobs(model, unSelectTab: false, jobs: filteredJobs);
         }
       } else {
         print('Error during post request: ${response.statusCode}');
@@ -326,6 +365,8 @@ class JobProvider extends ChangeNotifier {
           toggleMyJobsFilter(model, unSelectTab: false, jobs: filteredJobs);
         } else if (isFreshersTabSelected) {
           toggleFreshersFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isLanguilTabSelected) {
+          toggleLanguilJobs(model, unSelectTab: false, jobs: filteredJobs);
         }
       } else {
         print('Error during post request: ${response.statusCode}');

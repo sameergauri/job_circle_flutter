@@ -34,6 +34,7 @@ class JobsModel {
   final List<String>? eligibility;
   final String? payoutType;
   late final int? active;
+  late final String? payment_clause;
 
   JobsModel({
     this.id,
@@ -69,6 +70,7 @@ class JobsModel {
     this.eligibility,
     this.payoutType,
     this.active,
+    this.payment_clause,
   });
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
@@ -105,7 +107,8 @@ class JobsModel {
       uid: json['uid'],
       eligibility: _parseSkills(json['eligibility'] ?? []),
       payoutType: json['payout_type'],
-      active:json['active']
+      active: json['active'],
+      payment_clause: json['payment_clause'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -143,6 +146,7 @@ class JobsModel {
       'eligibility': eligibility,
       'payout_type': payoutType,
       'active': active,
+      'payment_clause': payment_clause,
     };
   }
 
@@ -181,6 +185,7 @@ class JobsModel {
       eligibility: List<String>.from(map['eligibility'] ?? []),
       payoutType: map['payout_type'],
       active: map['active'],
+      payment_clause: map['payment_clause'],
     );
   }
 
@@ -219,6 +224,7 @@ class JobsModel {
       'eligibility': eligibility,
       'payout_type': payoutType,
       'active': active,
+      'payment_clause': payment_clause,
     };
   }
 

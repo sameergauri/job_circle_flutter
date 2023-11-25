@@ -1530,6 +1530,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     sourceName: "${profileModel.firstName.toString()} ${profileModel.lastName.toString()}",
                                                                                     isRefer: false,
                                                                                     spocId: item.spoc!.toInt(),
+                                                                                     is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
                                                                                   )));
                                                                     },
                                                                     child:
@@ -1601,6 +1603,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     sourceName: "${jobData.profile.firstName.toString()} ${jobData.profile.lastName.toString()}",
                                                                                     isRefer: true,
                                                                                     spocId: item.spoc!.toInt(),
+                                                                                     is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
                                                                                   )));
                                                                     },
                                                                     child:

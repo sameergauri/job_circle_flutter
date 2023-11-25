@@ -481,27 +481,25 @@ class _AddIntoductionState extends State<AddIntoduction>
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
-          title: Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Add Introduction",
-                  style: GoogleFonts.varela(
-                    fontSize: 18.sp,
-                    color: Constants.themeBgColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Add Introduction",
+                style: GoogleFonts.varela(
+                  fontSize: 18.sp,
+                  color: Constants.themeBgColor,
+                  fontWeight: FontWeight.w600,
                 ),
-                Text(
-                  "Introduce yourself to the recruiters",
-                  style: GoogleFonts.varela(
-                      color: Constants.hintColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.normal),
-                )
-              ],
-            ),
+              ),
+              Text(
+                "Introduce yourself to the recruiters",
+                style: GoogleFonts.varela(
+                    color: Constants.hintColor,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.normal),
+              )
+            ],
           ),
         ),
         bottomNavigationBar: InkWell(

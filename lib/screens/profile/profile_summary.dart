@@ -493,7 +493,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                     setState(() {
                                       previousResume = resume;
                                     });
-                                    resume = await uploadFile(['pdf'], "cv");
+                                    resume = await uploadFile(['pdf'], "cv",
+                                        data.profileSummary.cv_link);
                                     if (resume != null) {
                                       var payload = {
                                         "stage": "upload_cv",
@@ -816,9 +817,16 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                               child: InkWell(
                                                 onTap: () async {
                                                   setState(() async {
-                                                    var data = await uploadFile(
-                                                        ['jpeg', 'jpg'],
-                                                        "icon");
+                                                    var data1 =
+                                                        await uploadFile(
+                                                            [
+                                                          'jpeg',
+                                                          'jpg',
+                                                          "png"
+                                                        ],
+                                                            "icon",
+                                                            data.profileSummary
+                                                                .profile_pic);
                                                     var payload = {
                                                       "stage": "profile_pic",
                                                       "data": {
@@ -828,12 +836,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                 ESharedPreferences
                                                                     .user_id
                                                                     .name),
-                                                        "profile_pic": data
+                                                        "profile_pic": data1
                                                       }
                                                     };
-                                                    await save(data, payload);
+                                                    await save(data1, payload);
 
-                                                    icon_data = data;
+                                                    icon_data = data1;
                                                     ref.refresh(
                                                         userDataProvider);
                                                     ref.refresh(
@@ -1340,9 +1348,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                       buttonText:
                                                           "+ Upload Resume",
                                                       onPressed: () async {
-                                                        resume =
-                                                            await uploadFile(
-                                                                ['pdf'], "cv");
+                                                        resume = await uploadFile(
+                                                            ['pdf'],
+                                                            "cv",
+                                                            data.profileSummary
+                                                                .cv_link);
                                                         var payload = {
                                                           "stage": "upload_cv",
                                                           "data": {
@@ -3144,7 +3154,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     return null;
   }
 
-  Future<String?> uploadFile(allowExt, String folder) async {
+  Future<String?> uploadFile(allowExt, String folder, String? pic) async {
     Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -3205,7 +3215,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       Navigator.pop(context);
 
       // Handle the case where the user cancels file selection
-      return profilemodel.profile_pic;
+      return pic;
     }
   }
 

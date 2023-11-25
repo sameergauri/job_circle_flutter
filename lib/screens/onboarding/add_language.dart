@@ -244,35 +244,33 @@ class _AddLanguageState extends State<AddLanguage> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Languages known",
-                style: GoogleFonts.varela(
-                  fontSize: 18.sp,
-                  color: Constants.themeBgColor,
-                  fontWeight: FontWeight.w600,
-                ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Languages known",
+              style: GoogleFonts.varela(
+                fontSize: 18.sp,
+                color: Constants.themeBgColor,
+                fontWeight: FontWeight.w600,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Let recruiter know you can communicate in multiple languages.",
-                      softWrap: true,
-                      maxLines: 2,
-                      style: GoogleFonts.varela(
-                          color: Colors.grey.shade600,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.normal),
-                    ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "Let recruiter know you can communicate in multiple languages.",
+                    softWrap: true,
+                    maxLines: 2,
+                    style: GoogleFonts.varela(
+                        color: Colors.grey.shade600,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.normal),
                   ),
-                ],
-              )
-            ],
-          ),
+                ),
+              ],
+            )
+          ],
         ),
       ),
       body: SingleChildScrollView(

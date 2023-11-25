@@ -31,6 +31,8 @@ class AddResume extends ConsumerStatefulWidget {
   final String company_name, role, process, nature_of_work, sourceName;
   final int company_id, jobId, spocId, sourceId;
   final bool isRefer;
+  final bool is90;
+  final bool is30;
 
   const AddResume(
       {super.key,
@@ -43,7 +45,9 @@ class AddResume extends ConsumerStatefulWidget {
       required this.sourceId,
       required this.sourceName,
       required this.spocId,
-      required this.isRefer});
+      required this.isRefer,
+      required this.is90,
+      required this.is30});
 
   @override
   ConsumerState<AddResume> createState() => _AddResumeState();
@@ -742,10 +746,11 @@ class _AddResumeState extends ConsumerState<AddResume> {
                       ),
                     ],
                   ),
+
                   const SizedBox(
                     height: 10,
                   ),
-                  if (widget.isRefer)
+                  if (widget.isRefer && widget.is90)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -793,7 +798,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                         const SizedBox(
                           width: 5,
                         ),
-                        if (widget.isRefer)
+                        if (widget.isRefer && widget.is90)
                           Expanded(
                               child: RichText(
                                   text: TextSpan(
@@ -869,7 +874,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                   const SizedBox(
                     height: 10,
                   ),
-                  /* if (widget.isRefer) //TODO: 30 days statement.
+                  if (widget.isRefer && widget.is30) //TODO: 30 days statement.
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -917,7 +922,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                         const SizedBox(
                           width: 5,
                         ),
-                        if (widget.isRefer)
+                        if (widget.isRefer && widget.is30)
                           Expanded(
                               child: RichText(
                                   text: TextSpan(
@@ -988,7 +993,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                                     ), */
                                   )),
                       ],
-                    ), */
+                    ),
                 ],
               ),
             ),
@@ -1440,7 +1445,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } else if (!termAndConditionOne && widget.isRefer) {
+    } else if (!termAndConditionOne && widget.isRefer && widget.is90) {
       showDialog(
         context: context,
         builder: (context) {
@@ -1452,7 +1457,20 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Agree terms & condition first");
         },
       );
-    } else {
+    } /* else if (!termAndConditionTwo && widget.isRefer && widget.is30) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Agree terms & condition first");
+        },
+      );
+    } */
+    else {
       fetchData();
       /*  JobApplicationModel addResumeModel = JobApplicationModel(
       

@@ -2818,6 +2818,12 @@ class _JobsState extends ConsumerState<Jobs>
                                             "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                         isRefer: false,
                                         spocId: item['spoc'],
+                                         is90: item.payment_clause == "90 Days"
+                                            ? true
+                                            : false,
+                                        is30: item.payment_clause == "30 Days"
+                                            ? true
+                                            : false,
                                       )));
                           /* JobPostApiService.postJobApply(
                               jobId: item['id'],

@@ -3,12 +3,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
+import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -20,7 +24,7 @@ import '../../models/autocompleteModel.dart';
 import '../../models/profileSummary.dart';
 import '../../service/UserDataService.dart';
 
-class AddEducation extends StatefulWidget {
+class AddEducation extends ConsumerStatefulWidget {
   final int userID;
   final Map<String, dynamic> languageModel;
   final Map<String, dynamic> introData;
@@ -36,10 +40,10 @@ class AddEducation extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AddEducation> createState() => _AddEducationState();
+  ConsumerState<AddEducation> createState() => _AddEducationState();
 }
 
-class _AddEducationState extends State<AddEducation> {
+class _AddEducationState extends ConsumerState<AddEducation> {
   late Widget previousWidget;
   //controller
   late TextEditingController educationController = TextEditingController();
@@ -875,8 +879,7 @@ class _AddEducationState extends State<AddEducation> {
                     degree: false,
                     labelText: "Field of Study",
                     title: "",
-              hsc: false,
-
+                    hsc: false,
                     isCity: true,
                     contextIn: context,
                     role: "",
@@ -1136,7 +1139,9 @@ class _AddEducationState extends State<AddEducation> {
     if (!isSkip) {
       await userDataService.saveUserEducation(model.toMap());
     }
-
+    ref.refresh(userDataProvider);
+    ref.refresh(userJobDataProvider);
+    ref.refresh(profileSummaryProvider);
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
