@@ -140,11 +140,15 @@ class Utils {
       final String usertype = data['usertype'].toString();
 
       if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => AddIntoduction()));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => AddIntoduction()),
+            (route) => false);
         if (data['firstName'] == '') {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => AddIntoduction()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => AddIntoduction()),
+              (route) => false);
           //nextRoute = ERoute.screen1;
         } /* else if (data['education'] == null || data['education'] == 0) {
           Navigator.pushReplacement(
@@ -154,8 +158,10 @@ class Utils {
               MaterialPageRoute(builder: (context) => AddIntoduction()));
         } */
         else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+              (route) => false);
           // nextRoute = ERoute.home;
         }
         /*   Navigator.pushNamedAndRemoveUntil(
@@ -186,8 +192,10 @@ class Utils {
           await Utils.setPreference(null, ESharedPreferences.user_type.name,
               EUserType.jobSeeker.value);
           Utils.setCacheData("usertype", EUserType.jobSeeker.value);
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => AddIntoduction()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => AddIntoduction()),
+              (route) => false);
           // Navigator.pushNamed(context, ERoute.screen1.value);
           /*        Navigator.pushNamedAndRemoveUntil(    //TODO: code to send user to the usertype selection page.
               context, ERoute.logintype.name, (Route<dynamic> route) => false); */

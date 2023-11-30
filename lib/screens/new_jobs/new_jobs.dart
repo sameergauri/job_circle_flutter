@@ -42,11 +42,7 @@ class JobsDataModelForJobs {
 
 final JobsProvider = FutureProvider<List<JobsModel>>((ref) async {
   final jobResponse = await _NewJobsState.bindAllJobs();
-  if (jobResponse != null) {
-    return (jobResponse).map((item) => JobsModel.fromJson(item)).toList();
-  } else {
-    throw Exception('Failed to load experience data');
-  }
+  return (jobResponse).map((item) => JobsModel.fromJson(item)).toList();
 });
 
 final userJobDataProvider = FutureProvider<JobsDataModelForJobs>((ref) async {
@@ -394,7 +390,7 @@ class _NewJobsState extends ConsumerState<NewJobs>
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
-        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle',
+        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
   }
 
@@ -509,7 +505,7 @@ class _NewJobsState extends ConsumerState<NewJobs>
     isFilterApplied = true;
   }
 
-  bool contains(dynamic? value, dynamic searchTerm) {
+  bool contains(dynamic value, dynamic searchTerm) {
     if (value is int && searchTerm is int) {
       return value == searchTerm;
     } else if (value is String && searchTerm is String) {
@@ -1375,88 +1371,86 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                             SizedBox(
                                                               height: 3.h,
                                                             ),
-                                                            if (updatedList !=
-                                                                null)
-                                                              Wrap(
-                                                                alignment:
-                                                                    WrapAlignment
-                                                                        .start,
-                                                                spacing: 8.0,
-                                                                children: [
-                                                                  ...updatedList
-                                                                      .take(5)
-                                                                      .map(
-                                                                        (skillItem) =>
-                                                                            Container(
-                                                                          margin:
-                                                                              const EdgeInsets.only(bottom: 5),
-                                                                          padding: const EdgeInsets.symmetric(
-                                                                              vertical: 4,
-                                                                              horizontal: 8),
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Colors.grey.shade200,
-                                                                            borderRadius:
-                                                                                BorderRadius.circular(8),
-                                                                          ),
-                                                                          child:
-                                                                              Text(
-                                                                            "#$skillItem".replaceAll('"', '').replaceAll('[', '').replaceAll(']',
-                                                                                ''),
-                                                                            style:
-                                                                                GoogleFonts.varela(
-                                                                              color: Colors.black54,
-                                                                              fontWeight: FontWeight.bold,
-                                                                              fontSize: 13.sp,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      )
-                                                                      .toList(),
-                                                                  if (updatedList
-                                                                          .length >
-                                                                      5)
-                                                                    Container(
-                                                                      margin: const EdgeInsets
-                                                                              .only(
-                                                                          bottom:
-                                                                              5),
-                                                                      padding: const EdgeInsets
-                                                                              .symmetric(
-                                                                          vertical:
-                                                                              4,
-                                                                          horizontal:
-                                                                              8),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color: Constants
-                                                                            .borderColor,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8),
-                                                                      ),
-                                                                      child:
-                                                                          Text(
-                                                                        '+${updatedList.length - 5}'
-                                                                            .replaceAll('"',
-                                                                                '')
-                                                                            .replaceAll('[',
-                                                                                '')
-                                                                            .replaceAll(']',
-                                                                                ''),
-                                                                        style: GoogleFonts
-                                                                            .varela(
+                                                            Wrap(
+                                                              alignment:
+                                                                  WrapAlignment
+                                                                      .start,
+                                                              spacing: 8.0,
+                                                              children: [
+                                                                ...updatedList
+                                                                    .take(5)
+                                                                    .map(
+                                                                      (skillItem) =>
+                                                                          Container(
+                                                                        margin:
+                                                                            const EdgeInsets.only(bottom: 5),
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                            vertical: 4,
+                                                                            horizontal: 8),
+                                                                        decoration:
+                                                                            BoxDecoration(
                                                                           color:
-                                                                              Colors.black,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          fontSize:
-                                                                              13.sp,
+                                                                              Colors.grey.shade200,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(8),
                                                                         ),
+                                                                        child:
+                                                                            Text(
+                                                                          "#$skillItem".replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+                                                                              ''),
+                                                                          style:
+                                                                              GoogleFonts.varela(
+                                                                            color: Colors.black54,
+                                                                            fontWeight: FontWeight.bold,
+                                                                            fontSize: 13.sp,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                    .toList(),
+                                                                if (updatedList
+                                                                        .length >
+                                                                    5)
+                                                                  Container(
+                                                                    margin: const EdgeInsets
+                                                                            .only(
+                                                                        bottom:
+                                                                            5),
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        vertical:
+                                                                            4,
+                                                                        horizontal:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Constants
+                                                                          .borderColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(8),
+                                                                    ),
+                                                                    child:
+                                                                        Text(
+                                                                      '+${updatedList.length - 5}'
+                                                                          .replaceAll('"',
+                                                                              '')
+                                                                          .replaceAll('[',
+                                                                              '')
+                                                                          .replaceAll(']',
+                                                                              ''),
+                                                                      style: GoogleFonts
+                                                                          .varela(
+                                                                        color:
+                                                                            Colors.black,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            13.sp,
                                                                       ),
                                                                     ),
-                                                                ],
-                                                              ),
+                                                                  ),
+                                                              ],
+                                                            ),
                                                             Container(
                                                               margin: EdgeInsets
                                                                   .symmetric(

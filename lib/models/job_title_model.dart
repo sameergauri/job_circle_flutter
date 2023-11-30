@@ -36,7 +36,7 @@ class JobTitleModel1 {
   final int? parentId;
   final String? parentName;
   final int? orderNo;
-  final dynamic? extra;
+  final dynamic extra;
 
   JobTitleModel1({
     required this.id,

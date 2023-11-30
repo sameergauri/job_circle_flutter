@@ -1,12 +1,9 @@
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class SimpleWebView extends StatefulWidget {
   final String? url;

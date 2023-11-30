@@ -62,22 +62,14 @@ class UserDataModel {
 
 final educationProvider = FutureProvider<List<Education>>((ref) async {
   final educationResponse = await _ProfileSummaryState.bindProfileEducation();
-  if (educationResponse != null) {
-    return (educationResponse).map((item) => Education.fromJson(item)).toList();
-  } else {
-    throw Exception('Failed to load education data');
-  }
+  return (educationResponse).map((item) => Education.fromJson(item)).toList();
 });
 
 final experienceProvider = FutureProvider<List<Experience>>((ref) async {
   final experienceResponse = await _ProfileSummaryState.bindProfileExperience();
-  if (experienceResponse != null) {
-    return (experienceResponse)
-        .map((item) => Experience.fromJson(item))
-        .toList();
-  } else {
-    throw Exception('Failed to load experience data');
-  }
+  return (experienceResponse)
+      .map((item) => Experience.fromJson(item))
+      .toList();
 });
 
 final userDataProvider = FutureProvider<UserDataModel>((ref) async {

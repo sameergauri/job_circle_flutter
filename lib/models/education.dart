@@ -27,15 +27,15 @@ class EducationSep {
 
   EducationSep copyWith({
     int? id,
-    dynamic? level,
-    dynamic? board,
-    dynamic? university,
-    dynamic? fieldOfStudy,
+    dynamic level,
+    dynamic board,
+    dynamic university,
+    dynamic fieldOfStudy,
     int? firstYear,
     String? marksheet,
     int? passingYear,
-    dynamic? userId,
-    dynamic? degree_spc,
+    dynamic userId,
+    dynamic degree_spc,
   }) {
     return EducationSep(
       id: id ?? this.id,

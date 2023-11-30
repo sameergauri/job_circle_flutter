@@ -395,7 +395,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       otpChar1FocusNode.requestFocus();
       timerCountdown = startTimer();
     });
-    setState(() {});
+   // setState(() {});
 
     var result = await UserDataService().authenticate({
       "mobile": await Utils.getPreferencesValue(

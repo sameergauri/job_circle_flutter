@@ -23,7 +23,6 @@ import 'package:job_circle/screens/profile/profile_summary.dart'
     deferred as profileSummary;
 import 'package:job_circle/screens/profile/profile_summary_partner.dart'
     deferred as profileSummaryPartner;
-import 'package:job_circle/screens/profile/screen3.dart' deferred as screen3;
 import 'package:job_circle/screens/splash.dart';
 import 'package:job_circle/screens/statistics/statistic.dart'
     deferred as statistic;
@@ -35,7 +34,7 @@ Future<void> get lazyPartnerHome => partnerhome.loadLibrary();
 Future<void> get lazyProfile => profile.loadLibrary();
 //Future<void> get lazyScreen1 => screen1.loadLibrary();
 //Future<void> get lazyScreen2 => screen2.loadLibrary();
-Future<void> get lazyScreen3 => screen3.loadLibrary();
+//Future<void> get lazyScreen3 => screen3.loadLibrary();
 Future<void> get lazyLogin => login.loadLibrary();
 Future<void> get lazyOTP => otp.loadLibrary();
 Future<void> get lazyJobs => jobs.loadLibrary();

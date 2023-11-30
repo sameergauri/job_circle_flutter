@@ -1,13 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import your Constants class here
 
-class LocationSelector extends StatefulWidget {
+class LocationSelector extends ConsumerStatefulWidget {
   final List<String> locationList;
   final void Function(String)? onLocationSelected;
 
@@ -21,7 +23,7 @@ class LocationSelector extends StatefulWidget {
   _LocationSelectorState createState() => _LocationSelectorState();
 }
 
-class _LocationSelectorState extends State<LocationSelector> {
+class _LocationSelectorState extends ConsumerState<LocationSelector> {
   late TextEditingController searchController;
   List<String> filteredList = [];
   late SharedPreferences prefs;
@@ -36,6 +38,8 @@ class _LocationSelectorState extends State<LocationSelector> {
       prefs = value;
     });
   }
+
+  late FilterDialog filterDialog;
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +87,15 @@ class _LocationSelectorState extends State<LocationSelector> {
               itemBuilder: (context, index) {
                 final location = filteredList[index];
                 return InkWell(
-                  onTap: () {
+                  onTap: () async {
                     print('Selected Location in LocationSelector: $location');
                     Navigator.pop(context);
                     final selectedLocation = location;
-                    prefs.setString('selectedLocation', selectedLocation);
+                    await prefs.setString('selectedLocation', selectedLocation);
                     widget.onLocationSelected?.call(selectedLocation);
+                    /*  ref.refresh(userJobDataProvider);  //TODO: for future.
+                    ref.refresh(jobsProvider); */
+                    
                   },
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 5),

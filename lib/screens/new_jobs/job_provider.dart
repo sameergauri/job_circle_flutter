@@ -14,11 +14,7 @@ final jobsProvider = ChangeNotifierProvider((ref) => JobProvider()..init());
 
 final profileSummaryProvider = FutureProvider<ProfileModel>((ref) async {
   final summaryResponse = await JobProvider.bindProfileSummary();
-  if (summaryResponse != null) {
-    return ProfileModel.fromJson(summaryResponse);
-  } else {
-    throw Exception('Failed to load profile summary data');
-  }
+  return ProfileModel.fromJson(summaryResponse);
 });
 
 class JobProvider extends ChangeNotifier {
@@ -107,8 +103,6 @@ class JobProvider extends ChangeNotifier {
     notifyListeners();
   }
 
- 
-
   bool _isLanguilTabSelected = false;
   bool get isLanguilTabSelected => _isLanguilTabSelected;
   set isLanguilTabSelected(bool value) {
@@ -117,7 +111,7 @@ class JobProvider extends ChangeNotifier {
   }
 
   bool isFilterApplied = false;
-  bool contains(dynamic? value, dynamic searchTerm) {
+  bool contains(dynamic value, dynamic searchTerm) {
     if (value is int && searchTerm is int) {
       return value == searchTerm;
     } else if (value is String && searchTerm is String) {
@@ -140,6 +134,7 @@ class JobProvider extends ChangeNotifier {
       toggleLocationFilter(jobs: filteredJobs);
     } else {
       filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
     }
   }
 
@@ -170,6 +165,7 @@ class JobProvider extends ChangeNotifier {
       toggleLocationFilter(jobs: filteredJobs);
     } else {
       filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
     }
   }
 
@@ -194,6 +190,7 @@ class JobProvider extends ChangeNotifier {
       toggleLocationFilter(jobs: filteredJobs);
     } else {
       filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
     }
   }
 
@@ -227,6 +224,7 @@ class JobProvider extends ChangeNotifier {
       toggleLocationFilter(jobs: filteredJobs);
     } else {
       filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
     }
   }
 

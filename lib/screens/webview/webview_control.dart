@@ -1,16 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/webJsonModel.dart';
-import 'package:job_circle/screens/viewers/pdfviewer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:whatsapp_unilink/whatsapp_unilink.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class WebViewDataCtrl extends StatefulWidget {
   final String? url;
@@ -115,8 +108,7 @@ class _WebViewDataCtrlState extends State<WebViewDataCtrl> {
                                     if (!isLoading)
                                       {
                                         isLoading = true,
-                                        if (webViewController != null)
-                                          {webViewController.reload()}
+                                        {webViewController.reload()}
                                       }
                                   },
                               icon: const Icon(Icons.refresh))
@@ -145,7 +137,7 @@ class _WebViewDataCtrlState extends State<WebViewDataCtrl> {
               color: ui.Color.fromARGB(255, 255, 255, 255),
               backgroundColor: ui.Color.fromARGB(255, 222, 2, 2),
             ),
-          Expanded(
+         /*  Expanded(
             child: WebView(
               key: UniqueKey(),
               javascriptMode: JavascriptMode.unrestricted,
@@ -211,7 +203,7 @@ class _WebViewDataCtrlState extends State<WebViewDataCtrl> {
               gestureNavigationEnabled: true,
             ),
           ),
-        ],
+       */  ],
       ),
     );
   }

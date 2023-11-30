@@ -59,7 +59,7 @@ class Application {
   final int? parent_id;
   final String? parent_name;
   final int? orderno;
-  final dynamic? extra;
+  final dynamic extra;
   final String? icon;
   final String? sub_value;
 

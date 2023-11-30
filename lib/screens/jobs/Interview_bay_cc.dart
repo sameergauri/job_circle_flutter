@@ -24,10 +24,8 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
-import '../../constants/customdialogue_for_call_whatsapp.dart';
 import '../../constants/customtoggle.dart';
 import '../../constants/drop_down_class.dart';
 import '../../models/application_status_model.dart';
@@ -319,185 +317,299 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    if (profilemodel == null) {
-      return const Center(child: CircularProgressIndicator());
-    } else {
-      var fetchApplicants =
-          profilemodel.id != null ? ref.watch(fetchAllApplicantProvider) : null;
+    var fetchApplicants =
+        profilemodel.id != null ? ref.watch(fetchAllApplicantProvider) : null;
 
-      // Build your widget's UI with the 'profilemodel' data
-      // For example:
-      return PageStorage(
-          bucket: PageStorageBucket(),
-          key: const PageStorageKey<String>("futureKey"),
-          child: fetchApplicants != null
-              ? fetchApplicants.when(
-                  data: (fetchdata) {
-                    /* fetchApplicants = ref
-                .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */ //TODO: to refresh data from api.
-                    List<Applicant>? dataList = fetchdata;
+    // Build your widget's UI with the 'profilemodel' data
+    // For example:
+    return PageStorage(
+        bucket: PageStorageBucket(),
+        key: const PageStorageKey<String>("futureKey"),
+        child: fetchApplicants != null
+            ? fetchApplicants.when(
+                data: (fetchdata) {
+                  /* fetchApplicants = ref
+              .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */ //TODO: to refresh data from api.
+                  List<Applicant>? dataList = fetchdata;
 
-                    // Define a flag to track if any item meets the condition
-                    bool anyItemMeetsCondition = false;
+                  // Define a flag to track if any item meets the condition
+                  bool anyItemMeetsCondition = false;
 
-                    for (Applicant item in dataList) {
-                      if (item.status_code!.contains("IB")) {
-                        // If the condition is met for any item, set the flag to true and break the loop
-                        anyItemMeetsCondition = true;
-                        break;
-                      }
+                  for (Applicant item in dataList) {
+                    if (item.status_code!.contains("IB")) {
+                      // If the condition is met for any item, set the flag to true and break the loop
+                      anyItemMeetsCondition = true;
+                      break;
                     }
+                  }
 
-                    if (anyItemMeetsCondition) {
-                      final data = fetchdata;
-                      final statuses =
-                          getStatuses(data); // Get the statuses here
+                  if (anyItemMeetsCondition) {
+                    final data = fetchdata;
+                    final statuses =
+                        getStatuses(data); // Get the statuses here
 
-                      return DefaultTabController(
-                          length: statuses.length,
-                          child: Scaffold(
-                            appBar: PreferredSize(
-                              preferredSize: Size(
-                                  double.maxFinite, kTextTabBarHeight / 1.2.h),
-                              child: AppBar(
-                                elevation: 0,
-                                backgroundColor: Colors.white,
-                                bottom: TabBar(
-                                  key: const ValueKey("ccTab2"),
-                                  labelPadding:
-                                      const EdgeInsets.only(left: 5, right: 5),
-                                  labelColor: Colors.black,
-                                  isScrollable: true,
-                                  unselectedLabelColor: Colors.black,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  splashBorderRadius: BorderRadius.circular(8),
-                                  indicatorWeight: 7.h,
-                                  indicatorPadding: EdgeInsets.only(
-                                      bottom: 8.h, left: 3.w, right: 3.w),
-                                  indicator: BoxDecoration(
-                                    color: Constants.borderColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                        color: Constants.borderColor),
-                                  ),
-                                  tabs: statuses
-                                      .map(
-                                        (status) => customTab(
-                                          status, // Show status in the top-level tab bar
-                                        ),
-                                      )
-                                      .toList(),
+                    return DefaultTabController(
+                        length: statuses.length,
+                        child: Scaffold(
+                          appBar: PreferredSize(
+                            preferredSize: Size(
+                                double.maxFinite, kTextTabBarHeight / 1.2.h),
+                            child: AppBar(
+                              elevation: 0,
+                              backgroundColor: Colors.white,
+                              bottom: TabBar(
+                                key: const ValueKey("ccTab2"),
+                                labelPadding:
+                                    const EdgeInsets.only(left: 5, right: 5),
+                                labelColor: Colors.black,
+                                isScrollable: true,
+                                unselectedLabelColor: Colors.black,
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                splashBorderRadius: BorderRadius.circular(8),
+                                indicatorWeight: 7.h,
+                                indicatorPadding: EdgeInsets.only(
+                                    bottom: 8.h, left: 3.w, right: 3.w),
+                                indicator: BoxDecoration(
+                                  color: Constants.borderColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: Constants.borderColor),
                                 ),
+                                tabs: statuses
+                                    .map(
+                                      (status) => customTab(
+                                        status, // Show status in the top-level tab bar
+                                      ),
+                                    )
+                                    .toList(),
                               ),
                             ),
-                            body: SmartRefresher(
-                              enablePullDown: true,
-                              controller: _refreshController,
-                              onRefresh: _onRefresh,
-                              child: NestedScrollView(
-                                headerSliverBuilder: (BuildContext context,
-                                    bool innerBoxIsScrolled) {
-                                  return <Widget>[];
-                                },
-                                body: TabBarView(
-                                  key: const ValueKey("ccTabView2"),
-                                  children:
-                                      statuses.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final status = entry.value;
-                                    // Filter applicants based on the current status
-                                    final applicants = data
-                                        .where((applicant) =>
-                                            applicant.status.toString() ==
-                                            status)
-                                        .toList();
+                          ),
+                          body: SmartRefresher(
+                            enablePullDown: true,
+                            controller: _refreshController,
+                            onRefresh: _onRefresh,
+                            child: NestedScrollView(
+                              headerSliverBuilder: (BuildContext context,
+                                  bool innerBoxIsScrolled) {
+                                return <Widget>[];
+                              },
+                              body: TabBarView(
+                                key: const ValueKey("ccTabView2"),
+                                children:
+                                    statuses.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final status = entry.value;
+                                  // Filter applicants based on the current status
+                                  final applicants = data
+                                      .where((applicant) =>
+                                          applicant.status.toString() ==
+                                          status)
+                                      .toList();
 
-                                    // Check if sub_status is null or not
-                                    if (status == "Reject") {
-                                      // Display applicants directly without sub_status tabs
-                                      return ListView.builder(
-                                        scrollDirection: Axis.vertical,
-                                        physics: const ClampingScrollPhysics(),
-                                        controller: ScrollController(),
-                                        shrinkWrap: true,
-                                        itemCount: applicants.length,
-                                        itemBuilder: (context, index) {
-                                          final applicant = applicants[index];
-                                          return listViewItem_new(
-                                            context,
-                                            applicant,
-                                            true,
-                                            statuses,
-                                            profilemodel.id != null
-                                                ? profilemodel.id!.toInt()
-                                                : 467,
-                                            index,
-                                          );
-                                        },
-                                      );
-                                    } else if (status == "In-Process") {
-                                      List<String> companyTab = applicants
-                                          .where((applicant) =>
-                                              applicant.status_code == "IB5")
-                                          .map((applicant) =>
-                                              applicant.short_name.toString())
-                                          .toSet()
-                                          .toList()
-                                        ..sort();
-                                      customTabController = TabController(
-                                          length: companyTab.length,
-                                          vsync: this);
-                                      //TODO: Add custom tab controller
-                                      return DefaultTabController(
+                                  // Check if sub_status is null or not
+                                  if (status == "Reject") {
+                                    // Display applicants directly without sub_status tabs
+                                    return ListView.builder(
+                                      scrollDirection: Axis.vertical,
+                                      physics: const ClampingScrollPhysics(),
+                                      controller: ScrollController(),
+                                      shrinkWrap: true,
+                                      itemCount: applicants.length,
+                                      itemBuilder: (context, index) {
+                                        final applicant = applicants[index];
+                                        return listViewItem_new(
+                                          context,
+                                          applicant,
+                                          true,
+                                          statuses,
+                                          profilemodel.id != null
+                                              ? profilemodel.id!.toInt()
+                                              : 467,
+                                          index,
+                                        );
+                                      },
+                                    );
+                                  } else if (status == "In-Process") {
+                                    List<String> companyTab = applicants
+                                        .where((applicant) =>
+                                            applicant.status_code == "IB5")
+                                        .map((applicant) =>
+                                            applicant.short_name.toString())
+                                        .toSet()
+                                        .toList()
+                                      ..sort();
+                                    customTabController = TabController(
                                         length: companyTab.length,
-                                        child: Scaffold(
-                                          appBar: PreferredSize(
-                                            preferredSize: const Size(
-                                                double.maxFinite,
-                                                kTextTabBarHeight),
-                                            child: AppBar(
-                                              backgroundColor: Colors.white,
-                                              bottom: TabBar(
-                                                controller: customTabController,
-                                                key: const ValueKey("ccTab3"),
-                                                isScrollable: true,
-                                                indicatorSize:
-                                                    TabBarIndicatorSize.tab,
-                                                unselectedLabelStyle:
-                                                    GoogleFonts.varela(),
-                                                labelStyle: GoogleFonts.varela(
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                                unselectedLabelColor:
-                                                    Colors.black,
-                                                labelColor:
-                                                    Constants.subtitleclr,
-                                                indicatorPadding:
-                                                    EdgeInsets.only(
-                                                        bottom: 8.h,
-                                                        left: 3.w,
-                                                        right: 3.w),
-                                                indicator: isSelect
-                                                    ? BoxDecoration(
-                                                        color: Constants
-                                                            .borderColor,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        border: Border.all(
-                                                            color: Constants
-                                                                .borderColor))
-                                                    : null,
-                                                indicatorColor:
-                                                    Constants.borderColor,
-                                                tabs: companyTab
-                                                    .map((companyName) =>
-                                                        Tab(text: companyName))
-                                                    .toList(),
-                                              ),
+                                        vsync: this);
+                                    //TODO: Add custom tab controller
+                                    return DefaultTabController(
+                                      length: companyTab.length,
+                                      child: Scaffold(
+                                        appBar: PreferredSize(
+                                          preferredSize: const Size(
+                                              double.maxFinite,
+                                              kTextTabBarHeight),
+                                          child: AppBar(
+                                            backgroundColor: Colors.white,
+                                            bottom: TabBar(
+                                              controller: customTabController,
+                                              key: const ValueKey("ccTab3"),
+                                              isScrollable: true,
+                                              indicatorSize:
+                                                  TabBarIndicatorSize.tab,
+                                              unselectedLabelStyle:
+                                                  GoogleFonts.varela(),
+                                              labelStyle: GoogleFonts.varela(
+                                                  fontWeight:
+                                                      FontWeight.w600),
+                                              unselectedLabelColor:
+                                                  Colors.black,
+                                              labelColor:
+                                                  Constants.subtitleclr,
+                                              indicatorPadding:
+                                                  EdgeInsets.only(
+                                                      bottom: 8.h,
+                                                      left: 3.w,
+                                                      right: 3.w),
+                                              indicator: isSelect
+                                                  ? BoxDecoration(
+                                                      color: Constants
+                                                          .borderColor,
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(20),
+                                                      border: Border.all(
+                                                          color: Constants
+                                                              .borderColor))
+                                                  : null,
+                                              indicatorColor:
+                                                  Constants.borderColor,
+                                              tabs: companyTab
+                                                  .map((companyName) =>
+                                                      Tab(text: companyName))
+                                                  .toList(),
                                             ),
                                           ),
-                                          body: TabBarView(
+                                        ),
+                                        body: TabBarView(
+                                          controller: customTabController,
+                                          key: const ValueKey("ccTabView3"),
+                                          children: companyTab
+                                              .asMap()
+                                              .entries
+                                              .map((e) {
+                                            final index = e.key;
+                                            final status = e.value;
+                                            // Filter applicants based on the current company name and status
+                                            final filteredApplicants =
+                                                applicants
+                                                    .where((applicant) =>
+                                                        applicant
+                                                                .status_code ==
+                                                            "IB5" &&
+                                                        applicant.short_name
+                                                                .toString() ==
+                                                            e.value)
+                                                    .toList();
+
+                                            return ListView.builder(
+                                              scrollDirection: Axis.vertical,
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              controller: ScrollController(),
+                                              itemCount:
+                                                  filteredApplicants.length,
+                                              itemBuilder: (context, index) {
+                                                final applicant =
+                                                    filteredApplicants[index];
+
+                                                return listViewItem_new(
+                                                  context,
+                                                  applicant,
+                                                  true,
+                                                  statuses,
+                                                  profilemodel.id != null
+                                                      ? profilemodel.id!
+                                                          .toInt()
+                                                      : 467,
+                                                  index,
+                                                );
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  //TODO: Substatus as per company in select tab
+
+                                  else if (status == "New") {
+                                    List<String> companyTab = applicants
+                                        .map((applicant) =>
+                                            applicant.short_name.toString())
+                                        .toSet()
+                                        .toList()
+                                      ..sort();
+                                    customTabController = TabController(
+                                        length: companyTab.length,
+                                        vsync: this);
+                                    //TODO: Add custom tab controller
+                                    return DefaultTabController(
+                                      length: companyTab.length,
+                                      child: Scaffold(
+                                        appBar: PreferredSize(
+                                          preferredSize: const Size(
+                                              double.maxFinite,
+                                              kTextTabBarHeight),
+                                          child: AppBar(
+                                            backgroundColor: Colors.white,
+                                            bottom: TabBar(
+                                              controller: customTabController,
+                                              key: const ValueKey("ccTab3"),
+                                              isScrollable: true,
+                                              indicatorSize:
+                                                  TabBarIndicatorSize.tab,
+                                              unselectedLabelStyle:
+                                                  GoogleFonts.varela(),
+                                              labelStyle: GoogleFonts.varela(
+                                                  fontWeight:
+                                                      FontWeight.w600),
+                                              unselectedLabelColor:
+                                                  Colors.black,
+                                              labelColor:
+                                                  Constants.subtitleclr,
+                                              indicatorPadding:
+                                                  EdgeInsets.only(
+                                                      bottom: 8.h,
+                                                      left: 3.w,
+                                                      right: 3.w),
+                                              indicator: isSelect
+                                                  ? BoxDecoration(
+                                                      color: Constants
+                                                          .borderColor,
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(20),
+                                                      border: Border.all(
+                                                          color: Constants
+                                                              .borderColor))
+                                                  : null,
+                                              indicatorColor:
+                                                  Constants.borderColor,
+                                              tabs: companyTab
+                                                  .map((companyName) =>
+                                                      Tab(text: companyName))
+                                                  .toList(),
+                                            ),
+                                          ),
+                                        ),
+                                        body: PageStorage(
+                                          bucket: PageStorageBucket(),
+                                          key: PageStorageKey<String>(status),
+                                          child: TabBarView(
                                             controller: customTabController,
                                             key: const ValueKey("ccTabView3"),
                                             children: companyTab
@@ -510,424 +622,306 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                               final filteredApplicants =
                                                   applicants
                                                       .where((applicant) =>
-                                                          applicant
-                                                                  .status_code ==
-                                                              "IB5" &&
-                                                          applicant.short_name
+                                                              applicant
+                                                                  .short_name
                                                                   .toString() ==
-                                                              e.value)
+                                                              e.value /* &&   //Before 02-09-2023 if want previous then 
+                                              applicant.sub_code == "IB7-5"  */
+                                                          )
                                                       .toList();
 
                                               return ListView.builder(
-                                                scrollDirection: Axis.vertical,
-                                                shrinkWrap: true,
                                                 physics:
                                                     const ClampingScrollPhysics(),
-                                                controller: ScrollController(),
+                                                controller:
+                                                    ScrollController(),
+                                                shrinkWrap: true,
                                                 itemCount:
                                                     filteredApplicants.length,
-                                                itemBuilder: (context, index) {
+                                                itemBuilder:
+                                                    (context, index) {
                                                   final applicant =
-                                                      filteredApplicants[index];
+                                                      filteredApplicants[
+                                                          index];
 
-                                                  return listViewItem_new(
-                                                    context,
-                                                    applicant,
-                                                    true,
-                                                    statuses,
-                                                    profilemodel.id != null
-                                                        ? profilemodel.id!
-                                                            .toInt()
-                                                        : 467,
-                                                    index,
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      // Handle tap on the parent widget (outside the Row)
+                                                      FocusManager.instance
+                                                          .primaryFocus
+                                                          ?.unfocus(); // Unfocus the keyboard
+                                                      if (isSearchVisible) {
+                                                        setState(() {
+                                                          isSearchVisible =
+                                                              false;
+                                                          _animationController
+                                                              .reverse(); // Reverse the animation
+                                                          _searchFocusNode
+                                                              .unfocus(); // Clear focus when it becomes invisible
+                                                        });
+                                                      }
+                                                    },
+                                                    child: listViewItem_new(
+                                                      context,
+                                                      applicant,
+                                                      true,
+                                                      statuses,
+                                                      profilemodel.id != null
+                                                          ? profilemodel.id!
+                                                              .toInt()
+                                                          : 467,
+                                                      index,
+                                                    ),
                                                   );
                                                 },
                                               );
                                             }).toList(),
                                           ),
                                         ),
-                                      );
-                                    }
+                                      ),
+                                    );
+                                  } else {
+                                    // Proceed with sub_status tabs for other statuses
+                                    final subStatuses = applicants
+                                        .where((element) =>
+                                            element.sub_code !=
+                                            "IB7-3") //TODO: to remove offerDrop and notJoin from tab bar viee
+                                        .where((element) =>
+                                            element.sub_code != "IB7-2")
+                                        .map((applicant) =>
+                                            applicant.sub_status?.toString())
+                                        .where(
+                                            (subStatus) => subStatus != null)
+                                        .toSet()
+                                        .toList()
+                                      ..sort();
 
-                                    //TODO: Substatus as per company in select tab
+                                    // Second tab bar needed for subStatuses
 
-                                    else if (status == "New") {
-                                      List<String> companyTab = applicants
-                                          .map((applicant) =>
-                                              applicant.short_name.toString())
-                                          .toSet()
-                                          .toList()
-                                        ..sort();
-                                      customTabController = TabController(
-                                          length: companyTab.length,
-                                          vsync: this);
-                                      //TODO: Add custom tab controller
-                                      return DefaultTabController(
-                                        length: companyTab.length,
-                                        child: Scaffold(
-                                          appBar: PreferredSize(
-                                            preferredSize: const Size(
-                                                double.maxFinite,
-                                                kTextTabBarHeight),
-                                            child: AppBar(
-                                              backgroundColor: Colors.white,
-                                              bottom: TabBar(
-                                                controller: customTabController,
-                                                key: const ValueKey("ccTab3"),
-                                                isScrollable: true,
-                                                indicatorSize:
-                                                    TabBarIndicatorSize.tab,
-                                                unselectedLabelStyle:
-                                                    GoogleFonts.varela(),
-                                                labelStyle: GoogleFonts.varela(
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                                unselectedLabelColor:
-                                                    Colors.black,
-                                                labelColor:
-                                                    Constants.subtitleclr,
-                                                indicatorPadding:
-                                                    EdgeInsets.only(
-                                                        bottom: 8.h,
-                                                        left: 3.w,
-                                                        right: 3.w),
-                                                indicator: isSelect
-                                                    ? BoxDecoration(
-                                                        color: Constants
-                                                            .borderColor,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        border: Border.all(
-                                                            color: Constants
-                                                                .borderColor))
-                                                    : null,
-                                                indicatorColor:
-                                                    Constants.borderColor,
-                                                tabs: companyTab
-                                                    .map((companyName) =>
-                                                        Tab(text: companyName))
-                                                    .toList(),
-                                              ),
-                                            ),
-                                          ),
-                                          body: PageStorage(
-                                            bucket: PageStorageBucket(),
-                                            key: PageStorageKey<String>(status),
-                                            child: TabBarView(
-                                              controller: customTabController,
-                                              key: const ValueKey("ccTabView3"),
-                                              children: companyTab
-                                                  .asMap()
-                                                  .entries
-                                                  .map((e) {
-                                                final index = e.key;
-                                                final status = e.value;
-                                                // Filter applicants based on the current company name and status
-                                                final filteredApplicants =
-                                                    applicants
-                                                        .where((applicant) =>
-                                                                applicant
-                                                                    .short_name
-                                                                    .toString() ==
-                                                                e.value /* &&   //Before 02-09-2023 if want previous then 
-                                                applicant.sub_code == "IB7-5"  */
-                                                            )
-                                                        .toList();
-
-                                                return ListView.builder(
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  controller:
-                                                      ScrollController(),
-                                                  shrinkWrap: true,
-                                                  itemCount:
-                                                      filteredApplicants.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final applicant =
-                                                        filteredApplicants[
-                                                            index];
-
-                                                    return InkWell(
-                                                      onTap: () {
-                                                        // Handle tap on the parent widget (outside the Row)
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus(); // Unfocus the keyboard
-                                                        if (isSearchVisible) {
-                                                          setState(() {
-                                                            isSearchVisible =
-                                                                false;
-                                                            _animationController
-                                                                .reverse(); // Reverse the animation
-                                                            _searchFocusNode
-                                                                .unfocus(); // Clear focus when it becomes invisible
-                                                          });
-                                                        }
-                                                      },
-                                                      child: listViewItem_new(
-                                                        context,
-                                                        applicant,
-                                                        true,
-                                                        statuses,
-                                                        profilemodel.id != null
-                                                            ? profilemodel.id!
-                                                                .toInt()
-                                                            : 467,
-                                                        index,
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              }).toList(),
+                                    return DefaultTabController(
+                                      length: subStatuses.length,
+                                      child: Scaffold(
+                                        appBar: PreferredSize(
+                                          preferredSize: const Size(
+                                              double.maxFinite,
+                                              kTextTabBarHeight),
+                                          child: AppBar(
+                                            //elevation: 0,
+                                            backgroundColor: Colors.white,
+                                            bottom: TabBar(
+                                              key: const ValueKey("ccTab3"),
+                                              isScrollable: true,
+                                              indicatorSize:
+                                                  TabBarIndicatorSize.tab,
+                                              //indicatorWeight: 2.0,
+                                              unselectedLabelStyle:
+                                                  GoogleFonts.varela(),
+                                              labelStyle: GoogleFonts.varela(
+                                                  fontWeight:
+                                                      FontWeight.w600),
+                                              unselectedLabelColor:
+                                                  Colors.black,
+                                              labelColor:
+                                                  Constants.subtitleclr,
+                                              indicatorPadding:
+                                                  EdgeInsets.only(
+                                                      bottom: 8.h,
+                                                      left: 3.w,
+                                                      right: 3.w),
+                                              indicator: isSelect
+                                                  ? BoxDecoration(
+                                                      color: Constants
+                                                          .borderColor,
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(20),
+                                                      border: Border.all(
+                                                          color: Constants
+                                                              .borderColor) // Creates border
+                                                      )
+                                                  : null,
+                                              indicatorColor:
+                                                  Constants.borderColor,
+                                              /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                              tabs: subStatuses
+                                                  .map((subStatus) =>
+                                                      Tab(text: subStatus!))
+                                                  .toList(),
                                             ),
                                           ),
                                         ),
-                                      );
-                                    } else {
-                                      // Proceed with sub_status tabs for other statuses
-                                      final subStatuses = applicants
-                                          .where((element) =>
-                                              element.sub_code !=
-                                              "IB7-3") //TODO: to remove offerDrop and notJoin from tab bar viee
-                                          .where((element) =>
-                                              element.sub_code != "IB7-2")
-                                          .map((applicant) =>
-                                              applicant.sub_status?.toString())
-                                          .where(
-                                              (subStatus) => subStatus != null)
-                                          .toSet()
-                                          .toList()
-                                        ..sort();
+                                        body: TabBarView(
+                                          key: const ValueKey("ccTabView3"),
+                                          children: subStatuses
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            final index = entry.key;
+                                            final status = entry.value;
+                                            // Filter applicants based on the current status and sub_status
+                                            final filteredApplicants =
+                                                applicants
+                                                    .where((applicant) =>
+                                                        applicant.sub_status
+                                                            .toString() ==
+                                                        entry.value)
+                                                    .toList();
 
-                                      // Second tab bar needed for subStatuses
+                                            return ListView.builder(
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              controller: ScrollController(),
+                                              scrollDirection: Axis.vertical,
+                                              // scrollDirection: Axis.vertical,
 
-                                      return DefaultTabController(
-                                        length: subStatuses.length,
-                                        child: Scaffold(
-                                          appBar: PreferredSize(
-                                            preferredSize: const Size(
-                                                double.maxFinite,
-                                                kTextTabBarHeight),
-                                            child: AppBar(
-                                              //elevation: 0,
-                                              backgroundColor: Colors.white,
-                                              bottom: TabBar(
-                                                key: const ValueKey("ccTab3"),
-                                                isScrollable: true,
-                                                indicatorSize:
-                                                    TabBarIndicatorSize.tab,
-                                                //indicatorWeight: 2.0,
-                                                unselectedLabelStyle:
-                                                    GoogleFonts.varela(),
-                                                labelStyle: GoogleFonts.varela(
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                                unselectedLabelColor:
-                                                    Colors.black,
-                                                labelColor:
-                                                    Constants.subtitleclr,
-                                                indicatorPadding:
-                                                    EdgeInsets.only(
-                                                        bottom: 8.h,
-                                                        left: 3.w,
-                                                        right: 3.w),
-                                                indicator: isSelect
-                                                    ? BoxDecoration(
-                                                        color: Constants
-                                                            .borderColor,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        border: Border.all(
-                                                            color: Constants
-                                                                .borderColor) // Creates border
-                                                        )
-                                                    : null,
-                                                indicatorColor:
-                                                    Constants.borderColor,
-                                                /*  onTap: (value) {
-                                    setState(() {
-                                      isSelect = !isSelect;
-                                    });
-                                  }, */
-                                                tabs: subStatuses
-                                                    .map((subStatus) =>
-                                                        Tab(text: subStatus!))
-                                                    .toList(),
-                                              ),
-                                            ),
-                                          ),
-                                          body: TabBarView(
-                                            key: const ValueKey("ccTabView3"),
-                                            children: subStatuses
-                                                .asMap()
-                                                .entries
-                                                .map((entry) {
-                                              final index = entry.key;
-                                              final status = entry.value;
-                                              // Filter applicants based on the current status and sub_status
-                                              final filteredApplicants =
-                                                  applicants
-                                                      .where((applicant) =>
-                                                          applicant.sub_status
-                                                              .toString() ==
-                                                          entry.value)
-                                                      .toList();
+                                              // Use appropriate scroll physics as needed (e.g., BouncingScrollPhysics())
+                                              /* physics:
+                                                  const BouncingScrollPhysics(), */
+                                              shrinkWrap: true,
+                                              itemCount:
+                                                  filteredApplicants.length,
+                                              itemBuilder: (context, index) {
+                                                final applicant =
+                                                    filteredApplicants[index];
 
-                                              return ListView.builder(
-                                                physics:
-                                                    const ClampingScrollPhysics(),
-                                                controller: ScrollController(),
-                                                scrollDirection: Axis.vertical,
-                                                // scrollDirection: Axis.vertical,
+                                                return listViewItem_new(
+                                                  context,
+                                                  applicant,
+                                                  true,
+                                                  statuses,
+                                                  profilemodel.id != null
+                                                      ? profilemodel.id!
+                                                          .toInt()
+                                                      : 467,
+                                                  index,
+                                                );
 
-                                                // Use appropriate scroll physics as needed (e.g., BouncingScrollPhysics())
-                                                /* physics:
-                                                    const BouncingScrollPhysics(), */
-                                                shrinkWrap: true,
-                                                itemCount:
-                                                    filteredApplicants.length,
-                                                itemBuilder: (context, index) {
-                                                  final applicant =
-                                                      filteredApplicants[index];
-
-                                                  return listViewItem_new(
-                                                    context,
-                                                    applicant,
-                                                    true,
-                                                    statuses,
-                                                    profilemodel.id != null
-                                                        ? profilemodel.id!
-                                                            .toInt()
-                                                        : 467,
-                                                    index,
-                                                  );
-
-                                                  /*  GestureDetector(
-                                                onTap: () {
-                                                  // Handle tap on the parent widget (outside the Row)
-                                                  if (isSearchVisible) {
-                                                  setState(() {
-                                                      isSearchVisible = false;
-                                                      _animationController
-                                                          .reverse(); // Reverse the animation
-                                                      _searchFocusNode
-                                                          .unfocus(); // Clear focus when it becomes invisible
-                                                  });
-                                                  }
-                                                },
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                  Expanded(
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          // Handle tap inside the search container (Expanded)
-                                                          _searchFocusNode
-                                                              .requestFocus();
-                                                          /*  if (!isSearchVisible) {
-                                                            setState(() {
-                                                              isSearchVisible =
-                                                                  true;
-                                                              _animationController
-                                                                  .forward(); // Start the animation
-                                                              _searchFocusNode
-                                                                  .requestFocus(); // Request focus on the search field when it becomes visible
-                                                            });
-                                                          } */
-                                                        },
-                                                        child: AnimatedOpacity(
-                                                          duration: const Duration(
-                                                              milliseconds: 500),
-                                                          opacity: isSearchVisible
-                                                              ? 1.0
-                                                              : 0.0, // Fade in/out the search container
-                                                          child: SlideTransition(
-                                                            position: Tween<Offset>(
-                                                              begin: const Offset(
-                                                                  -1,
-                                                                  0), // Start from the left side of the screen
-                                                              end: const Offset(0,
-                                                                  0), // Slide to the center of the screen
-                                                            ).animate(
-                                                                CurvedAnimation(
-                                                              parent:
-                                                                  _animationController, // Use the same animation controller from your code
-                                                              curve: Curves
-                                                                  .easeInOut, // Set the desired animation curve
-                                                            )),
-                                                            child: Container(
-                                                              height: 50.h,
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 8,
-                                                                      right: 12,
-                                                                      top: 10),
-                                                              child: TextField(
-                                                                focusNode:
-                                                                    _searchFocusNode,
-                                                                style: GoogleFonts
-                                                                    .varela(
-                                                                  color:
-                                                                      Colors.black,
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
+                                                /*  GestureDetector(
+                                              onTap: () {
+                                                // Handle tap on the parent widget (outside the Row)
+                                                if (isSearchVisible) {
+                                                setState(() {
+                                                    isSearchVisible = false;
+                                                    _animationController
+                                                        .reverse(); // Reverse the animation
+                                                    _searchFocusNode
+                                                        .unfocus(); // Clear focus when it becomes invisible
+                                                });
+                                                }
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                Expanded(
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        // Handle tap inside the search container (Expanded)
+                                                        _searchFocusNode
+                                                            .requestFocus();
+                                                        /*  if (!isSearchVisible) {
+                                                          setState(() {
+                                                            isSearchVisible =
+                                                                true;
+                                                            _animationController
+                                                                .forward(); // Start the animation
+                                                            _searchFocusNode
+                                                                .requestFocus(); // Request focus on the search field when it becomes visible
+                                                          });
+                                                        } */
+                                                      },
+                                                      child: AnimatedOpacity(
+                                                        duration: const Duration(
+                                                            milliseconds: 500),
+                                                        opacity: isSearchVisible
+                                                            ? 1.0
+                                                            : 0.0, // Fade in/out the search container
+                                                        child: SlideTransition(
+                                                          position: Tween<Offset>(
+                                                            begin: const Offset(
+                                                                -1,
+                                                                0), // Start from the left side of the screen
+                                                            end: const Offset(0,
+                                                                0), // Slide to the center of the screen
+                                                          ).animate(
+                                                              CurvedAnimation(
+                                                            parent:
+                                                                _animationController, // Use the same animation controller from your code
+                                                            curve: Curves
+                                                                .easeInOut, // Set the desired animation curve
+                                                          )),
+                                                          child: Container(
+                                                            height: 50.h,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 8,
+                                                                    right: 12,
+                                                                    top: 10),
+                                                            child: TextField(
+                                                              focusNode:
+                                                                  _searchFocusNode,
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                color:
+                                                                    Colors.black,
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                fillColor:
+                                                                    Colors.white,
+                                                                focusedBorder:
+                                                                    OutlineInputBorder(
+                                                                  borderSide:
+                                                                      const BorderSide(),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
                                                                 ),
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  fillColor:
-                                                                      Colors.white,
-                                                                  focusedBorder:
-                                                                      OutlineInputBorder(
-                                                                    borderSide:
-                                                                        const BorderSide(),
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                10),
-                                                                  ),
-                                                                  filled: true,
-                                                                  contentPadding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                    bottom: 10,
-                                                                    left: 5,
-                                                                    top: 10,
-                                                                  ),
-                                                                  border:
-                                                                      OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                10),
-                                                                  ),
-                                                                  hintText: "Rahul",
-                                                                  suffixIcon:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      // Handle tap on the search icon inside the search container
-                                                                      setState(() {
-                                                                        isSearchVisible =
-                                                                            false;
-                                                                        _animationController
-                                                                            .reverse(); // Reverse the animation
-                                                                        _searchFocusNode
-                                                                            .requestFocus(); // Clear focus on the search field when it becomes invisible
-                                                                      });
-                                                                    },
-                                                                    child:
-                                                                        const Icon(
-                                                                      Icons.search,
-                                                                      size: 24,
-                                                                      color: Colors
-                                                                          .black,
-                                                                    ),
+                                                                filled: true,
+                                                                contentPadding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                  bottom: 10,
+                                                                  left: 5,
+                                                                  top: 10,
+                                                                ),
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                ),
+                                                                hintText: "Rahul",
+                                                                suffixIcon:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    // Handle tap on the search icon inside the search container
+                                                                    setState(() {
+                                                                      isSearchVisible =
+                                                                          false;
+                                                                      _animationController
+                                                                          .reverse(); // Reverse the animation
+                                                                      _searchFocusNode
+                                                                          .requestFocus(); // Clear focus on the search field when it becomes invisible
+                                                                    });
+                                                                  },
+                                                                  child:
+                                                                      const Icon(
+                                                                    Icons.search,
+                                                                    size: 24,
+                                                                    color: Colors
+                                                                        .black,
                                                                   ),
                                                                 ),
                                                               ),
@@ -935,181 +929,181 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                           ),
                                                         ),
                                                       ),
-                                                  ),
-                                                  GestureDetector(
-                                                      onTap: () {
-                                                        // Handle tap on the search icon outside the search container
-                                                        if (!isSearchVisible) {
-                                                          setState(() {
-                                                            isSearchVisible = true;
-                                                            _animationController
-                                                                .forward(); // Start the animation
-                                                            _searchFocusNode
-                                                                .requestFocus(); // Request focus on the search field when it becomes visible
-                                                          });
-                                                        }
-                                                      },
-                                                      child: Visibility(
-                                                        visible: !isSearchVisible,
-                                                        child: const Padding(
-                                                          padding: EdgeInsets.only(
-                                                              right: 20, top: 10),
-                                                          child: Icon(
-                                                            Icons.search,
-                                                            size: 24,
-                                                            color: Colors.black,
-                                                          ),
+                                                    ),
+                                                ),
+                                                GestureDetector(
+                                                    onTap: () {
+                                                      // Handle tap on the search icon outside the search container
+                                                      if (!isSearchVisible) {
+                                                        setState(() {
+                                                          isSearchVisible = true;
+                                                          _animationController
+                                                              .forward(); // Start the animation
+                                                          _searchFocusNode
+                                                              .requestFocus(); // Request focus on the search field when it becomes visible
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Visibility(
+                                                      visible: !isSearchVisible,
+                                                      child: const Padding(
+                                                        padding: EdgeInsets.only(
+                                                            right: 20, top: 10),
+                                                        child: Icon(
+                                                          Icons.search,
+                                                          size: 24,
+                                                          color: Colors.black,
                                                         ),
                                                       ),
-                                                  ),
-                                                  ],
+                                                    ),
                                                 ),
-                                              ) */
-                                                },
-                                              );
-                                            }).toList(),
-                                          ),
+                                                ],
+                                              ),
+                                            ) */
+                                              },
+                                            );
+                                          }).toList(),
                                         ),
-                                      );
-                                    }
-                                  }).toList(),
-                                ),
+                                      ),
+                                    );
+                                  }
+                                }).toList(),
                               ),
                             ),
-                          ));
-                    } else {
-                      // Display a "no data" message
-                      return const Center(
-                        child: Text("No data to display."),
-                      );
-                    }
-                  },
-                  error: (error, stackTrace) {
+                          ),
+                        ));
+                  } else {
+                    // Display a "no data" message
                     return const Center(
-                      child: Text("Error while fetching the data"),
+                      child: Text("No data to display."),
                     );
-                  },
-                  loading: () {
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                )
-              : const SizedBox());
+                  }
+                },
+                error: (error, stackTrace) {
+                  return const Center(
+                    child: Text("Error while fetching the data"),
+                  );
+                },
+                loading: () {
+                  return const Center(child: CircularProgressIndicator());
+                },
+              )
+            : const SizedBox());
 
-      /* FutureBuilder<List<Applicant>>(
-        future: fetchAllApplicants(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData && snapshot.data != null) {
-            final data = snapshot.data!;
-            final statuses = data
-                .map((e) => e.status.toString())
-                .toSet()
-                .toList()
-                .where((status) =>
-                    status == 'Application' ||
-                    status == 'Assign' ||
-                    status == 'Screening Reject' ||
-                    status == 'Reject')
-                .toList();
-            statuses.sort();
+    /* FutureBuilder<List<Applicant>>(
+      future: fetchAllApplicants(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData && snapshot.data != null) {
+          final data = snapshot.data!;
+          final statuses = data
+              .map((e) => e.status.toString())
+              .toSet()
+              .toList()
+              .where((status) =>
+                  status == 'Application' ||
+                  status == 'Assign' ||
+                  status == 'Screening Reject' ||
+                  status == 'Reject')
+              .toList();
+          statuses.sort();
 
-            return DefaultTabController(
-              length: statuses.length,
-              child: Scaffold(
-                appBar: PreferredSize(
-                  preferredSize:
-                      const Size(double.maxFinite, kTextTabBarHeight),
-                  child: AppBar(
-                    backgroundColor: Colors.white,
-                    bottom: TabBar(
-                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                      labelColor: Colors.black,
-                      isScrollable: true,
-                      unselectedLabelColor: Colors.black,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      splashBorderRadius: BorderRadius.circular(8),
-                      indicatorWeight: 1.h,
-                      indicatorPadding: EdgeInsets.only(
-                          top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
-                      indicator: BoxDecoration(
-                        color: Constants.borderColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Constants.borderColor),
-                      ),
-                      tabs: statuses
-                          .map(
-                            (e) => Tab(
-                              child: customTab(e),
-                            ),
-                          )
-                          .toList(),
+          return DefaultTabController(
+            length: statuses.length,
+            child: Scaffold(
+              appBar: PreferredSize(
+                preferredSize:
+                    const Size(double.maxFinite, kTextTabBarHeight),
+                child: AppBar(
+                  backgroundColor: Colors.white,
+                  bottom: TabBar(
+                    labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                    labelColor: Colors.black,
+                    isScrollable: true,
+                    unselectedLabelColor: Colors.black,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    splashBorderRadius: BorderRadius.circular(8),
+                    indicatorWeight: 1.h,
+                    indicatorPadding: EdgeInsets.only(
+                        top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
+                    indicator: BoxDecoration(
+                      color: Constants.borderColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Constants.borderColor),
                     ),
-                  ),
-                ),
-                body: RefreshIndicator(
-                  onRefresh: () async {
-                    setState(
-                        () {}); // This will trigger the rebuild of the widget tree
-                  },
-                  child: TabBarView(
-                    children: statuses
+                    tabs: statuses
                         .map(
-                          (e) => ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: data
-                                .where((applicant) =>
-                                    applicant.status.toString() == e)
-                                .length,
-                            itemBuilder: (context, index) {
-                              final applicant = data
-                                  .where((applicant) =>
-                                      applicant.status.toString() == e)
-                                  .toList()[index];
-                              return listViewItem_new(
-                                context,
-                                applicant,
-                                true,
-                                statuses,
-                                profilemodel.id!.toInt(),
-                                index, // Pass the dynamic index here
-                              );
-                            },
+                          (e) => Tab(
+                            child: customTab(e),
                           ),
                         )
                         .toList(),
                   ),
-
-                  /* TabBarView(
-                    children: statuses
-                        .map(
-                          (e) => ListView(
-                            shrinkWrap: true,
-                            children: data
-                                .where(
-                                  (applicant) =>
-                                      applicant.status.toString() == e,
-                                )
-                                .map(
-                                  (e) => listViewItem_new(context, e, true,
-                                      statuses, profilemodel.id!.toInt(),1),
-                                )
-                                .toList(),
-                          ),
-                        )
-                        .toList(),
-                  ), */
                 ),
               ),
-            );
-          }
-          return const SizedBox();
-        },
-      ); */
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  setState(
+                      () {}); // This will trigger the rebuild of the widget tree
+                },
+                child: TabBarView(
+                  children: statuses
+                      .map(
+                        (e) => ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: data
+                              .where((applicant) =>
+                                  applicant.status.toString() == e)
+                              .length,
+                          itemBuilder: (context, index) {
+                            final applicant = data
+                                .where((applicant) =>
+                                    applicant.status.toString() == e)
+                                .toList()[index];
+                            return listViewItem_new(
+                              context,
+                              applicant,
+                              true,
+                              statuses,
+                              profilemodel.id!.toInt(),
+                              index, // Pass the dynamic index here
+                            );
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+
+                /* TabBarView(
+                  children: statuses
+                      .map(
+                        (e) => ListView(
+                          shrinkWrap: true,
+                          children: data
+                              .where(
+                                (applicant) =>
+                                    applicant.status.toString() == e,
+                              )
+                              .map(
+                                (e) => listViewItem_new(context, e, true,
+                                    statuses, profilemodel.id!.toInt(),1),
+                              )
+                              .toList(),
+                        ),
+                      )
+                      .toList(),
+                ), */
+              ),
+            ),
+          );
+        }
+        return const SizedBox();
+      },
+    ); */
     }
-  }
 
   TextEditingController showrejectTextFileld = TextEditingController();
   TextEditingController remarkfordropandNotJoin = TextEditingController();
@@ -1310,7 +1304,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
           child: SwipeTo(
             iconOnRightSwipe: Icons.call,
             iconOnLeftSwipe: Icons.sms_outlined,
-            onRightSwipe: item.alternateNo == 0 || item.alternateNo == null
+            /* onRightSwipe: item.alternateNo == 0 || item.alternateNo == null   //TODO siwpe to call
                 ? () async {
                     FlutterPhoneDirectCaller.callNumber("+91${item.contactNo}");
                   }
@@ -1336,7 +1330,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                         ? await launchUrl(url)
                         : throw "could not launch $url";
                   }
-                : () {
+                : (details) {
+                    // handle left swipe with DragUpdateDetails
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -1347,7 +1342,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                         );
                       },
                     );
-                  },
+                  }, */
             child: Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),

@@ -1,4 +1,3 @@
-import 'package:job_circle/models/profileSummary.dart';
 
 class ConstImageUrl {
   static const url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/assets";

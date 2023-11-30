@@ -255,7 +255,7 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
     bool isFirstCategory = widget.storedSelectedColumn.isNotEmpty &&
         widget.storedSelectedColumn[0] == selectedKey;
 
-    setState(() {
+    /*  setState(() {  //TODO: old code which was not working as per selected location.
       if (widget.storedSelectedColumn.isNotEmpty) {
         jobController.filteredJobs = jobController.jobs.where((job) {
           return filterData.entries
@@ -266,6 +266,31 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
           return filterData.entries
               .every((entry) => matchesFilter(job, selectedData));
         }).toList();
+      }
+
+      widget.storedSelectedOptions = selectedData[selectedKey] ?? [];
+      widget.storedSelectedCategory = selectedKey;
+      widget.storedSelectedColumn = selectedData.keys.toList();
+    }); */
+    setState(() {
+      if (widget.storedSelectedColumn.isNotEmpty) {
+        jobController.filteredJobs = jobController.jobs
+            .where((job) =>
+                jobController.selectedLocation.contains(job.city ?? '') &&
+                filterData.entries
+                    .every((entry) => matchesFilter(job, selectedData)))
+            .toList();
+      } else {
+        if (jobController.selectedLocation.isEmpty) {
+          jobController.filteredJobs = [];
+        } else {
+          jobController.filteredJobs = jobController.filteredJobs
+              .where((job) =>
+                  jobController.selectedLocation.contains(job.city ?? '') &&
+                  filterData.entries
+                      .every((entry) => matchesFilter(job, selectedData)))
+              .toList();
+        }
       }
 
       widget.storedSelectedOptions = selectedData[selectedKey] ?? [];
@@ -378,7 +403,8 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
         if (isCategorySelected && isFirstCategory) {
           leadsList = jobController.jobs
               .where((element) => _getColumnValue(element, columnName) != null)
-              .where((element) => element.active == 1)//TODO: to avoid inactive jobs.
+              .where((element) =>
+                  element.active == 1) //TODO: to avoid inactive jobs.
               .toList();
         } else if (appliedColumn != columnName &&
             widget.storedSelectedColumn.isNotEmpty) {
@@ -626,10 +652,28 @@ class __FilterDialogContentState extends ConsumerState<_FilterDialogContent> {
     return updatedData;
   }
 
-  void clearAll() {
+  /*  void clearAll() {  //TODO: old function not working as per selected location
     final jobController = ref.watch(jobsProvider);
     jobController.filteredJobs = jobController.jobs;
     selectedData.clear();
     widget.onFilterApplied(jobController.jobs);
+  } */
+
+  //
+
+  void clearAll() {
+    final jobController = ref.watch(jobsProvider);
+
+    if (jobController.selectedLocation.isEmpty) {
+      jobController.filteredJobs = [];
+    } else {
+      jobController.filteredJobs = jobController.jobs
+          .where(
+              (job) => jobController.selectedLocation.contains(job.city ?? ''))
+          .toList();
+    }
+
+    selectedData.clear();
+    widget.onFilterApplied(jobController.filteredJobs);
   }
 }

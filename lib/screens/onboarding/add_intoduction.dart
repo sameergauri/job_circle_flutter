@@ -243,7 +243,7 @@ class _AddIntoductionState extends State<AddIntoduction>
     industryFocus.requestFocus();
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
-      setState(() {});
+      //setState(() {});
     });
 
     setState(() {

@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
           if (userRawData != null) {
             var data = jsonDecode(userRawData);
             Timer(const Duration(seconds: 2),
-                () => {Utils.gotoScreen(context, data, "")});
+                () => Utils.gotoScreen(context, data, ""));
           } else {
             gotoLogin();
           }
@@ -83,12 +83,11 @@ class _SplashScreenState extends State<SplashScreen> {
   gotoLogin() {
     Timer(
         const Duration(seconds: 2),
-        () => {
-              Navigator.pushNamedAndRemoveUntil(
+        () => Navigator.pushNamedAndRemoveUntil(
                   context, ERoute.login.name, (Route<dynamic> route) => false)
               // Navigator.pushNamedAndRemoveUntil(
               //     context, ERoute.login.name, (Route<dynamic> route) => false)
-            });
+            );
   }
 
   @override

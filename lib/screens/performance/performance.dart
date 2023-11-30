@@ -71,7 +71,7 @@ class _PerformanceState extends State<Performance> {
           actions: [
             IconButton(
                 onPressed: () => {
-                      if (webctrl != null) {webctrl.refresh()}
+                      {webctrl.refresh()}
                     },
                 icon: const Icon(Icons.refresh)),
             IconButton(

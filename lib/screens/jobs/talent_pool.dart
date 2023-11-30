@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,10 +18,8 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
-import '../../constants/customdialogue_for_call_whatsapp.dart';
 import '../../constants/drop_down_class.dart';
 import '../../models/application_status_model.dart';
 import '../../models/profileSummary.dart';
@@ -818,7 +815,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
           child: SwipeTo(
             iconOnRightSwipe: Icons.call,
             iconOnLeftSwipe: Icons.sms_outlined,
-            onRightSwipe: item.alternateNo == 0
+            /* onRightSwipe: item.alternateNo == 0   //TODO siwpe to call
                 ? () async {
                     if (item.status != "Application") {
                       FlutterPhoneDirectCaller.callNumber(
@@ -938,7 +935,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                         },
                       );
                     }
-                  },
+                  }, */
             child: Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),

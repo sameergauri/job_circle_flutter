@@ -1,17 +1,10 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/webJsonModel.dart';
-import 'package:job_circle/screens/viewers/imageviewr.dart';
-import 'package:job_circle/screens/viewers/pdfviewer.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
 class WebviewData extends StatefulWidget {
   final String? url;
@@ -104,8 +97,7 @@ class _WebviewDataState extends State<WebviewData> {
                               if (!isLoading)
                                 {
                                   isLoading = true,
-                                  if (webViewController != null)
-                                    {webViewController.reload()}
+                                  {webViewController.reload()}
                                 }
                             },
                         icon: const Icon(Icons.refresh))
@@ -117,7 +109,7 @@ class _WebviewDataState extends State<WebviewData> {
         ],
         // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
       ),
-      body:
+      //body:
           //  kIsWeb
           //     ? Iframe(4
           //         key: UniqueKey(),
@@ -125,7 +117,7 @@ class _WebviewDataState extends State<WebviewData> {
           //             "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092/leads",
           //       )
           //     :
-          WebView(
+/*           WebView(
         key: UniqueKey(),
         javascriptMode: JavascriptMode.unrestricted,
         debuggingEnabled: true,
@@ -212,7 +204,7 @@ class _WebviewDataState extends State<WebviewData> {
           print('Page finished loading: $url');
         },
         gestureNavigationEnabled: true,
-      ),
+      ), */
     );
   }
 }

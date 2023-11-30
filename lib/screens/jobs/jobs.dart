@@ -284,7 +284,7 @@ class _JobsState extends ConsumerState<Jobs>
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
-        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle',
+        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
   }
 
@@ -2592,71 +2592,70 @@ class _JobsState extends ConsumerState<Jobs>
                 SizedBox(
                   height: 3.h,
                 ),
-                if (updatedList != null)
-                  Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: 8.0,
-                    children: [
-                      ...updatedList
-                          .take(5)
-                          .map(
-                            (item) => Container(
-                              margin: const EdgeInsets.only(bottom: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                "#$item"
-                                    .replaceAll('"', '')
-                                    .replaceAll('[', '')
-                                    .replaceAll(']', ''),
-                                style: GoogleFonts.varela(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                ),
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  spacing: 8.0,
+                  children: [
+                    ...updatedList
+                        .take(5)
+                        .map(
+                          (item) => Container(
+                            margin: const EdgeInsets.only(bottom: 5),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "#$item"
+                                  .replaceAll('"', '')
+                                  .replaceAll('[', '')
+                                  .replaceAll(']', ''),
+                              style: GoogleFonts.varela(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13.sp,
                               ),
                             ),
-                          )
-                          .toList(),
-                      if (updatedList.length > 5)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 5),
-                          //   margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Constants.borderColor,
-                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            '+${updatedList.length - 5}'
-                                .replaceAll('"', '')
-                                .replaceAll('[', '')
-                                .replaceAll(']', ''),
-                            style: GoogleFonts.varela(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.sp,
-                            ),
+                        )
+                        .toList(),
+                    if (updatedList.length > 5)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 5),
+                        //   margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Constants.borderColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '+${updatedList.length - 5}'
+                              .replaceAll('"', '')
+                              .replaceAll('[', '')
+                              .replaceAll(']', ''),
+                          style: GoogleFonts.varela(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.sp,
                           ),
                         ),
-                      /*  Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Text(
-                            '+${myStrings.length - 5} more',
-                            style: const GoogleFonts.varela(color: Colors.white),
-                          ),
-                        ), */
-                    ],
-                  ),
+                      ),
+                    /*  Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text(
+                          '+${myStrings.length - 5} more',
+                          style: const GoogleFonts.varela(color: Colors.white),
+                        ),
+                      ), */
+                  ],
+                ),
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5.h),
                   color: Colors.grey.shade400,
@@ -3272,7 +3271,7 @@ class _JobsState extends ConsumerState<Jobs>
     _isFirstLoadRunning = false;
     _isLoadMoreRunning = false;
     jobItems = [];
-    setState(() => {locationid = prefs.getInt("loc")!});
+    setState(() => locationid = prefs.getInt("loc")!);
     bindItems(data: data);
   }
 

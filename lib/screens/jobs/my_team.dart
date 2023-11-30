@@ -727,7 +727,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
     if (selectedOptions != null && selectedOptions.isNotEmpty) {
       String? value = _getColumnValue(lead, columnName);
 
-      if (value != null && value is String) {
+      if (value != null) {
         // For String values, check if the selected options match exactly
         return selectedOptions.contains(value);
       } else {

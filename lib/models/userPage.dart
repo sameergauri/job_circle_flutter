@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 
 import 'package:job_circle/models/serachable.dart';

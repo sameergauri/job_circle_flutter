@@ -153,178 +153,174 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    if (profilemodel == null) {
-      return const Center(child: CircularProgressIndicator());
-    } else {
-      var fetchApplicants =
-          profilemodel.id != null ? ref.watch(fetchAllApplyProvider) : null;
-      // Build your widget's UI with the 'profilemodel' data
-      // For example:
-      return PageStorage(
-          bucket: PageStorageBucket(),
-          key: const PageStorageKey<String>("futureKey"),
-          child: fetchApplicants != null
-              ? fetchApplicants.when(data: (fetchData) {
-                  List<Applicant>? dataList = fetchData;
-                  bool anyItemMeetsCondition = false;
-                  for (Applicant item in dataList) {
-                    // If the condition is met for any item, set the flag to true and break the loop
-                    anyItemMeetsCondition = true;
-                    break;
-                  }
-                  if (anyItemMeetsCondition) {
-                    final data = fetchData;
-                    final statuses = getStatuses(data);
-                    return DefaultTabController(
-                      length: statuses.length,
-                      child: Scaffold(
-                        appBar: PreferredSize(
-                          preferredSize:
-                              const Size(double.maxFinite, kTextTabBarHeight),
-                          child: AppBar(
-                            backgroundColor: Colors.white,
-                            bottom: TabBar(
-                              labelPadding:
-                                  const EdgeInsets.only(left: 5, right: 5),
-                              labelColor: Colors.black,
-                              isScrollable: true,
-                              unselectedLabelColor: Colors.black,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              splashBorderRadius: BorderRadius.circular(8),
-                              //indicatorSize: TabBarIndicatorSize.label,
-                              indicatorWeight: 1.h,
-                              indicatorPadding: EdgeInsets.only(
-                                  top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
-                              //indicatorSize: TabBarIndicatorSize.label,
-                              // indicatorWeight: 0,
-                              indicator: BoxDecoration(
-                                  color: Constants.borderColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Constants
-                                          .borderColor) // Creates border
-                                  ),
-                              tabs: statuses
-                                  .map(
-                                    (e) => Tab(
-                                      child: customTab(
-                                        e,
-                                      ),
+    var fetchApplicants =
+        profilemodel.id != null ? ref.watch(fetchAllApplyProvider) : null;
+    // Build your widget's UI with the 'profilemodel' data
+    // For example:
+    return PageStorage(
+        bucket: PageStorageBucket(),
+        key: const PageStorageKey<String>("futureKey"),
+        child: fetchApplicants != null
+            ? fetchApplicants.when(data: (fetchData) {
+                List<Applicant>? dataList = fetchData;
+                bool anyItemMeetsCondition = false;
+                for (Applicant item in dataList) {
+                  // If the condition is met for any item, set the flag to true and break the loop
+                  anyItemMeetsCondition = true;
+                  break;
+                }
+                if (anyItemMeetsCondition) {
+                  final data = fetchData;
+                  final statuses = getStatuses(data);
+                  return DefaultTabController(
+                    length: statuses.length,
+                    child: Scaffold(
+                      appBar: PreferredSize(
+                        preferredSize:
+                            const Size(double.maxFinite, kTextTabBarHeight),
+                        child: AppBar(
+                          backgroundColor: Colors.white,
+                          bottom: TabBar(
+                            labelPadding:
+                                const EdgeInsets.only(left: 5, right: 5),
+                            labelColor: Colors.black,
+                            isScrollable: true,
+                            unselectedLabelColor: Colors.black,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            splashBorderRadius: BorderRadius.circular(8),
+                            //indicatorSize: TabBarIndicatorSize.label,
+                            indicatorWeight: 1.h,
+                            indicatorPadding: EdgeInsets.only(
+                                top: 8.h, bottom: 8.h, left: 3.w, right: 3.w),
+                            //indicatorSize: TabBarIndicatorSize.label,
+                            // indicatorWeight: 0,
+                            indicator: BoxDecoration(
+                                color: Constants.borderColor,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color:
+                                        Constants.borderColor) // Creates border
+                                ),
+                            tabs: statuses
+                                .map(
+                                  (e) => Tab(
+                                    child: customTab(
+                                      e,
                                     ),
-                                  )
-                                  .toList(),
-                            ),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
-                        body: SmartRefresher(
-                          enablePullDown: true,
-                          controller: _refreshController,
-                          onRefresh: _onRefresh,
-                          child: NestedScrollView(
+                      ),
+                      body: SmartRefresher(
+                        enablePullDown: true,
+                        controller: _refreshController,
+                        onRefresh: _onRefresh,
+                        child: // NestedScrollView( //TODO: For scrolling
+                            /*  headerSliverBuilder:
+                              (BuildContext context, bool innerBoxIsScrolled) {
+                            return <Widget>[];
+                          }, */
+                            //body:
+                            TabBarView(
+                          children: statuses.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final status = entry.value;
+                            final applicants = data
+                                .where((applicant) =>
+                                    applicant.status.toString() == status)
+                                .toList();
+
+                            // Create widgets based on the applicants list
+
+                            // Return the list of widgets for this status
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: applicants.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return listViewItem_new(
+                                    context, applicants[index], true);
+                              },
+                            );
+                          }).toList(),
+
+                          /* children: [
+                              ListView.builder(
+                                itemCount: statuses.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final filteredData = data
+                                      .where((applicant) =>
+                                          applicant.status.toString() ==
+                                          statuses[index])
+                                      .toList();
+                        
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: filteredData.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return listViewItem_new(
+                                          context, filteredData[index], true);
+                                    },
+                                  );
+                                },
+                              ),
+                            ], */
+                        ),
+                        // ),//TODO: For scrolling
+                      ),
+
+                      /* body: SmartRefresher( //TODO: old code without scrolling.
+                        enablePullDown: true,
+                        controller: _refreshController,
+                        onRefresh: _onRefresh,
+                        child: NestedScrollView(
                             headerSliverBuilder: (BuildContext context,
                                 bool innerBoxIsScrolled) {
                               return <Widget>[];
                             },
                             body: TabBarView(
-                              children: statuses.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final status = entry.value;
-                                final applicants = data
+                              children: statuses.map((e) {
+                                final filteredData = data
                                     .where((applicant) =>
-                                        applicant.status.toString() == status)
+                                        applicant.status.toString() == e)
                                     .toList();
 
-                                // Create widgets based on the applicants list
-
-                                // Return the list of widgets for this status
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  // physics: const BouncingScrollPhysics(),
-                                  itemCount: applicants.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return listViewItem_new(
-                                        context, applicants[index], true);
-                                  },
+                                return CustomScrollView(
+                                  physics: const BouncingScrollPhysics(),
+                                  slivers: [
+                                    SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                        (BuildContext context, int index) {
+                                          return listViewItem_new(context,
+                                              filteredData[index], true);
+                                        },
+                                        childCount: filteredData.length,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               }).toList(),
-
-                              /* children: [
-                                ListView.builder(
-                                  itemCount: statuses.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    final filteredData = data
-                                        .where((applicant) =>
-                                            applicant.status.toString() ==
-                                            statuses[index])
-                                        .toList();
-                          
-                                    return ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemCount: filteredData.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return listViewItem_new(
-                                            context, filteredData[index], true);
-                                      },
-                                    );
-                                  },
-                                ),
-                              ], */
-                            ),
-                          ),
-                        ),
-
-                        /* body: SmartRefresher( //TODO: old code without scrolling.
-                          enablePullDown: true,
-                          controller: _refreshController,
-                          onRefresh: _onRefresh,
-                          child: NestedScrollView(
-                              headerSliverBuilder: (BuildContext context,
-                                  bool innerBoxIsScrolled) {
-                                return <Widget>[];
-                              },
-                              body: TabBarView(
-                                children: statuses.map((e) {
-                                  final filteredData = data
-                                      .where((applicant) =>
-                                          applicant.status.toString() == e)
-                                      .toList();
-
-                                  return CustomScrollView(
-                                    physics: const BouncingScrollPhysics(),
-                                    slivers: [
-                                      SliverList(
-                                        delegate: SliverChildBuilderDelegate(
-                                          (BuildContext context, int index) {
-                                            return listViewItem_new(context,
-                                                filteredData[index], true);
-                                          },
-                                          childCount: filteredData.length,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              )),
-                        ), */
-                      ),
-                    );
-                  } else {
-                    return const Center(
-                      child: Text("No data to display"),
-                    );
-                  }
-                }, error: (error, stackTrace) {
-                  return const Center(
-                    child: Text("Error while fetching the data"),
+                            )),
+                      ), */
+                    ),
                   );
-                }, loading: () {
-                  return const Center(child: CircularProgressIndicator());
-                })
-              : const Center(child: SizedBox()));
-    }
+                } else {
+                  return const Center(
+                    child: Text("No data to display"),
+                  );
+                }
+              }, error: (error, stackTrace) {
+                return const Center(
+                  child: Text("Error while fetching the data"),
+                );
+              }, loading: () {
+                return const Center(child: CircularProgressIndicator());
+              })
+            : const Center(child: SizedBox()));
   }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue) {
