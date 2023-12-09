@@ -24,7 +24,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your 0application.
   @override
@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Job Circle',
             theme: ThemeData(
+                useMaterial3: false,
                 fontFamily: GoogleFonts.varela.toString(),
                 // This is the theme of your application.
                 //

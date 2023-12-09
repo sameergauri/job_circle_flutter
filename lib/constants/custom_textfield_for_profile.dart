@@ -30,6 +30,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   final Function(String)? getSuggestions;
   final String? firstText;
   final Function(bool) onChanged;
+  final Function(int) getid;
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
@@ -43,7 +44,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomTextFieldComapanyLocation({
-    Key? key,
+    super.key,
     this.controller,
     required this.role,
     this.process,
@@ -52,7 +53,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     required this.hsc,
     required this.isCity,
     required this.icon,
-
+    required this.getid,
     // required this.isEdit,
     // required this.focusNode,
     // this.selectedValuesList,
@@ -70,7 +71,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     required this.university,
 
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomTextFieldComapanyLocationState createState() =>
@@ -392,6 +393,7 @@ class _CustomTextFieldComapanyLocationState
                 : controller!.text = suggestion.functional_area.toString();
             firstText = controller!.text;
             handleBoolChange(true);
+            widget.getid(suggestion.id);
             widget.degree ? widget.onSubmit!(suggestion.code) : null;
             var selectedId = suggestion.id;
             // onIDSelected(suggestion.id.toString());
@@ -468,7 +470,7 @@ class CustomFormTextFieldMultiSelectForProfile extends StatefulWidget {
     this.fetchApiskill,
     this.selectedSkillsChangeCallback,
     this.submit,
-    Key? key,
+    super.key,
     this.controller,
     this.workType,
     required this.isSkill,
@@ -484,7 +486,7 @@ class CustomFormTextFieldMultiSelectForProfile extends StatefulWidget {
     this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   State<CustomFormTextFieldMultiSelectForProfile> createState() =>
@@ -959,7 +961,7 @@ class customCompanyforExperience extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   customCompanyforExperience({
-    Key? key,
+    super.key,
     this.controller,
     this.onSubmit,
     this.focusNode,
@@ -981,7 +983,7 @@ class customCompanyforExperience extends StatefulWidget {
     required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _customCompanyforExperienceState createState() =>

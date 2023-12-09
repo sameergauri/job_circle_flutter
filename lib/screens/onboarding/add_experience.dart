@@ -29,8 +29,8 @@ class AddExperience extends StatefulWidget {
     required this.languageModel,
     required this.userID,
     required this.introData,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final Map<String, dynamic> languageModel;
   final int userID;
   final Map<String, dynamic> introData;
@@ -120,6 +120,9 @@ class _AddExperienceState extends State<AddExperience> {
       selectedValues.add(value);
     });
   }
+
+  int? jobtitleId;
+  int? workcityId;
 
   DateTime? selectedJoiningDate;
   DateTime? selectedLastWorkingDate;
@@ -582,6 +585,7 @@ class _AddExperienceState extends State<AddExperience> {
                             unselectedWidgetColor: Colors.transparent,
                           ),
                           child: Checkbox(
+                            side: const BorderSide(color: Colors.white),
                             activeColor: Colors.white,
                             checkColor: Constants.themeBgColor,
                             visualDensity: VisualDensity.compact,
@@ -803,6 +807,10 @@ class _AddExperienceState extends State<AddExperience> {
                                         setState(() {
                                           isEdit1 = p0;
                                         });
+                                      },
+                                      getid: (p0) {
+                                        jobtitleId = p0;
+                                        print(p0);
                                       },
                                       contextIn: context,
                                       hintText: "Sales Manager",
@@ -1387,7 +1395,35 @@ class _AddExperienceState extends State<AddExperience> {
                       ), */
                     ],
                   ), */
-                        SizedBox(
+
+                        const SizedBox(
+                          height: 2,
+                        ),
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: <Widget>[
+                            const Divider(
+                              thickness: 1.5, // Customize the Divider as needed
+                            ),
+                            Container(
+                              color:
+                                  Colors.white, // Background color of the text
+                              padding: const EdgeInsets.all(
+                                  8.0), // Adjust padding as needed
+                              child: Text(
+                                "Work Mode",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 2,
+                        ),
+
+                        /*  SizedBox(
                           height: 10.h,
                         ),
                         Row(
@@ -1417,7 +1453,7 @@ class _AddExperienceState extends State<AddExperience> {
                               ),
                             ),
                           ],
-                        ),
+                        ), */
 
                         Wrap(
                           children: [
@@ -1480,6 +1516,10 @@ class _AddExperienceState extends State<AddExperience> {
                           onChanged: (p0) {
                             isEdit10 = p0;
                           },
+                          getid: (p0) {
+                            workcityId = p0;
+                            print(workcityId);
+                          },
                           contextIn: context,
                           onSubmit: (p0) {},
                           hintText: "Mumbai",
@@ -1489,36 +1529,31 @@ class _AddExperienceState extends State<AddExperience> {
                           //   getSuggestions: getJobTitle,
                         ),
 
-                        SizedBox(
-                          height: 10.h,
+                        const SizedBox(
+                          height: 2,
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.75.w,
-                              child: const Divider(
-                                thickness: 1.5,
-                              ),
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: <Widget>[
+                            const Divider(
+                              thickness: 1.5, // Customize the Divider as needed
                             ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            Text(
-                              "Emp Type",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 8.w,
-                              child: const Divider(
-                                thickness: 1.5,
+                            Container(
+                              color:
+                                  Colors.white, // Background color of the text
+                              padding: const EdgeInsets.all(
+                                  8.0), // Adjust padding as needed
+                              child: Text(
+                                "Emp Type",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(
+                          height: 2,
                         ),
 
                         Wrap(
@@ -1774,6 +1809,7 @@ class _AddExperienceState extends State<AddExperience> {
                                     unselectedWidgetColor: Colors.transparent,
                                   ),
                                   child: Checkbox(
+                                    side: const BorderSide(color: Colors.white),
                                     activeColor: Colors.white,
                                     checkColor: Constants.themeBgColor,
                                     visualDensity: VisualDensity.compact,
@@ -2326,11 +2362,11 @@ class _AddExperienceState extends State<AddExperience> {
                               ),
                           ],
                         ), */
-                        SizedBox(
+                        const SizedBox(
                           // width: MediaQuery.of(context).size.width / 2.2.w,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               /* Row(
                           children: [
                             InkWell(
@@ -2386,20 +2422,23 @@ class _AddExperienceState extends State<AddExperience> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 1.6,
-                                child: const Divider(
-                                  thickness: 1.5,
-                                )),
-                            const Spacer(),
-                            Text(
-                              "Career Assets",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: <Widget>[
+                            const Divider(
+                              thickness: 1.5, // Customize the Divider as needed
+                            ),
+                            Container(
+                              color:
+                                  Colors.white, // Background color of the text
+                              padding: const EdgeInsets.all(
+                                  8.0), // Adjust padding as needed
+                              child: Text(
+                                "Career Assets",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         ),
@@ -2650,6 +2689,8 @@ class _AddExperienceState extends State<AddExperience> {
                                             Colors.transparent,
                                       ),
                                       child: Checkbox(
+                                        side: const BorderSide(
+                                            color: Colors.white),
                                         activeColor: Colors.white,
                                         checkColor: Constants.themeBgColor,
                                         visualDensity: VisualDensity.compact,
@@ -3540,7 +3581,7 @@ class _AddExperienceState extends State<AddExperience> {
       bool? isDisabled = true,
       bool? isOptional = false,
       required TextEditingController controller}) {
-    int _maxLines = 1;
+    int maxLines = 1;
     // bool isError = false;
     return SizedBox(
       // height: isdescription! ? MediaQuery.of(context).size.height / 24 : null,
@@ -3566,7 +3607,7 @@ class _AddExperienceState extends State<AddExperience> {
         onFieldSubmitted: (value) {
           setState(() {
             // Increase maxLines when the "Enter" key is pressed
-            _maxLines += 1;
+            maxLines += 1;
           });
         },
 

@@ -44,7 +44,7 @@ class CustomFormTextFieldMultiSelectLocation extends StatefulWidget {
     required this.callback1,
     this.fetchApiskill1,
     this.submit1,
-    Key? key,
+    super.key,
     this.controller,
     this.workType1,
     required this.isSkill,
@@ -59,7 +59,7 @@ class CustomFormTextFieldMultiSelectLocation extends StatefulWidget {
     this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   State<CustomFormTextFieldMultiSelectLocation> createState() =>
@@ -744,7 +744,7 @@ class CustomJobFormTextField extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.onSubmit,
     this.focusNode,
@@ -765,7 +765,7 @@ class CustomJobFormTextField extends StatefulWidget {
     required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomJobFormTextFieldState createState() => _CustomJobFormTextFieldState();
@@ -926,7 +926,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=10000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1188,7 +1188,7 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
     this.fetchApiskill,
     this.selectedSkillsChangeCallback,
     this.submit,
-    Key? key,
+    super.key,
     this.controller,
     this.workType,
     required this.isSkill,
@@ -1203,7 +1203,7 @@ class CustomFormTextFieldMultiSelect extends StatefulWidget {
     this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   State<CustomFormTextFieldMultiSelect> createState() =>
@@ -1430,6 +1430,38 @@ class _CustomFormTextFieldMultiSelectState
                                           !suggestions.contains(value);
                                     }
                                   });
+                                },
+                                onSubmitted: (value) {
+                                  if (selectedValuesList!
+                                      .contains(customValue)) {
+                                    setState(() {
+                                      isDuplicate = true;
+                                      controller!.clear();
+                                    });
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CustomDialog(
+                                          fetchDataFromApi: () {},
+                                          isFisrt: false,
+                                          onClose: () {
+                                            Navigator.of(context).pop();
+                                            textFieldFocusNode.requestFocus();
+                                          },
+                                          title: "Error!",
+                                          subtitle:
+                                              " 'This skill is already added',",
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    setState(() {
+                                      selectedValuesList!.add(customValue);
+
+                                      isDuplicate = false;
+                                      controller!.clear();
+                                    });
+                                  }
                                 },
 
                                 //enabled: false,
@@ -1705,12 +1737,8 @@ class _CustomFormTextFieldMultiSelectState
 
                               noItemsFoundBuilder: widget.isSkill
                                   ? (BuildContext context) {
-                                      return AddButtonVisibilityWidget(
-                                        suggestions: suggestion,
-                                        customValue: customValue,
-                                        selectedValuesList: selectedValuesList,
-                                        isLoading: isLoading,
-                                        onAddButtonPressed: () {
+                                      return GestureDetector(
+                                        onTap: () {
                                           if (selectedValuesList!
                                               .contains(customValue)) {
                                             setState(() {
@@ -1737,12 +1765,20 @@ class _CustomFormTextFieldMultiSelectState
                                           } else {
                                             setState(() {
                                               selectedValuesList!
-                                                  .add(customValue!);
+                                                  .add(customValue);
                                               isDuplicate = false;
                                               controller!.clear();
                                             });
                                           }
                                         },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 5),
+                                          width: double.infinity,
+                                          child: isLoading
+                                              ? const Text('Searching...')
+                                              : const Text("Add New Skill"),
+                                        ),
                                       );
                                     }
                                   : (value) {
@@ -1846,7 +1882,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextFieldRespOne({
-    Key? key,
+    super.key,
     this.controller,
     required this.isIndustry,
     this.onSubmit,
@@ -1867,7 +1903,7 @@ class CustomJobFormTextFieldRespOne extends StatefulWidget {
     required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomJobFormTextFieldRespoOneState createState() =>
@@ -2381,7 +2417,7 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextFieldJobRespo({
-    Key? key,
+    super.key,
     this.controller,
     required this.role,
     this.process,
@@ -2402,7 +2438,7 @@ class CustomJobFormTextFieldJobRespo extends StatefulWidget {
     required this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomJobFormTextFieldJobRespoState createState() =>
@@ -2831,7 +2867,7 @@ class CustomJobFormTextFieldRespOneProfile extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobFormTextFieldRespOneProfile({
-    Key? key,
+    super.key,
     this.controller,
     required this.isIndustry,
     this.onSubmit,
@@ -2853,7 +2889,7 @@ class CustomJobFormTextFieldRespOneProfile extends StatefulWidget {
     required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomJobFormTextFieldRespoOneProfileState createState() =>
@@ -3697,6 +3733,7 @@ class CustomJobTitleForExperience extends StatefulWidget {
   final Function(String)? getSuggestions;
   final String? firstText;
   final Function(bool) onChanged;
+  final Function(int) getid;
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
@@ -3707,7 +3744,7 @@ class CustomJobTitleForExperience extends StatefulWidget {
   // final Function(FocusNode) onFocusNodeRequested;
 
   CustomJobTitleForExperience({
-    Key? key,
+    super.key,
     this.controller,
     required this.isIndustry,
     this.onSubmit,
@@ -3724,11 +3761,12 @@ class CustomJobTitleForExperience extends StatefulWidget {
     required this.name,
     this.getSuggestions,
     this.pId,
+    required this.getid,
     required this.onChanged,
     required this.onIDSelected,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   _CustomJobTitleForExperienceState createState() =>
@@ -3940,6 +3978,7 @@ class _CustomJobTitleForExperienceState
             setState(() {
               controller!.text = suggestion.value.toString();
               suggestionSelected = true;
+              widget.getid(suggestion.id);
               //FocusScope.of(context).nextFocus();
             });
           },

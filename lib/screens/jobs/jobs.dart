@@ -2823,6 +2823,9 @@ class _JobsState extends ConsumerState<Jobs>
                                         is30: item.payment_clause == "30 Days"
                                             ? true
                                             : false,
+                                             userNumber:
+                                            464546456,
+                                               useAlternateNumber: 464546456,
                                       )));
                           /* JobPostApiService.postJobApply(
                               jobId: item['id'],

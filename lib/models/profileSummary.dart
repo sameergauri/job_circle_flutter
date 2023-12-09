@@ -227,6 +227,9 @@ class Education with Searchable {
   final int? passingYear;
   final int? userId;
   final String? degree_spc;
+  final int? university_id;
+  final int? degree_id;
+  final int? fieldofstudy_id;
 
   Education({
     this.id,
@@ -239,6 +242,9 @@ class Education with Searchable {
     this.passingYear,
     this.userId,
     this.degree_spc,
+    this.degree_id,
+    this.fieldofstudy_id,
+    this.university_id
   });
 
   factory Education.fromMap(Map<String, dynamic> map) {
@@ -253,6 +259,9 @@ class Education with Searchable {
       passingYear: map['passingYear'] as int?,
       userId: map['userId'] as int?,
       degree_spc: map['degree_spc'] as String?,
+degree_id: map['degree_id']as int?,
+fieldofstudy_id: map['fieldofstudy_id'] as int?,
+university_id: map['university_id'] as int?
     );
   }
 
@@ -276,6 +285,9 @@ class Education with Searchable {
       'passingYear': passingYear,
       'userId': userId,
       'degree_spc': degree_spc,
+      'fieldofstudy_id': fieldofstudy_id,
+      'degree_id': degree_id,
+      'university_id': university_id,
     };
   }
 
@@ -291,6 +303,9 @@ class Education with Searchable {
       passingYear: json['passingYear'],
       userId: json['userId'],
       degree_spc: json['degree_spc'],
+      degree_id:  json['degree_id'],
+      fieldofstudy_id: json['fieldofstudy_id'],
+      university_id:  json['university_id'],
     );
   }
 
@@ -306,6 +321,9 @@ class Education with Searchable {
       'passingYear': passingYear,
       'userId': userId,
       'degree_spc': degree_spc,
+      'fieldofstudy_id': fieldofstudy_id,
+      'degree_id': degree_id,
+      'university_id': university_id
     };
   }
 
@@ -356,31 +374,36 @@ class Experience with Searchable {
   String? shortname;
   String? icon;
   int? companyid;
+  int? jobid;
+  int? city_id;
 
-  Experience(
-      {this.id,
-      this.userId,
-      this.job_title,
-      this.company_name,
-      this.isCurrent,
-      this.description,
-      this.skills_exp,
-      this.work_type,
-      this.company_location,
-      this.emptype,
-      this.joining_date,
-      this.last_working_date,
-      this.salary,
-      this.ismonthly,
-      this.offer_letter,
-      this.appointment_letter,
-      this.salary_slip,
-      this.experience_lettter,
-      this.increment_letter,
-      this.availability,
-      this.shortname,
-      this.icon,
-      this.companyid});
+  Experience({
+    this.id,
+    this.userId,
+    this.job_title,
+    this.company_name,
+    this.isCurrent,
+    this.description,
+    this.skills_exp,
+    this.work_type,
+    this.company_location,
+    this.emptype,
+    this.joining_date,
+    this.last_working_date,
+    this.salary,
+    this.ismonthly,
+    this.offer_letter,
+    this.appointment_letter,
+    this.salary_slip,
+    this.experience_lettter,
+    this.increment_letter,
+    this.availability,
+    this.shortname,
+    this.icon,
+    this.companyid,
+    this.jobid,
+    this.city_id,
+  });
 
   static Experience fromMap(Map<String, dynamic> map) {
     return Experience(
@@ -410,7 +433,9 @@ class Experience with Searchable {
         offer_letter: map['offer_letter'],
         shortname: map['shortname'],
         companyid: map['companyid'] as int?,
-        icon: map['icon']);
+        icon: map['icon'],
+        jobid: map['jobid'] as int?,
+        city_id: map['city_id'] as int?);
   }
 
   static List<Experience> fromList(List<dynamic> list) {
@@ -445,7 +470,9 @@ class Experience with Searchable {
       'isCurrent': isCurrent,
       'shortname': shortname,
       'icon': icon,
-      'companyid': companyid
+      'companyid': companyid,
+      'jobid': jobid,
+      'city_id': city_id,
     };
   }
 
@@ -477,7 +504,9 @@ class Experience with Searchable {
         offer_letter: json['offer_letter'],
         shortname: json['shortname'],
         companyid: json['companyid'] as int?,
-        icon: json['icon']);
+        icon: json['icon'],
+        jobid: json['jobid'] as int?,
+        city_id: json['city_id'] as int?);
   }
 
   Map<String, dynamic> toJson() {
@@ -504,7 +533,9 @@ class Experience with Searchable {
       'isCurrent': isCurrent,
       'shortname': shortname,
       'icon': icon,
-      'companyid': companyid
+      'companyid': companyid,
+      'jobid': jobid,
+      'city_id': city_id,
     };
   }
 

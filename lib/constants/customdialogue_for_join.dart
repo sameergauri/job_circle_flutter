@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import '../models/changeStatusModel.dart';
 import '../models/fetch_applied_job_model.dart';
 import '../service/job_post_api_service.dart';
 
-class CustomDialogueForJoin extends StatefulWidget {
+class CustomDialogueForJoin extends ConsumerStatefulWidget {
   Applicant item;
   CustomDialogueForJoin({super.key, required this.item});
 
   @override
-  State<CustomDialogueForJoin> createState() => _CustomDialogueForJoinState();
+  ConsumerState<CustomDialogueForJoin> createState() =>
+      _CustomDialogueForJoinState();
 }
 
-class _CustomDialogueForJoinState extends State<CustomDialogueForJoin> {
+class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
   TextEditingController textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -98,14 +101,16 @@ class _CustomDialogueForJoinState extends State<CustomDialogueForJoin> {
                         // margin: const EdgeInsets.symmetric(vertical: 10),
                         padding: EdgeInsets.symmetric(
                             vertical: 6.h, horizontal: 16.w),
-                        child: Image.asset(
+                        child: const Text("Cancel")
+                        /*  Image.asset(  //TODO: old code which were use image instead if text
                           "assets/images/thumbs_down.png",
                           height: 20.h,
                           color: Constants.themeBgColor,
-                        )),
+                        ) */
+                        ),
                   ),
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
                       ChangeStatusModel changeStatusModel = ChangeStatusModel(
                           status: "IB7",
                           subStatus: "Join",
@@ -113,14 +118,16 @@ class _CustomDialogueForJoinState extends State<CustomDialogueForJoin> {
                           id: widget.item.id,
                           sourceId: widget.item.sourceId,
                           empId: textEditingController.text.isNotEmpty
-                              ? int.parse(textEditingController.text)
+                              ? int.tryParse(textEditingController.text)
                               : null);
                       Map<String, dynamic> jsonData =
                           changeStatusModel.toJson();
                       try {
-                        JobPostApiService.changeStatus(
+                        await JobPostApiService.changeStatus(
                             jsonData, widget.item.id!.toInt());
                         setState(() {});
+                        ref.refresh(fetchAllApplicantProvider);
+                        Navigator.pop(context);
                         // First pop to close the dialog
                       } catch (e) {
                         print('Error: $e');
@@ -145,11 +152,13 @@ class _CustomDialogueForJoinState extends State<CustomDialogueForJoin> {
                         // margin: const EdgeInsets.symmetric(vertical: 10),
                         padding: EdgeInsets.symmetric(
                             vertical: 6.h, horizontal: 16.w),
-                        child: Image.asset(
+                        child: const Text("Submit")
+                        /* Image.asset(//TODO: old code which were use image instead if text
                           "assets/images/thumbs_up.png",
                           height: 20.h,
                           color: Colors.green,
-                        )),
+                        ) */
+                        ),
                   ),
                 ],
               )

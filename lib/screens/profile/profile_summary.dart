@@ -67,9 +67,7 @@ final educationProvider = FutureProvider<List<Education>>((ref) async {
 
 final experienceProvider = FutureProvider<List<Experience>>((ref) async {
   final experienceResponse = await _ProfileSummaryState.bindProfileExperience();
-  return (experienceResponse)
-      .map((item) => Experience.fromJson(item))
-      .toList();
+  return (experienceResponse).map((item) => Experience.fromJson(item)).toList();
 });
 
 final userDataProvider = FutureProvider<UserDataModel>((ref) async {
@@ -137,7 +135,7 @@ final userDataProvider = FutureProvider<UserDataModel>((ref) async {
     (ref) => _ProfileSummaryState.bindProfileSummary); */
 
 class ProfileSummary extends ConsumerStatefulWidget {
-  const ProfileSummary({Key? key}) : super(key: key);
+  const ProfileSummary({super.key});
 
   @override
   ConsumerState<ProfileSummary> createState() => _ProfileSummaryState();
@@ -449,7 +447,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       }
                                     };
                                     await save(null, payload);
+                                    // ignore: unused_result
                                     ref.refresh(userDataProvider);
+                                    ref.refresh(profileSummaryProvider);
+                                    ref.refresh(jobsProvider);
                                     Navigator.pop(context);
                                     setState(() {});
 
@@ -499,6 +500,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       };
                                       await save(resume, payload);
                                       ref.refresh(userDataProvider);
+                                      ref.refresh(profileSummaryProvider);
+                                      ref.refresh(jobsProvider);
                                     } else {
                                       setState(() {
                                         resume = previousResume;
@@ -703,8 +706,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                               ).image),
                                                                     CircleAvatar(
                                                                       backgroundColor:
-                                                                          Constants
-                                                                              .themeBgColor,
+                                                                          Colors
+                                                                              .white,
                                                                       child: IconButton(
                                                                           onPressed: () async {
                                                                             setState(() async {
@@ -731,10 +734,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                               Navigator.pop(context);
                                                                             });
                                                                           },
-                                                                          icon: const Icon(
-                                                                            Icons.delete_outline,
-                                                                            color:
-                                                                                Colors.white,
+                                                                          icon: Image.asset(
+                                                                            "assets/images/bin.gif",
+                                                                            height:
+                                                                                40.h,
                                                                           )),
                                                                     )
                                                                     /* Container(
@@ -1276,14 +1279,15 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       ),
                                     ),
                                     if (data.profileSummary.cv_link == null ||
-                                        (data.profileSummary.skills!.isEmpty &&
-                                            data.experiences.isEmpty) ||
-                                        (data.profileSummary.languages!
-                                            .isEmpty) ||
-                                        data.education
-                                            .isEmpty /* ||
+                                            (data.profileSummary.skills!
+                                                    .isEmpty &&
+                                                data.experiences.isEmpty) ||
+                                            (data.profileSummary.languages!
+                                                .isEmpty) ||
+                                            data.education
+                                                .isEmpty /* ||
                                   experienceList.isEmpty */
-                                    )
+                                        )
                                       Padding(
                                         padding: const EdgeInsets.all(12.0),
                                         child: Container(
@@ -1361,6 +1365,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             resume, payload);
                                                         ref.refresh(
                                                             userDataProvider);
+                                                        ref.refresh(
+                                                            profileSummaryProvider);
+                                                        ref.refresh(
+                                                            jobsProvider);
                                                         setState(() {
                                                           /* var data = await uploadFile(
                                                         'pdf', "icon");
@@ -1389,13 +1397,13 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
 
                                                 // Block 3: Skills
                                                 if (data.profileSummary.skills!
-                                                        .isEmpty &&
-                                                    data.experiences
-                                                        .isEmpty /*  &&
+                                                            .isEmpty &&
+                                                        data.experiences
+                                                            .isEmpty /*  &&
                                                     data.profileSummary
                                                             .experience ==
                                                         "Fresher" */
-                                                )
+                                                    )
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
@@ -1493,6 +1501,21 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             builder:
                                                                 (context) =>
                                                                     Screen2(
+                                                              selectedLevel:
+                                                                  profilemodel
+                                                                      .education,
+                                                              educationList:
+                                                                  educationList,
+                                                              isFirst: false,
+                                                              underGraduate: data
+                                                                          .profileSummary
+                                                                          .education !=
+                                                                      "Graduate"
+                                                                  ? true
+                                                                  : false,
+                                                              isEdit: false,
+                                                            ),
+                                                            /*  Screen2(
                                                               isFirst: false,
                                                               isEdit: false,
                                                               underGraduate:
@@ -1500,7 +1523,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                           "Graduate"
                                                                       ? true
                                                                       : false,
-                                                            ),
+                                                            ), */
                                                           ),
                                                         );
                                                       },
@@ -1629,9 +1652,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profilemodel.first_name.toString().toTitleCase() +
-                      ' ' +
-                      profilemodel.last_name.toString().toTitleCase(),
+                  '${profilemodel.first_name.toString().toTitleCase()} ${profilemodel.last_name.toString().toTitleCase()}',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w300),
                 ),

@@ -31,8 +31,7 @@ import '../../models/api_response.dart';
 import '../../service/FileUploadService.dart';
 
 class AddIntoduction extends StatefulWidget {
-  AddIntoduction({Key? key, this.prevPageModel, this.primaryNumberValue})
-      : super(key: key);
+  AddIntoduction({super.key, this.prevPageModel, this.primaryNumberValue});
   late ProfileSummaryModel? prevPageModel;
 
   final String? primaryNumberValue;
@@ -231,7 +230,7 @@ class _AddIntoductionState extends State<AddIntoduction>
     otpChar2Controller = TextEditingController();
     otpChar3Controller = TextEditingController();
     otpChar4Controller = TextEditingController();
-    startTimer();
+    // startTimer();
 
     ticker = Ticker((_) => updateTimerDisplay());
 
@@ -357,7 +356,7 @@ class _AddIntoductionState extends State<AddIntoduction>
   void selectDate() async {
     DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 18));
     DateTime firstDate =
-        DateTime.now().subtract(const Duration(days: 365 * 35));
+        DateTime.now().subtract(const Duration(days: 365 * 77));
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
     DateTime? pickedDate = DateTime.now();
     try {
@@ -1246,9 +1245,10 @@ class _AddIntoductionState extends State<AddIntoduction>
                               width: 20,
                               child: Theme(
                                 data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
+                                  unselectedWidgetColor: Colors.white,
                                 ),
                                 child: Checkbox(
+                                  side: const BorderSide(color: Colors.white),
                                   activeColor: Colors.white,
                                   checkColor: Constants.themeBgColor,
                                   visualDensity: VisualDensity.compact,
@@ -1868,7 +1868,7 @@ class _AddIntoductionState extends State<AddIntoduction>
     });
   }
 
-  void startTimer() {
+  /*  void startTimer() {
     var duration = const Duration(seconds: 1);
     currentSeconds = timerMaxSeconds;
     ticker = Ticker((elapsed) {
@@ -1878,7 +1878,7 @@ class _AddIntoductionState extends State<AddIntoduction>
       });
     });
     ticker.start();
-  }
+  } */
 
   void _onOTPDigitChanged(
       String value, FocusNode currentFocusNode, FocusNode nextFocusNode) {
@@ -2186,7 +2186,7 @@ class _AddIntoductionState extends State<AddIntoduction>
     return InkWell(
         onTap: onPressed,
         child: Container(
-            width: MediaQuery.of(context).size.width / 2.3.w,
+            width: MediaQuery.of(context).size.width / 2.5.w,
 
             // height: MediaQuery.of(context).size.height / 26.h,
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),

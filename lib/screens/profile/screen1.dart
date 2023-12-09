@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:job_circle/screens/new_jobs/job_provider.dart';
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,7 @@ import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -34,12 +35,11 @@ import '../../service/job_post_api_service.dart';
 
 class Screen1 extends ConsumerStatefulWidget {
   Screen1(
-      {Key? key,
+      {super.key,
       this.prevPageModel,
       required this.isbio,
       required this.isfirst,
-      this.primaryNumberValue})
-      : super(key: key);
+      this.primaryNumberValue});
   final bool isbio;
   late ProfileSummaryModel? prevPageModel;
   final bool isfirst;
@@ -366,7 +366,7 @@ class _Screen1State extends ConsumerState<Screen1> {
   void selectDate() async {
     DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 18));
     DateTime firstDate =
-        DateTime.now().subtract(const Duration(days: 365 * 35));
+        DateTime.now().subtract(const Duration(days: 365 * 77));
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
 
     DateTime? pickedDate = DateTime.now();
@@ -730,30 +730,23 @@ class _Screen1State extends ConsumerState<Screen1> {
                         ),
                   widget.isfirst
                       ? const SizedBox()
-                      : Row(
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.7.w,
-                              child: const Divider(
-                                thickness: 1.5,
-                              ),
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            const Divider(
+                              color: Colors
+                                  .black, // Customize the Divider as needed
                             ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            Text(
-                              "Contact Detail",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 20.w,
-                              child: const Divider(
-                                thickness: 1.5,
+                            Container(
+                              color:
+                                  Colors.white, // Background color of the text
+                              padding: const EdgeInsets.all(
+                                  8.0), // Adjust padding as needed
+                              child: Text(
+                                "Contact Detail",
+                                style: GoogleFonts.varela(
+                                    color: Constants.themeBgColor,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -809,30 +802,21 @@ class _Screen1State extends ConsumerState<Screen1> {
                   SizedBox(
                     height: 10.h,
                   ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.7.w,
-                        child: const Divider(
-                          thickness: 1.5,
-                        ),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      const Divider(
+                        color: Colors.black, // Customize the Divider as needed
                       ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      Text(
-                        "Basic Detail",
-                        style: GoogleFonts.varela(
-                            color: Constants.themeBgColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 11.w,
-                        child: const Divider(
-                          thickness: 1.5,
+                      Container(
+                        color: Colors.white, // Background color of the text
+                        padding: const EdgeInsets.all(
+                            8.0), // Adjust padding as needed
+                        child: Text(
+                          "Basic Detail",
+                          style: GoogleFonts.varela(
+                              color: Constants.themeBgColor,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -1442,7 +1426,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                               ),
                             ),
                             const Spacer(),
-                            if (data != null)
+                            if (data != "null" && data != null)
                               InkWell(
                                 onTap: () {
                                   //  log("message");
@@ -1604,7 +1588,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                               //     fontWeight: FontWeight.w400,
                               //   ),
                               // ),
-                              if (data == null)
+                              if (data == null || data == "null")
                                 Row(
                                   children: [
                                     GestureDetector(
@@ -2316,7 +2300,7 @@ class _Screen1State extends ConsumerState<Screen1> {
     return InkWell(
         onTap: onPressed,
         child: Container(
-            width: MediaQuery.of(context).size.width / 2.3.w,
+            width: MediaQuery.of(context).size.width / 2.5.w,
 
             // height: MediaQuery.of(context).size.height / 26.h,
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),

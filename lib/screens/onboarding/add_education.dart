@@ -9,9 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+import 'package:job_circle/screens/onboarding/add_cv.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -36,8 +36,8 @@ class AddEducation extends ConsumerStatefulWidget {
     required this.languageModel,
     required this.userID,
     required this.isexperience,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ConsumerState<AddEducation> createState() => _AddEducationState();
@@ -674,6 +674,8 @@ class _AddEducationState extends ConsumerState<AddEducation> {
     );
   }
 
+  int? universityId, degreeId, fieldId;
+
   FocusNode boardFocus = FocusNode();
   FocusNode passingyearfocus = FocusNode();
   FocusNode univerrsityfocus = FocusNode();
@@ -800,6 +802,7 @@ class _AddEducationState extends ConsumerState<AddEducation> {
             borderRadius: BorderRadius.circular(8.r),
             border:
                 Border.all(color: dlg ? Constants.themeBgColor : Colors.white)),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         child: Row(
           children: [
             const Icon(
@@ -814,7 +817,6 @@ class _AddEducationState extends ConsumerState<AddEducation> {
             )
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       ),
     );
   }
@@ -845,6 +847,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                   degreeCode = p0;
                 });
               },
+              getid: (p0) {
+                degreeId = p0;
+              },
               controller: degreeController,
               onChanged: (p0) {
                 isGraduateDeg = true;
@@ -869,6 +874,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
               onChanged: (p0) {
                 isUniG = true;
               },
+              getid: (p0) {
+                universityId = p0;
+              },
               icon: const Icon(Icons.school_outlined),
             ),
           const SizedBox(height: 10),
@@ -889,6 +897,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                     controller: fieldOfStudyController,
                     onChanged: (p0) {
                       // isUniG = true;
+                    },
+                    getid: (p0) {
+                      fieldId = p0;
                     },
                     icon: const Icon(Icons.auto_stories_outlined),
                   )
@@ -1105,25 +1116,27 @@ class _AddEducationState extends ConsumerState<AddEducation> {
 
     if (!isSkip) {
       model = Education(
-        id: eduID,
-        userId: widget.userID,
-        //level: "Graduate",
-        university: universityController.text,
-        degree_spc: isundergradute ? "H.S.C" : degreeController.text,
-        fieldOfStudy: isundergradute
-            ? science
-                ? "Science"
-                : commerce
-                    ? "Commerce"
-                    : art
-                        ? "Art"
-                        : fieldOfStudyController.text
-            : fieldOfStudyController.text,
-        firstYear: int.parse(firstYearController.text),
-        passingYear:
-            isundergradute ? null : int.parse(passingYearController.text),
-        marksheet: marksheet,
-      );
+          id: eduID,
+          userId: widget.userID,
+          //level: "Graduate",
+          university: universityController.text,
+          degree_spc: isundergradute ? "H.S.C" : degreeController.text,
+          fieldOfStudy: isundergradute
+              ? science
+                  ? "Science"
+                  : commerce
+                      ? "Commerce"
+                      : art
+                          ? "Art"
+                          : fieldOfStudyController.text
+              : fieldOfStudyController.text,
+          firstYear: int.parse(firstYearController.text),
+          passingYear:
+              isundergradute ? null : int.parse(passingYearController.text),
+          marksheet: marksheet,
+          degree_id: degreeId,
+          fieldofstudy_id: fieldId,
+          university_id: universityId);
     }
 
     // Create an instance of UserDataService
@@ -1144,10 +1157,7 @@ class _AddEducationState extends ConsumerState<AddEducation> {
     ref.refresh(profileSummaryProvider);
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-            builder: (context) => HomeScreen(
-                  isFirst: true,
-                )),
+        MaterialPageRoute(builder: (context) => const AddCv()),
         (route) => false);
     /* if (widget.prevPageModel == null) {
       Navigator.pushReplacement(

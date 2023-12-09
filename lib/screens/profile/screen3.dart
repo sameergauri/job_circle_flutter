@@ -25,13 +25,12 @@ import '../../service/UserDataService.dart';
 
 class Screen3 extends ConsumerStatefulWidget {
   Screen3(
-      {Key? key,
+      {super.key,
       this.prevPageModel,
       this.expirieanceFlag,
       this.experiencelist,
       this.isEdit,
-      required this.isFirst})
-      : super(key: key);
+      required this.isFirst});
   final bool? expirieanceFlag;
   // final dynamic prevPageModel;
   bool? isEdit;
@@ -127,6 +126,9 @@ class _Screen3State extends ConsumerState<Screen3> {
 
   DateTime? selectedJoiningDate;
   DateTime? selectedLastWorkingDate;
+
+  int? jobtitleId;
+  int? workcityId;
 
   /* void selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -368,6 +370,10 @@ class _Screen3State extends ConsumerState<Screen3> {
           selectedLastWorkingDate = widget.prevPageModel!.last_working_date;
         });
       }
+      setState(() {
+        jobtitleId = widget.prevPageModel!.jobid;
+        workcityId = widget.prevPageModel!.city_id;
+      });
       setState(() {
         widget.prevPageModel!.emptype == "FullTime"
             ? isFullTime = true
@@ -623,6 +629,7 @@ class _Screen3State extends ConsumerState<Screen3> {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: Colors.white,
@@ -720,31 +727,38 @@ class _Screen3State extends ConsumerState<Screen3> {
                       save();
                     }
                   },
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                        top: 10, left: 20, right: 20, bottom: 10),
-                    decoration: BoxDecoration(
-                        color: Constants.themeBgColor,
-                        borderRadius: BorderRadius.circular(8.r)),
-                    width: double.maxFinite,
-                    padding: const EdgeInsets.only(bottom: 8, top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Save",
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: isLoading == false
+                      ? Container(
+                          margin: const EdgeInsets.only(
+                              top: 10, left: 20, right: 20, bottom: 10),
+                          decoration: BoxDecoration(
+                              color: Constants.themeBgColor,
+                              borderRadius: BorderRadius.circular(8.r)),
+                          width: double.maxFinite,
+                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Save",
+                                style: GoogleFonts.varela(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox(),
                 )
               : const SizedBox(),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(children: [
-                _education(),
+                isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _education(),
               ]),
             ),
           )),
@@ -859,8 +873,13 @@ class _Screen3State extends ConsumerState<Screen3> {
                           name: "job_title",
                           title: "Job Title",
                           controller: jobTitleController,
+
                           onChanged: (p0) {
                             //  isEdit1 = true;
+                          },
+                          getid: (p0) {
+                            jobtitleId = p0;
+                            print(jobtitleId);
                           },
                           contextIn: context,
                           hintText: "Sales Manager",
@@ -1966,36 +1985,30 @@ class _Screen3State extends ConsumerState<Screen3> {
                     ), */
                   ],
                 ), */
-                      SizedBox(
-                        height: 10.h,
+                      const SizedBox(
+                        height: 10,
                       ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 1.83.w,
-                            child: const Divider(
-                              thickness: 1.5,
-                            ),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: <Widget>[
+                          const Divider(
+                            thickness: 1.5, // Customize the Divider as needed
                           ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Text(
-                            "Work Mode",
-                            style: GoogleFonts.varela(
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 11.w,
-                            child: const Divider(
-                              thickness: 1.5,
+                          Container(
+                            color: Colors.white, // Background color of the text
+                            padding: const EdgeInsets.all(
+                                8.0), // Adjust padding as needed
+                            child: Text(
+                              "Work Mode",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
 
                       Wrap(
@@ -2060,6 +2073,10 @@ class _Screen3State extends ConsumerState<Screen3> {
                         onChanged: (p0) {
                           isEdit10 = p0;
                         },
+                        getid: (p0) {
+                          workcityId = p0;
+                          print(workcityId);
+                        },
                         contextIn: context,
                         onSubmit: (p0) {},
                         hintText: "Mumbai",
@@ -2068,36 +2085,30 @@ class _Screen3State extends ConsumerState<Screen3> {
                         //   getSuggestions: getJobTitle,
                       ),
 
-                      SizedBox(
-                        height: 10.h,
+                      const SizedBox(
+                        height: 10,
                       ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 1.75.w,
-                            child: const Divider(
-                              thickness: 1.5,
-                            ),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: <Widget>[
+                          const Divider(
+                            thickness: 1.5, // Customize the Divider as needed
                           ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Text(
-                            "Emp Type",
-                            style: GoogleFonts.varela(
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 8.w,
-                            child: const Divider(
-                              thickness: 1.5,
+                          Container(
+                            color: Colors.white, // Background color of the text
+                            padding: const EdgeInsets.all(
+                                8.0), // Adjust padding as needed
+                            child: Text(
+                              "Emp Type",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
 
                       Wrap(
@@ -2347,6 +2358,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                                   unselectedWidgetColor: Colors.transparent,
                                 ),
                                 child: Checkbox(
+                                    side: const BorderSide(color: Colors.white),
                                     activeColor: Colors.white,
                                     checkColor: Constants.themeBgColor,
                                     visualDensity: VisualDensity.compact,
@@ -2996,11 +3008,11 @@ class _Screen3State extends ConsumerState<Screen3> {
                             ),
                         ],
                       ), */
-                      SizedBox(
+                      const SizedBox(
                         // width: MediaQuery.of(context).size.width / 2.2.w,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             /* Row(
                         children: [
                           InkWell(
@@ -3057,22 +3069,30 @@ class _Screen3State extends ConsumerState<Screen3> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.6,
-                              child: const Divider(
-                                thickness: 1.5,
-                              )),
-                          const Spacer(),
-                          Text(
-                            "Career Assets",
-                            style: GoogleFonts.varela(
-                                color: Constants.themeBgColor,
-                                fontWeight: FontWeight.bold),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: <Widget>[
+                          const Divider(
+                            thickness: 1.5, // Customize the Divider as needed
+                          ),
+                          Container(
+                            color: Colors.white, // Background color of the text
+                            padding: const EdgeInsets.all(
+                                8.0), // Adjust padding as needed
+                            child: Text(
+                              "Career Assets",
+                              style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
                       Wrap(
                         children: [
@@ -3324,6 +3344,8 @@ class _Screen3State extends ConsumerState<Screen3> {
                                             Colors.transparent,
                                       ),
                                       child: Checkbox(
+                                        side: const BorderSide(
+                                            color: Colors.white),
                                         activeColor: Colors.white,
                                         checkColor: Constants.themeBgColor,
                                         visualDensity: VisualDensity.compact,
@@ -3575,10 +3597,15 @@ class _Screen3State extends ConsumerState<Screen3> {
                               "exp");
                           ref.refresh(userDataProvider);
                         }, */
-                        child: Text(
+                        child: Image.asset(
+                          "assets/images/bin.gif",
+                          height: 40.h,
+                        )
+                        /*  child: Text(
                           "Delete Experience",
                           style: GoogleFonts.varela(color: Colors.red),
-                        )),
+                        ) */
+                        ),
                   ),
                 ],
               )
@@ -3836,6 +3863,8 @@ class _Screen3State extends ConsumerState<Screen3> {
     setState(() {});
   }
 
+  bool isLoading = false;
+
   save() async {
     // Retrieve the form data
 
@@ -3843,6 +3872,8 @@ class _Screen3State extends ConsumerState<Screen3> {
     Experience experience = Experience(
       id: expID,
       userId: profilemodel.id,
+      city_id: workcityId,
+      jobid: jobtitleId,
       job_title: jobTitleController.text,
       company_name: companyController.text,
       isCurrent: yes ? 1 : 0,
@@ -3894,6 +3925,9 @@ class _Screen3State extends ConsumerState<Screen3> {
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
+    setState(() {
+      isLoading = true;
+    });
 
     // Call the saveUserExperience method on the instance
     await userDataService.saveUserExperience(experience.toJson());
@@ -3912,6 +3946,9 @@ class _Screen3State extends ConsumerState<Screen3> {
                     isFirst: false,
                   )));
     } else { */
+    setState(() {
+      isLoading = false;
+    });
     Navigator.pop(context);
     // }
   }
@@ -4280,7 +4317,7 @@ class _Screen3State extends ConsumerState<Screen3> {
       bool? isDisabled = true,
       bool? isOptional = false,
       required TextEditingController controller}) {
-    int _maxLines = 1;
+    int maxLines = 1;
     // bool isError = false;
     return SizedBox(
       // height: isdescription! ? MediaQuery.of(context).size.height / 24 : null,
@@ -4306,7 +4343,7 @@ class _Screen3State extends ConsumerState<Screen3> {
         onFieldSubmitted: (value) {
           setState(() {
             // Increase maxLines when the "Enter" key is pressed
-            _maxLines += 1;
+            maxLines += 1;
           });
         },
 

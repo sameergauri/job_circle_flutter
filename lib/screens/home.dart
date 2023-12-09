@@ -8,7 +8,7 @@ import 'new_jobs/new_jobs_v1.dart';
 
 class HomeScreen extends StatefulWidget {
   bool? isFirst;
-  HomeScreen({Key? key, this.isFirst}) : super(key: key);
+  HomeScreen({super.key, this.isFirst});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,7 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Constants.bgColorWhite,
       body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
         controller: pageController,
         children: const [NewJobsV1(), TrackApplication()],
         onPageChanged: (index) {

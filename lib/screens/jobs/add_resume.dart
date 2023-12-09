@@ -33,21 +33,26 @@ class AddResume extends ConsumerStatefulWidget {
   final bool isRefer;
   final bool is90;
   final bool is30;
+  final int userNumber;
+  final int useAlternateNumber;
 
-  const AddResume(
-      {super.key,
-      required this.company_name,
-      required this.role,
-      required this.process,
-      required this.nature_of_work,
-      required this.company_id,
-      required this.jobId,
-      required this.sourceId,
-      required this.sourceName,
-      required this.spocId,
-      required this.isRefer,
-      required this.is90,
-      required this.is30});
+  const AddResume({
+    super.key,
+    required this.company_name,
+    required this.role,
+    required this.process,
+    required this.nature_of_work,
+    required this.company_id,
+    required this.jobId,
+    required this.sourceId,
+    required this.sourceName,
+    required this.spocId,
+    required this.isRefer,
+    required this.is90,
+    required this.is30,
+    required this.userNumber,
+    required this.useAlternateNumber,
+  });
 
   @override
   ConsumerState<AddResume> createState() => _AddResumeState();
@@ -424,13 +429,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: underGraduate
-                                          ? const Color(0xfffedf6f9)
+                                          ? Constants.themeBgColor
                                           : Colors.white),
                                   child: Center(
                                     child: Text("Under-Graduate",
                                         style: GoogleFonts.sourceSansPro(
                                             color: underGraduate
-                                                ? const Color(0xfff729995)
+                                                ? Colors.white
                                                 : Colors.grey,
                                             fontSize: 15.sp,
                                             fontWeight: FontWeight.bold)),
@@ -454,13 +459,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: graduate
-                                          ? const Color(0xfffedf6f9)
+                                          ? Constants.themeBgColor
                                           : Colors.white),
                                   child: Center(
                                     child: Text("Graduate or Above",
                                         style: GoogleFonts.sourceSansPro(
                                             color: graduate
-                                                ? const Color(0xfff729995)
+                                                ? Colors.white
                                                 : Colors.grey,
                                             fontSize: 15.sp,
                                             fontWeight: FontWeight.bold)),
@@ -530,13 +535,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: fresher
-                                          ? const Color(0xfffedf6f9)
+                                          ? Constants.themeBgColor
                                           : Colors.white),
                                   child: Center(
                                     child: Text("Fresher",
                                         style: GoogleFonts.sourceSansPro(
                                             color: fresher
-                                                ? const Color(0xfff729995)
+                                                ? Colors.white
                                                 : Colors.grey,
                                             fontSize: 15.sp,
                                             fontWeight: FontWeight.bold)),
@@ -560,13 +565,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: experience
-                                          ? const Color(0xfffedf6f9)
+                                          ? Constants.themeBgColor
                                           : Colors.white),
                                   child: Center(
                                     child: Text("Experience",
                                         style: GoogleFonts.sourceSansPro(
                                             color: experience
-                                                ? const Color(0xfff729995)
+                                                ? Colors.white
                                                 : Colors.grey,
                                             fontSize: 15.sp,
                                             fontWeight: FontWeight.bold)),
@@ -775,7 +780,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   unselectedWidgetColor: Colors.transparent,
                                 ),
                                 child: Checkbox(
-                                  activeColor: Colors.transparent,
+                                  side: const BorderSide(color: Colors.white),
+                                  activeColor: Colors.white,
                                   checkColor: Constants.themeBgColor,
                                   visualDensity: VisualDensity.compact,
                                   value: termAndConditionOne,
@@ -795,20 +801,36 @@ class _AddResumeState extends ConsumerState<AddResume> {
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          width: 5,
+                        SizedBox(
+                          width: 10.w,
                         ),
                         if (widget.isRefer && widget.is90)
                           Expanded(
                               child: RichText(
                                   text: TextSpan(
-                                      text:
-                                          "I hereby agree to the 90 days payment clause outlined in the ",
+                                      text: "I hereby agree to the ",
                                       style: GoogleFonts.varela(
                                           fontStyle: FontStyle.italic,
                                           fontSize: 12.sp,
                                           color: Colors.black),
                                       children: <TextSpan>[
+                                TextSpan(
+                                  text: "90 days payment clause",
+                                  style: GoogleFonts.varela(
+                                      wordSpacing: 0.5,
+                                      // decoration: TextDecoration.underline,
+                                      fontStyle: FontStyle.italic,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.sp,
+                                      color: Colors.black),
+                                ),
+                                TextSpan(
+                                  text: " outlined in the ",
+                                  style: GoogleFonts.varela(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 12.sp,
+                                      color: Colors.black),
+                                ),
                                 TextSpan(
                                   text: "Terms & Conditions.",
                                   style: GoogleFonts.varela(
@@ -1192,7 +1214,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
             resume: icon_data,
             isRef: 1,
             uid: 0,
-            rid: widget.sourceId,
+            rid: await Utils.getPreferencesValue(
+                null, ESharedPreferences.user_id.name),
             id: 0,
             applicantName: firt_name.text,
             lastName: last_name.text,
@@ -1223,6 +1246,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
           ref.refresh(fetchAllMyPipeLineJobs);
           ref.refresh(fetchAllReferalProvider);
           ref.refresh(fetchAllApplyProvider);
+
           setState(() {
             isLoading = false;
           });
@@ -1233,7 +1257,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
             resume: icon_data,
             uid: applicationList![0].id,
             id: 0,
-            rid: widget.sourceId,
+            rid: await Utils.getPreferencesValue(
+                null, ESharedPreferences.user_id.name),
             applicantName: applicationList![0].firstName,
             lastName: applicationList![0].lastName,
             contactNo: int.parse(primary_number.text.trim()),
@@ -1457,7 +1482,56 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Agree terms & condition first");
         },
       );
-    } /* else if (!termAndConditionTwo && widget.isRefer && widget.is30) {
+    } else if (primary_number.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (secondry.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (primary_number.text == widget.useAlternateNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              // text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (secondry.text == widget.useAlternateNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    }
+    /* else if (!termAndConditionTwo && widget.isRefer && widget.is30) {
       showDialog(
         context: context,
         builder: (context) {

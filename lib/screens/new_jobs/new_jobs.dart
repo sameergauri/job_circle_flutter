@@ -1526,6 +1526,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     spocId: item.spoc!.toInt(),
                                                                                      is90: item.payment_clause == "90 Days" ? true : false,
                                                                                     is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                     userNumber: profileModel.mobile!.toInt(),
+                                                                                     useAlternateNumber: profileModel.alternate_no!.toInt(),
                                                                                   )));
                                                                     },
                                                                     child:
@@ -1599,6 +1601,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     spocId: item.spoc!.toInt(),
                                                                                      is90: item.payment_clause == "90 Days" ? true : false,
                                                                                     is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                     userNumber: profileModel.mobile!.toInt(),
+                                                                                      useAlternateNumber: profilemodel.alternate_no!.toInt(),
                                                                                   )));
                                                                     },
                                                                     child:

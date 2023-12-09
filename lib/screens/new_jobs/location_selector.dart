@@ -14,10 +14,10 @@ class LocationSelector extends ConsumerStatefulWidget {
   final void Function(String)? onLocationSelected;
 
   const LocationSelector({
-    Key? key,
+    super.key,
     required this.locationList,
     this.onLocationSelected,
-  }) : super(key: key);
+  });
 
   @override
   _LocationSelectorState createState() => _LocationSelectorState();
@@ -43,6 +43,18 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> uniqueList = [];
+
+    for (int i = 0; i < filteredList.length; i++) {
+      List<String> locations =
+          filteredList[i].split(',').map((e) => e.trim()).toList();
+
+      for (int j = 0; j < locations.length; j++) {
+        if (!uniqueList.contains(locations[j])) {
+          uniqueList.add(locations[j]);
+        }
+      }
+    }
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -83,9 +95,9 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
           const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredList.length,
+              itemCount: uniqueList.length,
               itemBuilder: (context, index) {
-                final location = filteredList[index];
+                final location = uniqueList[index];
                 return InkWell(
                   onTap: () async {
                     print('Selected Location in LocationSelector: $location');
@@ -95,18 +107,22 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
                     widget.onLocationSelected?.call(selectedLocation);
                     /*  ref.refresh(userJobDataProvider);  //TODO: for future.
                     ref.refresh(jobsProvider); */
-                    
                   },
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 5),
                     padding: const EdgeInsets.only(
                         right: 20, left: 20, top: 10, bottom: 10),
                     decoration: BoxDecoration(
-                        color: index % 2 == 0 ? Colors.white : Colors.blueGrey,
-                        borderRadius: BorderRadius.circular(15)),
+                        color: index % 2 == 0
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(8.r)),
                     child: Text(
                       location,
-                      style: const TextStyle(
+                      style: TextStyle(
+                        color: index % 2 == 0
+                            ? Colors.grey.shade200
+                            : Colors.grey.shade400,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

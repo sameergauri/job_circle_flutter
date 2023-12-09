@@ -35,9 +35,9 @@ class JobDetails extends ConsumerStatefulWidget {
   int? id;
 
   JobDetails({
-    Key? key,
+    super.key,
     this.id,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<JobDetails> createState() => _JobDetailsState();
@@ -236,9 +236,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
         currentAppBarColor = appBgScrolledColor;
         appBarIconColor = Colors.black;
         titleText = jobDetailsModel.name.toString();
-        subtitleText = jobDetailsModel.rolename.toString() +
-            " | " +
-            jobDetailsModel.process.toString();
+        subtitleText =
+            "${jobDetailsModel.rolename} | ${jobDetailsModel.process}";
 
         setState(() {});
       } else if (_scrollController.position.extentBefore <= 180 &&
@@ -652,7 +651,10 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         await JobPostApiService.postJobApply(
                             context: context,
                             jobId: int.parse(jobDetailsModel.id.toString()),
-                            userId: int.parse(profilemodel.id.toString()));
+                            // userId: int.parse(profilemodel.id.toString()
+                            userId: await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_id.name)
+                            );
                         ref.refresh(fetchAllApplyProvider);
                         ref.refresh(fetchAllTalentPool);
                       }
@@ -723,6 +725,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                           "30 Days"
                                       ? true
                                       : false,
+                                  userNumber: profilemodel.mobile!.toInt(),
+                                  useAlternateNumber:
+                                      profilemodel.alternate_no!.toInt(),
                                 )));
                     /* JobPostApiService.postJobApply(
                               jobId: item['id'],
@@ -1549,8 +1554,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                       ...jobDetailsModel.job_benifits!
                                           .take(5)
                                           .map((item) =>
-                                              customSkill(item, false))
-                                          .toList(),
+                                              customSkill(item, false)),
                                     ],
                                   )
                                   /* SizedBox(
@@ -1593,10 +1597,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   ),
                                   Wrap(
                                     children: [
-                                      ...jobDetailsModel.skills!
-                                          .map(
-                                              (item) => customSkill(item, true))
-                                          .toList(),
+                                      ...jobDetailsModel.skills!.map(
+                                          (item) => customSkill(item, true)),
                                     ],
                                   )
                                   /* SizedBox(
@@ -2108,8 +2110,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   children: [
                                     ...jobDetailsModel.interviewrounds!
                                         .toSet() // Convert to set to remove duplicates
-                                        .map((item) => customSkill(item, true))
-                                        .toList(),
+                                        .map((item) => customSkill(item, true)),
                                   ],
                                 ),
                             ],
@@ -2706,8 +2707,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             child: const Divider(
                                               thickness: 1.5,
                                             )),
-                                        Row(
-                                          children: const [
+                                        const Row(
+                                          children: [
                                             Text("Between"),
                                           ],
                                         ),
@@ -3096,8 +3097,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                                         .w600,
                                                                 color: Colors
                                                                     .indigo),
-                                                            children: <
-                                                                TextSpan>[
+                                                            children: <TextSpan>[
                                                               TextSpan(
                                                                 text:
                                                                     " of Annual CTC",
@@ -3203,8 +3203,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                                             .w600,
                                                                     color: Colors
                                                                         .indigo),
-                                                                children: <
-                                                                    TextSpan>[
+                                                                children: <TextSpan>[
                                                                   TextSpan(
                                                                     text:
                                                                         " of Annual CTC",
@@ -3281,6 +3280,13 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                             "30 Days"
                                                         ? true
                                                         : false,
+                                                    userNumber: profilemodel
+                                                        .mobile!
+                                                        .toInt(),
+                                                    useAlternateNumber:
+                                                        profilemodel
+                                                            .alternate_no!
+                                                            .toInt(),
                                                   )));
                                     },
                                     child: Container(

@@ -228,10 +228,38 @@ class JobProvider extends ChangeNotifier {
     }
   }
 
-  void toggleLocationFilter({List<JobsModel>? jobs}) {
+  /* void toggleLocationFilter({List<JobsModel>? jobs}) {  //TODO: old one
     filteredJobs = (jobs ?? this.jobs)
         .where((job) => selectedLocation.contains(job.city ?? ''))
         .toList();
+    isFilterApplied = true;
+  } */
+  void toggleLocationFilter({List<JobsModel>? jobs}) {
+    if (selectedLocation.isEmpty) {
+      filteredJobs = [];
+    } else {
+      filteredJobs = (jobs ?? _jobs).where((job) {
+        if (job.city == null) {
+          // print('Warning: Job city is null.');
+          return false;
+        }
+
+        List<String> jobCities = job.city!
+            .split(',')
+            .map((city) => city.trim().toLowerCase())
+            .toList();
+
+        //   print('Selected Location: $selectedLocation');
+        // print('Job Cities: $jobCities');
+
+        bool hasMatchingLocation =
+            jobCities.contains(selectedLocation.toLowerCase());
+
+        //  print('Has Matching Location: $hasMatchingLocation');
+
+        return hasMatchingLocation;
+      }).toList();
+    }
     isFilterApplied = true;
   }
 

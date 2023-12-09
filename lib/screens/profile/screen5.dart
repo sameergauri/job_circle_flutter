@@ -20,11 +20,10 @@ class SkillsMulti extends ConsumerStatefulWidget {
   final List<String> initialSkills;
 
   const SkillsMulti(
-      {Key? key,
+      {super.key,
       required this.prevPageModel,
       required this.experienceList,
-      required this.initialSkills})
-      : super(key: key);
+      required this.initialSkills});
   @override
   ConsumerState<SkillsMulti> createState() => _SkillsMultiState();
 }
@@ -348,7 +347,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                     ),
                     if (selectedlist != null)
                       Wrap(
-                        children: suggestions.map((suggestion) {
+                        children: suggestions.toSet().map((suggestion) {
                           return InkWell(
                             onTap: () {
                               setState(() {
@@ -403,7 +402,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
       bool? isDisabled = true,
       bool? isOptional = false,
       required TextEditingController controller}) {
-    int _maxLines = 1;
+    int maxLines = 1;
     // bool isError = false;
     return SizedBox(
       height: MediaQuery.of(context).size.height / 24,
@@ -428,7 +427,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
         onFieldSubmitted: (value) {
           setState(() {
             // Increase maxLines when the "Enter" key is pressed
-            _maxLines += 1;
+            maxLines += 1;
           });
         },
 

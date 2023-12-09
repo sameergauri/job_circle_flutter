@@ -201,8 +201,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                 color: Constants.borderColor,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                    color: Constants
-                                        .borderColor) // Creates border
+                                    color:
+                                        Constants.borderColor) // Creates border
                                 ),
                             tabs: statuses
                                 .map(
@@ -221,8 +221,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                         controller: _refreshController,
                         onRefresh: _onRefresh,
                         child: NestedScrollView(
-                          headerSliverBuilder: (BuildContext context,
-                              bool innerBoxIsScrolled) {
+                          headerSliverBuilder:
+                              (BuildContext context, bool innerBoxIsScrolled) {
                             return <Widget>[];
                           },
                           body: TabBarView(
@@ -241,8 +241,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                 shrinkWrap: true,
                                 // physics: const BouncingScrollPhysics(),
                                 itemCount: applicants.length,
-                                itemBuilder:
-                                    (BuildContext context, int index) {
+                                itemBuilder: (BuildContext context, int index) {
                                   return listViewItem_new(
                                       context, applicants[index], true);
                                 },
@@ -321,7 +320,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                 return const Center(child: CircularProgressIndicator());
               })
             : const SizedBox());
-    }
+  }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue) {
     // List<String>? myStrings;
@@ -337,13 +336,23 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
           },
         );
       },
-      child: Card(
-        shape: RoundedRectangleBorder(
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0.5, 2),
+                  blurRadius: 2,
+                  spreadRadius: 2,
+                  color: Colors.grey.shade200)
+            ],
+            borderRadius: BorderRadius.circular(8.r)),
+        /*  shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.r),
           //set border radius more than 50% of height and width to make circle
         ),
         // shadowColor: Constants.themeBgColor,
-        elevation: 4,
+        elevation: 4, */
 
         margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
         child: Column(
@@ -463,7 +472,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                       item.companyName.toString(),
                       style: GoogleFonts.varela(
                           // color: Colors.black54,
-                          color: Constants.subtitleclr,
+                          color: const Color.fromARGB(255, 22, 36, 32),
                           fontWeight: FontWeight.normal,
                           fontSize: 13.sp),
                     ),
@@ -502,14 +511,25 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                           const SizedBox(
                             width: 3,
                           ),
-                          Text(
+                          Expanded(
+                            child: Text(
+                              item.workLocation.toString(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.varela(
+                                fontSize: 13.sp,
+                                color: Constants.subtitleclr,
+                              ),
+                            ),
+                          )
+                          /* Text(
                             item.workLocation.toString(),
                             style: GoogleFonts.varela(
                                 // color: Colors.black54,
                                 color: Constants.subtitleclr,
                                 fontWeight: FontWeight.normal,
                                 fontSize: 13.sp),
-                          ),
+                          ), */
                         ],
                       ),
                     ),
@@ -525,10 +545,10 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                     width: double.maxFinite,
                     child: Row(
                       children: [
-                        Column(
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const [
+                          children: [
                             Icon(
                               Icons.add_alert,
                               color: Colors.amber,

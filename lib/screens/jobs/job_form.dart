@@ -3272,8 +3272,8 @@ class _JobFormState extends ConsumerState<JobForm> {
                           contentPadding: const EdgeInsets.only(
                               top: 5, left: 10, right: 10),
                           prefix: Column(
-                            children: _getBulletPointWidgetsrespo(),
                             mainAxisAlignment: MainAxisAlignment.start,
+                            children: _getBulletPointWidgetsrespo(),
                           ),
                           // Icons.workspace_premium
                           // label: const Text("Company Name *"),
@@ -4191,17 +4191,17 @@ class _JobFormState extends ConsumerState<JobForm> {
                         String modifiedString1 = jobTitle.replaceAll(" ", "");
                         String? modifiedString2 =
                             selectedShiftTime1?.replaceAll(" ", "");
-                        final bool _isSelected =
+                        final bool isSelected0 =
                             modifiedString1 == modifiedString2 &&
                                 selectedShiftTime1 != null;
 
                         return JobTitleItem(
                           isunSelect: false,
-                          getJobTitle1isSelected: _isSelected,
+                          getJobTitle1isSelected: isSelected0,
                           onlyOneIcon: true,
                           ismulti: false,
                           title: jobTitle,
-                          isSelected: _isSelected,
+                          isSelected: isSelected0,
                           onTap: (selected) {
                             if (selected) {
                               setState(() {
@@ -4317,17 +4317,17 @@ class _JobFormState extends ConsumerState<JobForm> {
                         String modifiedString1 = jobTitle.replaceAll(" ", "");
                         String? modifiedString2 =
                             selectedWeakOff1?.replaceAll(" ", "");
-                        final bool _isSelected =
+                        final bool isSelected0 =
                             modifiedString1 == modifiedString2 &&
                                 selectedWeakOff1 != null;
 
                         return JobTitleItem(
-                          getJobTitle1isSelected: _isSelected,
+                          getJobTitle1isSelected: isSelected0,
                           onlyOneIcon: true,
                           isunSelect: false,
                           ismulti: false,
                           title: jobTitle,
-                          isSelected: _isSelected,
+                          isSelected: isSelected0,
                           onTap: (selected) {
                             if (lastTappedItem != index) {
                               setState(() {
@@ -4764,8 +4764,8 @@ class _JobFormState extends ConsumerState<JobForm> {
                         contentPadding:
                             const EdgeInsets.only(top: 5, left: 10, right: 10),
                         prefix: Column(
-                          children: _getBulletPointWidgetsrespo(),
                           mainAxisAlignment: MainAxisAlignment.start,
+                          children: _getBulletPointWidgetsrespo(),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -5472,7 +5472,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                                                               counterText: '',
                                                               contentPadding:
                                                                   const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       top: 8,
                                                                       bottom: 8,
                                                                       left: 10,
@@ -6349,17 +6349,17 @@ class _JobFormState extends ConsumerState<JobForm> {
                         String modifiedString1 = jobTitle.replaceAll(" ", "");
                         String? modifiedString2 =
                             selectedComunication?.replaceAll(" ", "");
-                        final bool _isSelected =
+                        final bool isSelected0 =
                             modifiedString1 == modifiedString2 &&
                                 selectedComunication != null;
 
                         return JobTitleItem(
                           isunSelect: false,
-                          getJobTitle1isSelected: _isSelected,
+                          getJobTitle1isSelected: isSelected0,
                           onlyOneIcon: true,
                           ismulti: false,
                           title: jobTitle,
-                          isSelected: _isSelected,
+                          isSelected: isSelected0,
                           onTap: (selected) {
                             if (selected) {
                               setState(() {
@@ -6554,8 +6554,8 @@ class _JobFormState extends ConsumerState<JobForm> {
                         contentPadding:
                             const EdgeInsets.only(top: 5, left: 10, right: 10),
                         prefix: Column(
-                          children: _getBulletPointWidgetsrespo(),
                           mainAxisAlignment: MainAxisAlignment.start,
+                          children: _getBulletPointWidgetsrespo(),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -6908,8 +6908,8 @@ class _JobFormState extends ConsumerState<JobForm> {
                         contentPadding:
                             const EdgeInsets.only(top: 5, left: 10, right: 10),
                         prefix: Column(
-                          children: _getBulletPointWidgetsrespo(),
                           mainAxisAlignment: MainAxisAlignment.start,
+                          children: _getBulletPointWidgetsrespo(),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),

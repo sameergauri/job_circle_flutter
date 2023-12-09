@@ -337,13 +337,23 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
           },
         );
       },
-      child: Card(
-        shape: RoundedRectangleBorder(
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0.5, 2),
+                  blurRadius: 2,
+                  spreadRadius: 2,
+                  color: Colors.grey.shade200)
+            ],
+            borderRadius: BorderRadius.circular(8.r)),
+        /*   shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.r),
           //set border radius more than 50% of height and width to make circle
         ),
         // shadowColor: Constants.themeBgColor,
-        elevation: 4,
+        elevation: 4, */
 
         margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
         child: Padding(
@@ -452,10 +462,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                 width: double.maxFinite,
                 child: Row(
                   children: [
-                    Column(
+                    const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.add_alert,
                           color: Colors.amber,
@@ -476,7 +486,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                   item.status == "Application"
                                       ? "Application sent"
                                       : item.status == "Select"
-                                          ? "You are selected for thi job"
+                                          ? "You are selected for this job"
                                           : item.status == "Reject"
                                               ? "Rejected"
                                               : item.status ==
@@ -484,7 +494,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                   ? "Interview Schedule"
                                                   : item.status == "Assign"
                                                       ? "Assign"
-                                                      : "",
+                                                      : item.status ==
+                                                              "Screening Reject"
+                                                          ? "Screening Rejected"
+                                                          : "",
                                   style: GoogleFonts.varela(
                                       color: Colors.amber,
                                       fontWeight: FontWeight.w600,

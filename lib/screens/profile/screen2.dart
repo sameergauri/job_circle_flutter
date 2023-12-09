@@ -25,14 +25,13 @@ import '../../service/UserDataService.dart';
 class Screen2 extends ConsumerStatefulWidget {
   final bool underGraduate;
   Screen2(
-      {Key? key,
+      {super.key,
       this.prevPageModel,
       this.selectedLevel,
       this.educationList,
       required this.isFirst,
       required this.underGraduate,
-      required this.isEdit})
-      : super(key: key);
+      required this.isEdit});
   late Education? prevPageModel;
   late String? selectedLevel;
   late List<Education>? educationList;
@@ -86,6 +85,8 @@ class _Screen2State extends ConsumerState<Screen2> {
   FocusNode degreeMFocus = FocusNode();
   FocusNode uniOFocus = FocusNode();
   FocusNode degreeOFocus = FocusNode();
+
+  int? universityId, degreeId, fieldId;
 
   //drop down
   var ddlValues;
@@ -236,6 +237,9 @@ class _Screen2State extends ConsumerState<Screen2> {
         passingYearController.text =
             widget.prevPageModel!.passingYear.toString();
         marksheet = widget.prevPageModel!.marksheet.toString();
+        universityId = widget.prevPageModel!.university_id;
+        degreeId = widget.prevPageModel!.degree_id;
+        fieldId = widget.prevPageModel!.fieldofstudy_id;
       });
       /*  } else if (widget.prevPageModel!.level == "Post Graduate") {
         undergraduate = true;
@@ -2272,6 +2276,7 @@ class _Screen2State extends ConsumerState<Screen2> {
             borderRadius: BorderRadius.circular(8.r),
             border:
                 Border.all(color: dlg ? Constants.themeBgColor : Colors.white)),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         child: Row(
           children: [
             const Icon(
@@ -2286,7 +2291,6 @@ class _Screen2State extends ConsumerState<Screen2> {
             )
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       ),
     );
   }
@@ -2381,6 +2385,9 @@ class _Screen2State extends ConsumerState<Screen2> {
             onChanged: (p0) {
               isGraduateDeg = true;
             },
+            getid: (p0) {
+              degreeId = p0;
+            },
             onSubmit: (p0) {
               setState(() {
                 degreeCode = p0;
@@ -2405,6 +2412,9 @@ class _Screen2State extends ConsumerState<Screen2> {
             controller: universityController,
             onChanged: (p0) {
               isUniG = true;
+            },
+            getid: (p0) {
+              universityId = p0;
             },
             icon: const Icon(Icons.school_outlined),
           ),
@@ -2575,6 +2585,9 @@ class _Screen2State extends ConsumerState<Screen2> {
                   controller: fieldOfStudyController,
                   onChanged: (p0) {
                     // isUniG = true;
+                  },
+                  getid: (p0) {
+                    fieldId = p0;
                   },
                   icon: const Icon(Icons.auto_stories_outlined),
                 ),
@@ -3033,10 +3046,14 @@ class _Screen2State extends ConsumerState<Screen2> {
                                 "Qualification Deleted Succesfully.", true));
                         ref.refresh(userDataProvider);
                       },
-                      child: Text(
+                      child: Image.asset(
+                        "assets/images/bin.gif",
+                        height: 40.h,
+                      ) /* Text(
                         "Delete Education",
                         style: GoogleFonts.varela(color: Colors.red),
-                      )),
+                      ) */
+                      ),
                 )
               ],
             )
@@ -3571,33 +3588,38 @@ class _Screen2State extends ConsumerState<Screen2> {
   bool isLoading = false;
 
   save() async {
+    setState(() {
+      isLoading = true;
+    });
     Education model = Education();
 
     model = Education(
-      id: eduID,
-      userId: profilemodel.id,
-      //level: "Graduate",
-      university: universityController.text,
-      degree_spc: degreeCode == "D001" ? "H.S.C" : degreeController.text,
-      fieldOfStudy: degreeCode == "D001"
-          ? science
-              ? "Science"
-              : commerce
-                  ? "Commerce"
-                  : art
-                      ? "Art"
-                      : fieldOfStudyController.text
-          : fieldOfStudyController.text,
-      firstYear: firstYearController.text.isNotEmpty
-          ? int.parse(firstYearController.text)
-          : null,
-      passingYear: degreeCode == "D001"
-          ? null
-          : passingYearController.text.isNotEmpty
-              ? int.parse(passingYearController.text)
-              : null,
-      marksheet: marksheet,
-    );
+        id: eduID,
+        userId: profilemodel.id,
+        //level: "Graduate",
+        university: universityController.text,
+        degree_spc: degreeCode == "D001" ? "H.S.C" : degreeController.text,
+        fieldOfStudy: degreeCode == "D001"
+            ? science
+                ? "Science"
+                : commerce
+                    ? "Commerce"
+                    : art
+                        ? "Art"
+                        : fieldOfStudyController.text
+            : fieldOfStudyController.text,
+        firstYear: firstYearController.text.isNotEmpty
+            ? int.parse(firstYearController.text)
+            : null,
+        passingYear: degreeCode == "D001"
+            ? null
+            : passingYearController.text.isNotEmpty
+                ? int.parse(passingYearController.text)
+                : null,
+        marksheet: marksheet,
+        degree_id: degreeId,
+        fieldofstudy_id: fieldId,
+        university_id: universityId);
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
@@ -3606,6 +3628,9 @@ class _Screen2State extends ConsumerState<Screen2> {
     await JobPostApiService.postEducation(model.toMap());
     ScaffoldMessenger.of(context)
         .showSnackBar(customSnackbar("Qualification added Succesfully", false));
+    setState(() {
+      isLoading = false;
+    });
 
     // await userDataService.saveUserEducation(model.toMap()); //TODO: Old one.....
     /*  if (widget.prevPageModel == null) {

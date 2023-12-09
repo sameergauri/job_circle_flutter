@@ -6,25 +6,32 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
-class AddCv extends ConsumerStatefulWidget {
+class AddCvtoApply extends ConsumerStatefulWidget {
+  final int jobId;
   /*  final Map<String, dynamic> params;
   final int userID; */
-  // const AddCv({super.key, required this.params, required this.userID});
-  const AddCv({super.key});
+  // const AddCvtoApply({super.key, required this.params, required this.userID});
+  const AddCvtoApply({
+    super.key,
+    required this.jobId,
+  });
 
   @override
-  ConsumerState<AddCv> createState() => _AddCvState();
+  ConsumerState<AddCvtoApply> createState() => _AddCvtoApplyState();
 }
 
-class _AddCvState extends ConsumerState<AddCv> {
+class _AddCvtoApplyState extends ConsumerState<AddCvtoApply> {
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   String? resume;
 
@@ -33,9 +40,9 @@ class _AddCvState extends ConsumerState<AddCv> {
     return resume != null
         ? Scaffold(
             floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                InkWell(
+                /* InkWell(
                   onTap: () async {
                     resume = await Delete(true);
                     var payload = {
@@ -75,25 +82,17 @@ class _AddCvState extends ConsumerState<AddCv> {
                       ],
                     ),
                   ),
-                ),
+                ), */
                 InkWell(
                   onTap: () async {
                     resume = await uploadFile(['pdf'], "cv");
-                    var payload = {
-                      "stage": "upload_cv",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "cv_link": resume
-                      }
-                    };
-                    await save(resume, payload);
+
                     ref.refresh(userDataProvider);
                     // Navigator.pop(context);
                     setState(() {});
                   },
                   child: Container(
-                    margin: EdgeInsets.only(left: 20.w),
+                    margin: EdgeInsets.only(left: 30.w),
                     padding:
                         EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
                     decoration: BoxDecoration(
@@ -116,10 +115,43 @@ class _AddCvState extends ConsumerState<AddCv> {
                 ),
                 InkWell(
                   onTap: () async {
-                    Navigator.pushAndRemoveUntil(
+                    var payload = {
+                      "stage": "upload_cv",
+                      "data": {
+                        "id": await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_id.name),
+                        "cv_link": resume
+                      }
+                    };
+                    await JobPostApiService.postJobApply(
+                        jobId: widget.jobId,
+                        userId: await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_id.name),
+                        context: context);
+                    await save(resume, payload);
+                    ref.refresh(fetchAllApplyProvider);
+                    ref.refresh(fetchAllTalentPool);
+                    ref.refresh(userDataProvider);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            isFisrt: false,
+                            title: "Application Submitted",
+                            subtitle: "Recruiter will connect you shortly");
+                      },
+                    );
+                    // Navigator.pop(context);
+                    /*  Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => HomeScreen()),
-                        (route) => false);
+                        (route) => false); */
                     /* resume = await uploadFile(['pdf'], "cv");
                     var payload = {
                       "stage": "upload_cv",
@@ -139,18 +171,16 @@ class _AddCvState extends ConsumerState<AddCv> {
                         EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Constants.themeBgColor)),
+                        border: Border.all(color: Colors.blue)),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
+                        Text(
+                          "Apply",
+                          style: GoogleFonts.varela(
+                              letterSpacing: 0.5,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Submit"),
                       ],
                     ),
                   ),
@@ -189,31 +219,6 @@ class _AddCvState extends ConsumerState<AddCv> {
             appBar: AppBar(
               elevation: 0,
               backgroundColor: Colors.white,
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
-                            (route) => false);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        child: Text(
-                          "Skip",
-                          style:
-                              GoogleFonts.varela(color: Constants.themeBgColor),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
             ),
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -283,7 +288,7 @@ class _AddCvState extends ConsumerState<AddCv> {
                 InkWell(
                   onTap: () async {
                     resume = await uploadFile(['pdf'], "cv");
-                    var payload = {
+                    /*  var payload = {
                       "stage": "upload_cv",
                       "data": {
                         "id": await Utils.getPreferencesValue(
@@ -291,7 +296,7 @@ class _AddCvState extends ConsumerState<AddCv> {
                         "cv_link": resume
                       }
                     };
-                    save(resume, payload);
+                    save(resume, payload); */
                     setState(() {});
                   },
                   child: Container(
