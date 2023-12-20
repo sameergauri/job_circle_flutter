@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
@@ -699,8 +700,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                                 "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}",
                                                                                 fit: BoxFit.fill,
                                                                               ).image
-                                                                            : Image.network(
-                                                                                data.profileSummary.gender != "Male" ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&" : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
+                                                                            : Image.asset(
+                                                                                data.profileSummary.gender != "Male" ? "assets/images/leadfemal.png" : "assets/images/leadmale.png",
                                                                                 //  height: 8.h,
                                                                                 fit: BoxFit.fill,
                                                                               ).image),
@@ -771,8 +772,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                       : () {},
                                               child: CircleAvatar(
                                                   backgroundColor:
-                                                      const Color.fromARGB(
-                                                          255, 190, 190, 190),
+                                                      Constants.themeBgColor,
                                                   radius: 45,
                                                   /* onBackgroundImageError: ((error,
                                         stackTrace) =>
@@ -790,12 +790,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                       Image.network(
                                                               "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
                                                           .image
-                                                      : Image.network(
+                                                      : Image.asset(
                                                           data.profileSummary
                                                                       .gender !=
                                                                   "Male"
-                                                              ? "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276457414707/7309670.jpg?ex=656075f4&is=654e00f4&hm=95200a46bcf15a5539eda58766615896ee3dc73510afd9a4e05bf0c2ffb06ea6&"
-                                                              : "https://cdn.discordapp.com/attachments/1095606068614283337/1167404276860059698/7294795.jpg?ex=656075f4&is=654e00f4&hm=46f67c63ca049e47ae5de4e43c0deaf736de136d7ff12b2e1234ce5d7e5d7fe6",
+                                                              ? "assets/images/leadfemal.png"
+                                                              : "assets/images/leadmale.png",
                                                           // height: 8.h,
                                                         ).image
                                                   /*  : Image.asset(
@@ -1020,7 +1020,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                           children: [
                                                             Expanded(
                                                               child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university.toString()}",
+                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
                                                                 softWrap: true,
                                                                 // maxLines: 3,
                                                                 textAlign:
@@ -1205,9 +1205,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                 .center,
                                                         children: [
                                                           Text(
-                                                            "${data.education.first.degree_spc.toString()} from ${data.education.last.university.toString()}",
+                                                            "${data.education.last.degree_spc.toString()}-\nfrom ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
                                                             softWrap: true,
-                                                            // maxLines: 3,
+                                                            maxLines: 3,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             textAlign: TextAlign
                                                                 .center,
                                                             style: GoogleFonts
@@ -1877,11 +1880,17 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
           // icons: Icons.school_outlined, // Education icon for the card
           imageUrl: "https://cdn-icons-png.flaticon.com/128/123/123402.png",
           title: "Education",
+
           child: ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: educationList.length,
             itemBuilder: (context, index) {
+              educationList.sort((a, b) {
+                final aYear = a.passingYear ?? 0;
+                final bYear = b.passingYear ?? 0;
+                return bYear.compareTo(aYear);
+              });
               final education = educationList[index];
               return Column(
                 children: [
@@ -1896,28 +1905,42 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     contentPadding: const EdgeInsets.only(
                         left: 10, right: 10, top: 0, bottom: 0),
                     leading: SizedBox(
-                      width: 70.w,
-                      height: 70.h,
-                      // decoration: BoxDecoration(
-                      //   color: Colors.white,
-                      //   borderRadius: BorderRadius.circular(15),
-                      //   border: Border.all(
-                      //     color: Colors.transparent,
-                      //   ),
-                      // ),
-                      child: Image.network(
+                        width: 70.w,
+                        height: 70.h,
+                        // decoration: BoxDecoration(
+                        //   color: Colors.white,
+                        //   borderRadius: BorderRadius.circular(15),
+                        //   border: Border.all(
+                        //     color: Colors.transparent,
+                        //   ),
+                        // ),
+                        child: education.icon == null || education.icon == ""
+                            ? Image.network(
+                                "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
+                                //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                                fit: BoxFit.contain,
+                              )
+                            : CustomImage(
+                                imageUrl:
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${education.icon}",
+                                defaultImageUrl:
+                                    "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
+                              )
+                        /* Image.network(
                         "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
                         fit: BoxFit.contain,
                         color: Constants.themeBgColor,
-                      ),
-                    ),
+                      ), */
+                        ),
                     title: Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            education.university.toString(),
+                            education.board != null
+                                ? education.board.toString()
+                                : education.university.toString(),
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.varela(
                               fontSize: 15.sp,
@@ -2275,24 +2298,28 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     left: 10, right: 10, top: 0, bottom: 0),
                 // ignore: sized_box_for_whitespace
                 leading: Container(
-                  width: 70.w,
-                  height: 70.h,
-                  // decoration: BoxDecoration(
-                  //   color: Colors.white,
-                  //   borderRadius: BorderRadius.circular(15),
-                  //   border: Border.all(
-                  //     color: Colors.transparent,
-                  //   ),
-                  // ),
-                  child: Image.network(
-                    experienceList[index].icon == null ||
+                    width: 70.w,
+                    height: 70.h,
+                    // decoration: BoxDecoration(
+                    //   color: Colors.white,
+                    //   borderRadius: BorderRadius.circular(15),
+                    //   border: Border.all(
+                    //     color: Colors.transparent,
+                    //   ),
+                    // ),
+                    child: experienceList[index].icon == null ||
                             experienceList[index].icon == ""
-                        ? "https://cdn-icons-png.flaticon.com/128/2098/2098316.png"
-                        : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].icon}",
-                    //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
-                    fit: BoxFit.contain,
-                  ),
-                ),
+                        ? Image.network(
+                            "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
+
+                            //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                            fit: BoxFit.contain,
+                          )
+                        : CustomImage(
+                            imageUrl:
+                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].icon}",
+                            defaultImageUrl:
+                                "https://cdn-icons-png.flaticon.com/128/2098/2098316.png")),
                 title: Text(
                   experienceList[index].job_title.toString(),
                   // experience.job_title.toString(),
@@ -2308,7 +2335,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     Row(
                       children: [
                         Text(
-                          experienceList[index].shortname != null
+                          experienceList[index].shortname != null &&
+                                  experienceList[index].shortname != ""
                               ? experienceList[index].shortname.toString()
                               : experienceList[index].company_name.toString(),
                           // experience.company_name.toString(),

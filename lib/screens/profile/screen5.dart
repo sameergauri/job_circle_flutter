@@ -189,7 +189,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
     String pattern,
   ) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=1000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -301,7 +301,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                       Wrap(
                         crossAxisAlignment: WrapCrossAlignment.start,
                         alignment: WrapAlignment.start,
-                        children: selectedlist!.map((suggestion) {
+                        children: selectedlist!.toSet().map((suggestion) {
                           return InkWell(
                             onTap: () {
                               setState(() {
@@ -347,6 +347,37 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                     ),
                     if (selectedlist != null)
                       Wrap(
+                        /* children: Set<Widget>.from(
+                          suggestions.map((suggestion) {
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  if (!selectedlist!.contains(suggestion)) {
+                                    selectedlist!.add(suggestion);
+                                    suggestions.remove(suggestion);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            '$suggestion Already added in the list.'),
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    bottom: 2, top: 2, left: 2, right: 2),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(8.r)),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 6.h, horizontal: 10.w),
+                                child: Text(suggestion.toString()),
+                              ),
+                            );
+                          }),
+                        ).toList(), */
                         children: suggestions.toSet().map((suggestion) {
                           return InkWell(
                             onTap: () {
@@ -378,6 +409,10 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                         }).toList(),
                       ),
                   ],
+                ),
+              if (suggestions.isEmpty)
+                const Center(
+                  child: Text("No data found"),
                 ),
               const SizedBox(height: 20),
             ],

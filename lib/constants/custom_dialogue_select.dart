@@ -222,8 +222,6 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                             bottom: 2.4.h,
                             left: width / 15.w,
                             right: 6.h),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: const Text("Manual / F2F"),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(15),
@@ -231,6 +229,8 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                                 topRight: Radius.circular(8.r),
                                 bottomRight: Radius.circular(8.r)),
                             border: Border.all(color: Constants.borderColor)),
+                        // margin: const EdgeInsets.only(top: 6),
+                        child: const Text("Manual / F2F"),
                       ),
                       CircleAvatar(
                         backgroundColor: Constants.borderColor,
@@ -263,8 +263,6 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                             bottom: 2.4.h,
                             left: width / 15.w,
                             right: 6.h),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: const Text("Digital / E-Mail"),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(15),
@@ -272,6 +270,8 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                                 topRight: Radius.circular(8.r),
                                 bottomRight: Radius.circular(8.r)),
                             border: Border.all(color: Constants.borderColor)),
+                        // margin: const EdgeInsets.only(top: 6),
+                        child: const Text("Digital / E-Mail"),
                       ),
                       CircleAvatar(
                         backgroundColor: Constants.borderColor,
@@ -313,12 +313,6 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                             bottom: 2.4.h,
                             left: width / 15.w,
                             right: 6.h),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: singleSelect != null
-                            ? Text(
-                                DateFormat('dd MMM yyyy').format(singleSelect!),
-                              )
-                            : const Text("Select DOJ"),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(15),
@@ -326,6 +320,12 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                                 topRight: Radius.circular(8.r),
                                 bottomRight: Radius.circular(8.r)),
                             border: Border.all(color: Constants.borderColor)),
+                        // margin: const EdgeInsets.only(top: 6),
+                        child: singleSelect != null
+                            ? Text(
+                                DateFormat('dd MMM yyyy').format(singleSelect!),
+                              )
+                            : const Text("Select DOJ"),
                       ),
                       CircleAvatar(
                         backgroundColor: Constants.borderColor,
@@ -341,18 +341,19 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                 SizedBox(
                   width: 10.w,
                 ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      singleSelect = null;
-                    });
-                  },
-                  child: Image.asset(
-                    "assets/images/close (1).png",
-                    height: 16.h,
-                    color: Colors.grey.shade400,
+                if (singleSelect != null)
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        singleSelect = null;
+                      });
+                    },
+                    child: Image.asset(
+                      "assets/images/close (1).png",
+                      height: 16.h,
+                      color: Colors.grey.shade400,
+                    ),
                   ),
-                ),
                 /* InkWell(
                   onTap: () {
                     ChangeStatusModel changeStatusModel = ChangeStatusModel(

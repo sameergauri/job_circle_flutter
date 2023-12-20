@@ -35,6 +35,8 @@ class JobsModel {
   final String? payoutType;
   late final int? active;
   late final String? payment_clause;
+  late final int? is_campus;
+  late final int? is_support_staff;
 
   JobsModel({
     this.id,
@@ -71,6 +73,8 @@ class JobsModel {
     this.payoutType,
     this.active,
     this.payment_clause,
+    this.is_campus,
+    this.is_support_staff,
   });
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
@@ -109,6 +113,8 @@ class JobsModel {
       payoutType: json['payout_type'],
       active: json['active'],
       payment_clause: json['payment_clause'],
+      is_campus: json['is_campus'],
+      is_support_staff: json['is_support_staff'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -147,6 +153,8 @@ class JobsModel {
       'payout_type': payoutType,
       'active': active,
       'payment_clause': payment_clause,
+      'is_support_staff': is_support_staff,
+      'is_campus': is_campus,
     };
   }
 
@@ -186,6 +194,8 @@ class JobsModel {
       payoutType: map['payout_type'],
       active: map['active'],
       payment_clause: map['payment_clause'],
+      is_support_staff: map['is_support_staff'],
+      is_campus: map['is_campus'],
     );
   }
 
@@ -225,6 +235,8 @@ class JobsModel {
       'payout_type': payoutType,
       'active': active,
       'payment_clause': payment_clause,
+      'is_support_staff': is_support_staff,
+      'is_campus': is_campus,
     };
   }
 

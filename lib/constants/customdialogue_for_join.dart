@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import '../models/changeStatusModel.dart';
@@ -127,6 +129,8 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                             jsonData, widget.item.id!.toInt());
                         setState(() {});
                         ref.refresh(fetchAllApplicantProvider);
+                         ref.refresh(fetchAllReferalProvider);
+                        ref.refresh(fetchAllApplyProvider);
                         Navigator.pop(context);
                         // First pop to close the dialog
                       } catch (e) {

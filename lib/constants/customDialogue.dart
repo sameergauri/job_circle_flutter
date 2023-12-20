@@ -61,7 +61,7 @@ Future<JobData?> fetchMatchingJobs({
 }) async {
   try {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host}/jobs/v1/matchngjob?companyid=$companyId&process=$process&naturofwork=$natureOfWork&rolename=$jobTitle&page=1&size=1000'));
+        'http://${GlobalConstants.API_Host}/jobs/v1/matchngjob?companyid=$companyId&process=${Uri.encodeComponent(process.toString())}&naturofwork=$natureOfWork&rolename=$jobTitle&page=1&size=1000'));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       JobDetails jobDetails = JobDetails.fromJson(jsonData);
@@ -69,7 +69,7 @@ Future<JobData?> fetchMatchingJobs({
       if (jobDetails.resultData.isNotEmpty) {
         JobData jobData = jobDetails.resultData[0];
         onDataReceived!(jobData); // ha ab kr
-         return jobData;
+        return jobData;
       }
 //Agaian tere wo bade wale model me issue lag raha hai
       // Handle the case when jobDetails.resultData is empty

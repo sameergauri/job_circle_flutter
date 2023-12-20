@@ -103,7 +103,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     }
   }
 
-  final RefreshController _refreshController =
+  /*  final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   Future<void> _onRefresh() async {
@@ -114,6 +114,22 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
       // Update the UI with new data
     });
     _refreshController
+        .refreshCompleted(); // Call this to end the refresh animation
+  } */
+
+  final List<RefreshController> _refreshControllers = List.generate(
+    10,
+    (index) => RefreshController(initialRefresh: false),
+  );
+
+  Future<void> _onRefresh(int index) async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+
+    ref.refresh(fetchAllReferalProvider);
+    // Update the UI with new data
+
+    _refreshControllers[index]
         .refreshCompleted(); // Call this to end the refresh animation
   }
 
@@ -216,28 +232,30 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                           ),
                         ),
                       ),
-                      body: SmartRefresher(
-                        enablePullDown: true,
-                        controller: _refreshController,
-                        onRefresh: _onRefresh,
-                        child: NestedScrollView(
-                          headerSliverBuilder:
-                              (BuildContext context, bool innerBoxIsScrolled) {
-                            return <Widget>[];
-                          },
-                          body: TabBarView(
-                            children: statuses.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final status = entry.value;
-                              final applicants = data
-                                  .where((applicant) =>
-                                      applicant.status.toString() == status)
-                                  .toList();
+                      body: NestedScrollView(
+                        headerSliverBuilder:
+                            (BuildContext context, bool innerBoxIsScrolled) {
+                          return <Widget>[];
+                        },
+                        body: TabBarView(
+                          children: statuses.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final status = entry.value;
+                            final applicants = data
+                                .where((applicant) =>
+                                    applicant.status.toString() == status)
+                                .toList();
 
-                              // Create widgets based on the applicants list
+                            // Create widgets based on the applicants list
 
-                              // Return the list of widgets for this status
-                              return ListView.builder(
+                            // Return the list of widgets for this status
+                            return SmartRefresher(
+                              enablePullDown: true,
+                              controller: _refreshControllers[index],
+                              onRefresh: () async {
+                                await _onRefresh(index);
+                              },
+                              child: ListView.builder(
                                 shrinkWrap: true,
                                 // physics: const BouncingScrollPhysics(),
                                 itemCount: applicants.length,
@@ -245,33 +263,33 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                   return listViewItem_new(
                                       context, applicants[index], true);
                                 },
-                              );
-                            }).toList(),
-
-                            /* children: [
-                              ListView.builder(
-                                itemCount: statuses.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final filteredData = data
-                                      .where((applicant) =>
-                                          applicant.status.toString() ==
-                                          statuses[index])
-                                      .toList();
-                        
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: filteredData.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return listViewItem_new(
-                                          context, filteredData[index], true);
-                                    },
-                                  );
-                                },
                               ),
-                            ], */
-                          ),
+                            );
+                          }).toList(),
+
+                          /* children: [
+                            ListView.builder(
+                              itemCount: statuses.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final filteredData = data
+                                    .where((applicant) =>
+                                        applicant.status.toString() ==
+                                        statuses[index])
+                                    .toList();
+                      
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: filteredData.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return listViewItem_new(
+                                        context, filteredData[index], true);
+                                  },
+                                );
+                              },
+                            ),
+                          ], */
                         ),
                       ),
                       /* SmartRefresher(
@@ -308,8 +326,58 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                     ),
                   );
                 } else {
-                  return const Center(
-                    child: Text("No data to display"),
+                  return Container(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/images/noref.gif"),
+                          Text(
+                            textAlign: TextAlign.center,
+                            "Your expertise can shape careers and earn rewards.",
+                            style: GoogleFonts.varela(
+                                fontSize: 18.sp, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "Join us in connecting talent with opportunities. Refer now and let's build success together!",
+                                  style: GoogleFonts.varela(color: Colors.grey),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                          /*   InkWell(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()));
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              decoration: BoxDecoration(
+                                  color: Constants.themeBgColor,
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: Text(
+                                "View Jobs",
+                                style: GoogleFonts.varela(color: Colors.white),
+                              ),
+                            ),
+                          ) */
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
                   );
                 }
               }, error: (error, stackTrace) {
@@ -379,7 +447,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             width: 2,
                           ),
                           Text(
-                            item.applicantName.toString(),
+                            "${item.applicantName.toString()} ${item.last_name.toString()}",
                             // maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -566,24 +634,27 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      item.status_code == "TP1"
+                                      item.status == "Application"
                                           ? "Application sent"
-                                          : item.status_code == "IB7"
+                                          : item.status == "Select"
                                               ? "You are selected for this job"
-                                              : item.status_code == "IB6"
-                                                  ? "Rejected"
-                                                  : item.status_code == "IB5"
-                                                      ? "CV is in process"
-                                                      : item.status_code ==
-                                                              "TP2"
-                                                          ? "Assign"
-                                                          : item.status_code ==
-                                                                  "IB4"
-                                                              ? "CV is shortlisted"
-                                                              : item.status_code ==
-                                                                      "TP3"
-                                                                  ? "Screening Rejected"
-                                                                  : "",
+                                              : item.status == "Reject"
+                                                  ? "Your CV is rejected"
+                                                  : item.status ==
+                                                          "Interview Schedule"
+                                                      ? "Interview Schedule"
+                                                      : item.status == "Assign"
+                                                          ? "Your Application is under process"
+                                                          : item.status ==
+                                                                  "Screening Reject"
+                                                              ? "Screening Rejected"
+                                                              : item.status ==
+                                                                      "Disqualify"
+                                                                  ? "Your CV is rejected"
+                                                                  : item.status ==
+                                                                          "In-Process"
+                                                                      ? "CV shortlisted for interview"
+                                                                      : "",
                                       style: GoogleFonts.varela(
                                           color: Colors.amber,
                                           fontWeight: FontWeight.w600,

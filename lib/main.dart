@@ -67,7 +67,8 @@ class MyApp extends StatelessWidget {
             //   }
             // },
             initialRoute:
-                const NoInternet().toString(), //ERoute.jobs.toString(),
+                const NoInternet().toString(), 
+                //ERoute.jobs.toString(),
           );
         });
   }

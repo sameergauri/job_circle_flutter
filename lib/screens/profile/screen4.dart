@@ -7,7 +7,6 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
-
 import '../../constants/customButton.dart';
 import '../../constants/customDialogue.dart';
 import '../../constants/customTextfield.dart';
@@ -38,7 +37,7 @@ class SkillSelection extends StatefulWidget {
     required this.callback,
     this.fetchApiskill,
     this.submit,
-    Key? key,
+    super.key,
     this.controller,
     this.workType,
     required this.isSkill,
@@ -53,7 +52,7 @@ class SkillSelection extends StatefulWidget {
     this.onChanged,
     this.firstText,
     // required this.onFocusNodeRequested
-  }) : super(key: key);
+  });
 
   @override
   State<SkillSelection> createState() => _SkillSelection();

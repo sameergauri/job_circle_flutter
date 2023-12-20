@@ -20,6 +20,7 @@ class SuggestionTextFieldForNew extends StatefulWidget {
   final Function(String)? getSpocfName;
   final Function(String)? getSpoclName;
   final Function(int)? getspoc;
+  final Function(String)? getInterviewRounds;
   TextEditingController controller = TextEditingController();
   SuggestionTextFieldForNew({
     super.key,
@@ -36,6 +37,7 @@ class SuggestionTextFieldForNew extends StatefulWidget {
     this.getSpocfName,
     this.getSpoclName,
     this.getspoc,
+    this.getInterviewRounds,
   });
 
   @override
@@ -68,10 +70,11 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
       {required String companyId,
       required String role,
       required String process}) async {
+    String encodedProcess = Uri.encodeComponent(process);
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
         // "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"
-        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process"));
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$encodedProcess&page=1&size=10000"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -135,9 +138,10 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
   }
 
   Future<List<RoleModel>> getJobTitle(String companyId, String proces) async {
+    String encodedProcess = Uri.encodeComponent(proces);
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctRolename?companyid=$companyId&process=$proces"));
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctRolename?companyid=$companyId&process=$encodedProcess&page=1&size=10000"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -206,7 +210,7 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
   ) async {
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctProcess?companyid=$name"));
+        "http://${GlobalConstants.API_Host}/jobs/v1/getDistinctProcess?companyid=$name&page=1&size=100000"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -773,6 +777,8 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
                                         widget
                                             .getspoc!(suggestion.spoc!.toInt());
                                         searchKeyWord = "";
+                                        widget.getInterviewRounds!(
+                                            suggestion.interview_rounds!.first);
                                       });
                                     },
                                     child: Container(

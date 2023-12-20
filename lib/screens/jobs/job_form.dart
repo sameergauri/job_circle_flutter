@@ -146,6 +146,7 @@ class _JobFormState extends ConsumerState<JobForm> {
   bool isRelevantExpperience = false;
   bool isGraduateCheckBox = false;
   bool above = false;
+  bool compusHiring = false;
 
   void checkAgeGroup(String ageText) {
     int? age = int.tryParse(ageText);
@@ -183,7 +184,9 @@ class _JobFormState extends ConsumerState<JobForm> {
       veryGood = false,
       decent = false,
       graduate = false,
-      undeGraduate = false;
+      undeGraduate = false,
+      EnteryLevel = false,
+      supportstaff = false;
 
   selectProcess(process, extra) {
     processController.text = process;
@@ -520,6 +523,17 @@ class _JobFormState extends ConsumerState<JobForm> {
           isCity = true;
         }
 
+        // ignore: unnecessary_null_comparison
+        if (jobData.isCampus != null) {
+          jobData.isCampus == 1 ? compusHiring = true : compusHiring = false;
+        }
+        // ignore: unnecessary_null_comparison
+        if (jobData.isSupportStaff != null) {
+          jobData.isSupportStaff == 1
+              ? supportstaff = true
+              : EnteryLevel = true;
+        }
+
         fetchApiBenefits = jobData.jobBenefits.cast<String>();
         selectedJobBenefits = fetchApiBenefits;
         selectedShiftTime1 = jobData.shiftTime;
@@ -575,6 +589,7 @@ class _JobFormState extends ConsumerState<JobForm> {
           }
         }
         fetchApiWoekLocation = jobData.workLocation;
+
 //boundry limit
         List<dynamic> boundaryLimits = jobData.boundry_limits;
 
@@ -1795,7 +1810,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                 },
               );
       } else {
-        print("Error while posting commercial");
+        print("Error while posting commercial InActive commercial");
       }
     } catch (e) {
       print('Error saving data: $e');
@@ -2308,6 +2323,20 @@ class _JobFormState extends ConsumerState<JobForm> {
                             subtitle: "Select communication rating");
                       },
                     );
+                  } else if (!EnteryLevel && !supportstaff) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Hiring Grade");
+                      },
+                    );
                   } else if (selectedInterViewRounds.isEmpty) {
                     showDialog(
                       context: context,
@@ -2349,84 +2378,89 @@ class _JobFormState extends ConsumerState<JobForm> {
                         uniqueSelectedKeyEligibility.toList();
 
                     jobPostModel model = jobPostModel(
-                      active: 1,
-                      crpf_id: functionalAreaId,
-                      id: jobID,
-                      roleName: role.text,
-                      process: proces.text,
-                      // natureOfWorkId: natureofWorkID.toString()
-                      industry: industry.text,
-                      noOfVacancy: int.parse(numberofopenings.text),
-                      empType: isFullTime
-                          ? "Full Time"
-                          : isPartTime
-                              ? "Part Time"
-                              : isContract
-                                  ? "Contractual"
-                                  : isIntern
-                                      ? "InternShip"
-                                      : "Temporary",
-                      education: graduate ? "Graduate" : "Under-Graduate",
-                      skills: fetchApiskill,
-                      keyResponsible: selectedKeyResponsible,
-                      // textResponsible: selectedTextResponsible,
-                      languageKnown: selectedLanguages,
-                      jobBenefits: selectedJobBenefits,
+                        active: 1,
+                        crpf_id: functionalAreaId,
+                        id: jobID,
+                        roleName: role.text,
+                        process: proces.text,
+                        // natureOfWorkId: natureofWorkID.toString()
+                        industry: industry.text,
+                        noOfVacancy: int.parse(numberofopenings.text),
+                        empType: isFullTime
+                            ? "Full Time"
+                            : isPartTime
+                                ? "Part Time"
+                                : isContract
+                                    ? "Contractual"
+                                    : isIntern
+                                        ? "InternShip"
+                                        : "Temporary",
+                        education: graduate ? "Graduate" : "Under-Graduate",
+                        skills: fetchApiskill,
+                        keyResponsible: selectedKeyResponsible,
+                        // textResponsible: selectedTextResponsible,
+                        languageKnown: selectedLanguages,
+                        jobBenefits: selectedJobBenefits,
+                        shiftDesc: selectedWeakOff1,
+                        minCtc: minCtcValue,
+                        maxCtc: maxCtcValue,
+                        shiftTime: selectedShiftTime1,
+                        minExperience: minExp.text,
+                        maxExperience: above ? "& above" : maxExp.text,
+                        isFresher: isFresher ? "Fresher" : " ",
+                        isMonthly: _selectedOption.toString(),
+                        boundry_limits: selectedKeyBoundryLimits,
+                        gender: onlyMale
+                            ? "Male"
+                            : onlyFemale
+                                ? "Female"
+                                : femalePrefered
+                                    ? "Female prefered"
+                                    : " ",
+                        is_graduate: isGraduateCheckBox == true ? 1 : 0,
+                        minAge: minAge.text.isNotEmpty
+                            ? int.parse(minAge.text)
+                            : null,
+                        maxAge: maxAge.text.isNotEmpty
+                            ? int.parse(maxAge.text).toInt()
+                            : null,
+                        eligible: finalList,
+                        moredetails: selectedKeyMoreDetails,
+                        // interviewRounds: selectedInterViewRounds,  //TODO: old interview Rounds.
+                        rating: selectedComunication,
+                        inteview_rounds: selectedInterviewRoundsId,
+                        workCity: int.parse(CityID.toString()),
+                        companyId:
+                            CompanyID != null ? int.parse(CompanyID!) : 1,
+                        natureOfWork: natureOfWork.text,
+                        // workLocation: worklocationList.map((e) => e.id).toList(),
+                        workLocation:
+                            fetchApilocation.map((e) => e.id).toList(),
 
-                      shiftDesc: selectedWeakOff1,
-                      minCtc: minCtcValue,
-
-                      maxCtc: maxCtcValue,
-                      shiftTime: selectedShiftTime1,
-                      minExperience: minExp.text,
-                      maxExperience: above ? "& above" : maxExp.text,
-                      isFresher: isFresher ? "Fresher" : " ",
-                      isMonthly: _selectedOption.toString(),
-                      boundry_limits: selectedKeyBoundryLimits,
-                      gender: onlyMale
-                          ? "Male"
-                          : onlyFemale
-                              ? "Female"
-                              : femalePrefered
-                                  ? "Female prefered"
-                                  : " ",
-                      is_graduate: isGraduateCheckBox == true ? 1 : 0,
-
-                      minAge: minAge.text.isNotEmpty
-                          ? int.parse(minAge.text)
-                          : null,
-                      maxAge: maxAge.text.isNotEmpty
-                          ? int.parse(maxAge.text).toInt()
-                          : null,
-                      eligible: finalList,
-
-                      moredetails: selectedKeyMoreDetails,
-                      // interviewRounds: selectedInterViewRounds,  //TODO: old interview Rounds.
-                      rating: selectedComunication,
-                      inteview_rounds: selectedInterviewRoundsId,
-
-                      workCity: int.parse(CityID.toString()),
-
-                      companyId: CompanyID != null ? int.parse(CompanyID!) : 1,
-                      natureOfWork: natureOfWork.text,
-                      // workLocation: worklocationList.map((e) => e.id).toList(),
-                      workLocation: fetchApilocation.map((e) => e.id).toList(),
-
-                      //  spoc: profileSummaryModel.id
-                      spoc: profilemodel.id,
-                      //  workLocation: sele
+                        //  spoc: profileSummaryModel.id
+                        spoc: profilemodel.id,
+                        isCampus: compusHiring ? 1 : 0,
+                        isSupportStaff: supportstaff
+                            ? 1
+                            : EnteryLevel
+                                ? 0
+                                : null
+                        //  workLocation: sele
 //empType:
 //minAge: minAge.text
-                      // Populate other properties here
-                    );
+                        // Populate other properties here
+                        );
 
                     Map<String, dynamic> jsonData = model.toJson();
                     await JobPostApiService.postDataToApi(
                         jsonData, context, widget.formEdit);
-                    commercialid != 0
-                        ? await InActiveCommercial()
-                        : await saveCommercial();
+                    if (!widget.formEdit) {
+                      commercialid == 0 || commercialid == null
+                          ? await saveCommercial()
+                          : await InActiveCommercial();
+                    }
                     ref.refresh(userJobDataProvider);
+                    // ref.refresh();
                     ref.refresh(jobsProvider);
 
                     /*  setState(() {
@@ -2875,6 +2909,100 @@ class _JobFormState extends ConsumerState<JobForm> {
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Is this campus hiring ?",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Container(
+                        // margin: const EdgeInsets.only(bottom: 4),
+                        height: 16,
+                        width: 20,
+                        padding: EdgeInsets.zero,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: compusHiring
+                                ? Constants.themeBgColor
+                                : Colors.grey,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.transparent,
+                          ),
+                          child: Checkbox(
+                            side: const BorderSide(color: Colors.white),
+                            activeColor: Colors.white,
+                            checkColor: Constants.themeBgColor,
+                            visualDensity: VisualDensity.compact,
+                            value: compusHiring,
+                            onChanged: (value) {
+                              setState(() {
+                                compusHiring = value!;
+                              });
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                            // No border when unchecked
+
+                            // Remove extra padding around the checkbox
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.h,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Hiring Grade?",
+                        style: GoogleFonts.sourceSansPro(
+                            fontSize: 18.sp,
+                            // color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        children: [
+                          customContainerSelect(
+                              isAnother: true,
+                              onPressed: () {
+                                setState(() {
+                                  EnteryLevel = true;
+                                  supportstaff = false;
+                                });
+                              },
+                              isSelect: EnteryLevel,
+                              title: "Entery Level"),
+                          customContainerSelect(
+                              isAnother: true,
+                              onPressed: () {
+                                setState(() {
+                                  EnteryLevel = false;
+                                  supportstaff = true;
+                                });
+                              },
+                              isSelect: supportstaff,
+                              title: "Support Staff"),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.h,
                   ),
 
                   Text(

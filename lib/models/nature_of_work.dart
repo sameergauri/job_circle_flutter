@@ -4,13 +4,16 @@ class NatureOfWorkModel {
   String? spoc_fname;
   int? spoc;
   String? spoc_lname;
+  List<String>? interview_rounds;
 
   NatureOfWorkModel(
       {this.id,
       this.functional_area,
       this.spoc,
       this.spoc_fname,
-      this.spoc_lname});
+      this.spoc_lname,
+      this.interview_rounds
+      });
 
   factory NatureOfWorkModel.fromJson(Map<String, dynamic> json) {
     return NatureOfWorkModel(
@@ -18,9 +21,32 @@ class NatureOfWorkModel {
         functional_area: json['functional_area'] ?? json['functional_area'],
         spoc_fname: json['spoc_fname'] ?? "",
         spoc_lname: json['spoc_lname'] ?? '',
-        spoc: json['spoc'] ?? 0
+        spoc: json['spoc'] ?? 0,
+        interview_rounds: _parseSkills(json['inteviewrounds']),
         // Handle both property orders
         );
+  }
+  static List<String>? _parseSkills(dynamic jsonSkills) {
+    try {
+      if (jsonSkills == null) {
+        return null;
+      } else if (jsonSkills is String) {
+        // Remove the square brackets and escape characters, then split by comma
+        final cleanedString = jsonSkills.replaceAll(RegExp(r'[[]\"]'), '');
+        final List<String> rounds =
+            cleanedString.split(',').map((e) => e.trim()).toList();
+        return rounds;
+      } else if (jsonSkills is List<dynamic>) {
+        // If 'skills' is already a list, cast it to List<String> and return.
+        return jsonSkills.cast<String>();
+      } else {
+        // If 'skills' has an unexpected format, return null or handle it as appropriate.
+        return null;
+      }
+    } catch (e) {
+      print('Error parsing skills: $e');
+      return null;
+    }
   }
 }
 

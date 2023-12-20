@@ -230,6 +230,8 @@ class Education with Searchable {
   final int? university_id;
   final int? degree_id;
   final int? fieldofstudy_id;
+  final String? icon;
+  final String? subvalue;
 
   Education({
     this.id,
@@ -244,7 +246,9 @@ class Education with Searchable {
     this.degree_spc,
     this.degree_id,
     this.fieldofstudy_id,
-    this.university_id
+    this.university_id,
+    this.icon,
+    this.subvalue,
   });
 
   factory Education.fromMap(Map<String, dynamic> map) {
@@ -259,9 +263,11 @@ class Education with Searchable {
       passingYear: map['passingYear'] as int?,
       userId: map['userId'] as int?,
       degree_spc: map['degree_spc'] as String?,
-degree_id: map['degree_id']as int?,
-fieldofstudy_id: map['fieldofstudy_id'] as int?,
-university_id: map['university_id'] as int?
+      degree_id: map['degreeId'] as int?,
+      fieldofstudy_id: map['fieldId'] as int?,
+      university_id: map['universityId'] as int?,
+      icon: map['icon'] as String?,
+      subvalue: map['subvalue'] as String?,
     );
   }
 
@@ -288,25 +294,28 @@ university_id: map['university_id'] as int?
       'fieldofstudy_id': fieldofstudy_id,
       'degree_id': degree_id,
       'university_id': university_id,
+      'icon': icon,
+      'subvalue': subvalue,
     };
   }
 
   factory Education.fromJson(Map<String, dynamic> json) {
     return Education(
-      id: json['id'],
-      level: json['level'],
-      board: json['board'],
-      university: json['university'],
-      fieldOfStudy: json['fieldOfStudy'],
-      firstYear: json['firstYear'],
-      marksheet: json['marksheet'],
-      passingYear: json['passingYear'],
-      userId: json['userId'],
-      degree_spc: json['degree_spc'],
-      degree_id:  json['degree_id'],
-      fieldofstudy_id: json['fieldofstudy_id'],
-      university_id:  json['university_id'],
-    );
+        id: json['id'],
+        level: json['level'],
+        board: json['board'],
+        university: json['university'],
+        fieldOfStudy: json['fieldOfStudy'],
+        firstYear: json['firstYear'],
+        marksheet: json['marksheet'],
+        passingYear: json['passingYear'],
+        userId: json['userId'],
+        degree_spc: json['degree_spc'],
+        degree_id: json['degreeId'],
+        fieldofstudy_id: json['fieldId'],
+        university_id: json['universityId'],
+        icon: json['icon'],
+        subvalue: json['subvalue']);
   }
 
   Map<String, dynamic> toJson() {
@@ -323,13 +332,15 @@ university_id: map['university_id'] as int?
       'degree_spc': degree_spc,
       'fieldofstudy_id': fieldofstudy_id,
       'degree_id': degree_id,
-      'university_id': university_id
+      'university_id': university_id,
+      'icon': icon,
+      'subvalue': subvalue
     };
   }
 
   @override
   String toString() {
-    return 'Education(id: $id, level: $level, board: $board, university: $university, fieldOfStudy: $fieldOfStudy, firstYear: $firstYear, marksheet: $marksheet, passingYear: $passingYear, userId: $userId, degree_spc: $degree_spc)';
+    return 'Education(id: $id, level: $level, board: $board, university: $university, fieldOfStudy: $fieldOfStudy, firstYear: $firstYear, marksheet: $marksheet, passingYear: $passingYear, userId: $userId, degree_spc: $degree_spc,icon:$icon,subvalue:$subvalue)';
   }
 
   @override

@@ -507,10 +507,10 @@ class _AddIntoductionState extends State<AddIntoduction>
               //final snackBar = customSnackbar();
 
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("First name is compalsory."));
+                  .showSnackBar(customSnackbar("First Name cannot be blank."));
             } else if (lastName.text.isEmpty) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Last name is compalsory."));
+                  .showSnackBar(customSnackbar("Last Name cannot be blank."));
             } /* else if (primaryNumber.text.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                   customSnackbar("Primary number is compalsory."));
@@ -520,11 +520,15 @@ class _AddIntoductionState extends State<AddIntoduction>
                   .showSnackBar(customSnackbar("Select Gender."));
             } else if (dateOfBirth.text.isEmpty) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Select DOB."));
+                  .showSnackBar(customSnackbar("DOB cannot be blank."));
             } else if (resideAt != null && resideAt!.isEmpty) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Current Residence Town?"));
-            } /* else if (secondaryNumber.text.isNotEmpty &&
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Current Residence Town cannot be empty?"));
+            } else if (cityname == null && Localityfinal == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  customSnackbar("Current Residence Town cannot be empty?"));
+            }
+            /* else if (secondaryNumber.text.isNotEmpty &&
                 secondaryNumber.text.length < 10) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(customSnackbar("Incorrect alternate number."));
@@ -1255,6 +1259,7 @@ class _AddIntoductionState extends State<AddIntoduction>
                                   value: isPresent,
                                   onChanged: (newValue) {
                                     setState(() {
+                                      data = null;
                                       isPresent = !isPresent;
                                       if (isPresent) {
                                         vaccination = "1";
@@ -1479,6 +1484,7 @@ class _AddIntoductionState extends State<AddIntoduction>
                                       onTap: () {
                                         setState(() async {
                                           data = await uploadFile(['pdf']);
+                                          setState(() {});
                                           /*  var payload = {
                                           "stage": "upload_cv",
                                           "data": {
@@ -1659,8 +1665,11 @@ class _AddIntoductionState extends State<AddIntoduction>
                 FilteringTextInputFormatter.digitsOnly,
               ]
             : <TextInputFormatter>[
-                FilteringTextInputFormatter.singleLineFormatter,
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
               ],
+        /* <TextInputFormatter>[
+                FilteringTextInputFormatter.singleLineFormatter,
+              ], */
         /*  validator: (value) {
           if (value == null || value.isEmpty) {
             //return "This Text field Cant be empty";

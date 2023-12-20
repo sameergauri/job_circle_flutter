@@ -205,6 +205,8 @@ class _Screen1State extends ConsumerState<Screen1> {
   DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 35));
   DateTime firstDate = DateTime.now().subtract(const Duration(days: 365 * 18));
 
+  String? displayName;
+
   @override
   void initState() {
     super.initState();
@@ -300,7 +302,10 @@ class _Screen1State extends ConsumerState<Screen1> {
         cityname = widget.prevPageModel!.user_location.toString();
         Localityfinal = widget.prevPageModel!.user_locality.toString();
         data = widget.prevPageModel!.vaccination_certificate.toString();
+        displayName =
+            "${widget.prevPageModel!.user_locality.toString()},${widget.prevPageModel!.user_location.toString()}";
 
+        locationController.text = displayName.toString();
         setState(() {
           isLocality = true;
         });
@@ -477,6 +482,8 @@ class _Screen1State extends ConsumerState<Screen1> {
     final regExp = RegExp(pattern);
     return regExp.hasMatch(email.toLowerCase());
   }
+
+  TextEditingController locationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -796,6 +803,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                           controller: emailadr,
                           hint: "sameer***@gmail.com",
                           label: "Email ID",
+                          isgmail: true,
                           // maxLength: 10,
                           // isNumber: true,
                           icon: const Icon(Icons.email_outlined)),
@@ -1048,6 +1056,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                     onIDSelected: () {},
                     // isSelected: isIndustry,
                     focusNode: localityFocus,
+                    controller: locationController,
                     role: "",
                     isCompany: false,
                     isIndustry: true,
@@ -1362,6 +1371,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                                   unselectedWidgetColor: Colors.transparent,
                                 ),
                                 child: Checkbox(
+                                  side: const BorderSide(color: Colors.white),
                                   activeColor: Colors.white,
                                   checkColor: Constants.themeBgColor,
                                   visualDensity: VisualDensity.compact,
@@ -1595,6 +1605,8 @@ class _Screen1State extends ConsumerState<Screen1> {
                                       onTap: () {
                                         setState(() async {
                                           data = await uploadFile(['pdf']);
+                                          setState(() {});
+
                                           /*  var payload = {
                                           "stage": "upload_cv",
                                           "data": {
@@ -1754,6 +1766,7 @@ class _Screen1State extends ConsumerState<Screen1> {
       required String hint,
       required String label,
       required FocusNode focusNode,
+      bool? isgmail,
       bool? isPrimaryNumber = false,
       String? img,
       bool? isImage = false,
@@ -1774,9 +1787,13 @@ class _Screen1State extends ConsumerState<Screen1> {
             ? <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly,
               ]
-            : <TextInputFormatter>[
-                FilteringTextInputFormatter.singleLineFormatter,
-              ],
+            : isgmail != null && isgmail
+                ? <TextInputFormatter>[
+                    FilteringTextInputFormatter.singleLineFormatter,
+                  ]
+                : <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                  ],
         /*  validator: (value) {
           if (value == null || value.isEmpty) {
             //return "This Text field Cant be empty";

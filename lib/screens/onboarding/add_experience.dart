@@ -391,7 +391,7 @@ class _AddExperienceState extends State<AddExperience> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Employement Detail",
+                        "Employment Detail",
                         style: GoogleFonts.varela(
                           fontSize: 18.sp,
                           color: Constants.themeBgColor,
@@ -420,55 +420,78 @@ class _AddExperienceState extends State<AddExperience> {
               ? InkWell(
                   onTap: () async {
                     if (jobTitleController.text.isEmpty && !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
                         title: "Job title is not optional",
                         error: true,
-                      )));
+                      ));
                     } else if (companyController.text.isEmpty && !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
                         title: "Company is not optional",
                         error: true,
-                      )));
+                      ));
                     } else if (!isPartTime &&
                         !isFullTime &&
                         !isContract &&
                         !isIntern &&
                         !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
-                        title: "Select any one option from emp type.",
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
+                        title: "Specify your Employment type.",
                         error: true,
-                      )));
+                      ));
                     } else if (companyLocationController.text.isEmpty && !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
-                              title: "Enter your location", error: true)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackbarfinal(
+                              title: "Provide your work city", error: true));
                     } else if (!isOnsite && !isHybrid && !isWfh && !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
-                              title: "Select any one option form work mode",
-                              error: true)));
-                    } /* else if (fetchApiskill.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Add atleast one skill"));
-                    } */
-                    else if (joiningDataController.text.isEmpty && !yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: CustomSnackbarfinal(
-                              title: "Provide your joining dare",
-                              error: true)));
-                    } /*  else if (!currentlyWorking &&
-                        lastWorkingController.text.isEmpty) {
+                          CustomSnackbarfinal(
+                              title: "Specify your Work Mode / Type",
+                              error: true));
+                    } else if (fetchApiskill.isEmpty && !yes) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Provide last working date"));
+                          CustomSnackbarfinal(
+                              title:
+                                  "Add skills that match your Job Responsibilities.",
+                              error: false));
+                    } else if (joiningDataController.text.isEmpty && !yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackbarfinal(
+                              title: "Enter your employment Start date",
+                              error: true));
+                    } else if (!currentlyWorking &&
+                        lastWorkingController.text.isEmpty &&
+                        !yes) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
+                        title: "Enter your employment End date",
+                        error: true,
+                      ));
                     } else if (currentSalaryController.text.isNotEmpty &&
                         (!isMonthly && !isYearly)) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from salry type."));
-                    } */
-                    else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
+                        title:
+                            "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
+                        error: true,
+                      ));
+                    } else if (currentSalaryController.text.isEmpty &&
+                        (isMonthly || isYearly)) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
+                        title: "Specify your current salary.",
+                        error: true,
+                      ));
+                    } else if (apportunities &&
+                        (!imd && !day15 && !day30 && !day60 && !day90)) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(CustomSnackbarfinal(
+                        title: "Specify your availability to join.",
+                        error: true,
+                      ));
+                    } else {
                       var payload = {
                         "stage": "experience",
                         "data": {
@@ -800,7 +823,7 @@ class _AddExperienceState extends State<AddExperience> {
                                       role: "",
                                       isCompany: false,
                                       isIndustry: true,
-                                      name: "job_title",
+                                      name: "job_role",
                                       title: "Job Title",
                                       controller: jobTitleController,
                                       onChanged: (p0) {
@@ -1103,6 +1126,7 @@ class _AddExperienceState extends State<AddExperience> {
                   if (jobTitleController.text.isNotEmpty &&
                       companyController.text.isNotEmpty)
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // QuillEditorPage(),
                         CustomTextField(
@@ -2640,18 +2664,20 @@ class _AddExperienceState extends State<AddExperience> {
                                       );
                                     },
                                     title: "Experience letter")
-                                : customContainerSelect(
-                                    isAnother: true,
-                                    onPressed: () async {
-                                      setState(() async {
-                                        //   experienceletter = true;
-                                        experienceLetter = await uploadFile(
-                                            allowExt: ['pdf'],
-                                            isexperience: true);
-                                      });
-                                    },
-                                    isSelect: experienceletter,
-                                    title: "Experience / Relieving letter"),
+                                : !currentlyWorking
+                                    ? customContainerSelect(
+                                        isAnother: true,
+                                        onPressed: () async {
+                                          setState(() async {
+                                            //   experienceletter = true;
+                                            experienceLetter = await uploadFile(
+                                                allowExt: ['pdf'],
+                                                isexperience: true);
+                                          });
+                                        },
+                                        isSelect: experienceletter,
+                                        title: "Experience / Relieving letter")
+                                    : const SizedBox()
                           ],
                         ),
                         SizedBox(
@@ -3140,8 +3166,9 @@ class _AddExperienceState extends State<AddExperience> {
       job_title: jobTitleController.text,
       company_name: companyController.text,
       isCurrent: currentlyWorking ? 1 : 0,
-      description: description.text,
+      description: description.text == "" ? null : description.text,
       skills_exp: fetchApiskill,
+      city_id: 0,
       work_type: isOnsite
           ? "OnSite"
           : isHybrid
@@ -3149,6 +3176,8 @@ class _AddExperienceState extends State<AddExperience> {
               : isWfh
                   ? "WFH"
                   : "",
+      jobid: 0,
+      companyid: int.tryParse(someid.toString()),
       company_location: companyLocationController.text,
       emptype: isFullTime
           ? "FullTime"
@@ -3199,12 +3228,12 @@ class _AddExperienceState extends State<AddExperience> {
         context,
         MaterialPageRoute(
             builder: (context) => AddEducation(
-                  experience: yes ? Experience() : experience,
-                  introData: widget.introData,
-                  languageModel: widget.languageModel,
-                  userID: widget.userID,
-                  isexperience: currentlyWorking,
-                )));
+                experience: yes ? Experience() : experience,
+                introData: widget.introData,
+                languageModel: widget.languageModel,
+                userID: widget.userID,
+                isexperience: currentlyWorking,
+                jobtitleid: !yes ? jobtitleId ?? 0 : 1)));
     /* if (widget.prevPageModel == null) {
       Navigator.pushReplacement(
           context,
@@ -3225,7 +3254,7 @@ class _AddExperienceState extends State<AddExperience> {
     return InkWell(
         onTap: onPressed,
         child: Container(
-            width: MediaQuery.of(context).size.width / 3.5,
+            width: MediaQuery.of(context).size.width / 3.7,
 
             // height: MediaQuery.of(context).size.height / 26.h,
             margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),

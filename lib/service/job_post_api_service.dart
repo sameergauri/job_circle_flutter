@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/models/role_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
@@ -230,6 +232,76 @@ class JobPostApiService {
     }
   }
 
+  static Future<void> saveJobRole(BuildContext context, String role) async {
+    // Generate a random code
+    String randomCode = generateRandomCode();
+
+    RoleModel groupNameModel = RoleModel(
+      id: 0,
+      active: 1,
+      code: randomCode,
+      groupName: "job_role",
+      value: role,
+      urlSlug: null,
+      deleted: 0,
+      orderno: 0,
+    );
+
+    // Convert the groupNameModel to a JSON representation
+    Map<String, dynamic> requestBody = groupNameModel.toJson();
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://${GlobalConstants.API_Host}/master/v1'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print("new job title saved");
+        /* ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Master saved successfully')),
+        ); */
+        /*   Navigator.pop(context); */
+      } // Inside the else if block
+      else if (response.statusCode == 500) {
+        // If status code is 500, generate a new code and retry
+        randomCode = generateRandomCode();
+        groupNameModel.code = randomCode;
+        requestBody = groupNameModel.toJson();
+        // Retry the request
+        final retryResponse = await http.post(
+          Uri.parse('http://${GlobalConstants.API_Host}/master/v1'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(requestBody),
+        );
+        if (retryResponse.statusCode == 200) {
+          print("new job title saved");
+          /*  ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Master saved successfully on retry')),
+          );
+          Navigator.pop(context); */
+        } else {
+          print("new job title not saved");
+          /*  ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to save master on retry')),
+          ); */
+        }
+      }
+    } catch (e) {
+      if (e is http.Response) {
+        print("Error while saving job title");
+      } else {
+        //    print('Unexpected error: $e');
+        print("unexoected error while saving job title");
+      }
+    }
+  }
+
   static Future<void> addResume(Map<String, dynamic> jsonData,
       BuildContext context, bool fromDialog) async {
     final apiUrl = Uri.parse('http://${GlobalConstants.API_Host}/leads/v1');
@@ -310,6 +382,13 @@ class JobPostApiService {
     }
   }
 
+  static String generateRandomCode() {
+    Random random = Random();
+    // You can adjust the length and characters based on your requirements
+    const String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    return "R${List.generate(3, (index) => chars[random.nextInt(chars.length)]).join()}";
+  }
+
   static Future<void> PostUserInfo(Map<dynamic, dynamic> jsonData) async {
     String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/saveStages';
 
@@ -324,6 +403,39 @@ class JobPostApiService {
       } else {
         // Request failed
         print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  static Future<void> PostUserExperience(
+      Map<dynamic, dynamic> jsonData, BuildContext context) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host}/exp/v1';
+
+    try {
+      var response = await http.post(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print("Ecxperience data posted succesfully");
+      } else {
+        // Request failed
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+              },
+              subtitle:
+                  "Due to some technical error your experience is not added. please wait for next update.",
+            );
+          },
+        );
       }
     } catch (e) {
       print('Error: $e');

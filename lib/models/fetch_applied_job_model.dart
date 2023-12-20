@@ -50,6 +50,7 @@ class ResultData {
 class Applicant {
   bool? showRejectTextField = false;
   int? spocContactNo;
+  int? rid;
   String? emp_id;
   String? companyName;
   String? remark;
@@ -107,10 +108,13 @@ class Applicant {
   String? source_name;
   String? company_resumeId;
   DateTime? dol;
+  String? gender;
+  String? sub_source;
 
   Applicant({
     this.showRejectTextField,
     this.spocContactNo,
+    this.rid,
     this.emp_id,
     this.companyName,
     this.remark,
@@ -168,11 +172,14 @@ class Applicant {
     this.source_name,
     this.company_resumeId,
     this.dol,
+    this.gender,
+    this.sub_source,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
     return Applicant(
       spocContactNo: json['spoc_contact_no'],
+      rid: json['rid'],
       emp_id: json['emp_id'],
       skills: _parseSkills(json['skills']),
       status_code: json['status_code'],
@@ -230,6 +237,8 @@ class Applicant {
       source_name: json['source_name'],
       company_resumeId: json['company_resumeId'],
       dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      gender: json['gender'],
+      sub_source: json['sub_source'],
     );
   }
 
@@ -274,6 +283,7 @@ class Applicant {
   Map<String, dynamic> toJson() {
     return {
       'spoc_contact_no': spocContactNo,
+      'rid': rid,
       'emp_id': emp_id,
       'company_name': companyName,
       'remark': remark,
@@ -332,6 +342,8 @@ class Applicant {
       'last_name': last_name,
       'source_name': source_name,
       'company_resumeId': company_resumeId,
+      'gender': gender,
+      'sub_source': sub_source,
     };
   }
 }

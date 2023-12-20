@@ -62,6 +62,7 @@ class ChangeStatusModel {
   int? is_notice;
   int? mode_document;
   DateTime? last_working_date;
+  DateTime? dol;
 
   ChangeStatusModel({
     this.alternateNo,
@@ -122,6 +123,7 @@ class ChangeStatusModel {
     this.updatedDate,
     this.client_email,
     this.last_working_date,
+    this.dol,
     // this.document_list,
     this.document_status,
     this.emp_id,
@@ -199,6 +201,7 @@ class ChangeStatusModel {
         last_working_date: json['last_working_date'] != null
             ? DateTime.parse(json['last_working_date'])
             : null,
+        dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -264,5 +267,6 @@ class ChangeStatusModel {
         'sub_status': subStatus,
         'uid': uid,
         'updated_date': updatedDate?.toIso8601String(),
+        'dol': dol?.toIso8601String(),
       };
 }

@@ -9,6 +9,7 @@ class Constants {
   static const borderColor = Color(0xfffedf6f9);
   static const subtitleclr = Color(0xfff898d8c);
   static const hintColor = Color(0xfffa8a3a3);
+  static const blue = Color(0xfff5783e2);
   static const maintheme_light_color = Color(0xffb3caca);
   static final lightdull = Colors.grey.shade300;
 

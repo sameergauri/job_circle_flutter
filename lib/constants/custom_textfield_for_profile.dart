@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/constants/customButton.dart';
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/gobal.dart';
 
@@ -125,7 +124,7 @@ class _CustomTextFieldComapanyLocationState
 
   Future<List<JobTitleModel1>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=1000000'));
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroups?groupName=$name&pageNumber=1&pageSize=1000000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -137,8 +136,23 @@ class _CustomTextFieldComapanyLocationState
       for (var entry in content) {
         String? value = entry['value']?.toString();
         String? code = entry['code']?.toString();
-
         if (value != null &&
+            value.toLowerCase().contains(pattern.toLowerCase()) &&
+            !value.toLowerCase().contains("anywhere") &&
+            ((widget.hsc || (code == "D001" || code == "D002")) ||
+                !widget.hsc)) {
+          // Check if the 'value' is not already in 'uniqueValues'
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value); // Add 'value' to 'uniqueValues'
+
+            // Assuming there's a method 'fromJson' in 'JobTitleModel1' to create an instance from 'entry'
+            JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
+
+            suggestions.add(jobTitle); // Add 'jobTitle' to 'suggestions'
+          }
+        }
+
+        /* if (value != null &&
             value.toLowerCase().contains(pattern.toLowerCase()) &&
             !value.toLowerCase().contains("anywhere") &&
             ((widget.hsc || (code == "D001" || code == "D002")) ||
@@ -148,7 +162,7 @@ class _CustomTextFieldComapanyLocationState
             JobTitleModel1 jobTitle = JobTitleModel1.fromJson(entry);
             suggestions.add(jobTitle);
           }
-        }
+        } */
       }
 
       return suggestions;
@@ -305,6 +319,7 @@ class _CustomTextFieldComapanyLocationState
           elevation: 4.0,
         ),
         textFieldConfiguration: TextFieldConfiguration(
+          cursorColor: Constants.themeBgColor,
           onChanged: (value) {
             suggestion = null;
           },
@@ -325,7 +340,7 @@ class _CustomTextFieldComapanyLocationState
             ), */
             prefixIconColor: Constants.themeBgColor,
             //label: Text("Reside at"),
-            hintText: hintText,
+            hintText: widget.hintText,
             hintStyle: GoogleFonts.varela(
               color: Constants.subtitleclr,
               fontSize: 14.sp,
@@ -396,6 +411,7 @@ class _CustomTextFieldComapanyLocationState
             widget.getid(suggestion.id);
             widget.degree ? widget.onSubmit!(suggestion.code) : null;
             var selectedId = suggestion.id;
+
             // onIDSelected(suggestion.id.toString());
             // widget.onJobTitle!(firstText.toString());
 
@@ -526,7 +542,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
 
   Future<List<Skill>> getJobTitle(String pattern, String name) async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=100'
+        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=10000'
 
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
         ));
@@ -699,6 +715,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                       elevation: 4.0,
                     ),
                     textFieldConfiguration: TextFieldConfiguration(
+                      cursorColor: Constants.themeBgColor,
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(
                             RegExp(r'^\s')), // Disallow spaces at the beginning
@@ -714,6 +731,11 @@ class _CustomFormTextFieldMultiSelectForProfileState
                           }
                         });
                       },
+                      onSubmitted: (value) {
+                        selectedValuesList!.add(customValue!);
+                        isDuplicate = false;
+                        controller!.clear();
+                      },
 
                       //enabled: false,
 
@@ -724,6 +746,47 @@ class _CustomFormTextFieldMultiSelectForProfileState
                       style: GoogleFonts.varela(
                           color: Constants.hintColor, fontSize: 14.sp),
                       decoration: InputDecoration(
+                        suffixIcon: suggestion != null &&
+                                suggestion!.isEmpty &&
+                                controller!.text.isNotEmpty &&
+                                widget.isSkill
+                            ? IconButton(
+                                onPressed: () {
+                                  if (selectedValuesList!
+                                      .contains(customValue)) {
+                                    setState(() {
+                                      isDuplicate = true;
+                                      controller!.clear();
+                                    });
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CustomDialog(
+                                          fetchDataFromApi: () {},
+                                          isFisrt: false,
+                                          onClose: () {
+                                            Navigator.of(context).pop();
+                                            textFieldFocusNode.requestFocus();
+                                          },
+                                          title: "Error!",
+                                          subtitle:
+                                              " 'This skill is already added',",
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    setState(() {
+                                      selectedValuesList!.add(customValue!);
+                                      isDuplicate = false;
+                                      controller!.clear();
+                                    });
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Constants.themeBgColor,
+                                ))
+                            : null,
                         label: const Text("Skills"),
                         labelStyle: GoogleFonts.varela(
                             color: Constants.themeBgColor, fontSize: 15.sp),
@@ -756,8 +819,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                       if (pattern.isNotEmpty) {
                         isLoading =
                             true; // Set isLoading to true when fetching suggestions
-                        setState(
-                            () {}); // Trigger a rebuild to show the "Searching" message
+                        // Trigger a rebuild to show the "Searching" message
 
                         suggestion = await getJobTitle(pattern, widget.name);
                         showAddButton = !suggestion!.contains(pattern);
@@ -818,6 +880,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         );
                       } else {
                         setState(() {
+                          widget.callback!(suggestion.skills);
                           selectedValuesList!.add(suggestion.skills);
                           isDuplicate = false;
                           showAddButton = true;
@@ -858,44 +921,121 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         }
                       }
                     },
-                    noItemsFoundBuilder: widget.isSkill
+                    noItemsFoundBuilder: /* widget.isSkill
                         ? (BuildContext context) {
-                            return AddButtonVisibilityWidget(
+                            return Material(
+                              child: AddButtonVisibilityWidget(
+                                suggestions: suggestion,
+                                customValue: customValue,
+                                selectedValuesList: selectedValuesList,
+                                isLoading: isLoading,
+                                onAddButtonPressed: () {
+                                  if (selectedValuesList!
+                                      .contains(customValue)) {
+                                    setState(() {
+                                      isDuplicate = true;
+                                      controller!.clear();
+                                    });
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CustomDialog(
+                                          fetchDataFromApi: () {},
+                                          isFisrt: false,
+                                          onClose: () {
+                                            Navigator.of(context).pop();
+                                            textFieldFocusNode.requestFocus();
+                                          },
+                                          title: "Error!",
+                                          subtitle:
+                                              " 'This skill is already added',",
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    setState(() {
+                                      selectedValuesList!.add(customValue!);
+                                      isDuplicate = false;
+                                      controller!.clear();
+                                    });
+                                  }
+                                },
+                              ),
+                            );
+                          }
+                        : */
+                        (value) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          suggestion != null && suggestion!.isEmpty
+                              ? 'No result found.'
+                              : 'Searching',
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      );
+                    },
+                    /* noItemsFoundBuilder: widget.isSkill
+                        ? (BuildContext context) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if ((showAddButton || isLoading) &&
+                                    customValue != null &&
+                                    customValue!.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (selectedValuesList!
+                                          .contains(customValue)) {
+                                        setState(() {
+                                          isDuplicate = true;
+                                          controller!.clear();
+                                        });
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return CustomDialog(
+                                              fetchDataFromApi: () {},
+                                              isFisrt: false,
+                                              onClose: () {
+                                                Navigator.of(context).pop();
+                                                textFieldFocusNode
+                                                    .requestFocus();
+                                              },
+                                              title: "Error!",
+                                              subtitle:
+                                                  " 'This skill is already added',",
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        setState(() {
+                                          selectedValuesList!.add(customValue!);
+                                          isDuplicate = false;
+                                          controller!.clear();
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 5),
+                                      width: double.infinity,
+                                      child: isLoading
+                                          ? const Text('Searching...')
+                                          : const Text("Add New Skill"),
+                                    ),
+                                  ),
+                              ],
+                            );
+                            /* return AddButtonVisibilityWidget(
                               suggestions: suggestion,
                               customValue: customValue,
                               selectedValuesList: selectedValuesList,
                               isLoading: isLoading,
                               onAddButtonPressed: () {
-                                if (selectedValuesList!.contains(customValue)) {
-                                  setState(() {
-                                    isDuplicate = true;
-                                    controller!.clear();
-                                  });
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CustomDialog(
-                                        fetchDataFromApi: () {},
-                                        isFisrt: false,
-                                        onClose: () {
-                                          Navigator.of(context).pop();
-                                          textFieldFocusNode.requestFocus();
-                                        },
-                                        title: "Error!",
-                                        subtitle:
-                                            " 'This skill is already added',",
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  setState(() {
-                                    selectedValuesList!.add(customValue!);
-                                    isDuplicate = false;
-                                    controller!.clear();
-                                  });
-                                }
+                               
                               },
-                            );
+                            ); */
                           }
                         : (value) {
                             final message = suggestion != null &&
@@ -911,8 +1051,9 @@ class _CustomFormTextFieldMultiSelectForProfileState
                                     fontStyle: FontStyle.italic),
                               ),
                             );
-                          },
-                    /* final message =
+                          }, */
+                  ),
+                  /* final message =
                           suggestion != null && suggestion!.isEmpty
                               ? 'No items found'
                               : 'Searching';
@@ -926,7 +1067,6 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         ),
                       );
                     }, */
-                  ),
                 ),
               ],
             ),
@@ -1016,7 +1156,9 @@ class _customCompanyforExperienceState
   Future<List<JobTitleModel>> getSuggestions(String pattern) async {
     // 2 min wait
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=100'));
+        'http://${GlobalConstants.API_Host_one}/company/v1/all?pageNumber=1&pageSize=10000'
+        //'http://${GlobalConstants.API_Host_one}/company/v1/search?keyword=$pattern'
+        ));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -1027,8 +1169,11 @@ class _customCompanyforExperienceState
 
       for (var entry in content) {
         String name = entry['name'].toString();
-        if (name.toLowerCase().startsWith(pattern.toLowerCase()) &&
-            !uniqueNames.contains(name)) {
+        String code = entry['short_code'].toString();
+        if ((name.toLowerCase().contains(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name)) ||
+            (code.toLowerCase().contains(pattern.toLowerCase()) &&
+                !uniqueNames.contains(code))) {
           uniqueNames.add(name);
           JobTitleModel jobTitle = JobTitleModel.fromJson(entry);
           suggestions.add(jobTitle);
@@ -1086,14 +1231,18 @@ class _customCompanyforExperienceState
           elevation: 4.0,
         ),
         textFieldConfiguration: TextFieldConfiguration(
+          cursorColor: Constants.themeBgColor,
           // enabled: !suggestionSelected,
           focusNode: widget.focusNode,
-          /* onTapOutside: (event) {
+          onTapOutside: (event) {
             setState(() {
-              suggestionSelected = true;
+              controller!.clear();
             });
           },
-          onSubmitted: (value) {
+          onChanged: (value) {
+            setState(() {});
+          },
+          /* onSubmitted: (value) {
             setState(() {
               suggestionSelected = true;
             });
@@ -1111,6 +1260,18 @@ class _customCompanyforExperienceState
               GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
           decoration: InputDecoration(
             label: const Text("Company"),
+            suffixIcon: suggestion != null &&
+                    suggestion!.isEmpty &&
+                    controller!.text.isNotEmpty
+                ? IconButton(
+                    onPressed: (() {
+                      widget.onChanged(true);
+                    }),
+                    icon: const Icon(
+                      Icons.add,
+                      color: Constants.themeBgColor,
+                    ))
+                : null,
             labelStyle: GoogleFonts.varela(
                 color: Constants.themeBgColor, fontSize: 15.sp),
             prefixIcon: const Icon(
@@ -1140,6 +1301,7 @@ class _customCompanyforExperienceState
         suggestionsCallback: (pattern) async {
           if (pattern.isNotEmpty) {
             suggestion = await getSuggestions(pattern);
+
             return suggestion!;
           } else {
             return <dynamic>[];
@@ -1195,7 +1357,7 @@ class _customCompanyforExperienceState
         },
         noItemsFoundBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
-              ? 'No result found. Search again and select from suggestion or add a new item.'
+              ? 'No result found. Search again or click on add button to add.'
               : 'Searching';
 
           return InkWell(
@@ -1209,14 +1371,18 @@ class _customCompanyforExperienceState
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "Add Company",
-                      style: GoogleFonts.varela(fontWeight: FontWeight.w600),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: GoogleFonts.varela(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 )),
           );
         },
+
+        
         /*  noItemsFoundBuilder: (value) {
           /* if (controller!.text.isNotEmpty) {
             return AddButtonVisibilityWidgetExperience(

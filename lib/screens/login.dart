@@ -13,7 +13,7 @@ import '../common/utils.dart';
 import '../service/UserDataService.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -196,14 +196,6 @@ class _LoginState extends State<Login> {
                 child: Container(
                   height: 170,
                   width: 170,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Image.asset(
-                      "assets/images/job-logo.png",
-                      height: 100,
-                      width: 100,
-                    ),
-                  ),
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(100)),
                     color: Colors.white,
@@ -215,6 +207,14 @@ class _LoginState extends State<Login> {
                           blurStyle: BlurStyle.inner,
                           blurRadius: 10),
                     ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      "assets/images/job-logo.png",
+                      height: 100,
+                      width: 100,
+                    ),
                   ),
                 ),
               )
@@ -271,7 +271,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildContinueText() {
     return const Text(
-      'Hi, Welcome',
+      'Enter Mobile Number',
       style: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,
@@ -280,12 +280,33 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildEmapleText() {
-    return const Text(
-      'To get started, please verify mobile number',
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-      ),
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'We will send you the ',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          ' 4 digit ',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          'verification code',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
@@ -313,10 +334,10 @@ class _LoginState extends State<Login> {
             ),
           ),
           const SizedBox(height: 16),
-          Column(
+          const Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'elisa.g.beckett@gmail.com',
                 style: TextStyle(
@@ -369,12 +390,13 @@ class _LoginState extends State<Login> {
         Form(
           key: _formKey,
           child: TextFormField(
+            cursorColor: Colors.grey,
             controller: otpcontroller,
             focusNode: mobileFocus,
             autofocus: true,
             validator: (value) {
               if (value == null || value.length < 10) {
-                return 'Please enter valid number.';
+                return 'Please enter your 10 digit mobile number.';
               }
               return null;
             },
@@ -394,7 +416,7 @@ class _LoginState extends State<Login> {
               border: OutlineInputBorder(),
               hintText: 'Enter your mobile number',
             ), */
-            style: GoogleFonts.varela(color: Constants.themeBgColor),
+            style: GoogleFonts.varela(),
             decoration: InputDecoration(
                 counterText: '',
                 contentPadding: const EdgeInsets.only(
@@ -407,26 +429,34 @@ class _LoginState extends State<Login> {
                 prefix: Text(
                   "+91 ",
                   style: GoogleFonts.varela(
-                    color: Constants.themeBgColor,
+                    color: Colors.grey,
                   ),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                  borderSide: const BorderSide(
+                    color: Colors.grey,
+                  ),
                 ),
                 focusColor: const Color(0xfff729995),
                 enabled: true,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                  borderSide: const BorderSide(
+                    color: Colors.grey,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xfff729995)),
+                  borderSide: const BorderSide(
+                    color: Colors.grey,
+                  ),
                 ),
-                labelText: "Your mobile number",
-                labelStyle: const TextStyle(color: Color(0xfff729995)),
-                hintText: 'Enter your mobile number',
+                labelText: "Mobile",
+                labelStyle: const TextStyle(
+                  color: Colors.grey,
+                ),
+                hintText: '865156****',
                 hintStyle: GoogleFonts.sourceSansPro(
                     color: Constants.subtitleclr, fontSize: 15.sp)
                 //  prefixIcon: Icon(Icons.list)
@@ -435,8 +465,9 @@ class _LoginState extends State<Login> {
         ),
         const SizedBox(height: 20),
         ThemeButton(
+          color: Constants.themeBgColor,
           radious: 8.r,
-          text: "Confirm",
+          text: "Get OTP",
           onPressed: () {
             saveOTP(otpcontroller.text);
 
@@ -488,7 +519,7 @@ class _LoginState extends State<Login> {
         // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
         Utils.setPreference(
             null, ESharedPreferences.user_mobile.name, otpcontroller.text);
-        Navigator.pushReplacement(
+        Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => OTPScreen(

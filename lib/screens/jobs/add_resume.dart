@@ -1208,7 +1208,87 @@ class _AddResumeState extends ConsumerState<AddResume> {
       applicationList =
           await api.getUserForAddResume(int.parse(primary_number.text));
       if (widget.isRefer) {
-        if (applicationList![0].id == 0) {
+        final addResumeModel = JobApplicationModel(
+          resume: icon_data,
+          isRef: 1,
+          uid: 0,
+          rid: await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_id.name),
+          id: 0,
+          applicantName: firt_name.text,
+          lastName: last_name.text,
+          contactNo: int.parse(primary_number.text.trim()),
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          isExperienced: fresher ? 0 : 1,
+          companyName: widget.company_name,
+          process: widget.process,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          shortListFor: widget.company_id,
+          status: "TP1",
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          // subStatus: "Shortlist",
+          sourceId: 0,
+          //sourceName: widget.sourceName,
+          jobid: widget.jobId,
+          spoc: widget.spocId,
+          // dol: DateTime.now()
+          // ... fill in other properties as needed
+        );
+        final jsonData = addResumeModel.toJson();
+        await JobPostApiService.addResume(jsonData, context, false);
+        ref.refresh(fetchAllTalentPool);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllMyPipeLineJobs);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        final addResumeModel = JobApplicationModel(
+            isRef: 2,
+            uid: 0,
+            resume: icon_data,
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status: "IB4",
+            subStatus: "Shortlist",
+            sourceId: widget.sourceId,
+            sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.spocId,
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            dol: DateTime.now()
+            // ... fill in other properties as needed
+            );
+        final jsonData = addResumeModel.toJson();
+        await JobPostApiService.addResume(jsonData, context, false);
+        ref.refresh(fetchAllTalentPool);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllMyPipeLineJobs);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+        setState(() {
+          isLoading = false;
+        });
+      }
+
+//TODO old code which is check that the refer candidate is exiting user or not.....{
+      /*   if (applicationList![0].id == 0) {
           // Call the `addResume` function with the specific data
           final addResumeModel = JobApplicationModel(
             resume: icon_data,
@@ -1369,8 +1449,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
           setState(() {
             isLoading = false;
           });
-        }
-      }
+        } */
+
+      //TODO: old code which is check that the refer candidate is exiting user or not  .........}
 
       // Use the applicationList as needed
       // For example, you can print the groupName of each Application object:
@@ -1516,6 +1597,30 @@ class _AddResumeState extends ConsumerState<AddResume> {
               // text3.requestFocus();
             },
           );
+        },
+      );
+    } else if (primary_number.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid number");
+        },
+      );
+    } else if (secondry.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid Secondary number");
         },
       );
     } else if (secondry.text == widget.useAlternateNumber.toString()) {

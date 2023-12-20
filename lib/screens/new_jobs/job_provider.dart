@@ -110,6 +110,20 @@ class JobProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isCompusTabSelected = false;
+  bool get isCompusTabSelected => _isCompusTabSelected;
+  set isCompusTabSelected(bool value) {
+    _isCompusTabSelected = value;
+    notifyListeners();
+  }
+
+  bool _isSupportStaff = false;
+  bool get isSupportStaff => _isSupportStaff;
+  set isSupportStaff(bool value) {
+    _isSupportStaff = value;
+    notifyListeners();
+  }
+
   bool isFilterApplied = false;
   bool contains(dynamic value, dynamic searchTerm) {
     if (value is int && searchTerm is int) {
@@ -121,6 +135,8 @@ class JobProvider extends ChangeNotifier {
     return false;
   }
 
+  //TODO: fav...
+
   void toggleFavoriteJobs(ProfileModel profileModel,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
@@ -129,6 +145,8 @@ class JobProvider extends ChangeNotifier {
     isFreshersTabSelected = false;
     isMyJobsTabSelected = false;
     isLanguilTabSelected = false;
+    isCompusTabSelected = false;
+    isSupportStaff = false;
     if (isFavoriteTabSelected) {
       _applyFavFilter(profileModel, jobs);
       toggleLocationFilter(jobs: filteredJobs);
@@ -146,6 +164,52 @@ class JobProvider extends ChangeNotifier {
 
     isFilterApplied = true;
   }
+  //TODO: filter foor support staff....
+
+  void toggleSupportStaff(ProfileModel model,
+      {bool unSelectedTab = true, List<JobsModel>? jobs}) {
+    if (unSelectedTab) {
+      isSupportStaff = !isSupportStaff;
+    }
+    isFreshersTabSelected = false;
+    isMyJobsTabSelected = false;
+    isLanguilTabSelected = false;
+    isCompusTabSelected = false;
+    isFavoriteTabSelected = false;
+    
+    if (isSupportStaff) {
+      filteredJobs = (jobs ?? this.jobs)
+          .where((job) => job.is_support_staff == 1)
+          .toList();
+      toggleLocationFilter(jobs: filteredJobs);
+    } else {
+      filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
+    }
+  }
+
+  //TODO: filter for compus...
+
+  void toggleCompusJobs(ProfileModel model,
+      {bool unSelectTab = true, List<JobsModel>? jobs}) {
+    if (unSelectTab) {
+      isCompusTabSelected = !isCompusTabSelected;
+    }
+
+    isMyJobsTabSelected = false;
+    isFavoriteTabSelected = false;
+    isFreshersTabSelected = false;
+    isLanguilTabSelected = false;
+    isSupportStaff = false;
+    if (isCompusTabSelected) {
+      filteredJobs =
+          (jobs ?? this.jobs).where((job) => job.is_campus == 1).toList();
+      toggleLocationFilter(jobs: filteredJobs);
+    } else {
+      filteredJobs = List.from(jobs ?? this.jobs);
+      toggleLocationFilter(jobs: jobs);
+    }
+  }
 
 //TODO filter for linguil....
 
@@ -158,6 +222,8 @@ class JobProvider extends ChangeNotifier {
     isMyJobsTabSelected = false;
     isFavoriteTabSelected = false;
     isFreshersTabSelected = false;
+    isCompusTabSelected = false;
+    isSupportStaff = false;
     if (isLanguilTabSelected) {
       filteredJobs = (jobs ?? this.jobs)
           .where((job) => job.languagesKnown!.isNotEmpty)
@@ -169,7 +235,7 @@ class JobProvider extends ChangeNotifier {
     }
   }
 
-  //TODO::
+  //TODO:: MyJobs
 
   void toggleMyJobsFilter(ProfileModel profileModel,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
@@ -179,6 +245,8 @@ class JobProvider extends ChangeNotifier {
     isFreshersTabSelected = false;
     isFavoriteTabSelected = false;
     isLanguilTabSelected = false;
+    isCompusTabSelected = false;
+    isSupportStaff = false;
     if (isMyJobsTabSelected) {
       if (role == "1" && profileModel.usertype == 3) {
         _applySpocFilter(profileModel, jobs);
@@ -208,6 +276,8 @@ class JobProvider extends ChangeNotifier {
         .toList();
   }
 
+  //TODO: Fresher...
+
   void toggleFreshersFilter(ProfileModel model,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
@@ -217,6 +287,8 @@ class JobProvider extends ChangeNotifier {
     isMyJobsTabSelected = false;
     isFavoriteTabSelected = false;
     isLanguilTabSelected = false;
+    isCompusTabSelected = false;
+    isSupportStaff = false;
     if (isFreshersTabSelected) {
       filteredJobs = (jobs ?? this.jobs)
           .where((job) => job.isFresher == "Fresher")
@@ -234,6 +306,8 @@ class JobProvider extends ChangeNotifier {
         .toList();
     isFilterApplied = true;
   } */
+
+  //TODOD: Location....
   void toggleLocationFilter({List<JobsModel>? jobs}) {
     if (selectedLocation.isEmpty) {
       filteredJobs = [];

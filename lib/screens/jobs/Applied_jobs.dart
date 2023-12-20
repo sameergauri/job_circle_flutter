@@ -56,14 +56,19 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
-  Future<void> _onRefresh() async {
+  final List<RefreshController> _refreshControllers = List.generate(
+    10,
+    (index) => RefreshController(initialRefresh: false),
+  );
+
+  Future<void> _onRefresh(int index) async {
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      ref.refresh(fetchAllApplyProvider);
-      // Update the UI with new data
-    });
-    _refreshController
+
+    ref.refresh(fetchAllApplyProvider);
+    // Update the UI with new data
+
+    _refreshControllers[index]
         .refreshCompleted(); // Call this to end the refresh animation
   }
 
@@ -213,29 +218,25 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                           ),
                         ),
                       ),
-                      body: SmartRefresher(
-                        enablePullDown: true,
-                        controller: _refreshController,
-                        onRefresh: _onRefresh,
-                        child: // NestedScrollView( //TODO: For scrolling
-                            /*  headerSliverBuilder:
-                              (BuildContext context, bool innerBoxIsScrolled) {
-                            return <Widget>[];
-                          }, */
-                            //body:
-                            TabBarView(
-                          children: statuses.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final status = entry.value;
-                            final applicants = data
-                                .where((applicant) =>
-                                    applicant.status.toString() == status)
-                                .toList();
+                      body: TabBarView(
+                        children: statuses.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final status = entry.value;
+                          final applicants = data
+                              .where((applicant) =>
+                                  applicant.status.toString() == status)
+                              .toList();
 
-                            // Create widgets based on the applicants list
+                          // Create widgets based on the applicants list
 
-                            // Return the list of widgets for this status
-                            return ListView.builder(
+                          // Return the list of widgets for this status
+                          return SmartRefresher(
+                            enablePullDown: true,
+                            controller: _refreshControllers[index],
+                            onRefresh: () async {
+                              await _onRefresh(index);
+                            },
+                            child: ListView.builder(
                               shrinkWrap: true,
                               physics: const BouncingScrollPhysics(),
                               itemCount: applicants.length,
@@ -243,34 +244,33 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                 return listViewItem_new(
                                     context, applicants[index], true);
                               },
-                            );
-                          }).toList(),
+                            ),
+                          );
+                        }).toList(),
 
-                          /* children: [
-                              ListView.builder(
-                                itemCount: statuses.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final filteredData = data
-                                      .where((applicant) =>
-                                          applicant.status.toString() ==
-                                          statuses[index])
-                                      .toList();
-                        
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: filteredData.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return listViewItem_new(
-                                          context, filteredData[index], true);
-                                    },
-                                  );
-                                },
-                              ),
-                            ], */
+                        /* children: [
+                        ListView.builder(
+                          itemCount: statuses.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final filteredData = data
+                                .where((applicant) =>
+                                    applicant.status.toString() ==
+                                    statuses[index])
+                                .toList();
+                                              
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: filteredData.length,
+                              itemBuilder:
+                                  (BuildContext context, int index) {
+                                return listViewItem_new(
+                                    context, filteredData[index], true);
+                              },
+                            );
+                          },
                         ),
-                        // ),//TODO: For scrolling
+                      ], */
                       ),
 
                       /* body: SmartRefresher( //TODO: old code without scrolling.
@@ -309,8 +309,57 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                     ),
                   );
                 } else {
-                  return const Center(
-                    child: Text("No data to display"),
+                  return Container(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/images/nojobs.gif"),
+                          Text(
+                            "You haven't applied yet!",
+                            style: GoogleFonts.varela(
+                                fontSize: 18.sp, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "Search for jobs and start applying. You can track your applications here!",
+                                  style: GoogleFonts.varela(color: Colors.grey),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()));
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              decoration: BoxDecoration(
+                                  color: Constants.themeBgColor,
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: Text(
+                                "View Jobs",
+                                style: GoogleFonts.varela(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
                   );
                 }
               }, error: (error, stackTrace) {
@@ -484,11 +533,11 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                 fit: BoxFit.scaleDown,
                                 child: Text(
                                   item.status == "Application"
-                                      ? "Application sent"
+                                      ? "Your Application is under process"
                                       : item.status == "Select"
                                           ? "You are selected for this job"
                                           : item.status == "Reject"
-                                              ? "Rejected"
+                                              ? "Your CV is rejected"
                                               : item.status ==
                                                       "Interview Schedule"
                                                   ? "Interview Schedule"
@@ -497,7 +546,13 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                       : item.status ==
                                                               "Screening Reject"
                                                           ? "Screening Rejected"
-                                                          : "",
+                                                          : item.status ==
+                                                                  "Disqualify"
+                                                              ? "Your CV is rejected"
+                                                              : item.status ==
+                                                                      "In-Process"
+                                                                  ? "CV shortlisted for interview"
+                                                                  : "",
                                   style: GoogleFonts.varela(
                                       color: Colors.amber,
                                       fontWeight: FontWeight.w600,

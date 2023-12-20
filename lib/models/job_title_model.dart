@@ -2,9 +2,13 @@ class JobTitleModel {
   final String id;
   final String name;
   final String isResumeId;
+  final int companyid;
 
   JobTitleModel(
-      {required this.id, required this.name, required this.isResumeId});
+      {required this.id,
+      required this.name,
+      required this.isResumeId,
+      required this.companyid});
 
   /* factory JobTitleModel.fromJson(Map<String, dynamic> json) {
     return JobTitleModel(
@@ -14,14 +18,14 @@ class JobTitleModel {
   } */
   factory JobTitleModel.fromJson(Map<String, dynamic> json) {
     return JobTitleModel(
-      id: json['id'].toString(),
-      name: json['name'].toString(),
-      isResumeId: json['isResumeId'] ?? "",
-    );
+        id: json['id'].toString(),
+        name: json['name'].toString(),
+        isResumeId: json['isResumeId'] ?? "",
+        companyid: json['compnyid'] ?? 0);
   }
   @override
   String toString() {
-    return 'JobTitleModel{id: $id, name: $name, isResumeId:$isResumeId}';
+    return 'JobTitleModel{id: $id, name: $name, isResumeId:$isResumeId,compnyid:$companyid}';
   }
 }
 

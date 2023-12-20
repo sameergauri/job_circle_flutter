@@ -4,11 +4,10 @@ import 'package:job_circle/themes/colors.dart';
 
 class CustomSnackbarfinal extends SnackBar {
   CustomSnackbarfinal({
-    Key? key,
+    super.key,
     required String title,
     required bool error,
   }) : super(
-          key: key,
           elevation: 1.0,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 5),
@@ -32,11 +31,13 @@ class CustomSnackbarfinal extends SnackBar {
                       height: 15.h,
                     ),
               const SizedBox(width: 8.0), // Add spacing between icon and text
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.black, // Text color
-                  fontSize: 14.0, // Text size
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.black, // Text color
+                    fontSize: 14.0, // Text size
+                  ),
                 ),
               ),
             ],

@@ -16,6 +16,7 @@ import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
+import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -281,7 +282,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     //final favProvider = ref.watch(favJobProvider(widget.id ?? 0));
     // bool isFav = favProvider.value?.isFav ?? false;
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
         titleTextStyle: GoogleFonts.varela(color: Constants.themeBgColor),
         automaticallyImplyLeading: false,
@@ -647,14 +647,34 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       usertype == EUserType.businessPartner.value),
                   child: InkWell(
                     onTap: () async {
+                      if (profilemodel.cv_link != null) {
+                        await JobPostApiService.postJobApply(
+                            context: context,
+                            jobId: int.parse(jobDetailsModel.id.toString()),
+                            // userId: int.parse(profilemodel.id.toString()
+                            userId: await Utils.getPreferencesValue(
+                                null, ESharedPreferences.user_id.name));
+                        ref.refresh(fetchAllApplyProvider);
+                        ref.refresh(fetchAllTalentPool);
+                      } else {
+                        if (jobDetailsModel.id != null) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddCvtoApply(
+                                        jobId: jobDetailsModel.id!.toInt(),
+                                      )));
+                        }
+                      }
+                    },
+                    /*  onTap: () async { //TODO: old code before 15/12/2023
                       if (profilemodel.id != null) {
                         await JobPostApiService.postJobApply(
                             context: context,
                             jobId: int.parse(jobDetailsModel.id.toString()),
                             // userId: int.parse(profilemodel.id.toString()
                             userId: await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name)
-                            );
+                                null, ESharedPreferences.user_id.name));
                         ref.refresh(fetchAllApplyProvider);
                         ref.refresh(fetchAllTalentPool);
                       }
@@ -664,7 +684,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             "prevModel": jobDetailsModel,
                             "refer": true
                           }); */
-                    },
+                    }, */
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 10),
@@ -802,19 +822,15 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Container(
-          margin: EdgeInsets.only(top: AppBar().preferredSize.height * 1.7.h),
-          padding: const EdgeInsets.only(
-            left: 20,
-            right: 20,
-          ),
-          child: jobDetailsModel.id == null
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Column(
+      body: jobDetailsModel.id == null
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     /*  Column(
@@ -1068,14 +1084,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     //color: Colors.black54,
                                     fontSize: 13.sp),
                               )
-                            : Text(
-                                jobDetailsModel.location.toString(),
-                                // maxLines: 2,
-                                // overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.varela(
-                                    color: Colors.grey.shade700,
-                                    //color: Colors.black54,
-                                    fontSize: 13.sp),
+                            : Expanded(
+                                child: Text(
+                                  jobDetailsModel.location.toString(),
+                                  // maxLines: 2,
+                                  // overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.varela(
+                                      color: Colors.grey.shade700,
+                                      //color: Colors.black54,
+                                      fontSize: 13.sp),
+                                ),
                               )
                       ],
                     ),
@@ -1342,7 +1360,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                     1;
                                             String separator =
                                                 isLastItem ? '.' : ', ';
-
+                      
                                             return Row(
                                               children: [
                                                 Text(
@@ -2217,7 +2235,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ),
                   ],
                 ),
-              ), */
+                            ), */
                     /* Visibility(
                   visible: usertype == EUserType.jobSeeker.value,
                   child: const Padding(
@@ -2374,7 +2392,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             null &&
                                         jobDetailsModel.shiftdesc !=
                                             "")),
-          
+                      
                             const SizedBox(
                               height: 15,
                             ),
@@ -2424,7 +2442,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             const SizedBox(
                               height: 25,
                             ),
-          
+                      
                             Row(
                               mainAxisAlignment:
                                   MainAxisAlignment.start,
@@ -2477,7 +2495,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   thickness: 2,
                                 )),
                               ]),
-          
+                      
                             if (usertype ==
                                     EUserType.businessPartner.value &&
                                 partner_request ==
@@ -2508,7 +2526,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                           false)),
                                 ],
                               ),
-          
+                      
                             Visibility(
                               visible: ((usertype ==
                                           EUserType.businessPartner
@@ -2567,7 +2585,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ),
                   ),
                 ),
-              ), */
+                            ), */
 
                     if (jobDetailsModel.partnerPayout != null &&
                         (jobDetailsModel.partnerPayout == 'Flat' ||
@@ -3285,8 +3303,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                         .toInt(),
                                                     useAlternateNumber:
                                                         profilemodel
-                                                            .alternate_no!
-                                                            .toInt(),
+                                                                .alternate_no
+                                                                ?.toInt() ??
+                                                            0,
                                                   )));
                                     },
                                     child: Container(
@@ -3471,8 +3490,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     ) */
                   ],
                 ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 

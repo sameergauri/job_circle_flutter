@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
-import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import your Constants class here
@@ -57,6 +56,7 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
     }
     return Container(
       decoration: BoxDecoration(
+          // color: Constants.themeBgColorLight,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r))),
       padding: const EdgeInsets.only(left: 20, right: 20, top: 5),
@@ -71,7 +71,7 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
                 "Cities we are present in...",
                 style: GoogleFonts.varela(
                   fontSize: 18,
-                  color: Constants.themeBgColor, // Use your Constants here
+                  color: Colors.blue, // Use your Constants here
                 ),
               ),
               IconButton(
@@ -95,7 +95,7 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
           const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
-              itemCount: uniqueList.length,
+              itemCount: uniqueList.toSet().length,
               itemBuilder: (context, index) {
                 final location = uniqueList[index];
                 return InkWell(
@@ -114,15 +114,12 @@ class _LocationSelectorState extends ConsumerState<LocationSelector> {
                         right: 20, left: 20, top: 10, bottom: 10),
                     decoration: BoxDecoration(
                         color: index % 2 == 0
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade200,
+                            ? Colors.blueGrey[100]
+                            : Colors.grey[100],
                         borderRadius: BorderRadius.circular(8.r)),
                     child: Text(
                       location,
-                      style: TextStyle(
-                        color: index % 2 == 0
-                            ? Colors.grey.shade200
-                            : Colors.grey.shade400,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),

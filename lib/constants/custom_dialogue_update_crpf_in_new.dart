@@ -54,7 +54,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
 
   //String? companyId;
   int? processId, roleId;
-  int functionalAreaId = 0;
+  int newJobID = 0;
 
   void handleSelectedID(String id) {
     // Process the selected ID as needed
@@ -191,12 +191,13 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
 
   void getFunctionalAreaIdCust(int id) {
     setState(() {
-      functionalAreaId = id;
+      newJobID = id;
     });
   }
 
   String? spocLastName, spocFirsName;
   int? spoc;
+  String? firstInterviewRound;
 
   void getSpocLastName(String lname) {
     setState(() {
@@ -215,6 +216,13 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
   void getSpoc(int spc) {
     setState(() {
       spoc = spc;
+    });
+    print(spoc);
+  }
+
+  void getInterviewRounds(String spc) {
+    setState(() {
+      firstInterviewRound = spc;
     });
     print(spoc);
   }
@@ -285,7 +293,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                       ),
                     ),
                     Text(
-                      widget.item.applicantName.toString(),
+                      "${widget.item.applicantName.toString()} ${widget.item.last_name.toString()}",
                       style: GoogleFonts.varela(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
@@ -384,7 +392,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                   height: 6.h,
                 ),
                 isComp
-                    ? CustomJobFormTextField(
+                    ? CustomJobFormForUpdateCRPF(
                         onTapCallback: onTextField1Tap1,
                         focusNode: cmpnyFocusNode,
                         isCompany: true,
@@ -754,6 +762,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                           getSpocfName: getSpocFirstName,
                           getSpoclName: getSpocLastName,
                           getspoc: getSpoc,
+                          getInterviewRounds: getInterviewRounds,
                         )
                       : const SizedBox(),
                 if (isNof == false)
@@ -849,55 +858,61 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                         child: InkWell(
                           onTap: () async {
                             final addResumeModel = JobApplicationModel(
-                                resume: widget.item.resume,
-                                isRef: widget.item.is_ref,
-                                uid: widget.item.uid,
-                                id: widget.item.id,
-                                applicantName: widget.item.applicantName,
-                                lastName: widget.item.last_name,
-                                contactNo: widget.item.contactNo,
-                                qualification: widget.item.qualification,
-                                isExperienced:
-                                    widget.item.isExperienced == 1 ? 1 : 0,
-                                companyName: isComp == false
-                                    ? widget.company_name
-                                    : shorListController.text,
-                                process: isprocess == false
-                                    ? widget.process
-                                    : proces.text,
-                                level:
-                                    isRole == false ? widget.role : role.text,
-                                naturofwork: isNof == false
-                                    ? widget.nature_of_work
-                                    : natureOfWork.text,
-                                shortListFor: isComp == false
-                                    ? widget.companyId
-                                    : int.parse(CompanyID.toString()),
-                                status: "IB5",
-                                // subStatus: "Shortlist",
-                                sourceId: widget.item.sourceId,
-                                sourceName: widget.item.source_name,
-                                jobid: widget.item.jobId,
-                                spoc: spoc ?? widget.item.spoc,
-                                interview_rounds: widget
-                                    .item.inteviewrounds!.first
-                                    .toString()
-                                    .replaceAll('"', '')
-                                    .replaceAll('[', '')
-                                    .replaceAll(']', ''),
-                                client_resume_id: ResumeId.text.isNotEmpty
-                                    ? ResumeId.text
-                                    : null,
-                                subStatus: virtual
-                                    ? "Virtual Interview"
-                                    : f2f
-                                        ? "On-Site Interview"
-                                        : "",
-                                dol: widget.item.dol
+                              resume: widget.item.resume,
+                              isRef: widget.item.is_ref,
+                              rid: widget.item.rid,
+                              sub_source: widget.item.sub_source,
+                              uid: widget.item.uid,
+                              id: widget.item.id,
+                              applicantName: widget.item.applicantName,
+                              lastName: widget.item.last_name,
+                              contactNo: widget.item.contactNo,
+                              qualification: widget.item.qualification,
+                              isExperienced:
+                                  widget.item.isExperienced == 1 ? 1 : 0,
+                              companyName: isComp == false
+                                  ? widget.company_name
+                                  : shorListController.text,
+                              process: isprocess == false
+                                  ? widget.process
+                                  : proces.text,
+                              level: isRole == false ? widget.role : role.text,
+                              naturofwork: isNof == false
+                                  ? widget.nature_of_work
+                                  : natureOfWork.text,
+                              shortListFor: isComp == false
+                                  ? widget.companyId
+                                  : int.parse(CompanyID.toString()),
+                              status: "IB5",
 
-                                //dos: widget.item.dos
-                                // ... fill in other properties as needed
-                                );
+                              // subStatus: "Shortlist",
+                              sourceId: widget.item.sourceId,
+                              sourceName: widget.item.source_name,
+                              jobid: isComp == false
+                                  ? widget.item.jobId
+                                  : newJobID,
+                              spoc: spoc ?? widget.item.spoc,
+                              interview_rounds: isComp == false
+                                  ? widget.item.inteviewrounds!.first
+                                      .toString()
+                                      .replaceAll('"', '')
+                                      .replaceAll('[', '')
+                                      .replaceAll(']', '')
+                                  : firstInterviewRound,
+                              client_resume_id: ResumeId.text.isNotEmpty
+                                  ? ResumeId.text
+                                  : null,
+                              subStatus: virtual
+                                  ? "Virtual Interview"
+                                  : f2f
+                                      ? "On-Site Interview"
+                                      : "",
+                              dol: widget.item.dol,
+                              alternateNo: widget.item.alternateNo,
+
+                              //dos: widget.item.dos
+                              // ... fill in other properties as needed
+                            );
                             final jsonData = addResumeModel.toJson();
                             await JobPostApiService.addResume(
                                 jsonData, context, true);

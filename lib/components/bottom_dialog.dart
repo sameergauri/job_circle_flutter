@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BottomDialog {
   void showBottomDialog(BuildContext context, Widget widget, bool dismissable,
@@ -16,13 +17,21 @@ class BottomDialog {
               topLeft: Radius.circular(15), topRight: Radius.circular(15))),
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (BuildContext context, setState) {
-          if (controller != null) controller.setState = setState;
-          return Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: SingleChildScrollView(child: widget),
-          );
-        });
+        return WillPopScope(
+          onWillPop: () async {
+             SystemNavigator.pop();
+
+            // Return true to allow dismissal, false to prevent it
+            return false;
+          },
+          child: StatefulBuilder(builder: (BuildContext context, setState) {
+            if (controller != null) controller.setState = setState;
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: SingleChildScrollView(child: widget),
+            );
+          }),
+        );
       },
       // tra: (_, animation1, __, child) {
       //   return SlideTransition(

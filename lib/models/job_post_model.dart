@@ -58,6 +58,8 @@ class jobPostModel {
   int? workCity;
   List<int>? workLocation;
   String? workType;
+  int? isSupportStaff;
+  int? isCampus;
 
   jobPostModel({
     this.active,
@@ -120,6 +122,8 @@ class jobPostModel {
     this.workCity,
     this.workLocation,
     this.workType,
+    this.isCampus,
+    this.isSupportStaff,
   });
 
   factory jobPostModel.fromJson(Map<String, dynamic> json) => jobPostModel(
@@ -214,6 +218,8 @@ class jobPostModel {
             ? List<int>.from(json["work_location"].map((x) => x))
             : null,
         workType: json["work_type"],
+        isCampus: json['isCampus'],
+        isSupportStaff: json['isSupportStaff'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -301,5 +307,7 @@ class jobPostModel {
             ? List<dynamic>.from(workLocation!.map((x) => x))
             : null,
         "work_type": workType,
+        "isSupportStaff": isSupportStaff,
+        "isCampus": isCampus,
       };
 }

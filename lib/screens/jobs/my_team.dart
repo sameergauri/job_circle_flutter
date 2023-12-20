@@ -16,7 +16,7 @@ import '../../models/my_team_model.dart';
 
 class LeadsTable extends StatefulWidget {
   final int id;
-  const LeadsTable({Key? key, required this.id}) : super(key: key);
+  const LeadsTable({super.key, required this.id});
 
   @override
   State<LeadsTable> createState() => _LeadsTableState();
@@ -127,7 +127,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
 
   Future<void> fetchAllLeadDetails() async {
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=${widget.id}&page=1&size=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=${widget.id}&page=1&size=10000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -473,7 +473,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                   ],
                 ),
               )
-            : const PreferredSize(child: SizedBox(), preferredSize: Size(0, 0)),
+            : const PreferredSize(preferredSize: Size(0, 0), child: SizedBox()),
         body: Padding(
           padding: EdgeInsets.only(
             left: 10,
@@ -943,6 +943,9 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                 ),
               ),
             ),
+            height: 30,
+            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+            alignment: Alignment.centerLeft,
             child: Text(
               label,
               style: GoogleFonts.varela(
@@ -951,9 +954,6 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                 color: Colors.white,
               ),
             ),
-            height: 30,
-            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-            alignment: Alignment.centerLeft,
           ),
         );
       }
@@ -971,7 +971,7 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
       if (part.isNotEmpty) {
         initials += i == 0
             ? part
-            : ' ' + (i == nameParts.length - 1 ? part[0] : part[0] + ' ');
+            : ' ${i == nameParts.length - 1 ? part[0] : '${part[0]} '}';
       }
     }
 
@@ -1116,7 +1116,7 @@ class DataSource extends DataGridSource {
       if (part.isNotEmpty) {
         initials += i == 0
             ? part
-            : ' ' + (i == nameParts.length - 1 ? part[0] : part[0] + ' ');
+            : ' ${i == nameParts.length - 1 ? part[0] : '${part[0]} '}';
       }
     }
 
@@ -1129,10 +1129,10 @@ class CustomCheckbox extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const CustomCheckbox({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

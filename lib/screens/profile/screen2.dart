@@ -8,7 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/customdialogue_for_education_selecton.dart';
-import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
@@ -230,16 +229,35 @@ class _Screen2State extends ConsumerState<Screen2> {
       } else if (widget.prevPageModel!.level == "Graduate") { */
       setState(() {
         // graduate = true;
-        universityController.text = widget.prevPageModel!.university!;
+
+        universityController.text = widget.prevPageModel!.board != null
+            ? widget.prevPageModel!.board.toString()
+            : widget.prevPageModel!.university!;
+        boardController.text = widget.prevPageModel!.board.toString();
         degreeController.text = widget.prevPageModel!.degree_spc!;
         fieldOfStudyController.text = widget.prevPageModel!.fieldOfStudy!;
         firstYearController.text = widget.prevPageModel!.firstYear.toString();
         passingYearController.text =
             widget.prevPageModel!.passingYear.toString();
+        if (widget.prevPageModel?.degree_spc == "H.S.C") {
+          passingYearController.text =
+              widget.prevPageModel!.passingYear.toString();
+        }
+        universityId = widget.prevPageModel!.university_id;
+        degreeId = widget.prevPageModel!.degree_id;
+        fieldId = widget.prevPageModel!.fieldofstudy_id;
         marksheet = widget.prevPageModel!.marksheet.toString();
         universityId = widget.prevPageModel!.university_id;
         degreeId = widget.prevPageModel!.degree_id;
         fieldId = widget.prevPageModel!.fieldofstudy_id;
+
+        widget.prevPageModel!.fieldOfStudy == "Science"
+            ? science = true
+            : widget.prevPageModel!.fieldOfStudy == "Commerce"
+                ? commerce = true
+                : widget.prevPageModel!.fieldOfStudy == "Art"
+                    ? art = true
+                    : null;
       });
       /*  } else if (widget.prevPageModel!.level == "Post Graduate") {
         undergraduate = true;
@@ -503,75 +521,86 @@ class _Screen2State extends ConsumerState<Screen2> {
           },
           child: Scaffold(
               bottomNavigationBar: InkWell(
-                onTap: degreeController.text.isNotEmpty &&
-                        universityController.text.isNotEmpty &&
+                onTap: /* degreeController.text.isNotEmpty &&
+                        (degreeController.text.isNotEmpty ||
+                            boardController.text.isNotEmpty) &&
                         //    fieldOfStudyController.text.isNotEmpty &&
                         firstYearController.text.isNotEmpty
                     //passingYearController.text.isNotEmpty
-                    ? () async {
-                        int firstYear = firstYearController.text.isNotEmpty
-                            ? int.parse(firstYearController.text)
-                            : 0;
-                        int lastYear = degreeCode == "D001"
-                            ? int.parse(firstYearController.text)
-                            : int.parse(passingYearController.text);
-                        if (widget.educationList != null &&
-                            widget.educationList!.isNotEmpty) {
-                          for (Education education in widget.educationList!) {
-                            if (education.degree_spc == degreeController.text &&
-                                widget.prevPageModel == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  customSnackbar(
-                                      "The Degree is already added", true));
-                              // break;
-                            } else {}
-                          }
-                          if (degreeController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar("Add degree first", true));
-                          } else if (universityController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar("Add University first", true));
-                          } else if (firstYearController.text.length != 4) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar(
-                                    "Add Proper year in first year", true));
-                          } else if (passingYearController.text.length != 4 &&
-                              degreeCode != "D001") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar(
-                                    "Add Proper year in final year", true));
-                          } else if (lastYear <= firstYear &&
-                              degreeCode != "D001") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar(
-                                    "Passing year should be greater than first year",
-                                    true));
-                          } else {
-                            await save();
-                            ref.refresh(userDataProvider);
-                            Navigator.pop(context);
-                            //   Navigator.pop(context);
-                          }
-                        } else {
-                          await save();
-                          ref.refresh(userDataProvider);
-                          Navigator.pop(context);
-                          // Navigator.pop(context);
-                        } // ignore: curly_braces_in_flow_control_structures
-                      }
-                    : () {},
+                    ? */
+                    () async {
+                  int firstYear = firstYearController.text.isNotEmpty
+                      ? int.parse(firstYearController.text)
+                      : 0;
+                  int lastYear = passingYearController.text.isNotEmpty
+                      ? degreeCode == "D001"
+                          ? int.parse(firstYearController.text)
+                          : int.parse(passingYearController.text)
+                      : 0;
+                  if (widget.educationList != null &&
+                      widget.educationList!.isNotEmpty) {
+                    for (Education education in widget.educationList!) {
+                      if (education.degree_spc == degreeController.text &&
+                          widget.prevPageModel == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            customSnackbar(
+                                "The Degree is already added", true));
+                        // break;
+                      } else {}
+                    }
+                    if (degreeController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Add degree first", true));
+                    } else if (universityController.text.isEmpty &&
+                        degreeCode != "D001") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Add University first", true));
+                    } else if (boardController.text.isEmpty &&
+                        degreeCode == "D001") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Add Board first", true));
+                    } else if (firstYearController.text.length != 4) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("First year is invalid", true));
+                    } else if (passingYearController.text.length != 4 &&
+                        degreeCode != "D001") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Invalid year of passing", true));
+                    } else if (lastYear <= firstYear && degreeCode != "D001") {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Passing year should be greater than first year",
+                          true));
+                    } else if (firstYearController.text.length != 4 &&
+                        degreeCode != "D001") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("First year is not valid", true));
+                    } else {
+                      await save();
+                      ref.refresh(userDataProvider);
+                      Navigator.pop(context);
+                      //   Navigator.pop(context);
+                    }
+                  } else {
+                    await save();
+                    ref.refresh(userDataProvider);
+                    Navigator.pop(context);
+                    // Navigator.pop(context);
+                  } // ignore: curly_braces_in_flow_control_structures
+                },
+                // : () {},
                 child: Container(
                   margin: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
                   decoration: BoxDecoration(
-                      color: degreeController.text.isNotEmpty &&
-                              universityController.text.isNotEmpty &&
+                      color: /* degreeController.text.isNotEmpty &&
+                              (universityController.text.isNotEmpty ||
+                                  boardController.text.isNotEmpty) &&
                               //   fieldOfStudyController.text.isNotEmpty &&
                               firstYearController.text.isNotEmpty
                           //  passingYearController.text.isNotEmpty
                           ? Constants.themeBgColor
-                          : Constants.maintheme_light_color,
+                          : */
+                          Constants.themeBgColor,
                       borderRadius: BorderRadius.circular(8.r)),
                   width: double.maxFinite,
                   padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -2324,77 +2353,55 @@ class _Screen2State extends ConsumerState<Screen2> {
     return SizedBox(
       child: Column(
         children: [
-          /* SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isGraduateUni
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "University / Institute",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        universityController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isGraduateUni = false;
-                            uniGFocus.requestFocus();
-                            universityController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: uniGFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "university",
-                    title: "University / Institute",
-                    controller: universityController,
-                    onChanged: (p0) {
-                      isUniG = true;
-                    },
-                    contextIn: context,
-                    hintText: "Mumbai University",
-                  ),
-          ), */
-
-          CustomTextFieldComapanyLocation(
-            labelText: "Degree / Specialization",
-            university: false,
-            degree: true,
-            hsc: true,
-            title: "",
-            isCity: true,
-            contextIn: context,
-            role: "",
-            hintText: "Bachelor of Commerce",
-            name: "degree",
-            isCompany: false,
-            controller: degreeController,
-            onChanged: (p0) {
-              isGraduateDeg = true;
-            },
-            getid: (p0) {
-              degreeId = p0;
-            },
-            onSubmit: (p0) {
-              setState(() {
-                degreeCode = p0;
-              });
-            },
-            icon: const Icon(Icons.workspace_premium_outlined),
-          ),
+          if (degreeCode == "D001")
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                /* Text(
+                  "Education :-",
+                  style: GoogleFonts.varela(
+                      fontWeight: FontWeight.bold,
+                      color: Constants.themeBgColor),
+                ), */
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 25),
+                  decoration: BoxDecoration(
+                      color: Constants.themeBgColor,
+                      borderRadius: BorderRadius.circular(8.r)),
+                  child: Text("H.S.C",
+                      style: GoogleFonts.varela(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          if (degreeCode != "D001")
+            CustomTextFieldComapanyLocation(
+              labelText: "Degree / Specialization",
+              university: false,
+              degree: true,
+              hsc: true,
+              title: "",
+              isCity: true,
+              contextIn: context,
+              role: "",
+              hintText: "Bachelor of Commerce",
+              name: "degree",
+              isCompany: false,
+              controller: degreeController,
+              onChanged: (p0) {
+                isGraduateDeg = true;
+              },
+              getid: (p0) {
+                degreeId = p0;
+              },
+              onSubmit: (p0) {
+                setState(() {
+                  degreeCode = p0;
+                });
+              },
+              icon: const Icon(Icons.workspace_premium_outlined),
+            ),
           const SizedBox(height: 10),
           CustomTextFieldComapanyLocation(
             university: true,
@@ -2406,10 +2413,13 @@ class _Screen2State extends ConsumerState<Screen2> {
             isCity: true,
             contextIn: context,
             role: "",
-            hintText: "Mumbai University",
+            hintText: degreeCode == "D001"
+                ? "Maharshtra State Board"
+                : "Mumbai University",
             name: degreeCode == "D001" ? "board" : "university",
             isCompany: false,
-            controller: universityController,
+            controller:
+                degreeCode == "D001" ? boardController : universityController,
             onChanged: (p0) {
               isUniG = true;
             },
@@ -2418,50 +2428,6 @@ class _Screen2State extends ConsumerState<Screen2> {
             },
             icon: const Icon(Icons.school_outlined),
           ),
-          /* SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isGraduateDeg
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Degree / Specialization",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        degreeController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isGraduateDeg = false;
-                            dgreeGFocus.requestFocus();
-                            degreeController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: dgreeGFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "degree",
-                    title: "Degree / Specialization",
-                    controller: degreeController,
-                    onChanged: (p0) {
-                      isGraduateDeg = true;
-                    },
-                    contextIn: context,
-                    hintText: "Bachelor of Commerce",
-                  ),
-          ), */
           const SizedBox(height: 10),
           degreeCode == "D001"
               ? Container(
@@ -2942,10 +2908,10 @@ class _Screen2State extends ConsumerState<Screen2> {
           const SizedBox(
             height: 20,
           ),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              InkWell(
+              /*   InkWell(    //TODO: marksheet document
                 /* onTap: () {
                   showDialog(
                     context: context,
@@ -2991,6 +2957,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                                     marksheet = await customFilePicker(
                                       ['pdf'],
                                     );
+                                    setState(() {});
                                     ref.refresh(userDataProvider);
 
                                     // Add your logic for replacing here
@@ -3015,7 +2982,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                         title: marksheet != null
                             ? marksheet.toString()
                             : "Upload Marksheet"), //customButton("Upload Marksheet", "", 0, true),
-              ),
+              ), */
             ],
           ),
           const SizedBox(
@@ -3597,7 +3564,8 @@ class _Screen2State extends ConsumerState<Screen2> {
         id: eduID,
         userId: profilemodel.id,
         //level: "Graduate",
-        university: universityController.text,
+        university: degreeCode == "D001" ? null : universityController.text,
+        board: degreeCode == "D001" ? boardController.text : null,
         degree_spc: degreeCode == "D001" ? "H.S.C" : degreeController.text,
         fieldOfStudy: degreeCode == "D001"
             ? science

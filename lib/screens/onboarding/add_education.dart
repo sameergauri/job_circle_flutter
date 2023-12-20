@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
-import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/new_jobs.dart';
@@ -30,12 +30,14 @@ class AddEducation extends ConsumerStatefulWidget {
   final Map<String, dynamic> introData;
   final Experience experience;
   final bool isexperience;
+  final int? jobtitleid;
   const AddEducation({
     required this.experience,
     required this.introData,
     required this.languageModel,
     required this.userID,
     required this.isexperience,
+    required this.jobtitleid,
     super.key,
   });
 
@@ -343,7 +345,8 @@ class _AddEducationState extends ConsumerState<AddEducation> {
               )
             : const SizedBox(),
         Scaffold(
-            floatingActionButton: isgraduate || isundergradute
+            floatingActionButton: isgraduate ||
+                    isundergradute && (degreeController.text.isEmpty)
                 ? Padding(
                     padding: EdgeInsets.only(left: 20.w),
                     child: Row(
@@ -406,26 +409,60 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                 ? GestureDetector(
                     onTap: () async {
                       if (isgraduate == false && isundergradute == false) {
-                        ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                            "Select one option from graduate and under-graduate."));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title:
+                                    "Select one option from graduate and under-graduate.",
+                                error: true));
                       } else if (degreeController.text.isEmpty &&
                           !isundergradute) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("Select or add Degree."));
-                      } else if (universityController.text.isEmpty) {
+                            CustomSnackbarfinal(
+                                title: !isundergradute
+                                    ? "Select or add Degree."
+                                    : "Select or add board",
+                                error: true));
+                      } else if (universityController.text.isEmpty &&
+                          !isundergradute) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("Select or add University."));
+                            CustomSnackbarfinal(
+                                title: "Select or add University.",
+                                error: true));
                       } else if (fieldOfStudyController.text.isEmpty &&
                           !isundergradute) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("Provide field of study."));
+                            CustomSnackbarfinal(
+                                title: "Provide field of study.", error: true));
                       } else if (firstYearController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("Provide first year."));
+                            CustomSnackbarfinal(
+                                title: !isundergradute
+                                    ? "Provide first year."
+                                    : "Year of passing missing.",
+                                error: true));
+                      } /*  else if (passingYearController.text.length != 4 &&
+                          degreeCode != "D001") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Add Proper year in final year",
+                                error: true));
+                      } */
+                      else if (firstYearController.text.length != 4) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Add Proper year in first year",
+                                error: true));
                       } else if (passingYearController.text.isEmpty &&
                           !isundergradute) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar("Provide final year."));
+                            CustomSnackbarfinal(
+                                title: "Provide final year.", error: true));
+                      } else if (passingYearController.text.length != 4 &&
+                          !isundergradute) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Provide Proper final year.",
+                                error: true));
                       } else {
                         var payload = {
                           "stage": "education",
@@ -581,6 +618,13 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                   setState(() {
                     isgraduate = false;
                     isundergradute = true;
+                    marksheet = null;
+                    degreeController.clear();
+                    universityController.clear();
+                    fieldOfStudyController.clear();
+                    firstYearController.clear();
+                    passingYearController.clear();
+                    boardController.clear();
                     // degreeController.text = "H.S.C".toString();
                   });
                 },
@@ -607,6 +651,17 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                   setState(() {
                     isgraduate = true;
                     isundergradute = false;
+                    marksheet = null;
+                    boardController.clear();
+                    science = false;
+                    commerce = false;
+                    art = false;
+                    passingYearController.clear();
+                    degreeController.clear();
+                    universityController.clear();
+                    fieldOfStudyController.clear();
+                    firstYearController.clear();
+                    passingYearController.clear();
                   });
                 },
                 child: Container(
@@ -867,10 +922,13 @@ class _AddEducationState extends ConsumerState<AddEducation> {
               hsc: false,
               contextIn: context,
               role: "",
-              hintText: "Mumbai University",
-              name: "university",
+              hintText: !isundergradute
+                  ? "Mumbai University"
+                  : "Maharashtra State Board",
+              name: !isundergradute ? "university" : "board",
               isCompany: false,
-              controller: universityController,
+              controller:
+                  !isundergradute ? universityController : boardController,
               onChanged: (p0) {
                 isUniG = true;
               },
@@ -1024,6 +1082,8 @@ class _AddEducationState extends ConsumerState<AddEducation> {
           ),
           if (isgraduate || isundergradute)
             CustomTextField(
+                maxLength: 4,
+                isNumber: true,
                 context: context,
                 hint: "2017",
                 label: !isundergradute ? "First Year" : "Passing Year",
@@ -1033,6 +1093,8 @@ class _AddEducationState extends ConsumerState<AddEducation> {
           const SizedBox(height: 10),
           if ((isgraduate || isundergradute) && !isundergradute)
             CustomTextField(
+                maxLength: 4,
+                isNumber: true,
                 context: context,
                 hint: "2023",
                 label: "Final Year",
@@ -1043,10 +1105,10 @@ class _AddEducationState extends ConsumerState<AddEducation> {
             height: 20,
           ),
           if (isgraduate || isundergradute)
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                InkWell(
+                /*   InkWell(//TODO: marksheet document
                   child: marksheet != null
                       ? customContainerSelectToViewDoc(
                           onPressed: () {
@@ -1085,12 +1147,13 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                               marksheet = await customFilePicker(
                                 ["pdf"],
                               );
+                              setState(() {});
                             });
                           },
                           title: marksheet != null
                               ? marksheet.toString()
                               : "Upload Marksheet"), //customButton("Upload Marksheet", "", 0, true),
-                ),
+                ), */
               ],
             )
         ],
@@ -1118,8 +1181,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
       model = Education(
           id: eduID,
           userId: widget.userID,
+          board: !isundergradute ? null : boardController.text,
           //level: "Graduate",
-          university: universityController.text,
+          university: !isundergradute ? universityController.text : null,
           degree_spc: isundergradute ? "H.S.C" : degreeController.text,
           fieldOfStudy: isundergradute
               ? science
@@ -1141,17 +1205,21 @@ class _AddEducationState extends ConsumerState<AddEducation> {
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
-
-    await JobPostApiService.PostUserInfo(widget.introData);
-    await JobPostApiService.updateLanguages(
-        widget.languageModel, widget.userID);
-    if (widget.experience.userId != null) {
-      await userDataService.saveUserExperience(widget.experience.toJson());
+    if (widget.jobtitleid == 0) {
+      JobPostApiService.saveJobRole(
+          context, widget.experience.job_title.toString());
     }
-
+    if (widget.experience.userId != null) {
+      await JobPostApiService.PostUserExperience(
+          widget.experience.toJson(), context);
+      // await userDataService.saveUserExperience(widget.experience.toJson());
+    }
     if (!isSkip) {
       await userDataService.saveUserEducation(model.toMap());
     }
+    await JobPostApiService.PostUserInfo(widget.introData);
+    await JobPostApiService.updateLanguages(
+        widget.languageModel, widget.userID);
     ref.refresh(userDataProvider);
     ref.refresh(userJobDataProvider);
     ref.refresh(profileSummaryProvider);

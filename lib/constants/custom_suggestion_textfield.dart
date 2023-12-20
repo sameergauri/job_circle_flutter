@@ -60,9 +60,10 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
       {required String companyId,
       required String role,
       required String process}) async {
+    String encodedProcess = Uri.encodeComponent(process);
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$process&page=1&size=10000"));
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctFunctionalArea?companyid=$companyId&rolename=$role&process=$encodedProcess&page=1&size=10000"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -126,9 +127,10 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
   }
 
   Future<List<RoleModel>> getJobTitle(String companyId, String proces) async {
+    String encodedProcess = Uri.encodeComponent(proces);
     final response = await http.get(Uri.parse(
         // 'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'
-        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctRolename?companyid=$companyId&process=$proces&page=1&size=10000"));
+        "http://${GlobalConstants.API_Host}/jobCRPF/v1/getDistinctRolename?companyid=$companyId&process=$encodedProcess&page=1&size=10000"));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
