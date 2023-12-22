@@ -820,7 +820,7 @@ class _Screen3State extends ConsumerState<Screen3> {
 
   Widget _education() {
     return Container(
-      key: const Key('second'),
+      // key: const Key('second'),
       child: Padding(
         padding:
             const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
@@ -1696,6 +1696,7 @@ class _Screen3State extends ConsumerState<Screen3> {
 
                 if (yes || no)
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // QuillEditorPage(),
                       CustomTextField(
@@ -2015,6 +2016,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                       ),
 
                       Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.start,
                         children: [
                           customContainerSelectForWorkingType(
                             onPressed: () {
@@ -2115,6 +2117,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                       ),
 
                       Wrap(
+                        alignment: WrapAlignment.start,
                         children: [
                           customContainerSelectForEmpType(
                               onPressed: () {

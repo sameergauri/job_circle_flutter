@@ -159,7 +159,7 @@ class _Screen1State extends ConsumerState<Screen1> {
 
   late List list;
 
-  final basicForm = GlobalKey<FormState>();
+   GlobalKey<FormState> basicForm3 = GlobalKey<FormState>();
 
   late List<AutoCompleteModel> stateList = [];
   late List<AutoCompleteModel> cityList = [];
@@ -684,12 +684,12 @@ class _Screen1State extends ConsumerState<Screen1> {
     age = ((DateTime.now().difference(dataOfBirthValue)).inDays / 365.floor());
     return Container(
       //margin: const EdgeInsets.only(top: 10),
-      key: const Key('second'),
+     
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 10),
           child: Form(
-            key: basicForm,
+            key: basicForm3,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

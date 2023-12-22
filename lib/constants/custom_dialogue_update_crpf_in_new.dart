@@ -39,6 +39,7 @@ class CustomDialogueForNew extends StatefulWidget {
 
 class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
   @override
+  // ignore: override_on_non_overriding_member
   TextEditingController shorListController = TextEditingController();
   TextEditingController role = TextEditingController();
   TextEditingController proces = TextEditingController();

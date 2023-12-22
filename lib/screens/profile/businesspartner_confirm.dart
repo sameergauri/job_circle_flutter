@@ -20,7 +20,7 @@ class _BusinessPartnerConfirmationState
   TextEditingController firstname = TextEditingController();
   TextEditingController lastname = TextEditingController();
   TextEditingController emailadr = TextEditingController();
-  final basicForm = GlobalKey<FormState>();
+  GlobalKey<FormState> basicForm1 = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class _BusinessPartnerConfirmationState
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Form(
-                  key: basicForm,
+                  key: basicForm1,
                   child: Column(
                     children: [
                       TextFormField(

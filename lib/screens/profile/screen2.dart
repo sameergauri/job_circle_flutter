@@ -672,7 +672,7 @@ class _Screen2State extends ConsumerState<Screen2> {
     return selectedLevel != ""
         ? Container(
             padding: EdgeInsets.only(left: 20.w, right: 20.w),
-            key: const Key('second'),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -695,7 +695,7 @@ class _Screen2State extends ConsumerState<Screen2> {
           )
         : Container(
             padding: EdgeInsets.only(left: 20.w, right: 20.w),
-            key: const Key('second'),
+           
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -20,7 +20,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final _formKey = GlobalKey<FormState>();
+   GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
   bool isManual = true;
   TextEditingController otpcontroller = TextEditingController();
   final String _mobileNumber = '';
@@ -388,7 +388,7 @@ class _LoginState extends State<Login> {
     return Column(
       children: [
         Form(
-          key: _formKey,
+          key: _formKey2,
           child: TextFormField(
             cursorColor: Colors.grey,
             controller: otpcontroller,
@@ -484,7 +484,7 @@ class _LoginState extends State<Login> {
   }
 
   saveOTP(String no) async {
-    bool validate = _formKey.currentState!.validate();
+    bool validate = _formKey2.currentState!.validate();
     if (!validate) {
       return;
     }

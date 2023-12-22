@@ -11,8 +11,6 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/themes/colors.dart';
 
-import '../screens/partnerhome.dart';
-
 class CustomDialog extends StatefulWidget {
   final ValueSetter<TextEditingController>? getCompanyName;
   final ValueSetter<TextEditingController>? getJobtitile;
@@ -519,11 +517,13 @@ class _CustomDialogState extends State<CustomDialog> {
                                 children: [
                                   InkWell(
                                       onTap: () {
-                                        Navigator.of(context).pushAndRemoveUntil(
+                                        /*   Navigator.of(context).pushAndRemoveUntil(
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     const PartnerHomeScreen()),
-                                            (Route<dynamic> route) => false);
+                                            (Route<dynamic> route) => false); */
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
                                       },
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(

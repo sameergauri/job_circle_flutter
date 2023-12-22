@@ -170,7 +170,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   late Education educationmodel = Education();
   late Experience expmodel = Experience();
-  final basicForm = GlobalKey<FormState>();
+
   final spinkit = const SpinKitRotatingCircle(
     color: Colors.white,
     size: 50.0,
@@ -3336,7 +3336,7 @@ class _ProfileSummaryState extends State<ProfileSummary>
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   late Education educationmodel = Education();
   late Experience expmodel = Experience();
-  final basicForm = GlobalKey<FormState>();
+  
   final spinkit = const SpinKitRotatingCircle(
     color: Colors.white,
     size: 50.0,

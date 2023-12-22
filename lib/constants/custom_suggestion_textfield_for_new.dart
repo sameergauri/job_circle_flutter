@@ -11,6 +11,7 @@ import 'package:job_circle/models/process_model.dart';
 import 'package:job_circle/screens/jobs/location_search.dart';
 import 'package:job_circle/themes/colors.dart';
 
+// ignore: must_be_immutable
 class SuggestionTextFieldForNew extends StatefulWidget {
   final String? companyID, process, role, hint, title;
   final int textfieldNumber;

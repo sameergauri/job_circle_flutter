@@ -151,7 +151,7 @@ class _AddIntoductionState extends State<AddIntoduction>
 
   late List list;
 
-  final basicForm = GlobalKey<FormState>();
+   GlobalKey<FormState> basicForm = GlobalKey<FormState>();
 
   late List<AutoCompleteModel> stateList = [];
   late List<AutoCompleteModel> cityList = [];
@@ -658,7 +658,7 @@ class _AddIntoductionState extends State<AddIntoduction>
     age = ((DateTime.now().difference(dataOfBirthValue)).inDays / 365.floor());
     return Container(
       //margin: const EdgeInsets.only(top: 10),
-      key: const Key('second'),
+      // key: const Key('second'),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 10),

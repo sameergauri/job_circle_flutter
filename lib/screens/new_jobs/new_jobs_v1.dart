@@ -198,7 +198,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
 
   bool isTabFilterSelected(ProfileModel model) {
     final jobController = ref.watch(jobsProvider);
-    if (cutTab == 1 && model.usertype == 1) {
+    if (cutTab == 6) {
       return jobController.isFavoriteTabSelected;
     } else if (cutTab == 1 && model.usertype != 1) {
       return jobController.isMyJobsTabSelected;
@@ -566,19 +566,19 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           },
                           child: customTab(
                               "My Jobs", "assets/images/check.png", 1, data)),
-                    if (data.usertype == 1)
+                    if (favoriteJobs.isNotEmpty)
                       const SizedBox(
                         width: 5,
                       ),
-                    if (data.usertype == 1 && favoriteJobs.isNotEmpty)
+                    if (favoriteJobs.isNotEmpty)
                       InkWell(
                           onTap: () {
-                            cutTab = 1;
+                            cutTab = 6;
 
                             jobsController.toggleFavoriteJobs(data);
                           },
                           child: customTab("Saved Jobs",
-                              "assets/images/check.png", 1, data)),
+                              "assets/images/check.png", 6, data)),
                     const SizedBox(
                       width: 5,
                     ),

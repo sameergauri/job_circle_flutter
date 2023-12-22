@@ -155,6 +155,42 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
         }
       } else if (input.contains("Lac's P.A")) {
         if (startValue >= 100000) {
+          double shortStartValue = startValue / 10000000.0;
+          double shortEndValue = endValue / 10000000.0;
+          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 2)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 2)} Lac's P.A";
+        } else {
+          return '$startValue - $endValue Per Year';
+        }
+      }
+    }
+
+    // Handle other cases, or return the input as it is if it doesn't match any pattern
+    return input;
+  }
+
+//TODO: old salry formater code which is not working properly.
+  /*  String convertSalaryFormat(String input) {
+    // Extract numeric values from the input string
+    List<int> salaryValues = [
+      for (var value in input.split('-'))
+        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
+          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
+    ];
+
+    if (salaryValues.length == 2) {
+      int startValue = salaryValues[0];
+      int endValue = salaryValues[1];
+
+      if (input.contains('Per Month')) {
+        if (startValue >= 1000) {
+          double shortStartValue = startValue / 100000.0;
+          double shortEndValue = endValue / 100000.0;
+          return '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k Per Month';
+        } else {
+          return '$startValue - $endValue Per Month';
+        }
+      } else if (input.contains("Lac's P.A")) {
+        if (startValue >= 100000) {
           double shortStartValue = startValue / 1000000.0;
           double shortEndValue = endValue / 10000000.0;
           return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)} Lac's P.A";
@@ -166,7 +202,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
 
     // Handle other cases, or return the input as it is if it doesn't match any pattern
     return input;
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +214,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     // For example:
     return PageStorage(
         bucket: PageStorageBucket(),
-        key: const PageStorageKey<String>("futureKey"),
+        // key: const PageStorageKey<String>("futureKey"),
         child: fetchApplicants != null
             ? fetchApplicants.when(data: (fetchData) {
                 List<Applicant>? dataList = fetchData;

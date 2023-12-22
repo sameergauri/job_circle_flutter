@@ -279,8 +279,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
   late AnimationController _animationController;
 
   Map<int, SelectedOption> selectedValueMap = {};
-  final GlobalKey<_InterViewBayState> _talentPollKey =
-      GlobalKey<_InterViewBayState>();
 
   Map<int, String> selectedRoundsMap = {};
 
@@ -326,7 +324,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     // For example:
     return PageStorage(
         bucket: PageStorageBucket(),
-        key: const PageStorageKey<String>("futureKey"),
         child: fetchApplicants != null
             ? fetchApplicants.when(
                 data: (fetchdata) {
@@ -360,7 +357,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                               elevation: 0,
                               backgroundColor: Colors.white,
                               bottom: TabBar(
-                                key: const ValueKey("ccTab2"),
                                 labelPadding:
                                     const EdgeInsets.only(left: 5, right: 5),
                                 labelColor: Colors.black,
@@ -388,7 +384,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                             ),
                           ),
                           body: TabBarView(
-                            key: const ValueKey("ccTabView2"),
                             children: statuses.asMap().entries.map((entry) {
                               final index = entry.key;
                               final status = entry.value;
@@ -449,7 +444,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         backgroundColor: Colors.white,
                                         bottom: TabBar(
                                           controller: customTabController,
-                                          key: const ValueKey("ccTab3"),
                                           isScrollable: true,
                                           indicatorSize:
                                               TabBarIndicatorSize.tab,
@@ -482,7 +476,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                     ),
                                     body: TabBarView(
                                       controller: customTabController,
-                                      key: const ValueKey("ccTabView3"),
                                       children:
                                           companyTab.asMap().entries.map((e) {
                                         final index = e.key;
@@ -557,7 +550,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         backgroundColor: Colors.white,
                                         bottom: TabBar(
                                           controller: customTabController,
-                                          key: const ValueKey("ccTab3"),
                                           isScrollable: true,
                                           indicatorSize:
                                               TabBarIndicatorSize.tab,
@@ -590,10 +582,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                     ),
                                     body: PageStorage(
                                       bucket: PageStorageBucket(),
-                                      key: PageStorageKey<String>(status),
                                       child: TabBarView(
                                         controller: customTabController,
-                                        key: const ValueKey("ccTabView3"),
                                         children:
                                             companyTab.asMap().entries.map((e) {
                                           final index = e.key;
@@ -690,7 +680,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         elevation: 0,
                                         backgroundColor: Colors.white,
                                         bottom: TabBar(
-                                          key: const ValueKey("ccTab3"),
                                           isScrollable: true,
                                           indicatorSize:
                                               TabBarIndicatorSize.tab,
@@ -729,7 +718,6 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       ),
                                     ),
                                     body: TabBarView(
-                                      key: const ValueKey("ccTabView3"),
                                       children: subStatuses
                                           .asMap()
                                           .entries

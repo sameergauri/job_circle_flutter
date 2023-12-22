@@ -141,9 +141,9 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
         }
       } else if (input.contains("Lac's P.A")) {
         if (startValue >= 100000) {
-          double shortStartValue = startValue / 1000000.0;
+          double shortStartValue = startValue / 10000000.0;
           double shortEndValue = endValue / 10000000.0;
-          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)} Lac's P.A";
+          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 2)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 2)} Lac's P.A";
         } else {
           return '$startValue - $endValue Per Year';
         }
@@ -164,7 +164,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     // For example:
     return PageStorage(
         bucket: PageStorageBucket(),
-        key: const PageStorageKey<String>("futureKey"),
+        // key: const PageStorageKey<String>("futureKey"),
         child: fetchApplicants != null
             ? fetchApplicants.when(data: (fetchData) {
                 List<Applicant>? dataList = fetchData;

@@ -228,9 +228,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
   bool isSelect = false;
 
   Map<int, SelectedOption> selectedValueMap = {};
-  final GlobalKey<_TalentPoolState> _talentPollKey =
-      GlobalKey<_TalentPoolState>();
-
+ 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -240,7 +238,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
 
     return PageStorage(
         bucket: PageStorageBucket(),
-        key: const PageStorageKey<String>("futureKey"),
+        // key: const PageStorageKey<String>("futureKey"),
         child: fetchApplicants != null
             ? fetchApplicants.when(
                 data: (fetchdata) {
@@ -1364,6 +1362,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                         } else {
                           ChangeStatusModel changeStatusModel =
                               ChangeStatusModel(
+                                dol: DateTime.now(),
                                   status: "TP2",
                                   sourceId: id,
                                   subStatus: "View");

@@ -7,7 +7,6 @@ import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/role_model.dart';
-import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
 class JobPostApiService {
@@ -186,12 +185,13 @@ class JobPostApiService {
             return CustomDialog(
                 fetchDataFromApi: () {},
                 onClose: () {
-                  Navigator.pushAndRemoveUntil(
+                  Navigator.pop(context);
+                  /* Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => HomeScreen(),
                       ),
-                      (route) => false);
+                      (route) => false); */
                 },
                 isFisrt: false,
                 title: "Application Submitted",

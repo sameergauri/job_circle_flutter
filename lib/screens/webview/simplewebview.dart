@@ -15,7 +15,7 @@ class SimpleWebView extends StatefulWidget {
 }
 
 class _SimpleWebViewState extends State<SimpleWebView> {
-  final GlobalKey webViewKey = GlobalKey();
+  GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(

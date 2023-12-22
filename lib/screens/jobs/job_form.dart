@@ -109,7 +109,7 @@ class _JobFormState extends ConsumerState<JobForm> {
   TextEditingController responsibility = TextEditingController();
   //TextEditingController shorListController = TextEditingController();
   final TextEditingController _typeAheadController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+ GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
   AutoCompleteModel selectedshort = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedLevel = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedStatus = AutoCompleteModel("", "", {});
@@ -2066,7 +2066,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                                   : onlyFemale
                                       ? "Female"
                                       : femalePrefered
-                                          ? "Female preferred"
+                                          ? "Female prefered"
                                           : " ",
                               is_graduate: isGraduateCheckBox ? 1 : 0,
 
@@ -2510,7 +2510,7 @@ class _JobFormState extends ConsumerState<JobForm> {
         title: Text(widget.formEdit ? "Edit" : "Job Posting"),
       ),
       body: Form(
-        key: _formKey,
+        key:_formKey1,
         child: GestureDetector(
           onTap: () {
             if (shorListController.text.isNotEmpty) {
@@ -3217,7 +3217,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                     height: 10,
                   ),
                   Text(
-                    "Job Responsibility",
+                    "Job Responsibilities",
                     style: GoogleFonts.sourceSansPro(
                         fontSize: 18.sp,
                         // color: Colors.grey.shade500,

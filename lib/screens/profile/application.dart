@@ -21,13 +21,12 @@ import '../../service/masterService.dart';
 
 class ApplicationForm extends StatefulWidget {
   const ApplicationForm(
-      {Key? key,
+      {super.key,
       this.isnew = false,
       this.refer,
       this.cmpnyname,
       this.process,
-      this.level})
-      : super(key: key);
+      this.level});
 
   final bool? isnew;
   final bool? refer;
@@ -88,7 +87,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   AutoCompleteModel selectedInterview = AutoCompleteModel("", "", {});
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
 
-  final _formKey = GlobalKey<FormState>();
+   GlobalKey<FormState> _formKey4 = GlobalKey<FormState>();
 
   // dynamic applicantName = {};
   String mobileno = "";
@@ -205,7 +204,7 @@ class ApplicationFormState extends State<ApplicationForm> {
       lastname.text = profilemodel.last_name.toString().toTitleCase();
       contactno.text = profilemodel.mobile.toString();
 
-     /*  if (profilemodel.has_experience == 1) {
+      /*  if (profilemodel.has_experience == 1) {
         exprinceActive = 1;
         fresherActive = 0;
       } else {
@@ -357,7 +356,7 @@ class ApplicationFormState extends State<ApplicationForm> {
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Form(
-            key: _formKey,
+            key: _formKey4,
             child: Column(
               children: [
                 TextFormField(
@@ -439,17 +438,17 @@ class ApplicationFormState extends State<ApplicationForm> {
                                     isGraduatValidate = false;
                                   });
                                 },
+                          style: ButtonStyle(
+                            backgroundColor: underGradActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
                           child: Text(
                             'Under-Graduate',
                             style: TextStyle(
                                 color: underGradActive == 1
                                     ? Colors.white
                                     : Colors.black),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: underGradActive == 1
-                                ? MaterialStateProperty.all(Colors.red)
-                                : MaterialStateProperty.all(Colors.grey[300]),
                           ),
                         ),
                       ),
@@ -467,17 +466,17 @@ class ApplicationFormState extends State<ApplicationForm> {
                                     isGraduatValidate = false;
                                   });
                                 },
+                          style: ButtonStyle(
+                            backgroundColor: graduateActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
                           child: Text(
                             'Graduate',
                             style: TextStyle(
                                 color: graduateActive == 1
                                     ? Colors.white
                                     : Colors.black),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: graduateActive == 1
-                                ? MaterialStateProperty.all(Colors.red)
-                                : MaterialStateProperty.all(Colors.grey[300]),
                           ),
                         ),
                       ),
@@ -486,9 +485,9 @@ class ApplicationFormState extends State<ApplicationForm> {
                 ),
                 Visibility(
                   visible: isGraduatValidate,
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Qualification is required',
                         style: TextStyle(color: Colors.redAccent, fontSize: 12),
@@ -520,17 +519,17 @@ class ApplicationFormState extends State<ApplicationForm> {
                                     isExpValidate = false;
                                   });
                                 },
+                          style: ButtonStyle(
+                            backgroundColor: exprinceActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
                           child: Text(
                             'Experience',
                             style: TextStyle(
                                 color: exprinceActive == 1
                                     ? Colors.white
                                     : Colors.black),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: exprinceActive == 1
-                                ? MaterialStateProperty.all(Colors.red)
-                                : MaterialStateProperty.all(Colors.grey[300]),
                           ),
                         ),
                       ),
@@ -548,17 +547,17 @@ class ApplicationFormState extends State<ApplicationForm> {
                                     isExpValidate = false;
                                   });
                                 },
+                          style: ButtonStyle(
+                            backgroundColor: fresherActive == 1
+                                ? MaterialStateProperty.all(Colors.red)
+                                : MaterialStateProperty.all(Colors.grey[300]),
+                          ),
                           child: Text(
                             'Fresher',
                             style: TextStyle(
                                 color: fresherActive == 1
                                     ? Colors.white
                                     : Colors.black),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: fresherActive == 1
-                                ? MaterialStateProperty.all(Colors.red)
-                                : MaterialStateProperty.all(Colors.grey[300]),
                           ),
                         ),
                       ),
@@ -567,9 +566,9 @@ class ApplicationFormState extends State<ApplicationForm> {
                 ),
                 Visibility(
                   visible: isExpValidate,
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text('Work Experience is required',
                           style:
                               TextStyle(color: Colors.redAccent, fontSize: 12)),
@@ -953,7 +952,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   }
 
   save() async {
-    bool validate = _formKey.currentState!.validate();
+    bool validate = _formKey4.currentState!.validate();
 
     if (graduateActive == 0 && underGradActive == 0) {
       setState(() {
@@ -995,7 +994,7 @@ class ApplicationFormState extends State<ApplicationForm> {
       return;
     }
 
-    if (_formKey.currentState!.validate() &&
+    if (_formKey4.currentState!.validate() &&
         !isGraduatValidate &&
         !isExpValidate) {
       Utils.showLoaderDialog(context, "Saving...");

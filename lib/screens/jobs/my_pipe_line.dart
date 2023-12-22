@@ -183,8 +183,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
   bool isSelect = false;
 
   Map<int, SelectedOption> selectedValueMap = {};
-  final GlobalKey<_MyPipeLineState> _talentPollKey =
-      GlobalKey<_MyPipeLineState>();
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +193,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
 
     return PageStorage(
         bucket: PageStorageBucket(),
-        key: const PageStorageKey<String>("futureKey"),
+      //  key : const PageStorageKey<String>("futureKey"),
         child: fetchApplicants != null
             ? fetchApplicants.when(
                 data: (fetchdata) {
@@ -300,7 +299,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                         backgroundColor: Colors.white,
                                         bottom: TabBar(
                                           //  controller: customTabController,
-                                          key: const ValueKey("ccTab3"),
+                                          // key: const ValueKey("ccTab3"),
                                           isScrollable: true,
                                           indicatorSize:
                                               TabBarIndicatorSize.tab,
@@ -336,10 +335,10 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                     ),
                                     body: PageStorage(
                                       bucket: PageStorageBucket(),
-                                      key: PageStorageKey<String>(status),
+                                      // key: PageStorageKey<String>(status),
                                       child: TabBarView(
                                         // controller: customTabController,
-                                        key: const ValueKey("ccTabView3"),
+                                        // key: const ValueKey("ccTabView3"),
                                         children: subStatuses
                                             .asMap()
                                             .entries
@@ -360,8 +359,8 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                               PageStorage(
                                                 bucket:
                                                     PageStorageBucket(), // Add this line
-                                                key: const PageStorageKey<
-                                                    String>("sskk"),
+                                                // key: const PageStorageKey<
+                                                //     String>("sskk"),
                                                 child: ListView.builder(
                                                   physics:
                                                       const ClampingScrollPhysics(),

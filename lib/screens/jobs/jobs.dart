@@ -272,7 +272,7 @@ class _JobsState extends ConsumerState<Jobs>
   }
 
   ProfileSummaryModel profileSummaryModel = ProfileSummaryModel();
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   int? cutTab;
   bool isSelect = false;

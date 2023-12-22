@@ -36,7 +36,7 @@ class _ProfileSummaryPartnerState extends State<ProfileSummaryPartner> {
   late Education educationmodel = Education();
   late Experience expmodel = Experience();
 
-  final basicForm = GlobalKey<FormState>();
+  
   final spinkit = const SpinKitRotatingCircle(
     color: Colors.white,
     size: 50.0,

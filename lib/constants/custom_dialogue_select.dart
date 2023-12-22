@@ -181,6 +181,7 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Dialog(

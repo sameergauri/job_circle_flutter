@@ -17,7 +17,7 @@ class MasterOfMaster extends StatefulWidget {
 }
 
 class _MasterOfMasterState extends State<MasterOfMaster> {
-  final formKey = GlobalKey<FormState>();
+   GlobalKey<FormState> _formKey3 = GlobalKey<FormState>();
   var ddlValues;
   int id = 0;
   late List<AutoCompleteModel> groupList = [];
@@ -68,7 +68,7 @@ class _MasterOfMasterState extends State<MasterOfMaster> {
               ),
               radious: 0,
               onPressed: () {
-                if (formKey.currentState!.validate()) {
+                if (_formKey3.currentState!.validate()) {
                   save();
                 }
               },
@@ -78,7 +78,7 @@ class _MasterOfMasterState extends State<MasterOfMaster> {
           ),
         ),
         body: Form(
-          key: formKey,
+          key: _formKey3,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(

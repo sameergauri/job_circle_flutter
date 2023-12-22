@@ -13,14 +13,14 @@ import 'jobs/my_team.dart';
 import 'new_jobs/new_jobs_v1.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
-  const PartnerHomeScreen({Key? key}) : super(key: key);
+  const PartnerHomeScreen({super.key});
 
   @override
   State<PartnerHomeScreen> createState() => _PartnerHomeScreenState();
 }
 
 class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
-  final PageController pageController = PageController();
+  // PageController pageController = PageController();
   int selectedIndex = 0;
   dynamic userType;
   String userName = "";
@@ -123,7 +123,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Hiring',
       backgroundColor: Colors.blue,
     ));
-     bottomTabItems.add(BottomNavigationBarItem(
+    bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/jobs.png",
         height: 15.h,

@@ -1417,7 +1417,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                     width: 7,
                                   ),
                                   Text(
-                                    jobDetailsModel.gender.toString(),
+                                    jobDetailsModel.gender == "Female prefered"
+                                        ? "Female preferred"
+                                        : jobDetailsModel.gender.toString(),
                                     style: GoogleFonts.varela(
                                       color: Colors.grey.shade700,
                                     ),
@@ -1647,7 +1649,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Key Resposibilities ",
+                                  "Key Responsibilities",
                                   style: GoogleFonts.varela(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 15.h),

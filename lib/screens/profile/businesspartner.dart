@@ -51,7 +51,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
   final TextEditingController levelemail1 = TextEditingController();
   final TextEditingController levelmobno2 = TextEditingController();
   final TextEditingController levelemail2 = TextEditingController();
-  final GlobalKey<FormState> formField = GlobalKey<FormState>();
+  GlobalKey<FormState> formField = GlobalKey<FormState>();
 
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   var profile_final_pic = "";
