@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/refer_now.dart';

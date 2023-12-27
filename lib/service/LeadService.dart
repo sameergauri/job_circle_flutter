@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/service/ServiceBase.dart';
 

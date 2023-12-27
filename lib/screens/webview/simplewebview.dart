@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, use_super_parameters
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';

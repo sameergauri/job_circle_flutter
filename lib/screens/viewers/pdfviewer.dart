@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, unused_field, prefer_interpolation_to_compose_strings, use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:internet_file/internet_file.dart';
 import 'package:job_circle/common/utils.dart';

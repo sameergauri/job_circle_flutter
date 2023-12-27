@@ -1,3 +1,5 @@
+// ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, non_constant_identifier_names, deprecated_member_use
+
 import 'dart:convert';
 import 'dart:ui';
 
@@ -517,13 +519,15 @@ class _CustomDialogState extends State<CustomDialog> {
                                 children: [
                                   InkWell(
                                       onTap: () {
-                                        /*   Navigator.of(context).pushAndRemoveUntil(
+                                        /*  Navigator.of(context).pushAndRemoveUntil(
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     const PartnerHomeScreen()),
                                             (Route<dynamic> route) => false); */
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
+                                        Navigator.of(context)
+                                            .popUntil((route) => route.isFirst);
+                                        /* Navigator.pop(context);
+                                        Navigator.pop(context); */
                                       },
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(

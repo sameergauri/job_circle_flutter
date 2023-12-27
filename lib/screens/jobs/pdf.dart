@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, deprecated_member_use, unused_element
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, avoid_print, unrelated_type_equality_checks
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

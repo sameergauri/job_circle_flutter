@@ -1,5 +1,5 @@
-// ignore_for_file: must_be_immutable
-
+// ignore_for_file: must_be_immutable, unused_local_variable, override_on_non_overriding_member, file_names, prefer_typing_uninitialized_variables, use_full_hex_values_for_flutter_colors, duplicate_ignore, collection_methods_unrelated_type, library_private_types_in_public_api, non_constant_identifier_names, unused_element
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

@@ -1,4 +1,6 @@
 
+// ignore_for_file: unused_import, avoid_print, prefer_interpolation_to_compose_strings, file_names
+
 import 'package:file_picker/file_picker.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/service/ServiceBase.dart';

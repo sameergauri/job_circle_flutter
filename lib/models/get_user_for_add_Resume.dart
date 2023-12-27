@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 class UserDataForAddResumeModel {
   final String resultKey;
   final UserDataForAddResumeModelResultData resultData;

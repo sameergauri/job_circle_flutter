@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import, override_on_non_overriding_member, unused_field, unused_result, unused_local_variable, unnecessary_null_comparison, avoid_print, non_constant_identifier_names, no_leading_underscores_for_local_identifiers
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

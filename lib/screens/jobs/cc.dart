@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/screens/jobs/my_pipeline_cc.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';

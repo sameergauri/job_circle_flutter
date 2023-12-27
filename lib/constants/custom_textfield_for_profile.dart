@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_local_variable, unnecessary_null_comparison, library_private_types_in_public_api, non_constant_identifier_names, duplicate_ignore, use_full_hex_values_for_flutter_colors, prefer_typing_uninitialized_variables, camel_case_types
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -39,6 +41,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
   final bool degree;
   final bool university;
   final bool hsc;
+  final void Function(String)? controllerValue;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -68,6 +71,7 @@ class CustomTextFieldComapanyLocation extends StatefulWidget {
     this.labelText,
     required this.degree,
     required this.university,
+    this.controllerValue,
 
     // required this.onFocusNodeRequested
   });
@@ -411,6 +415,9 @@ class _CustomTextFieldComapanyLocationState
             widget.getid(suggestion.id);
             widget.degree ? widget.onSubmit!(suggestion.code) : null;
             var selectedId = suggestion.id;
+            widget.degree
+                ? widget.controllerValue!(suggestion.value.toString())
+                : null;
 
             // onIDSelected(suggestion.id.toString());
             // widget.onJobTitle!(firstText.toString());
@@ -609,7 +616,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
   } */
   @override
 /*   void initState() {
-    // TODO: implement initState
+  
     super.initState();
      setState(() {
         selectedDataList = widget.fetchApiskill!;
@@ -1382,7 +1389,6 @@ class _customCompanyforExperienceState
           );
         },
 
-        
         /*  noItemsFoundBuilder: (value) {
           /* if (controller!.text.isNotEmpty) {
             return AddButtonVisibilityWidgetExperience(

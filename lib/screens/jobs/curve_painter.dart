@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_local_variable, library_private_types_in_public_api, unused_element
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

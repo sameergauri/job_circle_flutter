@@ -1,3 +1,5 @@
+// ignore_for_file: unused_result, unused_local_variable, avoid_unnecessary_containers, non_constant_identifier_names, use_build_context_synchronously, avoid_print
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';

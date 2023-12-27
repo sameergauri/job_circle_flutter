@@ -1,4 +1,6 @@
 
+// ignore_for_file: constant_identifier_names
+
 class ConstImageUrl {
   static const url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/assets";
   // "http://192.168.1.100";

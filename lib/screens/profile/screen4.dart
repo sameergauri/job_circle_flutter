@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, use_full_hex_values_for_flutter_colors, prefer_typing_uninitialized_variables
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

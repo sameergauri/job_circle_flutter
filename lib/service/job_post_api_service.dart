@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, non_constant_identifier_names, use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -30,10 +32,11 @@ class JobPostApiService {
                     fetchDataFromApi: () {},
                     isFisrt: false,
                     onClose: () {
-                      Navigator.of(context).pushAndRemoveUntil(
+                      /*  Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const PartnerHomeScreen()),
-                          (Route<dynamic> route) => false);
+                          (Route<dynamic> route) => false); */
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     title: "Success",
                     subtitle: "Submitted successfully!",
@@ -84,10 +87,11 @@ class JobPostApiService {
               fetchDataFromApi: () {},
               isFisrt: false,
               onClose: () {
-                Navigator.of(context).pushAndRemoveUntil(
+                /*  Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => const PartnerHomeScreen()),
-                    (Route<dynamic> route) => false);
+                    (Route<dynamic> route) => false); */
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
               title: "Success",
               subtitle: "Submitted successfully!",
@@ -186,7 +190,7 @@ class JobPostApiService {
                 fetchDataFromApi: () {},
                 onClose: () {
                   Navigator.pop(context);
-                  /* Navigator.pushAndRemoveUntil(
+                  /*  Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => HomeScreen(),

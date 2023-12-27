@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, use_super_parameters, prefer_final_fields, prefer_typing_uninitialized_variables
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:shared_preferences/shared_preferences.dart';

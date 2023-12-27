@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -246,7 +248,6 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
     );
-    ;
   }
 
   Widget experience() {

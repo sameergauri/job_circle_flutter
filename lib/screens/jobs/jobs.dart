@@ -1,5 +1,5 @@
-// ignore_for_file: await_only_futures
-
+// ignore_for_file: await_only_futures, unused_field, unused_local_variable, use_super_parameters, unused_element, non_constant_identifier_names, prefer_typing_uninitialized_variables, use_build_context_synchronously, avoid_print, avoid_types_as_parameter_names, avoid_unnecessary_containers, sort_child_properties_last, no_leading_underscores_for_local_identifiers, unnecessary_to_list_in_spreads, deprecated_member_use
+// ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';

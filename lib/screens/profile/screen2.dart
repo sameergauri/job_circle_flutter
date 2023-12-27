@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_result, unused_local_variable, prefer_typing_uninitialized_variables, unused_element, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, non_constant_identifier_names, use_full_hex_values_for_flutter_colors
+// ignore_for_file: todo
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';

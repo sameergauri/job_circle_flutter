@@ -1,3 +1,5 @@
+// ignore_for_file: sort_child_properties_last, use_build_context_synchronously, use_super_parameters
+
 import 'dart:async';
 import 'dart:convert';
 

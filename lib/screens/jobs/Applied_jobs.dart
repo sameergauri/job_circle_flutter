@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_result, unused_local_variable, file_names, avoid_print, avoid_unnecessary_containers, non_constant_identifier_names
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -44,7 +46,6 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     with SingleTickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
-  @override
   Future<List<Applicant>>? _applicantsFuture;
   @override
   void initState() {

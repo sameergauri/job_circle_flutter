@@ -1,3 +1,5 @@
+// ignore_for_file: unused_result, prefer_typing_uninitialized_variables, unused_element, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, non_constant_identifier_names, use_full_hex_values_for_flutter_colors
+// ignore_for_file: todo
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -904,6 +906,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
               },
               getid: (p0) {
                 degreeId = p0;
+              },
+              controllerValue: (p0) {
+                degreeController.text = p0;
               },
               controller: degreeController,
               onChanged: (p0) {

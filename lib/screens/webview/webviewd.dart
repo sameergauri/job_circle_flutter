@@ -1,4 +1,6 @@
 
+// ignore_for_file: unused_import, prefer_interpolation_to_compose_strings, use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';

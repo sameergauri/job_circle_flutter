@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_result, duplicate_ignore, unused_local_variable, non_constant_identifier_names, use_build_context_synchronously, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
@@ -692,6 +694,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                           .center,
                                                                   children: [
                                                                     CircleAvatar(
+                                                                        backgroundColor:
+                                                                            Constants
+                                                                                .themeBgColor,
                                                                         radius: height /
                                                                             6.r,
                                                                         backgroundImage: data.profileSummary.profile_pic !=
@@ -1079,166 +1084,142 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     ],
                                                   ),
                                                 )
-                                              : Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
-                                                      style: GoogleFonts.varela(
-                                                        fontSize: 18.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-
-                                                    /*  if ((data.profileSummary
-                                                                    .bio ==
-                                                                null ||
-                                                            data.profileSummary
-                                                                    .bio ==
-                                                                "") &&
-                                                        ((data.experiences.any(
-                                                                (element) =>
-                                                                    element
-                                                                        .last_working_date !=
-                                                                    null) ||
-                                                            data.experiences
-                                                                .isEmpty ||
-                                                            data.education
-                                                                .isEmpty))) */
-                                                    /*  if ((data.profileSummary
-                                                                    .bio ==
-                                                                null ||
-                                                            data.profileSummary
-                                                                    .bio ==
-                                                                "") &&
-                                                        (data.experiences.any(
-                                                                    (element) =>
-                                                                        element
-                                                                            .isCurrent !=
-                                                                        1) &&
-                                                                data.experiences
-                                                                    .isEmpty ||
-                                                            data.education
-                                                                .isEmpty)) */
-                                                    /*   if (data.profileSummary//TODO: Add Bio button when bio is not present.
-                                                                .bio ==
-                                                            null ||
-                                                        data.profileSummary
-                                                                .bio ==
-                                                            "")
-                                                      InkWell(
-                                                        onTap: () {
-                                                          sendToBasicInfo(true,
-                                                              data.profileSummary);
-                                                        },
-                                                        child: Text(
-                                                          "Add Bio",
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  color: Colors
-                                                                      .blue,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .italic),
-                                                        ),
-                                                      ), */
-                                                    /* if ((data.profileSummary
-                                                                    .bio !=
-                                                                null ||
-                                                            data.profileSummary
-                                                                    .bio !=
-                                                                "") &&
-                                                        (data.experiences.any(
-                                                            (element) =>
-                                                                element.last_working_date ==
-                                                                    null &&
-                                                                data.education
-                                                                    .isEmpty &&
-                                                                data.experiences
-                                                                    .isEmpty))) */
-                                                    /* if ((data.profileSummary
-                                                                    .bio !=
-                                                                null ||
-                                                            data.profileSummary
-                                                                    .bio !=
-                                                                "") &&
-                                                        (data.experiences.any(
-                                                                    (element) =>
-                                                                        element
-                                                                            .isCurrent !=
-                                                                        1) &&
-                                                                data.experiences
-                                                                    .isEmpty ||
-                                                            data.education
-                                                                .isEmpty)) */
-                                                    if (data.profileSummary
-                                                                .bio !=
-                                                            null &&
-                                                        data.profileSummary
-                                                                .bio !=
-                                                            "")
+                                              : Expanded(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
                                                       Text(
-                                                        data.profileSummary
-                                                            .bio!,
+                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
                                                         style:
                                                             GoogleFonts.varela(
-                                                          fontSize: 12.sp,
+                                                          fontSize: 18.sp,
                                                           fontWeight:
-                                                              FontWeight.w400,
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
-                                                    if (data.education
-                                                            .isNotEmpty &&
-                                                        !hasCurrentExperience)
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            "${data.education.last.degree_spc.toString()}-\nfrom ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                            softWrap: true,
-                                                            maxLines: 3,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            textAlign: TextAlign
-                                                                .center,
+
+                                                      /*  if ((data.profileSummary
+                                                                      .bio ==
+                                                                  null ||
+                                                              data.profileSummary
+                                                                      .bio ==
+                                                                  "") &&
+                                                          ((data.experiences.any(
+                                                                  (element) =>
+                                                                      element
+                                                                          .last_working_date !=
+                                                                      null) ||
+                                                              data.experiences
+                                                                  .isEmpty ||
+                                                              data.education
+                                                                  .isEmpty))) */
+                                                      /*  if ((data.profileSummary
+                                                                      .bio ==
+                                                                  null ||
+                                                              data.profileSummary
+                                                                      .bio ==
+                                                                  "") &&
+                                                          (data.experiences.any(
+                                                                      (element) =>
+                                                                          element
+                                                                              .isCurrent !=
+                                                                          1) &&
+                                                                  data.experiences
+                                                                      .isEmpty ||
+                                                              data.education
+                                                                  .isEmpty)) */
+                                                      /*   if (data.profileSummary//TODO: Add Bio button when bio is not present.
+                                                                  .bio ==
+                                                              null ||
+                                                          data.profileSummary
+                                                                  .bio ==
+                                                              "")
+                                                        InkWell(
+                                                          onTap: () {
+                                                            sendToBasicInfo(true,
+                                                                data.profileSummary);
+                                                          },
+                                                          child: Text(
+                                                            "Add Bio",
                                                             style: GoogleFonts
                                                                 .varela(
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    color: Colors
+                                                                        .blue,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .italic),
                                                           ),
-                                                        ],
-                                                      ),
-                                                    if (data
-                                                        .experiences.isNotEmpty)
-                                                      for (final experience
-                                                          in data.experiences)
-                                                        if (experience
-                                                                .isCurrent ==
-                                                            1)
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                "${experience.job_title.toString()} at ${experience.company_name.toString()}",
+                                                        ), */
+                                                      /* if ((data.profileSummary
+                                                                      .bio !=
+                                                                  null ||
+                                                              data.profileSummary
+                                                                      .bio !=
+                                                                  "") &&
+                                                          (data.experiences.any(
+                                                              (element) =>
+                                                                  element.last_working_date ==
+                                                                      null &&
+                                                                  data.education
+                                                                      .isEmpty &&
+                                                                  data.experiences
+                                                                      .isEmpty))) */
+                                                      /* if ((data.profileSummary
+                                                                      .bio !=
+                                                                  null ||
+                                                              data.profileSummary
+                                                                      .bio !=
+                                                                  "") &&
+                                                          (data.experiences.any(
+                                                                      (element) =>
+                                                                          element
+                                                                              .isCurrent !=
+                                                                          1) &&
+                                                                  data.experiences
+                                                                      .isEmpty ||
+                                                              data.education
+                                                                  .isEmpty)) */
+                                                      if (data.profileSummary
+                                                                  .bio !=
+                                                              null &&
+                                                          data.profileSummary
+                                                                  .bio !=
+                                                              "")
+                                                        Text(
+                                                          data.profileSummary
+                                                              .bio!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                            fontSize: 12.sp,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      if (data.education
+                                                              .isNotEmpty &&
+                                                          !hasCurrentExperience)
+                                                        /*  Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
+                                                                softWrap: true,
+                                                                // maxLines: 3,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
                                                                 style:
                                                                     GoogleFonts
                                                                         .varela(
@@ -1249,21 +1230,84 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                           .w400,
                                                                 ),
                                                               ),
-                                                            ],
-                                                          ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
-                                                          style: TextStyle(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
+                                                            ),
+                                                          ],
+                                                        ), */
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
+                                                                softWrap: true,
+                                                                maxLines: 3,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .varela(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize:
+                                                                      12.sp,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    )
-                                                  ],
+                                                      if (data.experiences
+                                                          .isNotEmpty)
+                                                        for (final experience
+                                                            in data.experiences)
+                                                          if (experience
+                                                                  .isCurrent ==
+                                                              1)
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
+                                                                  style:
+                                                                      GoogleFonts
+                                                                          .varela(
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
+                                                            style: TextStyle(
+                                                              fontSize: 12.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
                                           InkWell(
                                             onTap: () {
@@ -1541,16 +1585,16 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       visible: (usertype == 1 ? true : false),
                                       child: experience(
                                           //experienceList
-                                          data.experiences ?? [],
-                                          data.education ?? [],
+                                          data.experiences,
+                                          data.education,
                                           data.profileSummary),
                                     ),
                                     Visibility(
                                       visible: (usertype == 1 ? true : false),
                                       child: education(
                                           // educationList
-                                          data.education ?? [],
-                                          data.experiences ?? [],
+                                          data.education,
+                                          data.experiences,
                                           data.profileSummary),
                                     ),
                                     Visibility(

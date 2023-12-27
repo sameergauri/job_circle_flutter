@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_local_variable, use_build_context_synchronously, dead_code, unused_result, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_element, curly_braces_in_flow_control_structures, unrelated_type_equality_checks, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: todo
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

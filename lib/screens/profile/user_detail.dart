@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_local_variable, unused_element, prefer_const_constructors, prefer_interpolation_to_compose_strings, avoid_unnecessary_containers, unrelated_type_equality_checks, avoid_print, use_super_parameters, library_prefixes
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

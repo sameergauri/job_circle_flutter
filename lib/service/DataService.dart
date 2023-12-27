@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import, file_names, prefer_generic_function_type_aliases
+
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';

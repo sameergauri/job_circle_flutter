@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/routes/admin_router.dart';

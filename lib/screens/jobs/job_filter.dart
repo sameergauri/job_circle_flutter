@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, non_constant_identifier_names, avoid_types_as_parameter_names
+// ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';

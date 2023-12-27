@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, prefer_interpolation_to_compose_strings, avoid_print, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

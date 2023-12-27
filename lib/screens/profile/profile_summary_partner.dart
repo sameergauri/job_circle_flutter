@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, non_constant_identifier_names, prefer_const_constructors, prefer_interpolation_to_compose_strings, use_build_context_synchronously
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';

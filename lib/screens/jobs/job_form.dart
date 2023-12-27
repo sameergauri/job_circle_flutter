@@ -1,7 +1,7 @@
 ////
 
-// ignore_for_file: duplicate_import
-
+// ignore_for_file: duplicate_import, unused_field, must_call_super, unused_local_variable, unused_result, unnecessary_null_comparison, duplicate_ignore, dangling_library_doc_comments, non_constant_identifier_names, prefer_final_fields, prefer_typing_uninitialized_variables, use_build_context_synchronously, avoid_print, unused_element, unrelated_type_equality_checks, use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers
+// ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
 
@@ -109,7 +109,7 @@ class _JobFormState extends ConsumerState<JobForm> {
   TextEditingController responsibility = TextEditingController();
   //TextEditingController shorListController = TextEditingController();
   final TextEditingController _typeAheadController = TextEditingController();
- GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
   AutoCompleteModel selectedshort = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedLevel = AutoCompleteModel("", "", {});
   AutoCompleteModel selectedStatus = AutoCompleteModel("", "", {});
@@ -534,6 +534,9 @@ class _JobFormState extends ConsumerState<JobForm> {
               : EnteryLevel = true;
         }
 
+        selectedInterviewRoundsId = jobData.inteviewrounds;
+        selectedInterViewRounds = jobData.string_interviewrounds;
+
         fetchApiBenefits = jobData.jobBenefits.cast<String>();
         selectedJobBenefits = fetchApiBenefits;
         selectedShiftTime1 = jobData.shiftTime;
@@ -554,7 +557,7 @@ class _JobFormState extends ConsumerState<JobForm> {
             : agegroupContainer = false;
 
         selectedComunication = jobData.rating;
-        selectedInterviewRoundsId = jobData.inteviewrounds.cast<int>();
+        // selectedInterviewRoundsId = jobData.inteviewrounds.cast<int>();
         if (jobData.eligible.contains(
             "Candidate should be from relevant experience background.")) {
           isRelevantExpperience = true;
@@ -1747,10 +1750,11 @@ class _JobFormState extends ConsumerState<JobForm> {
                     fetchDataFromApi: () {},
                     isFisrt: false,
                     onClose: () {
-                      Navigator.of(context).pushAndRemoveUntil(
+                    /*   Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const PartnerHomeScreen()),
-                          (Route<dynamic> route) => false);
+                          (Route<dynamic> route) => false); */
+                          Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     title: "Success",
                     subtitle: "Submitted successfully!",
@@ -1799,10 +1803,11 @@ class _JobFormState extends ConsumerState<JobForm> {
                     fetchDataFromApi: () {},
                     isFisrt: false,
                     onClose: () {
-                      Navigator.of(context).pushAndRemoveUntil(
+                     /*  Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const PartnerHomeScreen()),
-                          (Route<dynamic> route) => false);
+                          (Route<dynamic> route) => false); */
+                          Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     title: "Success",
                     subtitle: "Submitted successfully!",
@@ -2510,7 +2515,7 @@ class _JobFormState extends ConsumerState<JobForm> {
         title: Text(widget.formEdit ? "Edit" : "Job Posting"),
       ),
       body: Form(
-        key:_formKey1,
+        key: _formKey1,
         child: GestureDetector(
           onTap: () {
             if (shorListController.text.isNotEmpty) {

@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, unused_result, unused_local_variable, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, collection_methods_unrelated_type, use_build_context_synchronously
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -44,7 +44,7 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
     );
     skillsController = TextEditingController();
     if (widget.prevPageModel != null) {
-      selectedlist = widget.prevPageModel!.skills!.toSet().toList() ?? [];
+      selectedlist = widget.prevPageModel!.skills!.toSet().toList();
       suggestions.removeWhere(
           (suggestion) => widget.prevPageModel!.skills!.contains(suggestion));
       expID = widget.prevPageModel!.id;

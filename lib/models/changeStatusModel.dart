@@ -1,3 +1,5 @@
+// ignore_for_file: equal_keys_in_map, file_names, non_constant_identifier_names
+
 class ChangeStatusModel {
   int? alternateNo;
   String? applicantName;

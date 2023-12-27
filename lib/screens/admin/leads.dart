@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, prefer_const_constructors
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 

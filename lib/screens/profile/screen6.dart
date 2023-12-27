@@ -1,4 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, override_on_non_overriding_member, unused_result, no_leading_underscores_for_local_identifiers, unused_local_variable, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, use_build_context_synchronously, avoid_print, use_super_parameters
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

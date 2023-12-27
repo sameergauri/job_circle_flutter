@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print
+
 class NatureOfWorkModel {
   int? id;
   String? functional_area;

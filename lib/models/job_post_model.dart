@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types, non_constant_identifier_names, duplicate_ignore, prefer_null_aware_operators
+
 class jobPostModel {
   int? active;
   DateTime? activeDate;

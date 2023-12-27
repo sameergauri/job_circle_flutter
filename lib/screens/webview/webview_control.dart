@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import, prefer_interpolation_to_compose_strings, use_super_parameters
+
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';

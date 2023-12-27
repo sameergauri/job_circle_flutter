@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -113,8 +115,8 @@ class _JobListPageState extends State<JobListPage> {
                         'Min Experience: ${jobData.jobDetails.minExperience ?? "N/A"}'),
                     Text(
                         'Max Experience: ${jobData.jobDetails.maxExperience ?? "N/A"}'),
-                    Text('Min CTC: ${jobData.jobDetails.minCtc ?? "N/A"}'),
-                    Text('Max CTC: ${jobData.jobDetails.maxCtc ?? "N/A"}'),
+                    Text('Min CTC: ${jobData.jobDetails.minCtc}'),
+                    Text('Max CTC: ${jobData.jobDetails.maxCtc}'),
                     Text('Company Name: ${jobData.jobDetails.companyName}'),
                     Text('Process: ${jobData.jobDetails.process}'),
                     Text('Role Name: ${jobData.jobDetails.roleName}'),

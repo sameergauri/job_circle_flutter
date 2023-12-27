@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_local_variable, unused_result, unnecessary_null_comparison, non_constant_identifier_names, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, deprecated_member_use, unused_element
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';

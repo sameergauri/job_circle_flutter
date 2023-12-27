@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, prefer_interpolation_to_compose_strings, avoid_print, no_leading_underscores_for_local_identifiers, depend_on_referenced_packages, file_names
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';

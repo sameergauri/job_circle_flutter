@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, use_super_parameters, non_constant_identifier_names, unused_element, unrelated_type_equality_checks, prefer_interpolation_to_compose_strings
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';

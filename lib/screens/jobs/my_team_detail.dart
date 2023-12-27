@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, prefer_const_constructors, unnecessary_to_list_in_spreads
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

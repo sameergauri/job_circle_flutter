@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, override_on_non_overriding_member, unused_local_variable, prefer_typing_uninitialized_variables, non_constant_identifier_names, avoid_print, avoid_unnecessary_containers, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';

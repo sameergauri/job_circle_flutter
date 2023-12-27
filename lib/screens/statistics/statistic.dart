@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, sort_child_properties_last, use_super_parameters
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

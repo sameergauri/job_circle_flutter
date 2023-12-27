@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, prefer_adjacent_string_concatenation, avoid_print
+// ignore_for_file: todo
 import 'package:http/http.dart' as http;
 
 class HttpClientInterceptor extends http.BaseClient{

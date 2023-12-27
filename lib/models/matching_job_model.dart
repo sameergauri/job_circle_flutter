@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print
+
 import 'dart:convert';
 
 class JobDetails {
@@ -47,6 +49,7 @@ class JobData {
   final List<dynamic> skills;
   final List<dynamic> jobBenefits;
   final List<int> inteviewrounds;
+  final List<String> string_interviewrounds;
   final List<Location> location;
   final String isFresher;
   final int maxAge;
@@ -98,6 +101,7 @@ class JobData {
     required this.skills,
     required this.jobBenefits,
     required this.inteviewrounds,
+    required this.string_interviewrounds,
     required this.isFresher,
     required this.maxAge,
     required this.industry,
@@ -181,6 +185,7 @@ class JobData {
             ? List<int>.from(
                 jsonDecode(json['inteviewrounds']).map((rounds) => rounds))
             : [],
+        string_interviewrounds:json['string_interviewrounds']!=null?List<String>.from(jsonDecode(json['string_interviewrounds']).map((rounds)=>rounds)):[],
         isFresher: json['isfresher'] ?? '',
         maxAge: json['max_age'] != null ? json['max_age'].toInt() : 0,
         industry: json['industry'] ?? '',

@@ -1,5 +1,7 @@
 
 
+// ignore_for_file: file_names
+
 import 'package:job_circle/models/serachable.dart';
 
 class UserDetail with Searchable {

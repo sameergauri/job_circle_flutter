@@ -1,3 +1,5 @@
+// ignore_for_file: equal_keys_in_map, non_constant_identifier_names, avoid_print
+
 import 'dart:convert';
 
 class ProfileModel {

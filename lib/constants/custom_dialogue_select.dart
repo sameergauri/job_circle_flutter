@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_unnecessary_containers, avoid_print, use_build_context_synchronously
+
 import 'package:awesome_calendar/awesome_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

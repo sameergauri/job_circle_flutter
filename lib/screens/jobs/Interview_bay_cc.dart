@@ -1,3 +1,5 @@
+// ignore_for_file: override_on_non_overriding_member, unused_field, unused_local_variable, unused_result, file_names, avoid_print, unused_element, prefer_final_fields, non_constant_identifier_names
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:awesome_calendar/awesome_calendar.dart';

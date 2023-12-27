@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, prefer_interpolation_to_compose_strings, sort_child_properties_last
+// ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';

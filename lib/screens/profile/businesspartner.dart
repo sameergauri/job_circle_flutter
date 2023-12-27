@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_unnecessary_containers
+// ignore_for_file: avoid_unnecessary_containers, unused_local_variable, use_super_parameters, non_constant_identifier_names, prefer_typing_uninitialized_variables, sort_child_properties_last, prefer_const_constructors, avoid_print, use_build_context_synchronously, empty_catches
 
 import 'dart:convert';
 

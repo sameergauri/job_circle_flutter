@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
