@@ -2826,6 +2826,11 @@ class _JobsState extends ConsumerState<Jobs>
                                              userNumber:
                                             464546456,
                                                useAlternateNumber: 464546456,
+                                               interviewRounds: jobDetailsModel
+                                            .interviewrounds!.first
+                                            .replaceAll('[', '')
+                                            .replaceAll(']', '')
+                                            .replaceAll('"', ''),
                                       )));
                           /* JobPostApiService.postJobApply(
                               jobId: item['id'],

@@ -1654,6 +1654,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   MaterialPageRoute(
                                                                       builder: (context) =>
                                                                           AddResume(
+                                                                            interviewRounds:
+                                                                                item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
                                                                             company_name:
                                                                                 item.companyName.toString(),
                                                                             role:
@@ -1767,6 +1769,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                               is30: item.payment_clause == "30 Days" ? true : false,
                                                                               userNumber: data.mobile!.toInt(),
                                                                               useAlternateNumber: data.alternate_no?.toInt() ?? 0,
+                                                                              interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
                                                                             )));
                                                               },
                                                               child: Container(

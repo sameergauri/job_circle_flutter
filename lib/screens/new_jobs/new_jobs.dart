@@ -392,7 +392,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
-        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+        linkUrl:
+            'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
   }
 
@@ -1111,9 +1112,11 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                       .spaceBetween,
                                                               children: [
                                                                 Padding(
-                                                                  padding: const EdgeInsets
+                                                                  padding:
+                                                                      const EdgeInsets
                                                                           .only(
-                                                                      left: 10),
+                                                                          left:
+                                                                              10),
                                                                   child: Column(
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
@@ -1175,7 +1178,7 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                             Padding(
                                                               padding:
                                                                   const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       left: 10),
                                                               child: Column(
                                                                 crossAxisAlignment:
@@ -1191,8 +1194,10 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                             .start,
                                                                     children: [
                                                                       Padding(
-                                                                        padding:
-                                                                            const EdgeInsets.only(top: 1),
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                1),
                                                                         child: Image
                                                                             .asset(
                                                                           "assets/images/cmpny.png",
@@ -1384,27 +1389,38 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                     .map(
                                                                       (skillItem) =>
                                                                           Container(
-                                                                        margin:
-                                                                            const EdgeInsets.only(bottom: 5),
-                                                                        padding: const EdgeInsets.symmetric(
-                                                                            vertical: 4,
-                                                                            horizontal: 8),
+                                                                        margin: const EdgeInsets
+                                                                            .only(
+                                                                            bottom:
+                                                                                5),
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            vertical:
+                                                                                4,
+                                                                            horizontal:
+                                                                                8),
                                                                         decoration:
                                                                             BoxDecoration(
-                                                                          color:
-                                                                              Colors.grey.shade200,
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .shade200,
                                                                           borderRadius:
                                                                               BorderRadius.circular(8),
                                                                         ),
                                                                         child:
                                                                             Text(
-                                                                          "#$skillItem".replaceAll('"', '').replaceAll('[', '').replaceAll(']',
-                                                                              ''),
+                                                                          "#$skillItem"
+                                                                              .replaceAll('"', '')
+                                                                              .replaceAll('[', '')
+                                                                              .replaceAll(']', ''),
                                                                           style:
                                                                               GoogleFonts.varela(
-                                                                            color: Colors.black54,
-                                                                            fontWeight: FontWeight.bold,
-                                                                            fontSize: 13.sp,
+                                                                            color:
+                                                                                Colors.black54,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                13.sp,
                                                                           ),
                                                                         ),
                                                                       ),
@@ -1415,11 +1431,11 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                     5)
                                                                   Container(
                                                                     margin: const EdgeInsets
-                                                                            .only(
+                                                                        .only(
                                                                         bottom:
                                                                             5),
                                                                     padding: const EdgeInsets
-                                                                            .symmetric(
+                                                                        .symmetric(
                                                                         vertical:
                                                                             4,
                                                                         horizontal:
@@ -1429,21 +1445,24 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                       color: Constants
                                                                           .borderColor,
                                                                       borderRadius:
-                                                                          BorderRadius.circular(8),
+                                                                          BorderRadius.circular(
+                                                                              8),
                                                                     ),
-                                                                    child:
-                                                                        Text(
+                                                                    child: Text(
                                                                       '+${updatedList.length - 5}'
-                                                                          .replaceAll('"',
+                                                                          .replaceAll(
+                                                                              '"',
                                                                               '')
-                                                                          .replaceAll('[',
+                                                                          .replaceAll(
+                                                                              '[',
                                                                               '')
-                                                                          .replaceAll(']',
+                                                                          .replaceAll(
+                                                                              ']',
                                                                               ''),
                                                                       style: GoogleFonts
                                                                           .varela(
-                                                                        color:
-                                                                            Colors.black,
+                                                                        color: Colors
+                                                                            .black,
                                                                         fontWeight:
                                                                             FontWeight.bold,
                                                                         fontSize:
@@ -1526,16 +1545,17 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     sourceName: "${profileModel.firstName.toString()} ${profileModel.lastName.toString()}",
                                                                                     isRefer: false,
                                                                                     spocId: item.spoc!.toInt(),
-                                                                                     is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
                                                                                     is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                     userNumber: profileModel.mobile!.toInt(),
-                                                                                     useAlternateNumber: profileModel.alternate_no!.toInt(),
+                                                                                    userNumber: profileModel.mobile!.toInt(),
+                                                                                    useAlternateNumber: profileModel.alternate_no!.toInt(),
+                                                                                    interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
                                                                                   )));
                                                                     },
                                                                     child:
                                                                         Container(
                                                                       margin: const EdgeInsets
-                                                                              .only(
+                                                                          .only(
                                                                           right:
                                                                               10),
                                                                       padding: EdgeInsets.symmetric(
@@ -1601,10 +1621,11 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                     sourceName: "${jobData.profile.firstName.toString()} ${jobData.profile.lastName.toString()}",
                                                                                     isRefer: true,
                                                                                     spocId: item.spoc!.toInt(),
-                                                                                     is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
                                                                                     is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                     userNumber: profileModel.mobile!.toInt(),
-                                                                                      useAlternateNumber: profilemodel.alternate_no!.toInt(),
+                                                                                    userNumber: profileModel.mobile!.toInt(),
+                                                                                    useAlternateNumber: profilemodel.alternate_no!.toInt(),
+                                                                                    interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
                                                                                   )));
                                                                     },
                                                                     child:
@@ -1714,9 +1735,10 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                 Center(
                                                                   child:
                                                                       Padding(
-                                                                    padding: const EdgeInsets
+                                                                    padding:
+                                                                        const EdgeInsets
                                                                             .all(
-                                                                        100.0),
+                                                                            100.0),
                                                                     child:
                                                                         RichText(
                                                                       text:
@@ -1728,8 +1750,7 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                                 20,
                                                                             fontWeight:
                                                                                 FontWeight.bold),
-                                                                        children: const <
-                                                                            TextSpan>[
+                                                                        children: const <TextSpan>[
                                                                           //  TextSpan(text: 'Press the menu button'),
                                                                         ],
                                                                       ),

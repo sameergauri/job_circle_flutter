@@ -174,8 +174,9 @@ class JobPostApiService {
     final body = {
       'jobId': jobId.toString(),
       'userId': userId.toString(),
-      'status':
-          'TP1', // Assuming 'status' is always '1' based on the provided URL.
+
+      /// 'status':'TP1',
+      // Assuming 'status' is always '1' based on the provided URL.
     };
 
     try {
@@ -227,6 +228,50 @@ class JobPostApiService {
       if (response.statusCode == 200) {
         // Successful request
         print('Data posted successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  static Future<void> NewchangeStatus(
+      Map<String, dynamic> jsonData, int id) async {
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/$id/statusId';
+
+    try {
+      var response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print('Status Updated Successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  static Future<void> NewChangeCRPF(
+      Map<String, dynamic> jsonData, int id) async {
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/$id/updateCrpf';
+
+    try {
+      var response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        print('Status Updated Successfully');
       } else {
         // Request failed
         print('Error: ${response.statusCode}');

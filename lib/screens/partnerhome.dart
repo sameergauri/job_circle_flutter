@@ -60,7 +60,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         index: selectedIndex,
         children: [
           const NewJobsV1(),
-          const TalentPool(),
+          // const TalentPool(), 
           if (role == "3")
             const InterViewBay()
           //CC()
@@ -123,7 +123,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Hiring',
       backgroundColor: Colors.blue,
     ));
-    bottomTabItems.add(BottomNavigationBarItem(
+   /*  bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/jobs.png",
         height: 15.h,
@@ -134,7 +134,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       ),
       label: 'Talent Pool',
       backgroundColor: Colors.blue,
-    ));
+    )); */
 
     bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(

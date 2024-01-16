@@ -17,6 +17,7 @@ import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timelines/timelines.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
@@ -41,8 +42,22 @@ class AllReferStatus extends ConsumerStatefulWidget {
   ConsumerState<AllReferStatus> createState() => _AllReferStatusState();
 }
 
-List<String> getStatuses(List<Applicant> applicants) {
-  return applicants.map((e) => e.status.toString()).toSet().toList()..sort();
+/* List<String?> getStatuses(List<Applicant> applicants) {
+  return applicants
+      .map((e) =>
+          e.referral_status != null ? e.referral_status.toString() : e.s2ReferralStatus)
+      .toSet()
+      .toList()
+    ..sort();
+} */
+List<String?> getStatuses(List<Applicant> applicants) {
+  return applicants
+      .map((e) => e.referral_status != null
+          ? e.referral_status.toString()
+          : e.s2ReferralStatus)
+      .toSet()
+      .toList()
+    ..sort();
 }
 
 class _AllReferStatusState extends ConsumerState<AllReferStatus>
@@ -84,7 +99,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=1000000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=100000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -151,6 +166,51 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
         if (startValue >= 1000) {
           double shortStartValue = startValue / 100000.0;
           double shortEndValue = endValue / 100000.0;
+          String formattedStartValue =
+              '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k';
+          String formattedEndValue = endValue > 0
+              ? '${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k'
+              : '';
+          return '$formattedStartValue${formattedEndValue.isNotEmpty ? ' - $formattedEndValue' : ''} Per Month';
+        } else {
+          return '$startValue${endValue > 0 ? ' - $endValue' : ''} Per Month';
+        }
+      } else if (input.contains("Lac's P.A")) {
+        if (startValue >= 100000) {
+          double shortStartValue = startValue / 10000000.0;
+          double shortEndValue = endValue / 10000000.0;
+          String formattedStartValue =
+              '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 2)} Lac\'s';
+          String formattedEndValue = endValue > 0
+              ? '${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 2)} Lac\'s'
+              : '';
+          return '$formattedStartValue${formattedEndValue.isNotEmpty ? ' - $formattedEndValue' : ''} P.A';
+        } else {
+          return '$startValue${endValue > 0 ? ' - $endValue' : ''} Per Year';
+        }
+      }
+    }
+
+    // Handle other cases, or return the input as it is if it doesn't match any pattern
+    return input;
+  }
+
+  /*  String convertSalaryFormat(String input) {
+    // Extract numeric values from the input string
+    List<int> salaryValues = [
+      for (var value in input.split('-'))
+        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
+          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
+    ];
+
+    if (salaryValues.length == 2) {
+      int startValue = salaryValues[0];
+      int endValue = salaryValues[1];
+
+      if (input.contains('Per Month')) {
+        if (startValue >= 1000) {
+          double shortStartValue = startValue / 100000.0;
+          double shortEndValue = endValue / 100000.0;
           return '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k Per Month';
         } else {
           return '$startValue - $endValue Per Month';
@@ -168,7 +228,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
 
     // Handle other cases, or return the input as it is if it doesn't match any pattern
     return input;
-  }
+  } */
 
 //TODO: old salry formater code which is not working properly.
   /*  String convertSalaryFormat(String input) {
@@ -262,7 +322,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                 .map(
                                   (e) => Tab(
                                     child: customTab(
-                                      e,
+                                      e!,
                                     ),
                                   ),
                                 )
@@ -280,8 +340,13 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             final index = entry.key;
                             final status = entry.value;
                             final applicants = data
-                                .where((applicant) =>
-                                    applicant.status.toString() == status)
+                                .where((applicant) => applicant
+                                            .referral_status !=
+                                        null
+                                    ? applicant.referral_status.toString() ==
+                                        status
+                                    : applicant.s2ReferralStatus.toString() ==
+                                        status)
                                 .toList();
 
                             // Create widgets based on the applicants list
@@ -432,6 +497,21 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     // List<String>? myStrings;
     //  bool stopIteration = false;
 
+    List<String>? finalinterviewRounds = item.inteviewrounds
+        ?.map((round) => round
+            .replaceAll('[', '')
+            .replaceAll(']', '')
+            .replaceAll('"', '')
+            .trim())
+        .expand((formattedRound) => formattedRound.split(','))
+        .toSet()
+        .map((round) => round.trim())
+        .where((round) => round.isNotEmpty)
+        .toList();
+    int selectedRoundIndex = item.interview_rounds != null
+        ? finalinterviewRounds!.indexOf(item.interview_rounds.toString())
+        : 0;
+
     return InkWell(
       onTap: () {
         Navigator.pushNamed(
@@ -466,32 +546,45 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
             Container(
               padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
               decoration: BoxDecoration(
-                  color: Constants.borderColor,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8.r),
-                      topRight: Radius.circular(8.r)),
-                  border: Border.all(color: Constants.maintheme_light_color)),
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8.r),
+                    topRight: Radius.circular(8.r)),
+              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.person_2_outlined,
-                              size: 17.h, color: Constants.themeBgColor),
-                          const SizedBox(
-                            width: 2,
+                      CircleAvatar(
+                        backgroundColor: Constants.borderColor,
+                        radius: 22,
+                        child: Text(
+                          item.applicantName!.isNotEmpty
+                              ? item.applicantName![0].toUpperCase()
+                              : 'N',
+                          style: const TextStyle(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
                           ),
-                          Text(
-                            "${item.applicantName.toString()} ${item.last_name.toString()}",
-                            // maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16.sp),
-                          ),
-                        ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 4.w,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${item.applicantName.toString()} ${item.last_name.toString()}",
+                        // maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16.sp),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -509,6 +602,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                       ),
                     ],
                   ),
+                  const Spacer(),
                   Column(
                     children: [
                       IconButton(
@@ -540,48 +634,74 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
+              padding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: 5,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start, // Ad
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (item.process != null)
-                        Text(
-                          item.process.toString(),
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, fontSize: 14.sp),
-                        ),
-                      if (item.lead_level != null)
-                        Text(
-                          " || ",
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, fontSize: 14.sp),
-                        ),
-                      if (item.lead_level != null)
-                        Text(
-                          item.lead_level == ""
-                              ? "Role Name**"
-                              : item.lead_level.toString(),
-                          // overflow: TextOverflow.visible,
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, fontSize: 14.sp),
-                        ),
-                    ],
-                  ),
-                  if (item.companyName != null)
-                    Text(
-                      item.companyName.toString(),
-                      style: GoogleFonts.varela(
-                          // color: Colors.black54,
-                          color: const Color.fromARGB(255, 22, 36, 32),
-                          fontWeight: FontWeight.normal,
-                          fontSize: 13.sp),
-                    ),
+                  Container(
+                      decoration: BoxDecoration(
+                          color: Constants.borderColor,
+                          borderRadius: BorderRadius.circular(8.r)),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 4.h, horizontal: 6.w),
+                      margin: EdgeInsets.only(bottom: 4.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (item.companyName != null)
+                            Text(
+                              item.short_name != null
+                                  ? item.short_name.toString()
+                                  : item.companyName.toString(),
+                              style: GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold, fontSize: 14.sp),
+                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (item.process != null)
+                                Text(
+                                  item.process.toString(),
+                                  style: GoogleFonts.varela(
+                                      // color: Colors.black54,
+                                      color:
+                                          const Color.fromARGB(255, 22, 36, 32),
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 13.sp),
+                                ),
+                              if (item.lead_level != null)
+                                Text(
+                                  " || ",
+                                  style: GoogleFonts.varela(
+                                      // color: Colors.black54,
+                                      color:
+                                          const Color.fromARGB(255, 22, 36, 32),
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 13.sp),
+                                ),
+                              if (item.lead_level != null)
+                                Text(
+                                  item.lead_level == ""
+                                      ? "Role Name**"
+                                      : item.lead_level.toString(),
+                                  // overflow: TextOverflow.visible,
+                                  style: GoogleFonts.varela(
+                                      // color: Colors.black54,
+                                      color:
+                                          const Color.fromARGB(255, 22, 36, 32),
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 13.sp),
+                                ),
+                            ],
+                          ),
+                        ],
+                      )),
                   if (item.totalSalary != null)
                     Padding(
                       padding: EdgeInsets.only(top: 4.h, left: 4.w),
@@ -639,82 +759,195 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                         ],
                       ),
                     ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 6),
-                    padding: const EdgeInsets.only(
-                        top: 6, bottom: 6, right: 10, left: 10),
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        // border: Border.all(color: Colors.amber),
-                        //color: Colors.amberAccent.shade100,
-                        borderRadius: BorderRadius.circular(08)),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.add_alert,
-                              color: Colors.amber,
-                            ),
-                          ],
+                  //TODO:: Interview Rounds......{
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  if (item.status_id == 1)
+                    Container(
+                      margin: EdgeInsets.only(top: 4.h),
+                      width: double.maxFinite,
+                      decoration: BoxDecoration(
+                          color: Constants.borderColor,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: Constants.borderColor)),
+                      //  padding: const EdgeInsets.only(bottom: 5),
+                      height: MediaQuery.of(context).size.height / 15,
+                      child: Timeline.tileBuilder(
+                        //  scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(bottom: 10),
+
+                        shrinkWrap: true,
+                        // padding: const EdgeInsets.only(top: 0),
+                        theme: TimelineThemeData(
+                          direction: Axis.horizontal,
+                          connectorTheme: const ConnectorThemeData(
+                            space: 8.0,
+                            thickness: 2.0,
+                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: Column(
+                        builder: TimelineTileBuilder.connected(
+                          contentsAlign: ContentsAlign.basic,
+                          connectionDirection: ConnectionDirection.before,
+                          itemCount: finalinterviewRounds != null
+                              ? finalinterviewRounds.length
+                              : 0,
+                          itemExtentBuilder: (_, __) {
+                            return (MediaQuery.of(context).size.width - 50) /
+                                finalinterviewRounds!.length.toDouble();
+                          },
+                          oppositeContentsBuilder: (context, index) {
+                            return Container();
+                          },
+                          contentsBuilder: (context, index) {
+                            return finalinterviewRounds != null
+                                ? Text(finalinterviewRounds[index])
+                                : const Text("");
+                          },
+                          indicatorBuilder: (_, index) {
+                            if (index == selectedRoundIndex) {
+                              // Customize the selected round indicator
+                              return const OutlinedDotIndicator(
+                                borderWidth: 4.0,
+                                color: Colors.green,
+                              );
+                            } else if (index > selectedRoundIndex) {
+                              // Customize indicators for other rounds
+                              return OutlinedDotIndicator(
+                                borderWidth: 4.0,
+                                color: Colors.grey.shade400,
+                              );
+                            } else {
+                              return CircleAvatar(
+                                backgroundColor: Colors.green,
+                                radius: 8.r,
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 13.h,
+                                ),
+                              ); /* const DotIndicator(
+                                //   borderWidth: 4.0,
+                                color: Colors.green,
+                              ); */
+                            }
+                          },
+                          connectorBuilder: (_, index, type) {
+                            if (index == selectedRoundIndex) {
+                              // Customize the selected round connector
+                              return const DashedLineConnector(
+                                color: Colors.green,
+                              );
+                            } else if (index > selectedRoundIndex) {
+                              // Customize connectors for other rounds
+                              return DashedLineConnector(
+                                color: Colors.grey.shade400,
+                              );
+                            } else {
+                              return const DashedLineConnector(
+                                color: Colors.green,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  //
+                  // TODO:: Interview rounds end ........}
+                  if (item.status_id != 1)
+                    Container(
+                      margin: const EdgeInsets.only(top: 6),
+                      padding: const EdgeInsets.only(
+                          top: 6, bottom: 6, right: 10, left: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          // border: Border.all(color: Colors.amber),
+                          //color: Colors.amberAccent.shade100,
+                          borderRadius: BorderRadius.circular(08)),
+                      width: double.maxFinite,
+                      child: Row(
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      item.status == "Application"
-                                          ? "Application sent"
-                                          : item.status == "Select"
-                                              ? "You are selected for this job"
-                                              : item.status == "Reject"
-                                                  ? "Your CV is rejected"
-                                                  : item.status ==
-                                                          "Interview Schedule"
-                                                      ? "Interview Schedule"
-                                                      : item.status == "Assign"
-                                                          ? "Your Application is under process"
-                                                          : item.status ==
-                                                                  "Screening Reject"
-                                                              ? "Screening Rejected"
-                                                              : item.status ==
-                                                                      "Disqualify"
-                                                                  ? "Your CV is rejected"
-                                                                  : item.status ==
-                                                                          "In-Process"
-                                                                      ? "CV shortlisted for interview"
-                                                                      : "",
-                                      style: GoogleFonts.varela(
-                                          color: Colors.amber,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14.sp),
-                                      softWrap: true,
-                                    ),
+                              if ((item.referral_icon != null &&
+                                      item.referral_icon != "null") ||
+                                  item.s2ReferralIcon != null)
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Image.network(
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.referral_icon ?? item.s2ReferralIcon}",
+                                    fit: BoxFit.fill,
+                                    height: 18.h,
                                   ),
-                                ],
-                              ),
-                              if (item.remark != null)
-                                Text(
-                                  item.remark.toString(),
-                                  style: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14.sp),
                                 )
                             ],
                           ),
-                        )
-                      ],
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      if (item.referral_feedback1 != null ||
+                                          item.s2ReferralFeedback2 != null ||
+                                          item.referral_feedback1 != "")
+                                        Flexible(
+                                          child: Text(
+                                            item.referral_feedback1 != null
+                                                ? item.referral_feedback1
+                                                    .toString()
+                                                : item.s2ReferralFeedback1
+                                                    .toString(),
+                                            style: GoogleFonts.varela(
+                                                color: Constants.blue,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.sp),
+                                            softWrap: true,
+                                            // maxLines: 3,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  if (item.referral_feedback2 != null ||
+                                      item.s2ReferralFeedback2 != null)
+                                    Text(
+                                      item.referral_feedback2 != null
+                                          ? item.referral_feedback2.toString()
+                                          : item.s2ReferralFeedback2 != null
+                                              ? item.s2ReferralFeedback2
+                                                  .toString()
+                                              : "",
+                                      softWrap: true,
+                                      // maxLines: 3,
+                                      style: GoogleFonts.varela(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14.sp),
+                                    )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5),
                     child: Row(

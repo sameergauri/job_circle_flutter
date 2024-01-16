@@ -1,12 +1,19 @@
-// ignore_for_file: avoid_unnecessary_containers, avoid_print, use_build_context_synchronously
-
+// ignore_for_file: avoid_unnecessary_containers, avoid_print, use_build_context_synchronously, unused_local_variable, duplicate_ignore, unused_result, use_full_hex_values_for_flutter_colors
+// ignore_for_file: todo
 import 'package:awesome_calendar/awesome_calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
+import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import '../service/job_post_api_service.dart';
@@ -14,8 +21,12 @@ import '../service/job_post_api_service.dart';
 class CustomDialogueForSelect extends StatefulWidget {
   final Applicant item;
   final Function refreshCallback;
+  final DropDownItem finalDropDown;
   const CustomDialogueForSelect(
-      {super.key, required this.item, required this.refreshCallback});
+      {super.key,
+      required this.item,
+      required this.refreshCallback,
+      required this.finalDropDown});
 
   @override
   State<CustomDialogueForSelect> createState() =>
@@ -195,10 +206,11 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
         padding:
             EdgeInsets.only(top: 20.h, left: 15.w, right: 15.w, bottom: 20.h),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            /*  Text(
               "Mode of Documentation",
               style: GoogleFonts.varela(
                   fontSize: 16.sp, fontWeight: FontWeight.w600),
@@ -291,7 +303,7 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
             ),
             SizedBox(
               height: 20.h,
-            ),
+            ), */
             Text(
               "Date of Joining",
               style: GoogleFonts.varela(
@@ -301,7 +313,7 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
               height: 6,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InkWell(
                   onTap: () {
@@ -408,53 +420,742 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                f2f == true || online == true
-                    ? InkWell(
-                        onTap: () async {
-                          ChangeStatusModel changeStatusModel =
-                              ChangeStatusModel(
-                                  status: "IB7",
-                                  subStatus: "Confirmation Pending",
-                                  doj: singleSelect,
-                                  id: widget.item.id,
-                                  sourceId: widget.item.sourceId,
-                                  mode_document: f2f ? 0 : 1,
-                                  document_status:
-                                      f2f ? "Schedule F2F" : "Not Submitted");
-                          Map<String, dynamic> jsonData =
-                              changeStatusModel.toJson();
-                          try {
-                            await JobPostApiService.changeStatus(
-                                jsonData, widget.item.id!.toInt());
-                            /* fetchApplicants = ref
+                InkWell(
+                  onTap: () async {
+                    NewChangeStatusModel changeStatusModel =
+                        NewChangeStatusModel(
+                            hrStatusId: widget.finalDropDown.priStatusId,
+                            statusId: widget.finalDropDown.statusId,
+                            doj: singleSelect,
+                            // mode_document: f2f ? 0 : 1,
+                            document_status: "Not Submitted");
+                    Map<String, dynamic> jsonData = changeStatusModel.toJson();
+                    try {
+                      await JobPostApiService.NewchangeStatus(
+                          jsonData, widget.item.id!.toInt());
+                      /* fetchApplicants = ref
                 .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */
-                            setState(() {});
-                            someFunction();
-                            Navigator.pop(context);
-                          } catch (e) {
-                            print('Error: $e');
-                            // Handle error...
-                          }
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(top: 15.h),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 5.h, horizontal: 12.w),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text("Submit",
-                              style: GoogleFonts.varela(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                      )
-                    : const SizedBox()
+                      setState(() {});
+                      someFunction();
+                      Navigator.pop(context);
+                    } catch (e) {
+                      print('Error: $e');
+                      // Handle error...
+                    }
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text("Submit",
+                        style: GoogleFonts.varela(
+                            color: Colors.blue, fontWeight: FontWeight.bold)),
+                  ),
+                )
               ],
             )
           ],
         ),
       ),
     );
+  }
+}
+
+class CustomDialogueForRemark extends StatefulWidget {
+  final Function onTab;
+  final TextEditingController controller;
+  final Function(String) callBack;
+
+  const CustomDialogueForRemark(
+      {super.key,
+      required this.onTab,
+      required this.controller,
+      required this.callBack});
+
+  @override
+  State<CustomDialogueForRemark> createState() =>
+      _CustomDialogueForRemarkState();
+}
+
+class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
+  TextEditingController remarkController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    return Dialog(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: Container(
+        padding:
+            EdgeInsets.only(top: 20.h, left: 15.w, right: 15.w, bottom: 20.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              ],
+              /* <TextInputFormatter>[
+                FilteringTextInputFormatter.singleLineFormatter,
+              ], */
+              /*  validator: (value) {
+          if (value == null || value.isEmpty) {
+            //return "This Text field Cant be empty";
+          }
+          return null;
+        }, */
+
+              keyboardType: TextInputType.name,
+              //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+              textCapitalization: TextCapitalization.sentences,
+              controller: remarkController,
+              onChanged: (value) {
+                widget.callBack(value);
+              },
+              onTap: (() {}),
+              style: GoogleFonts.varela(
+                  color: Constants.subtitleclr, fontSize: 14.sp),
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Constants.borderColor,
+                  prefixIcon: const Icon(Icons.ac_unit_rounded),
+                  prefixIconColor: Constants.themeBgColor,
+                  contentPadding: const EdgeInsets.only(
+                      top: 8, bottom: 8, left: 10, right: 10),
+                  counterText: '',
+                  labelText: "Remark",
+                  labelStyle: const TextStyle(
+                    color: Constants.themeBgColor,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                    borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                  ),
+                  focusColor: const Color(0xffff0eceb),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                    borderSide: const BorderSide(
+                      color: Constants.themeBgColor,
+                    ),
+                  ),
+                  hintText: "Due to some reason",
+                  hintStyle: GoogleFonts.sourceSansPro(
+                      color: Constants.hintColor, fontSize: 15.sp)),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    remarkController.clear();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text("Cancel",
+                        style: GoogleFonts.varela(
+                            color: Constants.blue,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                //if (remarkController.text.isNotEmpty)
+                InkWell(
+                  onTap: () async {
+                    await widget.onTab();
+                    remarkController.clear();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text("Submit",
+                        style: GoogleFonts.varela(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomDialogueForJoin extends ConsumerStatefulWidget {
+  final Applicant item;
+  final int secStatusId;
+  final int statusId;
+
+  const CustomDialogueForJoin(
+      {super.key,
+      required this.item,
+      required this.secStatusId,
+      required this.statusId
+      //   required this.controller,
+      //  required this.callBack
+      });
+
+  @override
+  ConsumerState<CustomDialogueForJoin> createState() =>
+      _CustomDialogueForJoinState();
+}
+
+class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
+  TextEditingController empid = TextEditingController();
+  TextEditingController salary = TextEditingController();
+  bool isMale = false;
+  bool isFemale = false;
+  bool fresher = false;
+  bool experience = false;
+  @override
+  Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    return Dialog(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: Container(
+        padding:
+            EdgeInsets.only(top: 20.h, left: 15.w, right: 15.w, bottom: 20.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.item.empCID == 0 &&
+                widget.item.company_gender == 0 &&
+                widget.item.company_salary == 0 &&
+                (widget.item.company_workstatus == 0 ||
+                    widget.item.company_workstatus == null))
+              Text("Do you want to submit the lead to the join?",
+                  style: GoogleFonts.varela(
+                      color: Constants.blue, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Additional details of ",
+                    style: GoogleFonts.varela(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp)),
+                Text(
+                    "${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()}",
+                    style: GoogleFonts.varela(
+                        color: Constants.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp))
+              ],
+            ),
+            if (widget.item.company_gender == 1)
+              Container(
+                margin: EdgeInsets.only(top: 15.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Gender",
+                        style: GoogleFonts.varela(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    // if (widget.item.company_gender == 1)
+                    Row(
+                      children: [
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                isMale = true;
+                                isFemale = false;
+                              });
+                            },
+                            isSelect: isMale,
+                            title: "Male",
+                            img: "assets/images/male1.png",
+                            isimage: true),
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                isMale = false;
+
+                                isFemale = true;
+                              });
+                            },
+                            isSelect: isFemale,
+                            title: "Female",
+                            img: "assets/images/female1.png",
+                            isimage: true)
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (widget.item.company_workstatus != null &&
+                widget.item.company_workstatus == 1)
+              Container(
+                // margin: EdgeInsets.only(top: 5.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Work Status",
+                        style: GoogleFonts.varela(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    // if (widget.item.company_gender == 1)
+                    Row(
+                      children: [
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                fresher = !fresher;
+                                experience = false;
+                              });
+                            },
+                            isSelect: fresher,
+                            title: "Fresher",
+                            img: "",
+                            isimage: false),
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                fresher = false;
+
+                                experience = !experience;
+                              });
+                            },
+                            isSelect: experience,
+                            title: "Experience",
+                            img: "",
+                            isimage: false)
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (widget.item.empCID == 1)
+              Container(
+                margin: EdgeInsets.only(top: 4.h),
+                height: MediaQuery.of(context).size.height / 24,
+                child: TextField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                  ],
+
+                  keyboardType: TextInputType.name,
+                  //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: empid,
+
+                  style: GoogleFonts.varela(
+                      color: Constants.subtitleclr, fontSize: 14.sp),
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      prefixIcon: const Icon(
+                        Icons.badge_outlined,
+                        color: Constants.subtitleclr,
+                      ),
+                      prefixIconColor: Constants.themeBgColor,
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      counterText: '',
+                      labelText: "Emp ID",
+                      labelStyle: const TextStyle(
+                        color: Constants.subtitleclr,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(color: Constants.lightdull),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: const BorderSide(
+                          color: Constants.subtitleclr,
+                        ),
+                      ),
+                      hintText: "E1515115....",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.hintColor, fontSize: 15.sp)),
+                ),
+              ),
+            if (widget.item.company_salary == 1)
+              Container(
+                margin: EdgeInsets.only(top: 8.h),
+                height: MediaQuery.of(context).size.height / 24,
+                child: TextField(
+                  maxLength: 7,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+
+                  keyboardType: TextInputType.number,
+                  //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: salary,
+
+                  style: GoogleFonts.varela(
+                      color: Constants.subtitleclr, fontSize: 14.sp),
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      prefixIcon: const Icon(Icons.currency_rupee_outlined,
+                          color: Constants.subtitleclr),
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      counterText: '',
+                      labelText: "Salary",
+                      labelStyle: const TextStyle(
+                        color: Constants.subtitleclr,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(color: Constants.lightdull),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: const BorderSide(
+                          color: Constants.subtitleclr,
+                        ),
+                      ),
+                      hintText: "20,000",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.hintColor, fontSize: 15.sp)),
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (widget.item.empCID != 0 ||
+                    widget.item.company_gender != 0 ||
+                    widget.item.company_salary != 0 ||
+                    (widget.item.company_workstatus != 0 ||
+                        widget.item.company_workstatus != null))
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      empid.clear();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15.h),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text("Cancel",
+                          style: GoogleFonts.varela(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                //if (remarkController.text.isNotEmpty)
+                if (widget.item.company_gender == 1
+                    ? isMale || isFemale
+                    : !isMale)
+                  InkWell(
+                    onTap: () async {
+                      NewChangeStatusModel changeStatusModel =
+                          NewChangeStatusModel(
+                              empId: empid.text.isEmpty ? null : empid.text,
+                              doj: widget.item.doj,
+                              hrStatusId: widget.item.hr_status_id,
+                              /* widget.secStatusId ==
+                                      16 //TODO:: ID of "not join"..
+                                  ? 0
+                                  : widget.statusId, */
+                              statusId: widget.secStatusId,
+                              salary: salary.text.isNotEmpty
+                                  ? double.tryParse(salary.text)
+                                  : null,
+                              commercial_gender: isMale
+                                  ? "Male"
+                                  : isFemale
+                                      ? "Female"
+                                      : null,
+                              isExp: fresher
+                                  ? 0
+                                  : experience
+                                      ? 1
+                                      : null,
+                              isJoinSubmitted: widget.item.company_workstatus ==
+                                          1 &&
+                                      widget.item.empCID == 1 &&
+                                      widget.item.company_salary == 1 &&
+                                      (fresher || experience) &&
+                                      empid.text.isNotEmpty &&
+                                      salary.text.isNotEmpty &&
+                                      widget.item.document_status == "Submitted"
+                                  ? 1
+                                  : widget.item.company_workstatus == 1 &&
+                                          (widget.item.empCID == 0||widget.item.empCID == null) &&
+                                         ( widget.item.company_salary == 0 || widget.item.company_salary == null)&&
+                                          (fresher || experience) &&
+                                          empid.text.isEmpty &&
+                                          salary.text.isEmpty &&
+                                          widget.item.document_status ==
+                                              "Submitted"
+                                      ? 1
+                                      : (widget.item.company_workstatus == 0 ||
+                                                  widget.item
+                                                          .company_workstatus ==
+                                                      null) &&
+                                              widget.item.empCID == 1 &&
+                                              (widget.item.company_salary == 0||widget.item.company_salary == null) &&
+                                              (!fresher || !experience) &&
+                                              empid.text.isNotEmpty &&
+                                              salary.text.isEmpty &&
+                                              widget.item.document_status ==
+                                                  "Submitted"
+                                          ? 1
+                                          : (widget.item.company_workstatus ==
+                                                          0 ||
+                                                      widget.item
+                                                              .company_workstatus ==
+                                                          null) &&
+                                                 ( widget.item.empCID == 0 || widget.item.empCID == null)&&
+                                                  widget.item.company_salary ==
+                                                      1 &&
+                                                  (!fresher || !experience) &&
+                                                  empid.text.isEmpty &&
+                                                  salary.text.isNotEmpty &&
+                                                  widget.item.document_status ==
+                                                      "Submitted"
+                                              ? 1
+                                              : null
+
+                              /* widget.item.company_salary == 1 &&
+                                            widget.item.company_workstatus ==
+                                                1 &&
+                                            widget.item.empCID == 1 &&
+                                            (fresher || experience) &&
+                                            empid.text.isNotEmpty &&
+                                            salary.text.isNotEmpty &&
+                                            widget.item.document_status ==
+                                                "Submitted"
+                                        ? 1
+                                        : widget.item.company_salary == 1 &&
+                                                widget.item.company_workstatus ==
+                                                    1 &&
+                                                (fresher || experience) &&
+                                                salary.text.isNotEmpty &&
+                                                widget.item.document_status ==
+                                                    "Submitted"
+                                            ? 1
+                                            : widget.item.company_workstatus == 1 &&
+                                                    widget.item.empCID == 1 &&
+                                                    (fresher || experience) &&
+                                                    empid.text.isNotEmpty &&
+                                                    widget.item.document_status ==
+                                                        "Submitted"
+                                                ? 1
+                                                : widget.item.company_salary == 1 &&
+                                                        widget.item.empCID ==
+                                                            1 &&
+                                                        salary
+                                                            .text.isNotEmpty &&
+                                                        empid.text.isNotEmpty &&
+                                                        widget.item.document_status ==
+                                                            "Submitted"
+                                                    ? 1
+                                                    : widget.item.company_salary == 0 &&
+                                                            widget.item.empCID ==
+                                                                1 &&
+                                                            salary
+                                                                .text.isEmpty &&
+                                                            empid.text
+                                                                .isNotEmpty &&
+                                                            widget.item.company_workstatus ==
+                                                                0 &&
+                                                            widget.item.document_status ==
+                                                                "Submitted"
+                                                        ? 1
+                                                        : widget.item.company_salary == 0 &&
+                                                                widget.item.empCID ==
+                                                                    0 &&
+                                                                salary.text
+                                                                    .isEmpty &&
+                                                                widget.item.company_workstatus ==
+                                                                    1 &&
+                                                                empid.text
+                                                                    .isEmpty &&
+                                                                (fresher || experience) &&
+                                                                widget.item.document_status == "Submitted"
+                                                            ? 1
+                                                            : widget.item.company_salary == 1 && widget.item.empCID == 0 && salary.text.isNotEmpty && widget.item.company_workstatus == 1 && empid.text.isEmpty && widget.item.document_status == "Submitted"
+                                                                ? 1
+                                                                : null */
+                              );
+                      Map<String, dynamic> jsonData =
+                          changeStatusModel.toJson();
+                      try {
+                        await JobPostApiService.NewchangeStatus(
+                            jsonData, widget.item.id!.toInt());
+                        ref.refresh(fetchAllApplicantProvider);
+                        ref.refresh(fetchAllReferalProvider);
+                        ref.refresh(fetchAllApplyProvider);
+                        Navigator.pop(context);
+                      } catch (e) {
+                        print('Error: $e');
+                        // Handle error...
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15.h),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                          widget.item.empCID == 0 &&
+                                  widget.item.company_gender == 0 &&
+                                  widget.item.company_salary == 0 &&
+                                  (widget.item.company_workstatus == 0 ||
+                                      widget.item.company_workstatus == null)
+                              ? "Yes"
+                              : "Submit",
+                          style: GoogleFonts.varela(
+                              color: Constants.blue,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  )
+                /*          InkWell(
+                          onTap: () async {
+                            NewChangeStatusModel changeStatusModel =
+                                NewChangeStatusModel(
+                                    empId:
+                                        empid.text.isEmpty ? null : empid.text,
+                                    doj: widget.item.doj,
+                                    hrStatusId: (fresher || experience) &&
+                                            empid.text.isNotEmpty &&
+                                            salary.text.isNotEmpty &&
+                                            widget.item.document_status ==
+                                                "Submitted"
+                                        ? 0
+                                        : widget.item.hr_status_id,
+                                    /* widget.secStatusId ==
+                                      16 //TODO:: ID of "not join"..
+                                  ? 0
+                                  : widget.statusId, */
+                                    statusId: widget.secStatusId,
+                                    salary: salary.text.isNotEmpty
+                                        ? double.tryParse(salary.text)
+                                        : null,
+                                    commercial_gender: isMale
+                                        ? "Male"
+                                        : isFemale
+                                            ? "Female"
+                                            : null,
+                                    isExp: fresher
+                                        ? 0
+                                        : experience
+                                            ? 1
+                                            : null);
+                            Map<String, dynamic> jsonData =
+                                changeStatusModel.toJson();
+                            try {
+                              await JobPostApiService.NewchangeStatus(
+                                  jsonData, widget.item.id!.toInt());
+                              ref.refresh(fetchAllApplicantProvider);
+                              ref.refresh(fetchAllReferalProvider);
+                              ref.refresh(fetchAllApplyProvider);
+                              Navigator.pop(context);
+                            } catch (e) {
+                              print('Error: $e');
+                              // Handle error...
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(top: 15.h),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 5.h, horizontal: 12.w),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Text(
+                                widget.item.empCID == 0 &&
+                                        widget.item.company_gender == 0 &&
+                                        widget.item.company_salary == 0 &&
+                                        (widget.item.company_workstatus == 0 ||
+                                            widget.item.company_workstatus ==
+                                                null)
+                                    ? "Yes"
+                                    : "Submit",
+                                style: GoogleFonts.varela(
+                                    color: Constants.blue,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        )
+              */
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  InkWell customContainerMale(
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      required String img,
+      required bool isimage,
+      bool? isSalary = false}) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            //  width: MediaQuery.of(context).size.width / 2.5.w,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color:
+                    // isSelect ? const Color(0xfff310d44) :
+                    isSelect ? Constants.lightdull : null,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Constants.subtitleclr)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isimage)
+                  Image.asset(
+                    img,
+                    height: 20,
+                  ),
+                if (isimage)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.subtitleclr,
+                        fontSize: 15.sp,
+                        fontWeight:
+                            isSelect ? FontWeight.bold : FontWeight.normal)),
+              ],
+            )));
   }
 }

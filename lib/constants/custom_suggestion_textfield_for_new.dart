@@ -781,7 +781,10 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
                                             .getspoc!(suggestion.spoc!.toInt());
                                         searchKeyWord = "";
                                         widget.getInterviewRounds!(
-                                            suggestion.interview_rounds!.first);
+                                            suggestion.interview_rounds != null
+                                                ? suggestion
+                                                    .interview_rounds!.first
+                                                : "");
                                       });
                                     },
                                     child: Container(

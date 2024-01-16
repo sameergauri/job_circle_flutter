@@ -17,7 +17,6 @@ import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 
@@ -179,8 +178,8 @@ class _TalentPoolState extends ConsumerState<TalentPool>
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
-        .where((e) => e.status_code!.contains('TP'))
-        .map((e) => e.status.toString())
+        .where((e) => e.hr_status != null)
+        .map((e) => e.hr_status.toString())
         .toSet()
         .toList()
       ..sort();
@@ -200,7 +199,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
       ..sort();
   } */
 
-  final RefreshController _refreshController =
+  /*  final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
   final RefreshController _refreshController1 =
       RefreshController(initialRefresh: false);
@@ -225,12 +224,35 @@ class _TalentPoolState extends ConsumerState<TalentPool>
     });
     _refreshController1
         .refreshCompleted(); // Call this to end the refresh animation
+  } */
+
+  /*  Future<void> _onRefresh() async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+
+    ref.refresh(fetchAllTalentPool);
+    // Update the UI with new data
+
+    // Call this to end the refresh animation
+  } */
+
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
+
+  Future<Null> refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      ref.refresh(fetchAllTalentPool);
+    });
+
+    return null;
   }
 
   bool isSelect = false;
 
   Map<int, SelectedOption> selectedValueMap = {};
- 
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -250,7 +272,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                   bool anyItemMeetsCondition = false;
 
                   for (Applicant item in dataList) {
-                    if (item.status_code!.contains("TP")) {
+                    if (item.hr_status != null) {
                       // If the condition is met for any item, set the flag to true and break the loop
                       anyItemMeetsCondition = true;
                       break;
@@ -301,37 +323,45 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             // Filter applicants based on the current status
                             final applicants = data
                                 .where((applicant) =>
-                                    applicant.status.toString() == status)
+                                    applicant.hr_status.toString() == status)
                                 .toList();
 
                             // Check if sub_status is null or not
                             final subStatuses = applicants
                                 .map((applicant) =>
-                                    applicant.sub_status?.toString())
-                                .where((subStatus) => subStatus != null)
+                                    applicant.hr_sub_status?.toString())
+                                .where((subStatus) =>
+                                    subStatus != null && subStatus != "")
                                 .toSet()
                                 .toList()
                               ..sort();
 
                             if (subStatuses.isEmpty) {
                               // No second tab bar needed if subStatuses is empty
-                              return ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: applicants.length,
-                                itemBuilder: (context, index) {
-                                  final applicant = applicants[index];
-                                  return listViewItem_new(
-                                    context,
-                                    applicant,
-                                    true,
-                                    statuses,
-                                    profilemodel.id != null
-                                        ? profilemodel.id!.toInt()
-                                        : 467,
-                                    index,
-                                  );
-                                },
+                              return RefreshIndicator(
+                                triggerMode:
+                                    RefreshIndicatorTriggerMode.anywhere,
+                                onRefresh: refreshList,
+                                key: refreshKey,
+                                child: ListView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: applicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = applicants[index];
+                                    return listViewItem_new(
+                                      context,
+                                      applicant,
+                                      true,
+                                      statuses,
+                                      profilemodel.id != null
+                                          ? profilemodel.id!.toInt()
+                                          : 467,
+                                      index,
+                                    );
+                                  },
+                                ),
                               );
                             } else {
                               // Second tab bar needed for subStatuses
@@ -368,10 +398,10 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                                             : null,
                                         indicatorColor: Constants.borderColor,
                                         /*  onTap: (value) {
-                                  setState(() {
-                                    isSelect = !isSelect;
-                                  });
-                                }, */
+                                    setState(() {
+                                      isSelect = !isSelect;
+                                    });
+                                  }, */
                                         tabs: subStatuses
                                             .map((subStatus) =>
                                                 Tab(text: subStatus!))
@@ -384,29 +414,37 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                                       // Filter applicants based on the current status and sub_status
                                       final filteredApplicants = applicants
                                           .where((applicant) =>
-                                              applicant.sub_status.toString() ==
+                                              applicant.hr_sub_status
+                                                  .toString() ==
                                               subStatus)
                                           .toList();
 
-                                      return ListView.builder(
-                                        physics: const BouncingScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: filteredApplicants.length,
-                                        itemBuilder: (context, index) {
-                                          final applicant =
-                                              filteredApplicants[index];
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        onRefresh: refreshList,
+                                        key: refreshKey,
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
 
-                                          return listViewItem_new(
-                                            context,
-                                            applicant,
-                                            true,
-                                            statuses,
-                                            profilemodel.id != null
-                                                ? profilemodel.id!.toInt()
-                                                : 467,
-                                            index,
-                                          );
-                                        },
+                                            return listViewItem_new(
+                                              context,
+                                              applicant,
+                                              true,
+                                              statuses,
+                                              profilemodel.id != null
+                                                  ? profilemodel.id!.toInt()
+                                                  : 467,
+                                              index,
+                                            );
+                                          },
+                                        ),
                                       );
                                     }).toList(),
                                   ),
@@ -760,7 +798,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
       children: [
         InkWell(
           onTap: () async {
-            if (item.status != "Application") {
+            if (item.status_id != 10) {
               /*  Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -771,9 +809,10 @@ class _TalentPoolState extends ConsumerState<TalentPool>
             } else {
               ChangeStatusModel changeStatusModel = ChangeStatusModel(
                   dol: DateTime.now(),
-                  status: "TP2",
+                  // status: "TP2",  //TODO: before status modification....
+                  // subStatus: "View"
                   sourceId: id,
-                  subStatus: "View");
+                  status_id: 18);
               Map<String, dynamic> jsonData = changeStatusModel.toJson();
               try {
                 await JobPostApiService.changeStatus(
@@ -1081,7 +1120,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                         ),
                       ],
                     ),
-                    if (item.status != "Application")
+                    if (item.status_id != 10)
                       Container(
                         decoration: BoxDecoration(
                             color: Constants.borderColor,
@@ -1346,7 +1385,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                         )), */
                   IconButton(
                       onPressed: () async {
-                        if (item.status != "Application") {
+                        if (item.status_id != 10) {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1364,7 +1403,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                         } else {
                           ChangeStatusModel changeStatusModel =
                               ChangeStatusModel(
-                                dol: DateTime.now(),
+                                  dol: DateTime.now(),
                                   status: "TP2",
                                   sourceId: id,
                                   subStatus: "View");

@@ -1,45 +1,54 @@
-// ignore_for_file: non_constant_identifier_names, avoid_print, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously
-
+// ignore_for_file: non_constant_identifier_names, avoid_print, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously, unused_result
+// ignore_for_file: todo
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/constants/customTextfield.dart';
+import 'package:job_circle/models/changeStatusModel.dart';
+import 'package:job_circle/models/update_crpf_model.dart';
+import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 
-import '../models/add_resume_model.dart';
 import '../models/fetch_applied_job_model.dart';
 import '../themes/colors.dart';
 import 'custom_suggestion_textfield_for_new.dart';
 
-class CustomDialogueForNew extends StatefulWidget {
+class CustomDialogueForNew extends ConsumerStatefulWidget {
   //final ValueSetter<String>? get;
 
   final String title, company_name, process, role, nature_of_work, title2;
   final int companyId;
   final Applicant item;
   final Function refreshCallback;
+  final int statusDdId;
 
-  const CustomDialogueForNew(
-      {super.key,
-      required this.title,
-      required this.company_name,
-      required this.nature_of_work,
-      required this.process,
-      required this.role,
-      required this.companyId,
-      required this.title2,
-      required this.refreshCallback,
-      //required this.company_resumeId,
+  const CustomDialogueForNew({
+    super.key,
+    required this.title,
+    required this.company_name,
+    required this.nature_of_work,
+    required this.process,
+    required this.role,
+    required this.companyId,
+    required this.title2,
+    required this.refreshCallback,
+    //required this.company_resumeId,
 
-      required this.item});
+    required this.item,
+    required this.statusDdId,
+  });
 
   @override
-  State<CustomDialogueForNew> createState() => _CustomDialogueForNewState();
+  ConsumerState<CustomDialogueForNew> createState() =>
+      _CustomDialogueForNewState();
 }
 
-class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
+class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
   @override
   // ignore: override_on_non_overriding_member
   TextEditingController shorListController = TextEditingController();
@@ -250,6 +259,33 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
     });
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    proces.clear();
+    role.clear();
+    natureOfWork.clear();
+    isEdit == false;
+    isEdit1 == false;
+    isEdit2 == false;
+    isEdit3 == false;
+    isEdit4 == false;
+    shorListController.clear();
+    isComp == false;
+    isprocess = false;
+    isRole = false;
+    isNof = false;
+
+    super.dispose();
+  }
+
+  String capitalizeFirstLetter(String input) {
+    if (input.isEmpty) {
+      return input;
+    }
+    return "${input[0].toUpperCase()}${input.substring(1)}";
+  }
+
   // String? title,Desc;
   @override
   Widget build(BuildContext context) {
@@ -296,7 +332,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                       ),
                     ),
                     Text(
-                      "${widget.item.applicantName.toString()} ${widget.item.last_name.toString()}",
+                      "${capitalizeFirstLetter(widget.item.applicantName.toString())} ${capitalizeFirstLetter(widget.item.last_name.toString())}",
                       style: GoogleFonts.varela(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
@@ -315,7 +351,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                   ],
                 ),
                 const SizedBox(height: 4.0),
-                Row(
+                /*  Row(          //TODO:: Mode of Interview
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
@@ -326,8 +362,8 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                       ),
                     ),
                   ],
-                ),
-                Row(
+                ), */
+                /*     Row(      //TODO:: Mode of Interview
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
@@ -393,7 +429,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                 ),
                 SizedBox(
                   height: 6.h,
-                ),
+                ), */
                 isComp
                     ? CustomJobFormForUpdateCRPF(
                         onTapCallback: onTextField1Tap1,
@@ -437,13 +473,14 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                                 resumeidfilled = false;
                                 ResumeId.clear();
                                 isComp = true;
+                                isprocess = true;
+                                isRole = true;
+                                isNof = true;
+
                                 isEdit4 = false;
                                 isEdit1 = false;
                                 isEdit2 = false;
                                 isEdit3 = false;
-                                isprocess = true;
-                                isRole = true;
-                                isNof = true;
                               });
                             },
                             child: Container(
@@ -493,7 +530,17 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                                 children: [
                                   Expanded(
                                     child: TextField(
-                                      onChanged: (value) {},
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          resumeidfilled = true;
+                                        });
+                                      },
+                                      onTap: () {
+                                        setState(() {
+                                          ResumeId.clear();
+                                          resumeidfilled = false;
+                                        });
+                                      },
                                       decoration: InputDecoration(
                                         filled: true,
                                         //icon: const Icon(Icons.arrow_forward_ios),
@@ -525,6 +572,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                                     ),
                                   ),
                                   InkWell(
+                                    //TODO: Resume id filed submit krne ke liye...
                                     onTap: () {
                                       setState(() {
                                         resumeidfilled = true;
@@ -590,7 +638,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                             ],
                           ),
                         ),
-                if (resumeID == "1" ? resumeidfilled : resumeidfilled == false)
+                if (isprocess)
                   isEdit4
                       ? SuggestionTextFieldForNew(
                           onTapCallback: onTextField1Tap2,
@@ -634,10 +682,10 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                           onTap: () {
                             setState(() {
                               isprocess = true;
-                              // isEdit4 = true;
+
                               isRole = true;
                               isNof = true;
-                              isEdit1 = false;
+
                               isEdit4 = true;
                             });
                           },
@@ -664,7 +712,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                     ),
                   ),
 
-                if (isRole == true)
+                if (isRole)
                   isEdit1 && isEdit4
                       ? SuggestionTextFieldForNew(
                           onTapCallback: onTextField1Tap3,
@@ -687,7 +735,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                           onChanged: (p0) {
                             setState(() {
                               isEdit2 = p0;
-
+                              isEdit3 = false;
                               natureOfWork.clear();
                             });
                           },
@@ -708,6 +756,7 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                         InkWell(
                           onTap: () {
                             setState(() {
+                              isprocess = false;
                               isRole = true;
                               isEdit3 = true;
                               isEdit1 = true;
@@ -844,23 +893,22 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
                                 isEdit2 &&
                                 isEdit3 &&
                                 isEdit4 &&
-                                resumeidfilled &&
-                                (virtual || f2f)) ||
+                                resumeidfilled) ||
                             (!isComp &&
                                 !isprocess &&
                                 !isRole &&
                                 !isNof &&
-                                resumeidfilled == false &&
-                                (virtual || f2f)) ||
-                            ((isEdit1 &&
+                                !resumeidfilled) ||
+                            (isEdit1 &&
                                 isEdit2 &&
                                 isEdit3 &&
                                 isEdit4 &&
-                                resumeidfilled == false &&
-                                (virtual || f2f))),
+                                (resumeID == null ||
+                                    resumeID == "0" ||
+                                    resumeID == "")),
                         child: InkWell(
                           onTap: () async {
-                            final addResumeModel = JobApplicationModel(
+                            /* final addResumeModel = JobApplicationModel(  //TODO:: old code which is using old api ...
                               resume: widget.item.resume,
                               isRef: widget.item.is_ref,
                               rid: widget.item.rid,
@@ -915,14 +963,63 @@ class _CustomDialogueForNewState extends State<CustomDialogueForNew> {
 
                               //dos: widget.item.dos
                               // ... fill in other properties as needed
+                            ); */
+                            final addCRPF = UpdateCRPFModel(
+                              company_name: isComp == false
+                                  ? widget.company_name
+                                  : shorListController.text,
+                              process: isprocess == false
+                                  ? widget.process
+                                  : proces.text,
+                              level: isRole == false ? widget.role : role.text,
+                              natur_of_work: isNof == false
+                                  ? widget.nature_of_work
+                                  : natureOfWork.text,
+                              short_list_for: isComp == false
+                                  ? widget.companyId
+                                  : int.parse(CompanyID.toString()),
+                              jobid: isComp == false
+                                  ? widget.item.jobId
+                                  : newJobID,
+                              spoc: spoc ?? widget.item.spoc,
+                              client_resume_id: ResumeId.text.isNotEmpty
+                                  ? ResumeId.text
+                                  : null,
+                              interview_rounds: isComp == false
+                                  ? widget.item.inteviewrounds!.first
+                                      .toString()
+                                      .replaceAll('"', '')
+                                      .replaceAll('[', '')
+                                      .replaceAll(']', '')
+                                  : firstInterviewRound,
                             );
-                            final jsonData = addResumeModel.toJson();
-                            await JobPostApiService.addResume(
-                                jsonData, context, true);
-                            closeCustomDialogue();
-                            someFunction();
+                            final jsonData = addCRPF.toJson();
+                            await JobPostApiService.NewChangeCRPF(
+                                jsonData, widget.item.id!.toInt());
+                            NewChangeStatusModel changeStatusModel =
+                                NewChangeStatusModel(
+                                    statusId: 1,
+                                    hrStatusId: widget.statusDdId,
+                                    interviewRounds: widget
+                                        .item.inteviewrounds!.first
+                                        .replaceAll('[', '')
+                                        .replaceAll(']', '')
+                                        .replaceAll('"', ''));
+                            Map<String, dynamic> jsonData2 =
+                                changeStatusModel.toJson();
+                            try {
+                              await JobPostApiService.NewchangeStatus(
+                                  jsonData2, widget.item.id!.toInt());
+                              ref.refresh(fetchAllApplicantProvider);
+                              ref.refresh(fetchAllReferalProvider);
+                              ref.refresh(fetchAllApplyProvider);
+                            } catch (e) {
+                              print('Error: $e');
+                            }
 
                             Navigator.pop(context);
+                            closeCustomDialogue();
+                            someFunction();
 
                             setState(() {});
                           },

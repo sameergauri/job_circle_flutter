@@ -185,7 +185,10 @@ class JobData {
             ? List<int>.from(
                 jsonDecode(json['inteviewrounds']).map((rounds) => rounds))
             : [],
-        string_interviewrounds:json['string_interviewrounds']!=null?List<String>.from(jsonDecode(json['string_interviewrounds']).map((rounds)=>rounds)):[],
+          string_interviewrounds: json['string_interviewrounds'] != null
+              ? List<String>.from(jsonDecode(json['string_interviewrounds'])
+                  .map((rounds) => rounds))
+              : [],
         isFresher: json['isfresher'] ?? '',
         maxAge: json['max_age'] != null ? json['max_age'].toInt() : 0,
         industry: json['industry'] ?? '',
@@ -196,20 +199,15 @@ class JobData {
         minctc: (json['minctc'] ?? 0.0),
         minExperience: json['minexperience'] ?? '',
         languageKnown: json['languageknown'] != null
-            ? List<String>.from(
-                jsonDecode(json['languageknown']).map((language) => language))
+            ? List<String>.from(jsonDecode(json['languageknown']).map((language) => language))
             : [],
         education: json['education'] ?? '',
         workCity: json['work_city'] != null ? json['work_city'].toInt() : 0,
         totalSalary: json['total_salary'] ?? '',
-        natureOfWorkId:
-            json['naturofworkid'] != null ? json['naturofworkid'].toInt() : 0,
+        natureOfWorkId: json['naturofworkid'] != null ? json['naturofworkid'].toInt() : 0,
         roleName: json['rolename'] ?? '',
         id: json['id'] != null ? json['id'].toInt() : 0,
-        key_responsible:
-            json['key_responsible'] != null && json['key_responsible'] != ''
-                ? List<String>.from(jsonDecode(json['key_responsible']).map((loc) => loc))
-                : [],
+        key_responsible: json['key_responsible'] != null && json['key_responsible'] != '' ? List<String>.from(jsonDecode(json['key_responsible']).map((loc) => loc)) : [],
         companyId: json['compnayid'] != null ? json['compnayid'].toInt() : 0,
         textResponsible: json['text_responsible'] ?? '',
         active: json['active'] ?? 0,

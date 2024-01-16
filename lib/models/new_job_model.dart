@@ -39,6 +39,7 @@ class JobsModel {
   late final String? payment_clause;
   late final int? is_campus;
   late final int? is_support_staff;
+  final List<dynamic>? interviewrounds;
 
   JobsModel({
     this.id,
@@ -77,47 +78,50 @@ class JobsModel {
     this.payment_clause,
     this.is_campus,
     this.is_support_staff,
+    this.interviewrounds,
   });
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
     return JobsModel(
-      id: json['id'],
-      companyId: json['compnayid'],
-      roleName: json['rolename'],
-      companyName: json['name'],
-      icon: json['icon'],
-      location: json['location'],
-      process: json['process'],
-      skills: _parseSkills(json['skills'] ?? []),
-      minCTC: json['minctc']?.toDouble(),
-      maxCTC: json['maxctc']?.toDouble(),
-      minExperience: json['minexperience'],
-      maxExperience: json['maxexperience'],
-      isFresher: json['isfresher'],
-      totalExperience: json['total_experience'],
-      totalSalary: json['total_salary'],
-      shiftTime: json['shifttime'],
-      shiftDesc: json['shiftdesc'],
-      education: json['education'],
-      languagesKnown: _parseSkills(json['languageknown'] ?? []),
-      natureOfWork: json['naturofwork'],
-      isMonthly: json['ismonthly'],
-      spoc: json['spoc'],
-      city: json['city'],
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
-      isFav: json['is_fav'],
-      favJobId: json['favJobId'],
-      status: json['status'],
-      sLocation: json['s_location'],
-      userId: json['userId'],
-      uid: json['uid'],
-      eligibility: _parseSkills(json['eligibility'] ?? []),
-      payoutType: json['payout_type'],
-      active: json['active'],
-      payment_clause: json['payment_clause'],
-      is_campus: json['is_campus'],
-      is_support_staff: json['is_support_staff'],
-    );
+        id: json['id'],
+        companyId: json['compnayid'],
+        roleName: json['rolename'],
+        companyName: json['name'],
+        icon: json['icon'],
+        location: json['location'],
+        process: json['process'],
+        skills: _parseSkills(json['skills'] ?? []),
+        minCTC: json['minctc']?.toDouble(),
+        maxCTC: json['maxctc']?.toDouble(),
+        minExperience: json['minexperience'],
+        maxExperience: json['maxexperience'],
+        isFresher: json['isfresher'],
+        totalExperience: json['total_experience'],
+        totalSalary: json['total_salary'],
+        shiftTime: json['shifttime'],
+        shiftDesc: json['shiftdesc'],
+        education: json['education'],
+        languagesKnown: _parseSkills(json['languageknown'] ?? []),
+        natureOfWork: json['naturofwork'],
+        isMonthly: json['ismonthly'],
+        spoc: json['spoc'],
+        city: json['city'],
+        dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+        isFav: json['is_fav'],
+        favJobId: json['favJobId'],
+        status: json['status'],
+        sLocation: json['s_location'],
+        userId: json['userId'],
+        uid: json['uid'],
+        eligibility: _parseSkills(json['eligibility'] ?? []),
+        payoutType: json['payout_type'],
+        active: json['active'],
+        payment_clause: json['payment_clause'],
+        is_campus: json['is_campus'],
+        is_support_staff: json['is_support_staff'],
+        interviewrounds: _parseSkills(
+          json['interviewrounds'],
+        ));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -157,6 +161,7 @@ class JobsModel {
       'payment_clause': payment_clause,
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
+      'interviewrounds': interviewrounds,
     };
   }
 
@@ -198,6 +203,7 @@ class JobsModel {
       payment_clause: map['payment_clause'],
       is_support_staff: map['is_support_staff'],
       is_campus: map['is_campus'],
+      interviewrounds: map['interviewrounds'],
     );
   }
 
@@ -239,6 +245,7 @@ class JobsModel {
       'payment_clause': payment_clause,
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
+      'interviewrounds': interviewrounds
     };
   }
 

@@ -20,12 +20,12 @@ class JobTitleModel {
     return JobTitleModel(
         id: json['id'].toString(),
         name: json['name'].toString(),
-        isResumeId: json['isResumeId'] ?? "",
-        companyid: json['compnyid'] ?? 0);
+        isResumeId: json['is_resume_id'] ?? "",
+        companyid: json['companyid'] ?? 0);
   }
   @override
   String toString() {
-    return 'JobTitleModel{id: $id, name: $name, isResumeId:$isResumeId,compnyid:$companyid}';
+    return 'JobTitleModel{id: $id, name: $name, is_resume_id:$isResumeId,companyid:$companyid}';
   }
 }
 

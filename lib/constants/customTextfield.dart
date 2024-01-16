@@ -3845,7 +3845,7 @@ class _CustomJobTitleForExperienceState
       } */
       for (var entry in content) {
         String? value = entry['value']?.toString();
-        String? code= entry["url_slug"]?.toString();
+        String? code = entry["url_slug"]?.toString();
         if ((value != null &&
                 value.toLowerCase().contains(pattern.toLowerCase())) ||
             (code != null &&

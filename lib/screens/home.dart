@@ -1,9 +1,14 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'new_jobs/new_jobs_v1.dart';
 // Other imports...
@@ -17,6 +22,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   final PageController pageController = PageController();
   int selectedIndex = 0;
 
@@ -84,17 +95,91 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void onNavigationChange(int value) {
+  Future<void> checkAppVersion() async {
+    //TODO::: current version is same as pubspec.yaml file
+    // Make an HTTP request to your server or a version-check API
+    final url = Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/version/v1/getVersionById?id=1');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final String latestVersion = data['resultData'][
+            'version']; //TODO::: latest version is also as yaml file with updated one ...
+
+        const String currentVersion =
+            '1.0.14'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+
+        if (latestVersion.compareTo(currentVersion) > 0) {
+          // Display update notification
+          showUpdateDialog();
+        }
+      } else {
+        print('Failed to fetch data. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error while fetching data: $e');
+    }
+  }
+
+  /* final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}version/v1/all?pageNumber=1&pageSize=10'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final String latestVersion = data['version'];
+      const String currentVersion =
+          '1.0.3'; // Replace with your app's current version
+
+      if (latestVersion.compareTo(currentVersion) > 0) {
+        // Display update notification
+        showUpdateDialog();
+      }
+    } else {
+      // Handle the case when the version check fails
+    } */
+
+  void showUpdateDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Update Available'),
+          content: const Text(
+              'A new version of the app is available. Please update for the latest features and improvements.'),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Update Now'),
+              onPressed: () {
+                _launchURL(
+                    'https://play.google.com/store/apps/details?id=com.job_circle_flutter');
+                Navigator.pop(context);
+                // Redirect users to the app store or a download page
+                // Example: launch('https://your-app-store-link');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void onNavigationChange(int value) async {
     setState(() {
       selectedIndex = value;
     });
     pageController.jumpToPage(value);
+    await checkAppVersion();
   }
 }
-
-
-
-
 
 /* import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -194,13 +279,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
  */
-
-
-
-
-
-
-
 
 // Old code Working.
 

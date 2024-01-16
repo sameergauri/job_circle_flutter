@@ -750,6 +750,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   userNumber: profilemodel.mobile!.toInt(),
                                   useAlternateNumber:
                                       profilemodel.alternate_no!.toInt(),
+                                  interviewRounds: jobDetailsModel
+                                      .interviewrounds!.first
+                                      .replaceAll('[', '')
+                                      .replaceAll(']', '')
+                                      .replaceAll('"', ''),
                                 )));
                     /* JobPostApiService.postJobApply(
                               jobId: item['id'],
@@ -3310,6 +3315,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                                 .alternate_no
                                                                 ?.toInt() ??
                                                             0,
+                                                    interviewRounds:
+                                                        jobDetailsModel
+                                                            .interviewrounds!
+                                                            .first
+                                                            .replaceAll('[', '')
+                                                            .replaceAll(']', '')
+                                                            .replaceAll(
+                                                                '"', ''),
                                                   )));
                                     },
                                     child: Container(

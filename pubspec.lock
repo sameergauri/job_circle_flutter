@@ -584,6 +584,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
+  in_app_update:
+    dependency: "direct main"
+    description:
+      name: in_app_update
+      sha256: b6ccb757281a96a4b18536f68fe2567aeca865134218719364212da8fe94615c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.2"
   infinite_listview:
     dependency: transitive
     description:
@@ -1041,10 +1049,10 @@ packages:
     dependency: "direct main"
     description:
       name: swipe_to
-      sha256: cb4d749e46cea268eca14f7160f80db2328470fe1f7d547960db837f55b6691f
+      sha256: "4f258fa175daa0da7d946ecd7393bb46483e11c2aecc218c2b061f70af7835f9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   syncfusion_flutter_core:
     dependency: transitive
     description:

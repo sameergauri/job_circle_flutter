@@ -37,24 +37,25 @@ class AddResume extends ConsumerStatefulWidget {
   final bool is30;
   final int userNumber;
   final int useAlternateNumber;
+  final String interviewRounds;
 
-  const AddResume({
-    super.key,
-    required this.company_name,
-    required this.role,
-    required this.process,
-    required this.nature_of_work,
-    required this.company_id,
-    required this.jobId,
-    required this.sourceId,
-    required this.sourceName,
-    required this.spocId,
-    required this.isRefer,
-    required this.is90,
-    required this.is30,
-    required this.userNumber,
-    required this.useAlternateNumber,
-  });
+  const AddResume(
+      {super.key,
+      required this.company_name,
+      required this.role,
+      required this.process,
+      required this.nature_of_work,
+      required this.company_id,
+      required this.jobId,
+      required this.sourceId,
+      required this.sourceName,
+      required this.spocId,
+      required this.isRefer,
+      required this.is90,
+      required this.is30,
+      required this.userNumber,
+      required this.useAlternateNumber,
+      required this.interviewRounds});
 
   @override
   ConsumerState<AddResume> createState() => _AddResumeState();
@@ -1227,7 +1228,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
           level: widget.role,
           naturofwork: widget.nature_of_work,
           shortListFor: widget.company_id,
-          status: "TP1",
+          status_id: 3,
+          hrStatusId: 11,
+          //  status: "TP1", //TODO in use before changes in status ..
           alternateNo:
               secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
           // subStatus: "Shortlist",
@@ -1251,32 +1254,34 @@ class _AddResumeState extends ConsumerState<AddResume> {
         });
       } else {
         final addResumeModel = JobApplicationModel(
-            isRef: 2,
-            uid: 0,
-            resume: icon_data,
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status: "IB4",
-            subStatus: "Shortlist",
-            sourceId: widget.sourceId,
-            sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: widget.spocId,
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            dol: DateTime.now()
-            // ... fill in other properties as needed
-            );
+          isRef: 2,
+          uid: 0,
+          resume: icon_data,
+          id: 0,
+          applicantName: firt_name.text,
+          lastName: last_name.text,
+          contactNo: int.parse(primary_number.text.trim()),
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          isExperienced: fresher ? 0 : 1,
+          companyName: widget.company_name,
+          process: widget.process,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          shortListFor: widget.company_id,
+          status_id: 1, //TODO : directly in interviewBay..
+          hrStatusId: 14,
+          /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
+          sourceId: widget.sourceId,
+          sourceName: widget.sourceName,
+          jobid: widget.jobId,
+          spoc: widget.spocId,
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          dol: DateTime.now(),
+          interview_rounds: widget.interviewRounds,
+          // ... fill in other properties as needed
+        );
         final jsonData = addResumeModel.toJson();
         await JobPostApiService.addResume(jsonData, context, false);
         ref.refresh(fetchAllTalentPool);
