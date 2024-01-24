@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
@@ -468,12 +469,17 @@ class CustomDialogueForRemark extends StatefulWidget {
   final Function onTab;
   final TextEditingController controller;
   final Function(String) callBack;
+  final Applicant item;
+  final String hint;
 
-  const CustomDialogueForRemark(
-      {super.key,
-      required this.onTab,
-      required this.controller,
-      required this.callBack});
+  const CustomDialogueForRemark({
+    super.key,
+    required this.onTab,
+    required this.controller,
+    required this.item,
+    required this.callBack,
+    required this.hint,
+  });
 
   @override
   State<CustomDialogueForRemark> createState() =>
@@ -500,56 +506,77 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+            Wrap(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Feedback on",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                Text(
+                    " ${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()} ",
+                    style: GoogleFonts.varela(
+                        color: Constants.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.sp)),
+                Text("application.",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, fontSize: 18.sp)),
               ],
-              /* <TextInputFormatter>[
-                FilteringTextInputFormatter.singleLineFormatter,
-              ], */
-              /*  validator: (value) {
-          if (value == null || value.isEmpty) {
-            //return "This Text field Cant be empty";
-          }
-          return null;
-        }, */
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 10.h),
+              height: MediaQuery.of(context).size.height / 24.h,
+              child: TextField(
+                /*   inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                ], */
+                /* <TextInputFormatter>[
+                  FilteringTextInputFormatter.singleLineFormatter,
+                ], */
+                /*  validator: (value) {
+                        if (value == null || value.isEmpty) {
+              //return "This Text field Cant be empty";
+                        }
+                        return null;
+                      }, */
 
-              keyboardType: TextInputType.name,
-              //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-              textCapitalization: TextCapitalization.sentences,
-              controller: remarkController,
-              onChanged: (value) {
-                widget.callBack(value);
-              },
-              onTap: (() {}),
-              style: GoogleFonts.varela(
-                  color: Constants.subtitleclr, fontSize: 14.sp),
-              decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Constants.borderColor,
-                  prefixIcon: const Icon(Icons.ac_unit_rounded),
-                  prefixIconColor: Constants.themeBgColor,
-                  contentPadding: const EdgeInsets.only(
-                      top: 8, bottom: 8, left: 10, right: 10),
-                  counterText: '',
-                  labelText: "Remark",
-                  labelStyle: const TextStyle(
-                    color: Constants.themeBgColor,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: const BorderSide(color: Color(0xffff0eceb)),
-                  ),
-                  focusColor: const Color(0xffff0eceb),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: const BorderSide(
+                keyboardType: TextInputType.name,
+                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                textCapitalization: TextCapitalization.sentences,
+                controller: remarkController,
+                onChanged: (value) {
+                  widget.callBack(value);
+                },
+                onTap: (() {}),
+                style: GoogleFonts.varela(
+                    color: Constants.subtitleclr, fontSize: 14.sp),
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Constants.borderColor,
+                    prefixIcon: const Icon(Icons.rate_review_outlined),
+                    prefixIconColor: Constants.themeBgColor,
+                    contentPadding: const EdgeInsets.only(
+                        top: 8, bottom: 8, left: 10, right: 10),
+                    counterText: '',
+                    labelText: "Remark",
+                    labelStyle: const TextStyle(
                       color: Constants.themeBgColor,
                     ),
-                  ),
-                  hintText: "Due to some reason",
-                  hintStyle: GoogleFonts.sourceSansPro(
-                      color: Constants.hintColor, fontSize: 15.sp)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                    ),
+                    focusColor: const Color(0xffff0eceb),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: const BorderSide(
+                        color: Constants.themeBgColor,
+                      ),
+                    ),
+                    hintText: widget.hint,
+                    hintStyle: GoogleFonts.sourceSansPro(
+                        color: Constants.hintColor, fontSize: 15.sp)),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -567,17 +594,22 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text("Cancel",
-                        style: GoogleFonts.varela(
-                            color: Constants.blue,
-                            fontWeight: FontWeight.bold)),
+                        style: GoogleFonts.varela(fontWeight: FontWeight.bold)),
                   ),
                 ),
                 //if (remarkController.text.isNotEmpty)
+
                 InkWell(
-                  onTap: () async {
-                    await widget.onTab();
-                    remarkController.clear();
-                  },
+                  onTap: remarkController.text.isNotEmpty
+                      ? () async {
+                          await widget.onTab();
+                          remarkController.clear();
+                        }
+                      : () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbarfinal(
+                                  title: "Specify proper reason", error: true));
+                        },
                   child: Container(
                     margin: EdgeInsets.only(top: 15.h),
                     padding:
@@ -587,7 +619,7 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                     ),
                     child: Text("Submit",
                         style: GoogleFonts.varela(
-                            color: Constants.themeBgColor,
+                            color: Constants.blue,
                             fontWeight: FontWeight.bold)),
                   ),
                 )
@@ -646,28 +678,50 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
           children: [
             if (widget.item.empCID == 0 &&
                 widget.item.company_gender == 0 &&
-                widget.item.company_salary == 0 &&
+                (widget.item.is_ctc_pay == 0 || widget.item.is_work_pay == 0) &&
+                // widget.item.company_salary == 0 &&
                 (widget.item.company_workstatus == 0 ||
                     widget.item.company_workstatus == null))
-              Text("Do you want to submit the lead to the join?",
-                  style: GoogleFonts.varela(
-                      color: Constants.blue, fontWeight: FontWeight.bold)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Additional details of ",
-                    style: GoogleFonts.varela(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp)),
-                Text(
-                    "${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()}",
-                    style: GoogleFonts.varela(
-                        color: Constants.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp))
-              ],
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Has",
+                      style: GoogleFonts.varela(
+                          fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                  Text(
+                      " ${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()} ",
+                      style: GoogleFonts.varela(
+                          color: Constants.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp)),
+                  Text("Joined ?",
+                      style: GoogleFonts.varela(
+                          fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                ],
+              ),
+            if (widget.item.empCID != 0 &&
+                widget.item.company_gender != 0 &&
+                (widget.item.is_ctc_pay != 0 || widget.item.is_work_pay != 0)
+                // widget.item.company_salary != 0
+                &&
+                (widget.item.company_workstatus != 0 ||
+                    widget.item.company_workstatus != null))
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Additional details of ",
+                      style: GoogleFonts.varela(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp)),
+                  Text(
+                      "${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()}",
+                      style: GoogleFonts.varela(
+                          color: Constants.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp))
+                ],
+              ),
             if (widget.item.company_gender == 1)
               Container(
                 margin: EdgeInsets.only(top: 15.h),
@@ -796,7 +850,7 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                           color: Constants.hintColor, fontSize: 15.sp)),
                 ),
               ),
-            if (widget.item.company_salary == 1)
+            if (widget.item.is_ctc_pay == 1 || widget.item.is_work_pay == 1)
               Container(
                 margin: EdgeInsets.only(top: 8.h),
                 height: MediaQuery.of(context).size.height / 24,
@@ -846,7 +900,9 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
               children: [
                 if (widget.item.empCID != 0 ||
                     widget.item.company_gender != 0 ||
-                    widget.item.company_salary != 0 ||
+                    // widget.item.company_salary != 0 ||
+                    widget.item.is_ctc_pay == 1 ||
+                    widget.item.is_work_pay == 1 ||
                     (widget.item.company_workstatus != 0 ||
                         widget.item.company_workstatus != null))
                   GestureDetector(
@@ -896,18 +952,20 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                                   : experience
                                       ? 1
                                       : null,
-                              isJoinSubmitted: widget.item.company_workstatus ==
-                                          1 &&
+                              isJoinSubmitted: widget.item.company_workstatus == 1 &&
                                       widget.item.empCID == 1 &&
-                                      widget.item.company_salary == 1 &&
+                                      (widget.item.is_ctc_pay == 1 ||
+                                          widget.item.is_work_pay == 1) &&
                                       (fresher || experience) &&
                                       empid.text.isNotEmpty &&
                                       salary.text.isNotEmpty &&
                                       widget.item.document_status == "Submitted"
                                   ? 1
                                   : widget.item.company_workstatus == 1 &&
-                                          (widget.item.empCID == 0||widget.item.empCID == null) &&
-                                         ( widget.item.company_salary == 0 || widget.item.company_salary == null)&&
+                                          (widget.item.empCID == 0 ||
+                                              widget.item.empCID == null) &&
+                                          (widget.item.is_ctc_pay == 0 ||
+                                              widget.item.is_work_pay == 0) &&
                                           (fresher || experience) &&
                                           empid.text.isEmpty &&
                                           salary.text.isEmpty &&
@@ -915,32 +973,41 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                                               "Submitted"
                                       ? 1
                                       : (widget.item.company_workstatus == 0 ||
-                                                  widget.item
-                                                          .company_workstatus ==
+                                                  widget.item.company_workstatus ==
                                                       null) &&
                                               widget.item.empCID == 1 &&
-                                              (widget.item.company_salary == 0||widget.item.company_salary == null) &&
+                                              (widget.item.is_ctc_pay == 0 ||
+                                                  widget.item.is_work_pay ==
+                                                      0) &&
                                               (!fresher || !experience) &&
                                               empid.text.isNotEmpty &&
                                               salary.text.isEmpty &&
                                               widget.item.document_status ==
                                                   "Submitted"
                                           ? 1
-                                          : (widget.item.company_workstatus ==
-                                                          0 ||
-                                                      widget.item
-                                                              .company_workstatus ==
+                                          : (widget.item.company_workstatus == 0 || widget.item.company_workstatus == null) &&
+                                                  (widget.item.empCID == 0 ||
+                                                      widget.item.empCID ==
                                                           null) &&
-                                                 ( widget.item.empCID == 0 || widget.item.empCID == null)&&
-                                                  widget.item.company_salary ==
-                                                      1 &&
+                                                  (widget.item.is_ctc_pay == 1 ||
+                                                      widget.item.is_work_pay ==
+                                                          1) &&
                                                   (!fresher || !experience) &&
                                                   empid.text.isEmpty &&
                                                   salary.text.isNotEmpty &&
                                                   widget.item.document_status ==
                                                       "Submitted"
                                               ? 1
-                                              : null
+                                              : (widget.item.company_workstatus == 0 || widget.item.company_workstatus == null) &&
+                                                      (widget.item.empCID == 0 ||
+                                                          widget.item.empCID == null) &&
+                                                      (widget.item.is_ctc_pay == 0 || widget.item.is_work_pay == 0) &&
+                                                      (!fresher || !experience) &&
+                                                      empid.text.isEmpty &&
+                                                      salary.text.isEmpty &&
+                                                      widget.item.document_status == "Submitted"
+                                                  ? 1
+                                                  : null
 
                               /* widget.item.company_salary == 1 &&
                                             widget.item.company_workstatus ==

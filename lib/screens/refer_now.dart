@@ -8,12 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,7 +101,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=100000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=100');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -514,13 +516,18 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
 
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return JobDetails(id: item.jobId, Applies: false, referal: true,is_freelancer: 3,);
+          },
+        ));
+        /* Navigator.pushNamed(
           context,
           ERoute.jobsdetail.name,
           arguments: {
             'id': item.jobId,
           },
-        );
+        ); */
       },
       child: Container(
         decoration: BoxDecoration(
@@ -589,15 +596,60 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(item.qualification.toString()),
-                          const SizedBox(
-                            width: 2,
-                          ),
-                          const Text("|"),
-                          const SizedBox(
-                            width: 2,
-                          ),
-                          Text(item.isExperienced.toString()),
+                          item.qualification == null
+                              ? Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/bag.png",
+                                      height: 13.h,
+                                      //  color: Constants.subtitleclr,
+                                    ),
+                                    const SizedBox(
+                                      width: 4,
+                                    ),
+                                    Text(
+                                      item.isExperienced.toString(),
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black54,
+                                        // fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/education_d.png",
+                                      height: 14.h,
+                                      //  color: Constants.subtitleclr,
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Text(
+                                      " ${item.qualification.toString()}  |  ",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black54,
+                                        // fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Image.asset(
+                                      "assets/images/bag.png",
+                                      height: 13.h,
+                                      //  color: Constants.subtitleclr,
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Text(
+                                      " ${item.isExperienced}",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black54,
+                                        // fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
                         ],
                       ),
                     ],
@@ -643,7 +695,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start, // Ad
                 children: [
-                  Container(
+                  /* Container(   //TODO: CRPF container ....
                       decoration: BoxDecoration(
                           color: Constants.borderColor,
                           borderRadius: BorderRadius.circular(8.r)),
@@ -701,15 +753,67 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             ],
                           ),
                         ],
-                      )),
-                  if (item.totalSalary != null)
+                      )), */
+                  if (item.companyName != null)
                     Padding(
                       padding: EdgeInsets.only(top: 4.h, left: 4.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            "assets/images/cmpny.png",
+                            height: 12.5.h,
+                          ),
+                          SizedBox(
+                            width: 3.w,
+                          ),
+                          Text(
+                            item.short_name != null
+                                ? item.short_name.toString()
+                                : item.companyName.toString(),
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          )
+                        ],
+                      ),
+                    ),
+                  if (item.process != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 4.w, top: 2.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            "assets/images/des.png",
+                            height: 12.5.h,
+                          ),
+                          SizedBox(
+                            width: 3.w,
+                          ),
+                          Text(
+                            "${item.process.toString()} || ${item.lead_level.toString()}",
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          )
+                        ],
+                      ),
+                    ),
+                  if (item.totalSalary != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 4.w, top: 2.h),
                       child: Row(
                         children: [
                           Image.asset(
                             "assets/images/wallet.png",
-                            height: 14.h,
+                            height: 12.5.h,
                           ),
                           const SizedBox(
                             width: 3,
@@ -727,12 +831,12 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                     ),
                   if (item.workLocation != null)
                     Padding(
-                      padding: EdgeInsets.only(left: 4.w),
+                      padding: EdgeInsets.only(left: 4.w, top: 2.h),
                       child: Row(
                         children: [
                           Image.asset(
                             "assets/images/loc.png",
-                            height: 14.sp,
+                            height: 12.5.sp,
                           ),
                           const SizedBox(
                             width: 3,
@@ -888,13 +992,18 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                       item.referral_icon != "null") ||
                                   item.s2ReferralIcon != null)
                                 CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  child: Image.network(
+                                    backgroundColor: Colors.white,
+                                    child: CustomImage(
+                                        imageUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.referral_icon ?? item.s2ReferralIcon}",
+                                        height: 24.h,
+                                        defaultImageUrl:
+                                            "assets/images/error.png") /* Image.network(
                                     "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.referral_icon ?? item.s2ReferralIcon}",
                                     fit: BoxFit.fill,
-                                    height: 18.h,
-                                  ),
-                                )
+                                    height: 24.h,
+                                  ), */
+                                    )
                             ],
                           ),
                           Expanded(

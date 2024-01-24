@@ -149,6 +149,8 @@ class Applicant {
   double? salary;
   int? is_exp;
   String? company_icon;
+  int? is_ctc_pay;
+  int? is_work_pay;
 
   Applicant({
     this.showRejectTextField,
@@ -250,6 +252,8 @@ class Applicant {
     this.salary,
     this.is_exp,
     this.company_icon,
+    this.is_ctc_pay,
+    this.is_work_pay,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
@@ -352,7 +356,11 @@ class Applicant {
         notes: json['notes'],
         salary: json['salary'],
         is_exp: json['is_exp'],
-        company_icon: json['company_icon']);
+        company_icon: json['company_icon'],
+        is_ctc_pay: json['is_ctc_pay'],
+        is_work_pay: json['is_work_pay'],
+        
+        );
   }
 
   get interviewrounds => null;
@@ -493,6 +501,8 @@ class Applicant {
       'salary': salary,
       'is_exp': is_exp,
       'company_icon': company_icon,
+      'is_work_pay':is_work_pay,
+      'is_ctc_pay':is_ctc_pay,
     };
   }
 }

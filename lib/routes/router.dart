@@ -104,11 +104,11 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return jobs.Jobs();
         }),
-    ERoute.jobsdetail.name: (context) => FutureBuilder(
+   /*  ERoute.jobsdetail.name: (context) => FutureBuilder(  //TODO:: Navigate to jobDetails page...
         future: lazyJobDetails,
         builder: (snapshot, context) {
           return jobsdetails.JobDetails();
-        }),
+        }), */
     ERoute.businesspartner.name: (context) => FutureBuilder(
         future: lazyBusinessPartner,
         builder: (snapshot, context) {

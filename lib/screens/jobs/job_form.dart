@@ -428,6 +428,7 @@ class _JobFormState extends ConsumerState<JobForm> {
   int? jobID;
   List<dynamic> worklocationint = [];
   int? fetchworkCity;
+  bool peMonth = false, perYear = false;
 
   void assignDataToController(JobData? jobData) {
     if (jobData != null) {
@@ -880,6 +881,7 @@ class _JobFormState extends ConsumerState<JobForm> {
   }
 
   String _selectedOption = "";
+
   bool isFresher = false;
   bool expContainer = false;
   bool agegroupContainer = false;
@@ -2312,6 +2314,20 @@ class _JobFormState extends ConsumerState<JobForm> {
                             },
                             title: "Error",
                             subtitle: "Add work location ");
+                      },
+                    );
+                  } else if (!peMonth && !perYear) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CustomDialog(
+                            fetchDataFromApi: () {},
+                            isFisrt: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            title: "Error",
+                            subtitle: "Select Salary Type");
                       },
                     );
                   } else if (selectedComunication == null) {
@@ -4599,6 +4615,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
+                                  peMonth = !peMonth;
                                   _selectedOption = value.toString();
                                 });
                               },
@@ -4610,6 +4627,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
+                                  perYear = !perYear;
                                   _selectedOption = value.toString();
                                 });
                               },

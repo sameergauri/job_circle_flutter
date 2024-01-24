@@ -199,7 +199,8 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
-                                          sourceName: widget.sourcename
+                                          sourceName: widget.sourcename,
+                                          dol: DateTime.now(),
                                           );
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
@@ -261,6 +262,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
+                                          dol: DateTime.now(),
                                            sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
@@ -346,6 +348,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
+                                          dol: DateTime.now(),
                                            sourceName: widget.sourcename
                                           );
                                   Map<String, dynamic> jsonData =
@@ -410,7 +413,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
-                                          
+                                          dol: DateTime.now(),
                                            sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();

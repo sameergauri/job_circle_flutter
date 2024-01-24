@@ -52,9 +52,6 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
     // TODO: implement initState
     super.initState();
   }
-   
-   
-  
 
   DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
   DateTime today = DateTime.now();
@@ -225,7 +222,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                           : Row(
                               children: [
                                 Image.asset(
-                                  "assets/images/graduate.png",
+                                  "assets/images/education_d.png",
                                   height: 15.h,
                                   //  color: Constants.subtitleclr,
                                 ),
@@ -263,6 +260,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
             ],
           ),
           Container(
+            margin: EdgeInsets.only(top: 4.h),
             width: double.maxFinite,
             padding: const EdgeInsets.symmetric(
               vertical: 4,
@@ -294,8 +292,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                           Text(
                             widget.item.role_code != null &&
                                     widget.item.role_code != ""
-                                ? "${widget.item.process} - ${widget.item.role_code}"
-                                : "${widget.item.process} - ${widget.item.lead_level}",
+                                ? "${widget.item.process} || ${widget.item.role_code}"
+                                : "${widget.item.process} || ${widget.item.lead_level}",
                             style: GoogleFonts.varela(
                               color: Colors.black54,
                               // fontWeight: FontWeight.bold,
@@ -311,7 +309,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                     margin: EdgeInsets.only(bottom: 10.h, right: 10.w),
                     child: Image.asset(
                       "assets/images/Join.png",
-                      height: 25.h,
+                      height: 15.h,
                     ),
                   ),
                 if (widget.item.status_id == 15) //TODO:: Ready to join.
@@ -920,6 +918,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
               if (widget.item.doj != null &&
                   !isToday &&
                   widget.item.status_id != 18 &&
+                  !widget.item.doj!.isBefore(DateTime.now()) &&
                   !isYesterday) //TODO:: Ready to join.
                 InkWell(
                   onTap: () async {
@@ -959,7 +958,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
               //
               //
               widget.item.doj != null &&
-                      widget.item.doj!.day == today.day &&
+                      (widget.item.doj!.day == today.day ||
+                          widget.item.doj!.isBefore(DateTime.now())) &&
                       widget.item.status_id != 18
                   ? Wrap(
                       children: List.generate(
@@ -992,7 +992,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 : widget.item.status_id == 18
                                     ? () {}
                                     : widget.finalDropDownItemforJoinNot[index]
-                                                .sec_status_remark !=
+                                                .pri_status_remark !=
                                             1 //TODO:: check for remark
                                         ? () async {
                                             NewChangeStatusModel
@@ -1035,6 +1035,12 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                               context: context,
                                               builder: (context) {
                                                 return CustomDialogueForRemark(
+                                                  hint: widget
+                                                      .finalDropDownItemforJoinNot[
+                                                          index]
+                                                      .primaryStatus
+                                                      .toString(),
+                                                  item: widget.item,
                                                   onTab: () async {
                                                     NewChangeStatusModel
                                                         changeStatusModel =
@@ -1094,7 +1100,15 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                     padding: EdgeInsets.symmetric(
                                         vertical: 4.h, horizontal: 8.w),
                                     decoration: BoxDecoration(
-                                        color: Colors.red,
+                                        border: Border.all(
+                                            color: widget
+                                                        .finalDropDownItemforJoinNot[
+                                                            index]
+                                                        .priStatusId ==
+                                                    16
+                                                ? Colors.red
+                                                : Constants.blue),
+                                        //color: Colors.red,
                                         borderRadius:
                                             BorderRadius.circular(8.r)),
                                     child: Text(
@@ -1102,7 +1116,14 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                           .primaryStatus
                                           .toString(),
                                       style: GoogleFonts.varela(
-                                          color: Colors.white),
+                                          color: widget
+                                                      .finalDropDownItemforJoinNot[
+                                                          index]
+                                                      .priStatusId ==
+                                                  16
+                                              ? Colors.red
+                                              : Constants.blue,
+                                          fontWeight: FontWeight.bold),
                                     ))),
                       ),
                     )
@@ -1161,6 +1182,12 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                               context: context,
                                               builder: (context) {
                                                 return CustomDialogueForRemark(
+                                                  hint: widget
+                                                      .finalDropDownItemforReadyOffer[
+                                                          index]
+                                                      .primaryStatus
+                                                      .toString(),
+                                                  item: widget.item,
                                                   onTab: () async {
                                                     NewChangeStatusModel
                                                         changeStatusModel =
@@ -1221,7 +1248,15 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                         padding: EdgeInsets.symmetric(
                                             vertical: 4.h, horizontal: 8.w),
                                         decoration: BoxDecoration(
-                                            color: Colors.red,
+                                            border: Border.all(
+                                                color: widget
+                                                            .finalDropDownItemforReadyOffer[
+                                                                index]
+                                                            .priStatusId ==
+                                                        17
+                                                    ? Colors.red
+                                                    : Constants.blue),
+                                            // color: Colors.red,
                                             borderRadius:
                                                 BorderRadius.circular(8.r)),
                                         child: Text(
@@ -1231,7 +1266,14 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                               .primaryStatus
                                               .toString(),
                                           style: GoogleFonts.varela(
-                                              color: Colors.white),
+                                              color: widget
+                                                          .finalDropDownItemforReadyOffer[
+                                                              index]
+                                                          .priStatusId ==
+                                                      17
+                                                  ? Colors.red
+                                                  : Constants.blue,
+                                              fontWeight: FontWeight.bold),
                                         ))),
                           ),
                         )
@@ -1288,6 +1330,12 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                       context: context,
                                       builder: (context) {
                                         return CustomDialogueForRemark(
+                                          hint: widget
+                                              .finalDropDownItemForTrainingDrop[
+                                                  index]
+                                              .primaryStatus
+                                              .toString(),
+                                          item: widget.item,
                                           onTab: () async {
                                             NewChangeStatusModel
                                                 changeStatusModel =
@@ -1333,14 +1381,16 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 4.h, horizontal: 8.w),
                                 decoration: BoxDecoration(
-                                    color: Colors.red,
+                                    border: Border.all(color: Colors.black),
+                                    // color: Colors.red,
                                     borderRadius: BorderRadius.circular(8.r)),
                                 child: Text(
                                   widget.finalDropDownItemForTrainingDrop[index]
                                       .primaryStatus
                                       .toString(),
-                                  style:
-                                      GoogleFonts.varela(color: Colors.white),
+                                  style: GoogleFonts.varela(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
                                 ))),
                   ),
                 ),
@@ -1443,7 +1493,43 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                   : widget.item.notes != null && widget.item.notes != ""
                       ? SizedBox(
                           // width: MediaQuery.of(context).size.width / 1.5,
-                          child: Text("Note : ${widget.item.notes.toString()}"))
+                          child: Row(
+                          children: [
+                            Expanded(
+                                child: Text(
+                                    "Note : ${widget.item.notes.toString()}")),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  note = true;
+                                  notes.text = widget.item.notes.toString();
+                                });
+                                noteFocusNote.requestFocus();
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/pencil.png",
+                                      height: 18.h,
+                                    )
+                                    /*  Icon(
+                                      Icons.edit_outlined,
+                                      size: 18.h,
+                                    ), */
+                                    /*  Text("Edit Note",
+                                        style: GoogleFonts.varela(
+                                          color: Colors.black,
+                                          fontSize: 12.sp,
+                                        )), */
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ))
                       : const SizedBox()),
           note
               ? SizedBox(
@@ -1511,31 +1597,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                       ],
                     )
                   : widget.item.notes != null && widget.item.notes != ""
-                      ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              note = true;
-                              notes.text = widget.item.notes.toString();
-                            });
-                            noteFocusNote.requestFocus();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.edit_outlined,
-                                  size: 15.h,
-                                ),
-                                Text("Edit Note",
-                                    style: GoogleFonts.varela(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                    )),
-                              ],
-                            ),
-                          ),
-                        )
+                      ? const SizedBox()
                       : GestureDetector(
                           onTap: () {
                             setState(() {
@@ -1548,12 +1610,13 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.add,
-                                  size: 15.h,
+                                  Icons.post_add_outlined,
+                                  color: Colors.grey,
+                                  size: 20.h,
                                 ),
-                                Text("Add Note",
+                                /* Text("Add Note",
                                     style: GoogleFonts.varela(
-                                        fontSize: 12.sp, color: Colors.black)),
+                                        fontSize: 12.sp, color: Colors.black)), */
                               ],
                             ),
                           ),

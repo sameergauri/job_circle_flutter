@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:job_circle/themes/colors.dart';
 
 class CustomImage extends StatefulWidget {
   final String imageUrl;
@@ -42,13 +41,15 @@ class _CustomImageState extends State<CustomImage> {
       errorBuilder:
           (BuildContext context, Object exception, StackTrace? stackTrace) {
         // Display the default image when there's an error loading the image.
-        return const Center(
+        return /*  Center(
             child: CircularProgressIndicator(
           color: Constants.themeBgColor,
-        )); /* Image.asset(
+        )); */
+            Image.asset(
           widget.defaultImageUrl,
           fit: BoxFit.contain,
-        ); */
+          height: widget.height,
+        );
       },
     );
   }

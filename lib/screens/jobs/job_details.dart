@@ -36,10 +36,16 @@ import 'matching_jobs.dart';
 
 class JobDetails extends ConsumerStatefulWidget {
   int? id;
+  bool Applies;
+  bool referal;
+  int is_freelancer;
 
   JobDetails({
     super.key,
     this.id,
+    required this.Applies,
+    required this.referal,
+    required this.is_freelancer,
   });
 
   @override
@@ -212,8 +218,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
       dynamic args = ModalRoute.of(context)!.settings.arguments;
-      if (args != null && args["id"] != null) {
-        getJobDetails(args["id"]);
+      if (widget.id != null) {
+        getJobDetails(widget.id);
       }
     });
     // Future.delayed(const Duration(milliseconds: 10), () {
@@ -646,7 +652,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
               ),
               Visibility(
                   visible: (usertype == EUserType.jobSeeker.value ||
-                      usertype == EUserType.businessPartner.value),
+                          usertype == EUserType.businessPartner.value) &&
+                      (!widget.Applies && !widget.referal) &&
+                      (widget.is_freelancer == 1 || widget.is_freelancer == 0),
                   child: InkWell(
                     onTap: () async {
                       if (profilemodel.cv_link != null) {
@@ -902,7 +910,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           // item['process'] != null)
                           Image.asset(
                             "assets/images/cmpny.png",
-                            height: 13.h,
+                            height: 12.5.h,
                           ),
                           /* Icon(
                         Icons.business_outlined,
@@ -932,7 +940,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               Image.asset(
                                 "assets/images/bag.png",
                                 height: 12.5.h,
-                                color: Colors.grey.shade700,
                               ),
                               SizedBox(
                                 width: 7.w,
@@ -959,7 +966,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 children: [
                                   Image.asset(
                                     "assets/images/bag.png",
-                                    height: 12.h,
+                                    height: 12.5.h,
                                     //  color: Constants.subtitleclr,
                                   ),
                                   SizedBox(
@@ -1034,7 +1041,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         children: [
                           Image.asset(
                             "assets/images/wallet.png",
-                            height: 14.3.h,
+                            height: 12.5.h,
                           ),
                           /* Icon(
                         Icons.currency_rupee,
@@ -1068,11 +1075,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             ) */
                         ],
                       ),
+                    SizedBox(
+                      height: 2.h,
+                    ),
                     Row(
                       children: [
                         Image.asset(
                           "assets/images/loc.png",
-                          height: 14.h,
+                          height: 12.5.h,
                         ),
                         /* const Icon(
                       Icons.pin_drop_outlined,
@@ -2597,6 +2607,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             ), */
 
                     if (jobDetailsModel.partnerPayout != null &&
+                        (widget.referal || !widget.Applies) &&
                         (jobDetailsModel.partnerPayout == 'Flat' ||
                             jobDetailsModel.partnerPayout == 'Slab' ||
                             jobDetailsModel.partnerPayout == 'CTC Based' ||

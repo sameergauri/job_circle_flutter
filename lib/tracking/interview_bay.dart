@@ -133,7 +133,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                           : Row(
                               children: [
                                 Image.asset(
-                                  "assets/images/graduate.png",
+                                  "assets/images/education_d.png",
                                   height: 15.h,
                                   //  color: Constants.subtitleclr,
                                 ),
@@ -171,6 +171,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
             ],
           ),
           Container(
+            margin: EdgeInsets.only(top: 4.h),
             width: double.maxFinite,
             padding: const EdgeInsets.symmetric(
               vertical: 4,
@@ -198,8 +199,8 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                     Text(
                       widget.item.role_code != null &&
                               widget.item.role_code != ""
-                          ? "${widget.item.process} - ${widget.item.role_code}"
-                          : "${widget.item.process} - ${widget.item.lead_level}",
+                          ? "${widget.item.process} || ${widget.item.role_code}"
+                          : "${widget.item.process} || ${widget.item.lead_level}",
                       style: GoogleFonts.varela(
                         color: Colors.black54,
                         // fontWeight: FontWeight.bold,
@@ -244,16 +245,27 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 4, horizontal: 8),
                       decoration: BoxDecoration(
-                          border: Border.all(color: Constants.themeBgColor),
+                          border: Border.all(
+                            color: widget.item.interview_rounds ==
+                                    widget.finalInterviewRounds[index]
+                                ? Colors.grey
+                                    .shade200 // Set color when the condition is true
+                                : index <
+                                        widget.finalInterviewRounds.indexOf(
+                                            widget.item.interview_rounds)
+                                    ? Colors.grey
+                                        .shade200 // Set color for items before the matching item
+                                    : Constants.themeBgColor,
+                          ),
                           color: widget.item.interview_rounds ==
                                   widget.finalInterviewRounds[index]
-                              ? Constants
-                                  .borderColor // Set color when the condition is true
+                              ? Colors.grey
+                                  .shade200 // Set color when the condition is true
                               : index <
                                       widget.finalInterviewRounds
                                           .indexOf(widget.item.interview_rounds)
-                                  ? Constants
-                                      .borderColor // Set color for items before the matching item
+                                  ? Colors.grey
+                                      .shade200 // Set color for items before the matching item
                                   : Colors.white,
 
                           /*  index == 0 ||
@@ -264,7 +276,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                           borderRadius: BorderRadius.circular(8.r)),
                       child: Text(
                         widget.finalInterviewRounds[index],
-                        style: GoogleFonts.varela(color: Colors.grey),
+                        style: GoogleFonts.varela(color: Colors.grey.shade500),
                       )),
                 ),
               );
@@ -285,6 +297,10 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                               context: context,
                               builder: (context) {
                                 return CustomDialogueForRemark(
+                                  hint: widget
+                                      .finalDropDownItem[index].secStatus
+                                      .toString(),
+                                  item: widget.item,
                                   onTab: () async {
                                     NewChangeStatusModel changeStatusModel =
                                         NewChangeStatusModel(
@@ -380,6 +396,10 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                   context: context,
                                   builder: (context) {
                                     return CustomDialogueForRemark(
+                                      hint: widget.finalDropDownItem[index]
+                                          .primaryStatus
+                                          .toString(),
+                                      item: widget.item,
                                       onTab: () async {
                                         NewChangeStatusModel changeStatusModel =
                                             NewChangeStatusModel(
@@ -489,7 +509,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                 widget.finalDropDownItem[index].priStatusId ==
                                         13
                                     ? Border.all(color: Constants.blue)
-                                    : Border.all(color: Colors.white),
+                                    : Border.all(color: Colors.red),
                             borderRadius: BorderRadius.circular(8.r)),
                         child: Text(
                           widget.finalDropDownItem[index].primaryStatus
@@ -550,7 +570,45 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                       ))
                   : widget.item.notes != null && widget.item.notes != ""
                       ? SizedBox(
-                          child: Text("Note : ${widget.item.notes.toString()}"))
+                          child: Row(
+                          children: [
+                            Expanded(
+                                child: Text(
+                                    "Note : ${widget.item.notes.toString()}",
+                                    style:
+                                        GoogleFonts.varela(fontSize: 12.sp))),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  note = true;
+                                  notes.text = widget.item.notes.toString();
+                                });
+                                noteFocusNote.requestFocus();
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/pencil.png",
+                                      height: 18.h,
+                                    )
+                                    /*  Icon(
+                                      Icons.edit_outlined,
+                                      size: 18.h,
+                                    ), */
+                                    /*  Text("Edit Note",
+                                        style: GoogleFonts.varela(
+                                          color: Colors.black,
+                                          fontSize: 12.sp,
+                                        )), */
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ))
                       : const SizedBox()),
           note
               ? SizedBox(
@@ -617,32 +675,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                         ],
                       )
                     : widget.item.notes != null && widget.item.notes != ""
-                        ? GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                note = true;
-                                notes.text = widget.item.notes.toString();
-                              });
-                              noteFocusNote.requestFocus();
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit_outlined,
-                                    size: 15.h,
-                                  ),
-                                  Text("Edit Note",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black,
-                                        fontSize: 12.sp,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          )
+                        ? const SizedBox()
                         : GestureDetector(
                             onTap: () {
                               setState(() {
@@ -657,13 +690,14 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                               child: Row(
                                 children: [
                                   Icon(
-                                    Icons.add,
-                                    size: 15.h,
+                                    Icons.post_add_outlined,
+                                    size: 20.h,
+                                    color: Colors.grey,
                                   ),
-                                  Text("Add Note",
+                                  /* Text("Add Note",
                                       style: GoogleFonts.varela(
                                           fontSize: 12.sp,
-                                          color: Colors.black)),
+                                          color: Colors.black)), */
                                 ],
                               ),
                             ),

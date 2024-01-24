@@ -15,6 +15,7 @@ import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timelines/timelines.dart';
@@ -26,7 +27,7 @@ import '../../service/UserDataService.dart';
 import '../../themes/colors.dart';
 
 final fetchAllApplyProvider = FutureProvider<List<Applicant>>((ref) {
-  Future.delayed(const Duration(seconds: 2));
+  Future.delayed(const Duration(milliseconds: 10));
   return _AppliedJobState.fetchApplicantsByUserId();
 });
 //enum Issue { no, incorrect, recruiter, other }
@@ -106,7 +107,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=100');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -487,13 +488,23 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
 
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return JobDetails(
+              id: item.jobId,
+              Applies: true,
+              referal: false,
+              is_freelancer: 3,
+            );
+          },
+        ));
+        /* Navigator.pushNamed(
           context,
           ERoute.jobsdetail.name,
           arguments: {
             'id': item.jobId,
           },
-        );
+        ); */
       },
       child: Container(
         decoration: BoxDecoration(
@@ -585,7 +596,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                         children: [
                           Image.asset(
                             "assets/images/wallet.png",
-                            height: 14.h,
+                            height: 12.5.h,
                           ),
                           const SizedBox(
                             width: 3,
@@ -603,12 +614,12 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                     ),
                   if (item.workLocation != null)
                     Padding(
-                      padding: EdgeInsets.only(left: 4.w),
+                      padding: EdgeInsets.only(left: 4.w, top: 2.h),
                       child: Row(
                         children: [
                           Image.asset(
                             "assets/images/loc.png",
-                            height: 14.sp,
+                            height: 12.5.sp,
                           ),
                           const SizedBox(
                             width: 3,
@@ -756,12 +767,18 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                       item.s2ApplyIcon != null
                                   ? CircleAvatar(
                                       backgroundColor: Colors.white,
-                                      child: Image.network(
+                                      child: CustomImage(
+                                          imageUrl:
+                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.apply_icon ?? item.s2ApplyIcon}",
+                                          height: 24.h,
+                                          defaultImageUrl:
+                                              "assets/images/error.png")
+                                      /*  Image.network(
                                         "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.apply_icon ?? item.s2ApplyIcon}",
                                         fit: BoxFit.fill,
-                                        height: 18.h,
-                                      ),
-                                    )
+                                        height: 24.h,
+                                      ), */
+                                      )
                                   : const SizedBox()
                             ],
                           ),
@@ -937,7 +954,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                       top: 0,
                       right: 0,
                       child: SizedBox(
-                          height: 60.h,
+                          height: 30.h,
                           width: 60.w,
                           child: CustomImage(
                             imageUrl:
@@ -945,7 +962,13 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                             defaultImageUrl: "assets/images/logo.png",
                           )),
                     )
-                  : Image.asset("assets/Images/company1.png")
+                  : SizedBox(
+                      height: 60.h,
+                      width: 60.w,
+                      child: Image.asset(
+                        "assets/Images/logo.png",
+                        fit: BoxFit.contain,
+                      ))
             ],
           ),
         ),

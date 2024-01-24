@@ -39,45 +39,46 @@ class ProfileModel {
   String? status;
   int? usertype;
   int? alternate_no;
+  int? is_freelancer;
 
-  ProfileModel({
-    this.id,
-    this.firstName,
-    this.middleName,
-    this.lastName,
-    this.gender,
-    this.role,
-    this.universityId,
-    this.workExperience,
-    this.reportTo,
-    this.experience,
-    this.companyName,
-    this.degreeSpcId,
-    this.officialEmail,
-    this.education,
-    this.experienceId,
-    this.profilePic,
-    this.cvLink,
-    this.educationId,
-    this.mobile,
-    this.partnerRequest,
-    this.passingYear,
-    this.degreeSpc,
-    this.dateOfBirth,
-    this.userLocation,
-    this.languages,
-    this.email,
-    this.cvUploadedDate,
-    this.martialStatus,
-    this.hasExperience,
-    this.isFav,
-    this.favId,
-    this.userId,
-    this.uid,
-    this.status,
-    this.usertype,
-    this.alternate_no,
-  });
+  ProfileModel(
+      {this.id,
+      this.firstName,
+      this.middleName,
+      this.lastName,
+      this.gender,
+      this.role,
+      this.universityId,
+      this.workExperience,
+      this.reportTo,
+      this.experience,
+      this.companyName,
+      this.degreeSpcId,
+      this.officialEmail,
+      this.education,
+      this.experienceId,
+      this.profilePic,
+      this.cvLink,
+      this.educationId,
+      this.mobile,
+      this.partnerRequest,
+      this.passingYear,
+      this.degreeSpc,
+      this.dateOfBirth,
+      this.userLocation,
+      this.languages,
+      this.email,
+      this.cvUploadedDate,
+      this.martialStatus,
+      this.hasExperience,
+      this.isFav,
+      this.favId,
+      this.userId,
+      this.uid,
+      this.status,
+      this.usertype,
+      this.alternate_no,
+      this.is_freelancer});
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -131,6 +132,7 @@ class ProfileModel {
         status: json['status'] as String?,
         usertype: json['usertype'] as int?,
         alternate_no: json['alternate_no'] as int?,
+        is_freelancer: json['is_freelancer'] as int?,
       );
     } catch (e) {
       print("Error parsing JSON: $e");
@@ -177,6 +179,7 @@ class ProfileModel {
       status: map['status'] as String?,
       usertype: map['usertype'] as int?,
       alternate_no: map['alternate_no'] as int?,
+      is_freelancer: map['is_freelancer'] as int?,
     );
   }
 
@@ -219,6 +222,7 @@ class ProfileModel {
       "status": status,
       "usertype": usertype,
       "alternate_no": alternate_no,
+      'is_freelancer': is_freelancer,
     };
   }
 
@@ -260,7 +264,8 @@ class ProfileModel {
       "uid": uid,
       "status": status,
       "usertype": usertype,
-      "alternate_no": alternate_no
+      "alternate_no": alternate_no,
+      'is_freelancer': is_freelancer
     };
   }
 }

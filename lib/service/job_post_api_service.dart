@@ -5,9 +5,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/role_model.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
@@ -249,7 +251,34 @@ class JobPostApiService {
 
       if (response.statusCode == 200) {
         // Successful request
+        // print(response.body);
         print('Status Updated Successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  static Future<void> AddBankingDetails(
+    Map<String, dynamic> jsonData,
+  ) async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/users/v1/$userid/addBankingDetail';
+
+    try {
+      var response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        // print(response.body);
+        print('Banking Details posted successfully');
       } else {
         // Request failed
         print('Error: ${response.statusCode}');
@@ -564,6 +593,32 @@ class JobPostApiService {
     } catch (e) {
       // Handle any errors that occur during the request
       print('Error sending data: $e');
+    }
+  }
+
+  static Future<void> updateFreelancerActivity(int data, int id) async {
+    final apiUrl = Uri.parse(
+        "http://${GlobalConstants.API_Host_one}/users/v1/$id/freelanceActivity");
+
+    final Map<String, dynamic> jsonData = {"isFreelancer": data};
+
+    try {
+      final response = await http.put(
+        apiUrl,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        print("User Type Updated successfully");
+      } else {
+        print("PUT request failed with status code ${response.statusCode}");
+        print(response.body);
+      }
+    } catch (e) {
+      print("An error occurred: $e");
     }
   }
 }

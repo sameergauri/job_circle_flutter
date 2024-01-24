@@ -355,8 +355,6 @@ class NewChangeStatusModel {
   int? isExp;
   String? document_status;
   int? isJoinSubmitted;
-  
-  
 
   NewChangeStatusModel({
     this.alternateNo,

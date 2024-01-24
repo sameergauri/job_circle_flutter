@@ -1068,6 +1068,10 @@ class _AddExperienceState extends State<AddExperience> {
                                   yes = true;
                                   no = false;
                                 });
+                                 if (someid == null) {
+                                  await JobPostApiService.AddCompanytoMom(
+                                      companyController.text.toString());
+                                }
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(

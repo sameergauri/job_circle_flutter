@@ -11,10 +11,13 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/assets_images_url.dart';
 import 'package:job_circle/models/new_job_model.dart';
+import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/payment_status.dart';
+import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
+import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
@@ -269,6 +272,21 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     Color color;
     return profileProfile.when(
       data: (data) {
+        setState(() {
+          if (data.is_freelancer == 2) {
+            freelancer = true;
+            jobSeeker = false;
+            both = false;
+          } else if (data.is_freelancer == 1) {
+            jobSeeker = true;
+            freelancer = false;
+            both = false;
+          } else {
+            both = true;
+            jobSeeker = false;
+            freelancer = false;
+          }
+        });
         if (jobsController.isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
@@ -306,7 +324,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     closeDrawer(); // Call the function to close the drawer
                                   },
                                   child: CircleAvatar(
-                                      backgroundColor: Constants.themeBgColor,
+                                      backgroundColor: Colors.white,
                                       radius: 35,
                                       onBackgroundImageError:
                                           ((error, stackTrace) => Image.asset(
@@ -344,7 +362,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   ),
                                 ),
                           Text(
-                            "${data.firstName.toString()} ${data.lastName.toString()}",
+                            "${data.firstName.toString().toTitleCase()} ${data.lastName.toString().toTitleCase()}",
                             style: GoogleFonts.varela(
                                 fontSize: 16.sp,
                                 color: Constants.themeBgColor,
@@ -353,7 +371,71 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           Text(data.userLocation.toString(),
                               style: GoogleFonts.varela(
                                   fontSize: 14.sp,
-                                  color: Constants.themeBgColor))
+                                  color: Constants.themeBgColor)),
+                          if (data.usertype == 1)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 4.w),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  color: Colors.white),
+                              margin: EdgeInsets.only(top: 10.h),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Wrap(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await JobPostApiService
+                                              .updateFreelancerActivity(
+                                                  1, data.id!.toInt());
+
+                                          setState(() {
+                                            jobSeeker = true;
+                                            both = false;
+                                            freelancer = false;
+                                          });
+                                          ref.refresh(profileSummaryProvider);
+                                        },
+                                        child: CustomContainerForUserSelection(
+                                            "Job Seeker", jobSeeker),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await JobPostApiService
+                                              .updateFreelancerActivity(
+                                                  2, data.id!.toInt());
+
+                                          setState(() {
+                                            jobSeeker = false;
+                                            both = false;
+                                            freelancer = true;
+                                          });
+                                          ref.refresh(profileSummaryProvider);
+                                        },
+                                        child: CustomContainerForUserSelection(
+                                            "Freelancer", freelancer),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await JobPostApiService
+                                              .updateFreelancerActivity(
+                                                  0, data.id!.toInt());
+                                          setState(() {
+                                            jobSeeker = false;
+                                            both = true;
+                                            freelancer = false;
+                                          });
+                                          ref.refresh(profileSummaryProvider);
+                                        },
+                                        child: CustomContainerForUserSelection(
+                                            "Both", both),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -433,6 +515,80 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       nav();
                     },
                   ), */
+
+                  if (data.usertype == 1)
+                    ExpansionTile(
+                      leading: Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/1570/1570887.png",
+                        height: 22.h,
+                        color: Constants.themeBgColor,
+                      ),
+                      title: const Text('Account'),
+                      children: [
+                        ListTile(
+                          minLeadingWidth: 0.0,
+                          minVerticalPadding: 5.1,
+                          leading: Image.network(
+                            "https://cdn-icons-png.flaticon.com/128/1159/1159679.png",
+                            height: 22.h,
+                            color: Constants.themeBgColor,
+                          ),
+                          title: const Text('View & Generate Invoice'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const GenerateInvoice(),
+                                ));
+                            closeDrawer();
+                            //Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          minLeadingWidth: 0.0,
+                          minVerticalPadding: 5.1,
+                          leading: Image.network(
+                            "https://cdn-icons-png.flaticon.com/128/1019/1019709.png",
+                            height: 22.h,
+                            color: Constants.themeBgColor,
+                          ),
+                          title: const Text('Payment Status'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PaymentStatus()));
+                            closeDrawer();
+                            // Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          minLeadingWidth: 0.0,
+                          minVerticalPadding: 5.1,
+                          leading: Image.network(
+                            "https://cdn-icons-png.flaticon.com/128/2830/2830155.png",
+                            height: 22.h,
+                            color: Constants.themeBgColor,
+                          ),
+                          title: const Text('My Banking Detail'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BankingDetals(
+                                          name:
+                                              "${data.firstName} ${data.lastName}",
+                                          profilePic:
+                                              data.profilePic.toString(),
+                                          gender: data.gender.toString(),
+                                        )));
+                            closeDrawer();
+                            // Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
                   ListTile(
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
@@ -624,8 +780,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             cutTab = 5;
                             jobsController.toggleSupportStaff(data);
                           },
-                          child: customTab("Support staff",
-                              "assets/images/check.png", 5, data)),
+                          child: customTab(
+                              "Lateral", //TODO:: "Support Staff" earlier.... but now its lateral....
+                              "assets/images/check.png",
+                              5,
+                              data)),
                   ],
                 ),
               )
@@ -772,57 +931,67 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                 SizedBox(
                   width: 5.w,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: SizedBox(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.pin_drop,
-                          color: Constants.themeBgColor,
-                          size: 15.h,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            final selected = await showModalBottomSheet<String>(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(16.0)),
-                              ),
-                              builder: (BuildContext context) {
-                                return LocationSelector(
-                                  locationList: jobsController.locationList,
-                                  onLocationSelected: (selectedLocation) {
-                                    if (selectedLocation.isNotEmpty) {
-                                      jobsController.selectedLocation =
-                                          selectedLocation;
-                                      jobsController.toggleLocationFilter();
-                                      //  jobsController.filterData.clear();
-                                      cutTab =
-                                          0; // TODO : to reset selected tab clear when user select location .
-                                    }
+                Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.w),
+                      child: SizedBox(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            jobsController.selectedLocation.isEmpty
+                                ? Icon(
+                                    Icons.pin_drop,
+                                    color: Constants.themeBgColor,
+                                    size: 15.h,
+                                  )
+                                : const SizedBox(),
+                            GestureDetector(
+                              onTap: () async {
+                                final selected =
+                                    await showModalBottomSheet<String>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(16.0)),
+                                  ),
+                                  builder: (BuildContext context) {
+                                    return LocationSelector(
+                                      locationList: jobsController.locationList,
+                                      onLocationSelected: (selectedLocation) {
+                                        if (selectedLocation.isNotEmpty) {
+                                          jobsController.selectedLocation =
+                                              selectedLocation;
+                                          jobsController.toggleLocationFilter();
+                                          //  jobsController.filterData.clear();
+                                          cutTab =
+                                              0; // TODO : to reset selected tab clear when user select location .
+                                        }
+                                      },
+                                    );
                                   },
                                 );
                               },
-                            );
-                          },
-                          child: Text(
-                            jobsController.selectedLocation.isNotEmpty
-                                ? jobsController.selectedLocation
-                                : 'City',
-                            style: GoogleFonts.varela(
-                              color: Constants.themeBgColor,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
+                              child: Text(
+                                jobsController.selectedLocation.isNotEmpty
+                                    ? jobsController.selectedLocation
+                                    : 'City',
+                                style: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  // height: 12.0,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -995,11 +1164,23 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 }
                                 return GestureDetector(
                                   onTap: () {
-                                    Navigator.pushNamed(
+                                    Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) {
+                                        return JobDetails(
+                                          id: item.id,
+                                          Applies: false,
+                                          referal: false,
+                                          is_freelancer: data.usertype == 3
+                                              ? 3
+                                              : data.is_freelancer!.toInt(),
+                                        );
+                                      },
+                                    ));
+                                    /*  Navigator.pushNamed(
                                       context,
                                       ERoute.jobsdetail.name,
                                       arguments: {'id': item.id},
-                                    );
+                                    ); */
                                   },
                                   child: Stack(
                                     children: [
@@ -1175,7 +1356,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                 child:
                                                                     Image.asset(
                                                                   "assets/images/cmpny.png",
-                                                                  height: 12.h,
+                                                                  height:
+                                                                      12.5.h,
                                                                 ),
                                                               ),
                                                               SizedBox(
@@ -1213,7 +1395,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                     Image.asset(
                                                                       "assets/images/bag.png",
                                                                       height:
-                                                                          12.h,
+                                                                          12.5.h,
                                                                       //  color: Constants.subtitleclr,
                                                                     ),
                                                                     SizedBox(
@@ -1244,7 +1426,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             .asset(
                                                                           "assets/images/bag.png",
                                                                           height:
-                                                                              12.h,
+                                                                              12.5.h,
                                                                           //  color: Constants.subtitleclr,
                                                                         ),
                                                                         SizedBox(
@@ -1292,10 +1474,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   CrossAxisAlignment
                                                                       .center,
                                                               children: [
-                                                                Image.network(
-                                                                  ConstImageUrl
-                                                                      .wallet,
-                                                                  height: 14.h,
+                                                                Image.asset(
+                                                                  "assets/images/wallet.png",
+                                                                  height:
+                                                                      12.5.h,
                                                                 ),
                                                                 SizedBox(
                                                                   width: 6.w,
@@ -1329,6 +1511,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   )
                                                               ],
                                                             ),
+                                                          const SizedBox(
+                                                            height: 2,
+                                                          ),
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -1339,7 +1524,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             children: [
                                                               Image.asset(
                                                                 "assets/images/loc.png",
-                                                                height: 14.sp,
+                                                                height: 12.5.sp,
                                                               ),
                                                               SizedBox(
                                                                 width: 6.w,
@@ -1550,10 +1735,17 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                 : const SizedBox()
                                                           ],
                                                         ),
+                                                        if (data.is_freelancer ==
+                                                            1)
+                                                          const Spacer(),
                                                         Visibility(
-                                                          visible:
-                                                              data.usertype ==
-                                                                  1,
+                                                          visible: data
+                                                                      .usertype ==
+                                                                  1 &&
+                                                              (data.is_freelancer ==
+                                                                      0 ||
+                                                                  data.is_freelancer ==
+                                                                      1),
                                                           child: InkWell(
                                                             onTap: () async {
                                                               if (data.cvLink !=
@@ -1625,7 +1817,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                               decoration: BoxDecoration(
                                                                   border: Border.all(
                                                                       color: Constants
-                                                                          .themeBgColor),
+                                                                          .navyblue),
                                                                   borderRadius:
                                                                       BorderRadius
                                                                           .circular(
@@ -1634,7 +1826,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                 "Apply",
                                                                 style: GoogleFonts.varela(
                                                                     color: Constants
-                                                                        .themeBgColor,
+                                                                        .navyblue,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold),
@@ -1642,7 +1834,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             ),
                                                           ),
                                                         ),
-                                                        const Spacer(),
+                                                        if (data.usertype == 3)
+                                                          const Spacer(),
                                                         Visibility(
                                                           visible:
                                                               data.usertype ==
@@ -1740,12 +1933,22 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             ),
                                                           ),
                                                         ),
+                                                        if (data.is_freelancer ==
+                                                                2 ||
+                                                            data.is_freelancer ==
+                                                                0)
+                                                          const Spacer(),
                                                         if (item.payoutType !=
                                                             null)
                                                           Visibility(
-                                                            visible:
-                                                                data.usertype ==
-                                                                    1,
+                                                            visible: data.usertype ==
+                                                                    1 &&
+                                                                (data.is_freelancer ==
+                                                                        2 ||
+                                                                    data.is_freelancer ==
+                                                                        0 ||
+                                                                    data.is_freelancer ==
+                                                                        null),
                                                             child: InkWell(
                                                               onTap: () {
                                                                 var profilemodel;
@@ -1827,7 +2030,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                     )),
                                               ),
 
-                                            /*  item.is_campus == 1  // TODO: left corner Ribbin indicator.... fro campus hiring..
+                                            /*  item.is_campus == 1  // TODO: left corner Ribbin indicator.... for campus hiring..
                                                 ? Positioned(
                                                     top: 0,
                                                     left: 10,
@@ -2206,6 +2409,22 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
           child: CircularProgressIndicator(),
         );
       },
+    );
+  }
+
+  bool jobSeeker = false, freelancer = false, both = false;
+
+  Widget CustomContainerForUserSelection(String title, bool isSelect) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4.h),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4.r),
+          color: isSelect ? Constants.blue : Colors.white),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+      child: Text(title,
+          style: GoogleFonts.varela(
+              fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
+              color: isSelect ? Colors.white : Constants.themeBgColor)),
     );
   }
 

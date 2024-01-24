@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../models/job_title_model.dart';
 import '../models/nature_of_work.dart';
@@ -1193,6 +1194,8 @@ class _customCompanyforExperienceState
     }
   }
 
+  int compid = 0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -1271,8 +1274,12 @@ class _customCompanyforExperienceState
                     suggestion!.isEmpty &&
                     controller!.text.isNotEmpty
                 ? IconButton(
-                    onPressed: (() {
+                    onPressed: (() async {
                       widget.onChanged(true);
+                      if (compid == 0) {
+                        await JobPostApiService.AddCompanytoMom(
+                            controller!.text.toString());
+                      }
                     }),
                     icon: const Icon(
                       Icons.add,
@@ -1358,6 +1365,7 @@ class _customCompanyforExperienceState
             widget.onChanged(true);
             controller!.text = suggestion.name.toString();
             widget.getid!(suggestion.id);
+            compid = suggestion.id;
             suggestionSelected = true;
             widget.onSubmit!(suggestion.id);
           });

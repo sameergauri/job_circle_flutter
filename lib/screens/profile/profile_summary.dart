@@ -1958,18 +1958,23 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         //     color: Colors.transparent,
                         //   ),
                         // ),
-                        child: education.icon == null || education.icon == ""
-                            ? Image.network(
-                                "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
-                                //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
-                                fit: BoxFit.contain,
-                              )
-                            : CustomImage(
+                        child: education.icon != null || education.icon != ""
+                            ? CustomImage(
                                 imageUrl:
                                     "https://s3.ap-south-1.amazonaws.com/job-circle-2/${education.icon}",
                                 defaultImageUrl:
+                                    "https://cdn-icons-png.flaticon.com/128/3562/3562693.png")
+                            : education.ficon != null || education.ficon != ""
+                                ? CustomImage(
+                                    imageUrl:
+                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${education.ficon}",
+                                    defaultImageUrl:
+                                        "https://cdn-icons-png.flaticon.com/128/3562/3562693.png")
+                                : Image.network(
                                     "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
-                              )
+                                    //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
+                                    fit: BoxFit.contain,
+                                  )
                         /* Image.network(
                         "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
                         fit: BoxFit.contain,

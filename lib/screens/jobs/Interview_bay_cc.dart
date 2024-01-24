@@ -23,6 +23,7 @@ import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
 import 'package:job_circle/tracking/interview_bay.dart';
 import 'package:job_circle/tracking/select_status.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 //import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
@@ -129,15 +130,33 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     }
   }
 
+  final List<RefreshController> _refreshControllers = List.generate(
+    10,
+    (index) => RefreshController(initialRefresh: false),
+  );
+
+  Future<void> _onRefresh(int index) async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+
+    ref.refresh(fetchAllApplicantProvider);
+    // Update the UI with new data
+
+    _refreshControllers[index]
+        .refreshCompleted(); // Call this to end the refresh animation
+  }
+  /* RefreshController refreshController = RefreshController();
+
   Future<void> _onRefresh() async {
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
       ref.refresh(fetchAllApplicantProvider);
+      refreshController.refreshCompleted();
       // Update the UI with new data
     });
     // Call this to end the refresh animation
-  }
+  } */
 
   @override
   void initState() {
@@ -364,7 +383,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     }
   }
 
-  var refreshKey = GlobalKey<RefreshIndicatorState>();
+  /* var refreshKey = GlobalKey<RefreshIndicatorState>();
 
   Future<Null> refreshList() async {
     refreshKey.currentState?.show(atTop: false);
@@ -375,7 +394,10 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     });
 
     return null;
-  }
+  } */
+
+  TextEditingController _searchController = TextEditingController();
+  List<Applicant>? _filteredData;
 
   @override
   Widget build(BuildContext context) {
@@ -408,10 +430,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                   if (anyItemMeetsCondition) {
                     final data = fetchdata;
                     final statuses = getStatuses(data);
+
                     return DefaultTabController(
                       length: statuses.length,
                       child: Scaffold(
-                        floatingActionButton: FloatingActionButton(
+                        /*  floatingActionButton: FloatingActionButton(  //TODO: Refresh button.....
                           backgroundColor: Constants.maintheme_light_color,
                           onPressed: () {
                             ref.refresh(fetchAllApplicantProvider);
@@ -419,12 +442,57 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                           child: const Icon(Icons.refresh),
                         ),
                         floatingActionButtonLocation:
-                            FloatingActionButtonLocation.centerDocked,
+                            FloatingActionButtonLocation.centerDocked, */
                         backgroundColor: Constants.bgColorWhite,
                         appBar: PreferredSize(
-                          preferredSize:
-                              Size(double.maxFinite, kTextTabBarHeight / 1.2.h),
+                            preferredSize: const Size(
+                                double.maxFinite, kTextTabBarHeight * 2),
                           child: AppBar(
+                            title: Container(
+                              margin: EdgeInsets.only(top: 10.h),
+                              height: MediaQuery.of(context).size.height / 24.h,
+                              child: TextField(
+                                keyboardType: TextInputType.name,
+                                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                controller: _searchController,
+                                style: GoogleFonts.varela(
+                                    color: Constants.subtitleclr,
+                                    fontSize: 14.sp),
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Constants.borderColor,
+                                    prefixIcon: const Icon(Icons.search),
+                                    prefixIconColor: Constants.themeBgColor,
+                                    contentPadding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, left: 10, right: 10),
+                                    counterText: '',
+                                    // labelText: "Remark",
+                                    labelStyle: const TextStyle(
+                                      color: Constants.themeBgColor,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb)),
+                                    ),
+                                    focusColor: const Color(0xffff0eceb),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderSide: const BorderSide(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                    ),
+                                    hintText: "Search",
+                                    hintStyle: GoogleFonts.sourceSansPro(
+                                        color: Constants.hintColor,
+                                        fontSize: 15.sp)),
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(
@@ -448,8 +516,32 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                               tabs: statuses
                                   .map(
                                     (status) => customTab(
-                                      status, // Show status in the top-level tab bar
-                                    ),
+                                        status,
+                                        data
+                                            .where((applicant) =>
+                                                applicant.hr_status.toString() ==
+                                                status)
+                                            .where((element) =>
+                                                element.applicantName!
+                                                    .toLowerCase()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.last_name!
+                                                    .toLowerCase()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.companyName!
+                                                    .toLowerCase()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.process!
+                                                    .toLowerCase()
+                                                    .contains(_searchController.text.toLowerCase()))
+                                            .length // Show status in the top-level tab bar
+                                        ),
                                   )
                                   .toList(),
                             ),
@@ -459,12 +551,26 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                           physics: const NeverScrollableScrollPhysics(),
                           children: statuses.map((status) {
                             // Filter applicants based on the current status
+
                             final applicants = data
+                                .where((element) =>
+                                    element.applicantName!
+                                        .toLowerCase()
+                                        .contains(_searchController.text
+                                            .toLowerCase()) ||
+                                    element.last_name!.toLowerCase().contains(
+                                        _searchController.text
+                                            .toLowerCase()) || //TODO:: For searrch.....
+                                    element.companyName!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()) ||
+                                    element.process!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()))
                                 .where((applicant) => applicant.hr_status !=
                                         null
                                     ? applicant.hr_status.toString() == status
                                     : applicant.s2HrStatus == status)
                                 .toList();
+                            // final index = status.id;
                             /*  final applicants = data  //TODO:: befor modification...
                                 .where((applicant) =>
                                     applicant.hr_status.toString() == status)
@@ -483,24 +589,31 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
                             if (subStatuses.isEmpty) {
                               // No second tab bar needed if subStatuses is empty
-                              return ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: applicants.length,
-                                itemBuilder: (context, index) {
-                                  final applicant = applicants[index];
-                                  return listViewItem_new(
-                                      context,
-                                      applicant,
-                                      true,
-                                      statuses,
-                                      profilemodel.id != null
-                                          ? profilemodel.id!.toInt()
-                                          : 467,
-                                      "${profilemodel.first_name} ${profilemodel.last_name}",
-                                      index,
-                                      dropDownItemList!);
+                              return SmartRefresher(
+                                controller: _refreshControllers[
+                                    statuses.indexOf(status)],
+                                onRefresh: () async {
+                                  await _onRefresh(statuses.indexOf(status));
                                 },
+                                child: ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: applicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = applicants[index];
+                                    return listViewItem_new(
+                                        context,
+                                        applicant,
+                                        true,
+                                        statuses,
+                                        profilemodel.id != null
+                                            ? profilemodel.id!.toInt()
+                                            : 467,
+                                        "${profilemodel.first_name} ${profilemodel.last_name}",
+                                        index,
+                                        dropDownItemList!);
+                                  },
+                                ),
                               );
                             } else {
                               // Second tab bar needed for subStatuses
@@ -637,7 +750,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     List<DropDownItem>? finalDropDownItemforJoinNot = dropDownItemList!
         .where(
             (element) => element.priStatusId == 18 || element.priStatusId == 16)
-        .where((element) => element.statusId == item.hr_status_id)
+        .where((element) =>
+            element.statusId == item.hr_status_id || element.statusId == 13)
         .toList();
 
     List<DropDownItem>? finalDropDownItemforTrainingDrop =
@@ -747,7 +861,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   statusId: 4,
                                   hrStatusId: 12,
                                   sourceId: id,
-                                   dol: DateTime.now(),
+                                  dol: DateTime.now(),
                                   sourceName: sourceName);
                           Map<String, dynamic> jsonData =
                               changeStatusModel.toJson();
@@ -801,7 +915,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                 statusId: 4,
                                 hrStatusId: 12,
                                 sourceId: id,
-                                 dol: DateTime.now(),
+                                dol: DateTime.now(),
                                 sourceName: sourceName);
                         Map<String, dynamic> jsonData =
                             changeStatusModel.toJson();
@@ -2648,7 +2762,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                             statusId: 4,
                                             hrStatusId: 12,
                                             dol: DateTime.now(),
-                                            sourceId: id);
+                                            sourceId: id,
+                                            sourceName: sourceName);
                                     Map<String, dynamic> jsonData =
                                         changeStatusModel.toJson();
 
@@ -5440,9 +5555,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     );
   }
 
-  Widget customTab(
-    String title,
-  ) {
+  Widget customTab(String title, int count) {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
         decoration: BoxDecoration(
@@ -5450,10 +5563,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
             border: Border.all(color: Constants.borderColor, width: 1)),
         child: Row(
           children: [
-            Text(title),
+            Text(title, style: GoogleFonts.varela()),
             SizedBox(
-              width: 5.w,
+              width: 4.w,
             ),
+            Text("(${count.toString()})", style: GoogleFonts.varela())
           ],
         ));
   }

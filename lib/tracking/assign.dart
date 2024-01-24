@@ -122,7 +122,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                           : Row(
                               children: [
                                 Image.asset(
-                                  "assets/images/graduate.png",
+                                  "assets/images/education_d.png",
                                   height: 15.h,
                                 ),
                                 const SizedBox(
@@ -156,6 +156,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
             ],
           ),
           Container(
+            margin: EdgeInsets.only(top: 4.h),
             width: double.maxFinite,
             padding: const EdgeInsets.symmetric(
               vertical: 4,
@@ -185,8 +186,8 @@ class _AssignDataState extends ConsumerState<AssignData> {
                         Text(
                           widget.item.role_code != null &&
                                   widget.item.role_code != ""
-                              ? "${widget.item.process} - ${widget.item.role_code}"
-                              : "${widget.item.process} - ${widget.item.lead_level}",
+                              ? "${widget.item.process} || ${widget.item.role_code}"
+                              : "${widget.item.process} || ${widget.item.lead_level}",
                           style: GoogleFonts.varela(
                             color: Colors.black54,
                           ),
@@ -210,32 +211,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                   children: [
                     if (!note)
                       widget.item.notes != null && widget.item.notes != ""
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  note = true;
-                                  notes.text = widget.item.notes.toString();
-                                });
-                                noteFocusNote.requestFocus();
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.edit_outlined,
-                                      size: 15.h,
-                                    ),
-                                    Text("Edit Note",
-                                        style: GoogleFonts.varela(
-                                          color: Colors.black,
-                                          fontSize: 12.sp,
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            )
+                          ? const SizedBox()
                           : GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -249,13 +225,18 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                 child: Row(
                                   children: [
                                     Icon(
+                                      Icons.post_add_outlined,
+                                      size: 20.h,
+                                      color: Colors.grey,
+                                    )
+                                    /* Icon(
                                       Icons.add,
                                       size: 15.h,
                                     ),
                                     Text("Add Note",
                                         style: GoogleFonts.varela(
                                             fontSize: 12.sp,
-                                            color: Colors.black)),
+                                            color: Colors.black)), */
                                   ],
                                 ),
                               ),
@@ -267,12 +248,14 @@ class _AssignDataState extends ConsumerState<AssignData> {
                 // position: PopupMenuPosition.over,
                 onSelected: (value) async {
                   int checkRemark = 0;
+                  String? dialoguehint;
                   for (var app in widget.dropDownItemList) {
                     if (app.statusDd.toString() == value &&
                         app.statusDdId != null) {
                       if (app.status_dd_remark == 1) {
                         setState(() {
                           checkRemark = 1;
+                          dialoguehint = app.statusDd.toString();
                         });
                       }
                       break;
@@ -285,9 +268,11 @@ class _AssignDataState extends ConsumerState<AssignData> {
                           context: context,
                           builder: (context) {
                             return CustomDialogueForRemark(
+                                hint: dialoguehint!,
                                 callBack: (p0) {
                                   remark.text = p0;
                                 },
+                                item: widget.item,
                                 controller: remark,
                                 onTab: () {
                                   setState(() async {
@@ -528,7 +513,45 @@ class _AssignDataState extends ConsumerState<AssignData> {
                     ))
                 : widget.item.notes != null && widget.item.notes != ""
                     ? SizedBox(
-                        child: Text("Note : ${widget.item.notes.toString()}"))
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                                "Note : ${widget.item.notes.toString()}",
+                                style: GoogleFonts.varela(fontSize: 12.sp)),
+                          ),
+                          if (!note)
+                            widget.item.notes != null && widget.item.notes != ""
+                                ? GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        note = true;
+                                        notes.text =
+                                            widget.item.notes.toString();
+                                      });
+                                      noteFocusNote.requestFocus();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/pencil.png",
+                                            height: 18.h,
+                                          )
+                                          /* Icon(
+                                            Icons.edit_outlined,
+                                            size: 18.h,
+                                          ), */
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox()
+                        ],
+                      ))
                     : const SizedBox(),
           ),
           note

@@ -232,6 +232,7 @@ class Education with Searchable {
   final int? fieldofstudy_id;
   final String? icon;
   final String? subvalue;
+  final String? ficon;
 
   Education({
     this.id,
@@ -249,6 +250,7 @@ class Education with Searchable {
     this.university_id,
     this.icon,
     this.subvalue,
+    this.ficon,
   });
 
   factory Education.fromMap(Map<String, dynamic> map) {
@@ -268,6 +270,7 @@ class Education with Searchable {
       university_id: map['universityId'] as int?,
       icon: map['icon'] as String?,
       subvalue: map['subvalue'] as String?,
+      ficon: map['ficon'] as String?,
     );
   }
 
@@ -296,6 +299,7 @@ class Education with Searchable {
       'university_id': university_id,
       'icon': icon,
       'subvalue': subvalue,
+      'ficon': ficon,
     };
   }
 
@@ -315,7 +319,8 @@ class Education with Searchable {
         fieldofstudy_id: json['fieldId'],
         university_id: json['universityId'],
         icon: json['icon'],
-        subvalue: json['subvalue']);
+        subvalue: json['subvalue'],
+        ficon: json['ficon']);
   }
 
   Map<String, dynamic> toJson() {
@@ -334,13 +339,14 @@ class Education with Searchable {
       'degree_id': degree_id,
       'university_id': university_id,
       'icon': icon,
-      'subvalue': subvalue
+      'subvalue': subvalue,
+      'ficon': ficon,
     };
   }
 
   @override
   String toString() {
-    return 'Education(id: $id, level: $level, board: $board, university: $university, fieldOfStudy: $fieldOfStudy, firstYear: $firstYear, marksheet: $marksheet, passingYear: $passingYear, userId: $userId, degree_spc: $degree_spc,icon:$icon,subvalue:$subvalue)';
+    return 'Education(id: $id, level: $level, board: $board, university: $university, fieldOfStudy: $fieldOfStudy, firstYear: $firstYear, marksheet: $marksheet, passingYear: $passingYear, userId: $userId, degree_spc: $degree_spc,icon:$icon,subvalue:$subvalue,ficon:$ficon)';
   }
 
   @override

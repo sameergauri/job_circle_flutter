@@ -13,7 +13,12 @@ class Constants {
   static const hintColor = Color(0xfffa8a3a3);
   static const blue = Color(0xfff5783e2);
   static const maintheme_light_color = Color(0xffb3caca);
+  static const green = Color(0xff00e785);
+  static const lightBlue = Color(0xff4fc3ff);
+  static const yellow = Color(0xffffe96e);
+  static const lightyellow = Color(0xfffff6da);
   static final lightdull = Colors.grey.shade300;
+  static const navyblue = Color(0xff00308f);
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

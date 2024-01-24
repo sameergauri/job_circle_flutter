@@ -1,6 +1,8 @@
 // ignore_for_file: use_super_parameters, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/refer_now.dart';
 
@@ -151,7 +153,7 @@ class CustomTabBar extends StatelessWidget {
                 0,
               ),
               decoration: BoxDecoration(
-                color: Constants.borderColor,
+                color: Constants.lightBlue,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -171,8 +173,9 @@ class CustomTabBar extends StatelessWidget {
         child: Center(
           child: Text(
             tabs[index],
-            style: TextStyle(
-              color: isSelected ? Colors.grey.shade500 : Colors.grey.shade400,
+            style: GoogleFonts.varela(
+              fontSize: 16.sp,
+              color: isSelected ? Constants.lightBlue : Colors.grey.shade400,
               fontWeight: FontWeight.bold,
             ),
           ),
