@@ -578,7 +578,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 MaterialPageRoute(
                                     builder: (context) => BankingDetals(
                                           name:
-                                              "${data.firstName} ${data.lastName}",
+                                              "${data.firstName} ${data.middleName} ${data.lastName}",
                                           profilePic:
                                               data.profilePic.toString(),
                                           gender: data.gender.toString(),

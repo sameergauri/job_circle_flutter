@@ -93,19 +93,26 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                     onRefresh: _onRefresh,
                     child: buildFilteredListView(fetchData)));
           }, error: (error, stackTrace) {
-            return const Center(
-              child: Text(
-                  "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
+            return const Scaffold(
+              body: Center(
+                child: Text(
+                    "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
+              ),
             );
           }, loading: () {
-            return const Center(
-                child: CircularProgressIndicator(
-              color: Constants.themeBgColor,
-              strokeWidth: 1,
-            ));
+            return const Scaffold(
+              body: Center(
+                  child: CircularProgressIndicator(
+                color: Constants.themeBgColor,
+                strokeWidth: 1,
+              )),
+            );
           })
-        : const Center(
-            child: Text("No Data to display"),
+        : Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Image.asset("assets/images/nodata.jpg"),
+            ),
           );
   }
 

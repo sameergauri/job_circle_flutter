@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/models/bank_dropDown_model.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../models/job_title_model.dart';
@@ -1432,6 +1433,223 @@ class _customCompanyforExperienceState
             ),
           );
         }, */
+      ),
+    );
+  }
+}
+
+//
+//
+//
+//
+//
+// TODO:: To fetch all bank for dropdown...
+
+//
+//
+//
+// /
+//
+class customTextFieldForBank extends StatefulWidget {
+  TextEditingController controller;
+  BuildContext contextIn;
+  final void Function(String) getid;
+  final void Function(String) getvalue;
+  // final void Function()? onJobTitle;
+
+  // final Function(FocusNode) onFocusNodeRequested;
+
+  customTextFieldForBank({
+    super.key,
+    required this.controller,
+    required this.contextIn,
+    required this.getid,
+    required this.getvalue,
+    // required this.onFocusNodeRequested
+  });
+
+  @override
+  _customTextFieldForBankState createState() => _customTextFieldForBankState();
+}
+
+class _customTextFieldForBankState extends State<customTextFieldForBank> {
+  List<dynamic>? suggestion;
+
+  List<BankDropDownModel> suggestions = [];
+
+  late TextEditingController? controller = widget.controller;
+
+  Future<List<BankDropDownModel>> getSuggestions(String pattern) async {
+    // 2 min wait
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/company/v1/allBank?pageNumber=1&pageSize=100'
+        //'http://${GlobalConstants.API_Host_one}/company/v1/search?keyword=$pattern'
+        ));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<BankDropDownModel> suggestions = [];
+      Set<String> uniqueNames = {};
+
+      List<dynamic> content = data['resultData']['content'];
+
+      for (var entry in content) {
+        String name = entry['name'].toString();
+        String code = entry['short_code'].toString();
+        if ((name.toLowerCase().contains(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name)) ||
+            (code.toLowerCase().contains(pattern.toLowerCase()) &&
+                !uniqueNames.contains(code))) {
+          uniqueNames.add(name);
+          BankDropDownModel jobTitle = BankDropDownModel.fromJson(entry);
+          suggestions.add(jobTitle);
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    //  widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
+    super.dispose();
+  }
+
+  late final Function(String) onIDSelected;
+  int suggestionIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height / 25.h,
+      margin: const EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TypeAheadFormField<dynamic>(
+        enabled: false,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return "This Text field Cant be empty";
+          }
+          return null;
+        },
+        suggestionsBoxDecoration: SuggestionsBoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          elevation: 4.0,
+        ),
+        textFieldConfiguration: TextFieldConfiguration(
+          cursorColor: Constants.themeBgColor,
+          // enabled: !suggestionSelected,
+          // focusNode: widget.focusNode,
+          onTapOutside: (event) {
+            setState(() {
+              controller!.clear();
+            });
+          },
+          onChanged: (value) {
+            setState(() {});
+          },
+
+          textCapitalization: TextCapitalization.sentences,
+          controller: controller,
+          style:
+              GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Constants.borderColor,
+              prefixIcon: const Icon(Icons.account_balance_outlined),
+              prefixIconColor: Constants.themeBgColor,
+              contentPadding:
+                  const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+              counterText: '',
+              labelText: "Bank Name",
+              labelStyle: const TextStyle(
+                color: Constants.themeBgColor,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: const BorderSide(color: Color(0xffff0eceb)),
+              ),
+              focusColor: const Color(0xffff0eceb),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: const BorderSide(
+                  color: Constants.themeBgColor,
+                ),
+              ),
+              hintText: "Bank of India",
+              hintStyle: GoogleFonts.sourceSansPro(
+                  color: Constants.hintColor, fontSize: 15.sp)),
+        ),
+        suggestionsCallback: (pattern) async {
+          if (pattern.isNotEmpty) {
+            suggestion = await getSuggestions(pattern);
+
+            return suggestion!;
+          } else {
+            return <dynamic>[];
+          }
+        },
+        itemBuilder: (context, suggestion) {
+          final isOdd = suggestionIndex % 2 == 0;
+          final backgroundColor = isOdd ? Colors.grey.shade200 : Colors.white;
+
+          // Increment the suggestion index counter
+          suggestionIndex++;
+          return Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              title: Text(
+                suggestion.name.toString(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        },
+        onSuggestionSelected: (suggestion) {
+          setState(() {
+            controller!.text = suggestion.name.toString() ?? "";
+            widget.getid(suggestion.id.toString());
+            widget.getvalue(suggestion.name.toString());
+          });
+        },
+        noItemsFoundBuilder: (value) {
+          final message = suggestion != null && suggestion!.isEmpty
+              ? 'No result found. Search again.'
+              : 'Searching';
+
+          return InkWell(
+            onTap: () {},
+            child: Container(
+                margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
+                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: GoogleFonts.varela(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                )),
+          );
+        },
       ),
     );
   }

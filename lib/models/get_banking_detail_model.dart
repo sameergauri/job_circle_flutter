@@ -1,4 +1,57 @@
 class GetBankingModel {
+  final String bankName;
+  final String lastName;
+  final String panCard;
+  final int? isVerify;
+  final String? panCardCopy;
+  final String accountType;
+  final String firstName;
+  final String? cancelCheque;
+  final int accountNumber;
+  final int mobile;
+  final int id;
+  final int uid;
+  final String ifscCode;
+  final String icon;
+
+  GetBankingModel({
+    required this.bankName,
+    required this.lastName,
+    required this.panCard,
+    required this.isVerify,
+    required this.panCardCopy,
+    required this.accountType,
+    required this.firstName,
+    required this.cancelCheque,
+    required this.accountNumber,
+    required this.mobile,
+    required this.id,
+    required this.uid,
+    required this.ifscCode,
+    required this.icon,
+  });
+
+  factory GetBankingModel.fromJson(Map<String, dynamic> json) {
+    return GetBankingModel(
+      bankName: json['bank_name'],
+      lastName: json['last_name'],
+      panCard: json['pan_card'],
+      isVerify: json['is_verify'],
+      panCardCopy: json['pan_card_copy'],
+      accountType: json['account_type'],
+      firstName: json['first_name'],
+      cancelCheque: json['cancle_cheque'],
+      accountNumber: json['account_number'],
+      mobile: json['mobile'],
+      id: json['id'],
+      uid: json['uid'],
+      ifscCode: json['ifsc_code'],
+      icon: json['icon'],
+    );
+  }
+}
+
+/* class GetBankingModel {
   final String resultKey;
   final ResultData resultData;
   final String code;
@@ -66,8 +119,7 @@ class ResultData {
       panCard: json['pan_card'],
     );
   }
-}
-
+} */
 
 /* class GetBankingModel {
   final String? ifscCode;
@@ -117,33 +169,54 @@ class ResultData {
 } */
 
 class PostBankingModel {
-  final String? accountNumber;
-  final String? accountType;
+  final int? id;
+  final int? uid;
   final String? bankName;
+  final String? branch;
+  final String? accountType;
+  final int? accountNumber;
   final String? ifscCode;
   final String? cancelCheque;
+  final int? isVerify;
   final String? panCard;
   final String? panCardCopy;
+  final String? createdOn;
+  final String? updatedDate;
+  final int? bankId;
 
   PostBankingModel({
-    this.accountNumber,
-    this.accountType,
+    this.id,
+    this.uid,
     this.bankName,
+    this.branch,
+    this.accountType,
+    this.accountNumber,
     this.ifscCode,
     this.cancelCheque,
+    this.isVerify,
     this.panCard,
     this.panCardCopy,
+    this.createdOn,
+    this.updatedDate,
+    this.bankId,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'accountNumber': accountNumber,
-      'accountType': accountType,
+      'id': id,
+      'uid': uid,
       'bankName': bankName,
+      'branch': branch,
+      'accountType': accountType,
+      'accountNumber': accountNumber,
       'ifscCode': ifscCode,
-      'cancleCheque': cancelCheque,
+      'cancelCheque': cancelCheque,
+      'isVerify': isVerify,
       'panCard': panCard,
       'panCardCopy': panCardCopy,
+      'createdOn': createdOn,
+      'updatedDate': updatedDate,
+      'bankId': bankId,
     };
   }
 }

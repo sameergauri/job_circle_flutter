@@ -106,7 +106,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
   static Future<List<Applicant>> fetchApplicantsByUserId() async {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    var number = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_mobile.name);
     final url = Uri.parse(
+        // 'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobsByUser?userId=$userid&mobile=$number&page=1&size=100'
         'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=100');
     try {
       final response = await http.get(url);

@@ -5,11 +5,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/role_model.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
@@ -263,15 +261,13 @@ class JobPostApiService {
   }
 
   static Future<void> AddBankingDetails(
-    Map<String, dynamic> jsonData,
-  ) async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    String apiUrl =
-        'http://${GlobalConstants.API_Host_one}/users/v1/$userid/addBankingDetail';
+      Map<String, dynamic> jsonData, BuildContext context) async {
+    /*  var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name); */
+    String apiUrl = 'http://${GlobalConstants.API_Host_one}/bankDetails/v1';
 
     try {
-      var response = await http.put(Uri.parse(apiUrl),
+      var response = await http.post(Uri.parse(apiUrl),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(jsonData));
 
@@ -279,6 +275,25 @@ class JobPostApiService {
         // Successful request
         // print(response.body);
         print('Banking Details posted successfully');
+        showDialog(
+          context: context,
+          builder: (context) {
+            return CustomDialog(
+                fetchDataFromApi: () {},
+                onClose: () {
+                  Navigator.pop(context);
+                  /*  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(),
+                      ),
+                      (route) => false); */
+                },
+                isFisrt: false,
+                title: "Bank Detail Added",
+                subtitle: "Wait till the verification done");
+          },
+        );
       } else {
         // Request failed
         print('Error: ${response.statusCode}');
@@ -612,6 +627,7 @@ class JobPostApiService {
       );
 
       if (response.statusCode == 200) {
+        print(response.body);
         print("User Type Updated successfully");
       } else {
         print("PUT request failed with status code ${response.statusCode}");
