@@ -952,6 +952,9 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                                   : experience
                                       ? 1
                                       : null,
+                              attrStatus: widget.item.is_ref == 1
+                                  ? "Under Clause"
+                                  : null,
                               isJoinSubmitted: widget.item.company_workstatus == 1 &&
                                       widget.item.empCID == 1 &&
                                       (widget.item.is_ctc_pay == 1 ||
@@ -1035,8 +1038,8 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                                                         "Submitted"
                                                 ? 1
                                                 : widget.item.company_salary == 1 &&
-                                                        widget.item.empCID ==
-                                                            1 &&
+                                                        widget.itzem.empCID ==
+                                                            1 &&zzzzzzzzzzzzzz
                                                         salary
                                                             .text.isNotEmpty &&
                                                         empid.text.isNotEmpty &&

@@ -3,7 +3,10 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/cooling.dart';
 
 import '../models/application_status_model.dart';
 import '../models/get_user_for_add_Resume.dart';
@@ -97,6 +100,36 @@ class ApplicationAPI {
       throw Exception('Failed to load data');
     }
   } */
+  static Future<CoolingForApply> getStatusAndDolOfUser({
+    required int companyId,
+    required String process,
+    required String role,
+    required String now,
+  }) async {
+    final userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+
+    final number = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_mobile.name);
+
+    final Uri apiUrl = Uri.parse(
+        'http://${GlobalConstants.API_Host}/leads/v1/getStatusAndDolOfUser?uid=$userid&mobile=$number&companyId=$companyId&process=$process&role=$role&now=$now');
+
+    try {
+      final response = await http.get(apiUrl);
+
+      if (response.statusCode == 200) {
+        final jsonBody = json.decode(response.body);
+        final Map<String, dynamic> data = jsonBody['resultData'];
+        return CoolingForApply.fromJson(data);
+      } else {
+        throw Exception(
+            'Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error: $error');
+    }
+  }
 }
 
 
@@ -123,5 +156,6 @@ class ApplicationAPI {
       throw Exception('Failed to load data');
     }
   }
+  
 }
  */

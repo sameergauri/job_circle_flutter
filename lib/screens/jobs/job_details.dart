@@ -10,9 +10,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
@@ -21,6 +23,7 @@ import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,7 +93,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
         // print(jobs);
       });
     } else {
-      print("Somthing Wrong");
+      print("No fav job found!");
       // handle error
     }
   }
@@ -354,8 +357,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
           jobDetailsModel.icon != ""
               ? Container(
                   margin: const EdgeInsets.only(right: 10),
-                  height: 80.h,
-                  width: 80.w,
+                  height: 30.h,
+                  width: 60.w,
                   child: CustomImage(
                     imageUrl:
                         "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.icon}",
@@ -654,28 +657,88 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   visible: (usertype == EUserType.jobSeeker.value ||
                           usertype == EUserType.businessPartner.value) &&
                       (!widget.Applies && !widget.referal) &&
-                      (widget.is_freelancer == 1 || widget.is_freelancer == 0),
+                      (widget.is_freelancer == 1 ||
+                          widget.is_freelancer == 0 ||
+                          widget.is_freelancer == null),
                   child: InkWell(
                     onTap: () async {
-                      if (profilemodel.cv_link != null) {
-                        await JobPostApiService.postJobApply(
-                            context: context,
-                            jobId: int.parse(jobDetailsModel.id.toString()),
-                            // userId: int.parse(profilemodel.id.toString()
-                            userId: await Utils.getPreferencesValue(
-                                null, ESharedPreferences.user_id.name));
-                        ref.refresh(fetchAllApplyProvider);
-                        ref.refresh(fetchAllTalentPool);
-                      } else {
-                        if (jobDetailsModel.id != null) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddCvtoApply(
-                                        jobId: jobDetailsModel.id!.toInt(),
-                                      )));
+//
+//
+//
+//
+//
+                      CoolingForApply apiresult =
+                          await ApplicationAPI.getStatusAndDolOfUser(
+                              companyId: jobDetailsModel.compnayid!.toInt(),
+                              process: jobDetailsModel.process.toString(),
+                              role: jobDetailsModel.rolename.toString(),
+                              now: jobDetailsModel.naturofwork.toString());
+
+//
+//
+//
+//
+////
+                      //
+                      DateTime dolDate =
+                          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                              .parse(apiresult.dol);
+                      DateTime currentDate = DateTime.now();
+                      int differenceInDays =
+                          currentDate.difference(dolDate).inDays;
+                      final diff = differenceInDays > 30;
+                      //
+                      //
+                      //
+                      if (apiresult.status != "Interview bay" &&
+                          apiresult.status != "Assign" &&
+                          apiresult.status != "Application" &&
+                          diff) {
+                        if (profilemodel.cv_link != null) {
+                          await JobPostApiService.postJobApply(
+                              context: context,
+                              jobId: int.parse(jobDetailsModel.id.toString()),
+                              // userId: int.parse(profilemodel.id.toString()
+                              userId: await Utils.getPreferencesValue(
+                                  null, ESharedPreferences.user_id.name));
+                          ref.refresh(fetchAllApplyProvider);
+                          ref.refresh(fetchAllTalentPool);
+                        } else {
+                          if (jobDetailsModel.id != null) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AddCvtoApply(
+                                          jobId: jobDetailsModel.id!.toInt(),
+                                        )));
+                          }
                         }
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomDialog(
+                                fetchDataFromApi: () {},
+                                onClose: () {
+                                  Navigator.pop(context);
+                                  /*  Navigator.pushAndRemoveUntil(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder: (context) => HomeScreen(),
+                                                                              ),
+                                                                              (route) => false); */
+                                },
+                                isFisrt: false,
+                                title: "Error",
+                                subtitle:
+                                    "Your CV is already in process in the PipeLine");
+                          },
+                        );
                       }
+
+                      //
+                      //
+                      //
                     },
                     /*  onTap: () async { //TODO: old code before 15/12/2023
                       if (profilemodel.id != null) {

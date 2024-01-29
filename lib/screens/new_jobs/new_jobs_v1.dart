@@ -9,8 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/payment_status.dart';
@@ -24,6 +27,7 @@ import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
 import 'package:job_circle/screens/new_jobs/location_selector.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -49,6 +53,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
   final bool isbannerVisible = false;
   final String bannerUrl = '';
   int? cutTab;
+
+  final ScrollController _scrollController = ScrollController();
 
   void closeDrawer() {
     Scaffold.of(context).closeDrawer();
@@ -676,6 +682,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
             bottom: PreferredSize(
               preferredSize: Size(0, 30.h),
               child: SingleChildScrollView(
+                controller: _scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
@@ -983,7 +990,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   fontWeight: FontWeight.bold,
                                   // height: 12.0,
                                   textBaseline: TextBaseline.alphabetic,
-                                  decoration: TextDecoration.underline,
+                                  // decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),
@@ -1146,6 +1153,63 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     .where((job) => job.active == 1)
                                     .toList(); // Convert the filtered iterable to a list
 
+                                //TODO:: Sorting jobs as per sponsored_position
+                                //
+                                //
+                                //
+                                //
+                                filteredJobs.sort((job1, job2) {
+                                  int compareSponsoredPosition() {
+                                    if (job1.sponsored_position == null &&
+                                        job2.sponsored_position == null) {
+                                      return 0; // Both are null, treat them as equal
+                                    } else if (job1.sponsored_position !=
+                                            null &&
+                                        job2.sponsored_position == null) {
+                                      return -1; // job1 comes first
+                                    } else if (job1.sponsored_position ==
+                                            null &&
+                                        job2.sponsored_position != null) {
+                                      return 1; // job2 comes first
+                                    } else {
+                                      // Sort by sponsored_position from 1 to 5
+                                      return job1.sponsored_position!
+                                          .compareTo(job2.sponsored_position!);
+                                    }
+                                  }
+
+                                  // Compare sponsored_position first
+                                  int sponsoredPositionComparison =
+                                      compareSponsoredPosition();
+                                  if (sponsoredPositionComparison != 0) {
+                                    return sponsoredPositionComparison;
+                                  }
+
+                                  // If sponsored_position is the same or both are null, sort by job ID in descending order
+                                  return (job2.id ?? 0).compareTo(job1.id ?? 0);
+                                });
+
+                                //
+                                //
+                                //
+                                //
+                                //TODO:: Sorting jobs as per sponsored_position
+
+                                /*   filteredJobs.sort((job1, job2) {
+                                  // Sponsored jobs come first
+                                  if (job1.sponsored_position == 1 &&
+                                      job2.sponsored_position != 1) {
+                                    return -1; // job1 comes first
+                                  } else if (job1.sponsored_position != 1 &&
+                                      job2.sponsored_position == 1) {
+                                    return 1; // job2 comes first
+                                  }
+
+                                  // Sort by other criteria if sponsored position is the same or both are not sponsored
+                                  // In this case, sort by job ID in ascending order (assuming job ID is unique)
+                                  return (job2.id ?? 0).compareTo(job1.id ?? 0);
+                                }); */
+
                                 var item = filteredJobs[index];
                                 /*  var item = jobsController
                                     .filteredJobs[index]; */
@@ -1172,7 +1236,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                           referal: false,
                                           is_freelancer: data.usertype == 3
                                               ? 3
-                                              : data.is_freelancer!.toInt(),
+                                              : data.is_freelancer?.toInt() ??
+                                                  0,
                                         );
                                       },
                                     ));
@@ -1736,47 +1801,94 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                           ],
                                                         ),
                                                         if (data.is_freelancer ==
-                                                            1)
+                                                                null ||
+                                                            data.is_freelancer ==
+                                                                1)
                                                           const Spacer(),
                                                         Visibility(
-                                                          visible: data
-                                                                      .usertype ==
+                                                          visible: data.usertype ==
                                                                   1 &&
                                                               (data.is_freelancer ==
                                                                       0 ||
                                                                   data.is_freelancer ==
-                                                                      1),
+                                                                      1 ||
+                                                                  data.is_freelancer ==
+                                                                      null),
                                                           child: InkWell(
                                                             onTap: () async {
-                                                              if (data.cvLink !=
-                                                                  null) {
-                                                                await JobPostApiService.postJobApply(
-                                                                    jobId: item
-                                                                        .id!
-                                                                        .toInt(),
-                                                                    userId: await Utils.getPreferencesValue(
-                                                                        null,
-                                                                        ESharedPreferences
-                                                                            .user_id
-                                                                            .name),
-                                                                    context:
-                                                                        context);
-                                                                ref.refresh(
-                                                                    fetchAllApplyProvider);
-                                                                ref.refresh(
-                                                                    fetchAllTalentPool);
-                                                              } else {
-                                                                if (item.id !=
+                                                              CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
+                                                                  companyId: item
+                                                                      .companyId!
+                                                                      .toInt(),
+                                                                  process: item
+                                                                      .process
+                                                                      .toString(),
+                                                                  role: item
+                                                                      .roleName
+                                                                      .toString(),
+                                                                  now: item
+                                                                      .natureOfWork
+                                                                      .toString());
+                                                              //
+                                                              //
+                                                              //
+                                                              DateTime dolDate =
+                                                                  DateFormat(
+                                                                          "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                                                                      .parse(apiresult
+                                                                          .dol);
+                                                              DateTime
+                                                                  currentDate =
+                                                                  DateTime
+                                                                      .now();
+                                                              int differenceInDays =
+                                                                  currentDate
+                                                                      .difference(
+                                                                          dolDate)
+                                                                      .inDays;
+                                                              final diff =
+                                                                  differenceInDays >
+                                                                      30;
+                                                              //
+                                                              //
+                                                              //
+                                                              if (apiresult.status != "Interview bay" &&
+                                                                  apiresult
+                                                                          .status !=
+                                                                      "Assign" &&
+                                                                  apiresult
+                                                                          .status !=
+                                                                      "Application" &&
+                                                                  diff) {
+                                                                if (data.cvLink !=
                                                                     null) {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) => AddCvtoApply(
-                                                                                jobId: item.id!.toInt(),
-                                                                              )));
-                                                                }
+                                                                  await JobPostApiService.postJobApply(
+                                                                      jobId: item
+                                                                          .id!
+                                                                          .toInt(),
+                                                                      userId: await Utils.getPreferencesValue(
+                                                                          null,
+                                                                          ESharedPreferences
+                                                                              .user_id
+                                                                              .name),
+                                                                      context:
+                                                                          context);
+                                                                  ref.refresh(
+                                                                      fetchAllApplyProvider);
+                                                                  ref.refresh(
+                                                                      fetchAllTalentPool);
+                                                                } else {
+                                                                  if (item.id !=
+                                                                      null) {
+                                                                    Navigator.push(
+                                                                        context,
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) => AddCvtoApply(
+                                                                                  jobId: item.id!.toInt(),
+                                                                                )));
+                                                                  }
 
-                                                                /*  showDialog(
+                                                                  /*  showDialog(
                                                                   context: context,
                                                                   builder: (context) {
                                                                     return CustomDialog(
@@ -1800,6 +1912,35 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             "Resume is not uploaded in your profile");
                                                                   },
                                                                 ); */
+                                                                }
+                                                              } else {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return CustomDialog(
+                                                                        fetchDataFromApi:
+                                                                            () {},
+                                                                        onClose:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          /*  Navigator.pushAndRemoveUntil(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder: (context) => HomeScreen(),
+                                                                              ),
+                                                                              (route) => false); */
+                                                                        },
+                                                                        isFisrt:
+                                                                            false,
+                                                                        title:
+                                                                            "Error",
+                                                                        subtitle:
+                                                                            "Your CV is already in process in the PipeLine");
+                                                                  },
+                                                                );
                                                               }
                                                             },
                                                             child: Container(
@@ -1933,8 +2074,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             ),
                                                           ),
                                                         ),
-                                                        if (data.is_freelancer ==
-                                                                2 ||
+                                                        if (data.is_freelancer !=
+                                                                    null &&
+                                                                data.is_freelancer ==
+                                                                    2 ||
                                                             data.is_freelancer ==
                                                                 0)
                                                           const Spacer(),

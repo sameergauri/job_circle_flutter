@@ -40,6 +40,7 @@ class JobsModel {
   late final int? is_campus;
   late final int? is_support_staff;
   final List<dynamic>? interviewrounds;
+  final int? sponsored_position;
 
   JobsModel({
     this.id,
@@ -79,6 +80,7 @@ class JobsModel {
     this.is_campus,
     this.is_support_staff,
     this.interviewrounds,
+    this.sponsored_position,
   });
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
@@ -121,7 +123,10 @@ class JobsModel {
         is_support_staff: json['is_support_staff'],
         interviewrounds: _parseSkills(
           json['interviewrounds'],
-        ));
+         
+        ),
+         sponsored_position: json['sponsored_position'],
+        );
   }
   Map<String, dynamic> toJson() {
     return {
@@ -162,6 +167,7 @@ class JobsModel {
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
       'interviewrounds': interviewrounds,
+      'sponsored_position': sponsored_position
     };
   }
 
@@ -204,6 +210,7 @@ class JobsModel {
       is_support_staff: map['is_support_staff'],
       is_campus: map['is_campus'],
       interviewrounds: map['interviewrounds'],
+      sponsored_position: map['sponsored_position'],
     );
   }
 
@@ -245,7 +252,8 @@ class JobsModel {
       'payment_clause': payment_clause,
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
-      'interviewrounds': interviewrounds
+      'interviewrounds': interviewrounds,
+      'sponsored_position':sponsored_position
     };
   }
 

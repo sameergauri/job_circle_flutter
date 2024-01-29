@@ -5,9 +5,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/role_model.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
@@ -637,4 +639,8 @@ class JobPostApiService {
       print("An error occurred: $e");
     }
   }
+
+
+ 
+
 }

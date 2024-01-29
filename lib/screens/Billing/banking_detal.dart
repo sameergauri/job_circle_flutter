@@ -170,7 +170,127 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                       ),
                       bottomNavigationBar: GestureDetector(
                         onTap: () {
-                          addBankingDetails();
+                          if (_ac_no.text == null || _ac_no.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify Account Number",
+                                    error: true));
+                          } else if (_ac_no.text != _ac_no_verify.text) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Account Number mismatch",
+                                    error: true));
+                          } else if (_bank_name == null ||
+                              _bank_name.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify Bank Name", error: true));
+                          } else if (_ifsc_code == null ||
+                              _ifsc_code.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify IFSC Code", error: true));
+                          } else if (_pan_no == null || _pan_no.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify Pan Card Number",
+                                    error: true));
+                          } else if (panCardCopy == null || panCardCopy == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify The copy of Pan Card",
+                                    error: true));
+                          } else if (cancelCheckCopy == null ||
+                              cancelCheckCopy == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                CustomSnackbarfinal(
+                                    title: "Specify The copy of Cancel Check",
+                                    error: true));
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                    title: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text("Bank Details Confirmation"),
+                                      ],
+                                    ),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text("Bank Name :- ${_bank_name.text}"),
+                                        Text(
+                                            "Account Type :- ${saving ? "Saving" : "Current"}"),
+                                        Text("A/C Number :- ${_ac_no.text}"),
+                                        Text(
+                                            "A/C Holder Name :- ${widget.name}"),
+                                        Text(
+                                            "IFSC code :- ${_ifsc_code.text.toUpperCase()}"),
+                                        Text(
+                                            "Pan Card :- ${_pan_no.text.toUpperCase()}"),
+                                        SizedBox(
+                                          height: 10.h,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () async {
+                                                
+                                                await addBankingDetails();
+                                               
+                                              },
+                                              child: Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 2.h,
+                                                    horizontal: 8.w),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 6.h,
+                                                    horizontal: 12.w),
+                                                decoration: BoxDecoration(
+                                                    color: Constants.blue,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r)),
+                                                child: const Text("Confirm"),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 2.h,
+                                                    horizontal: 8.w),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 6.h,
+                                                    horizontal: 12.w),
+                                                decoration: BoxDecoration(
+                                                    color: Constants.lightdull,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.r)),
+                                                child: const Text("Edit"),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ));
+                              },
+                            );
+                          }
+
+                          //
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(
@@ -436,11 +556,11 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
             cancelCheque: cancelCheckCopy);
         Map<String, dynamic> jsonData = postBankingModel.toJson();
 
-        await JobPostApiService.AddBankingDetails(jsonData,context);
+        await JobPostApiService.AddBankingDetails(jsonData, context);
 
         // Assuming you have access to the ref and fetchBankingDetails in your widget tree
         ref.refresh(fetchBankingDetails);
-
+        Navigator.pop(context);
         setState(() {});
       }
     } catch (e) {
@@ -484,6 +604,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 textfield_no: 1,
                 lock: false,
                 obsecText: false,
+                limit: 30,
                 icon: const Icon(Icons.person_2_outlined)),
             customTextFieldForBank(
               contextIn: context,
@@ -557,6 +678,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 textfield_no: 1,
                 lock: true,
                 obsecText: true,
+                limit: 16,
                 icon: const Icon(Icons.account_balance_wallet_outlined)),
             customTextfield(
                 context: context,
@@ -566,7 +688,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 focusNode: _ac_verify_focus_node,
                 textfield_no: 2,
                 lock: true,
-                obsecText: true,
+                obsecText: false,
+                limit: 16,
                 icon: const Icon(Icons.account_balance_wallet_outlined)),
             customTextfield(
                 context: context,
@@ -577,6 +700,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 textfield_no: 4,
                 lock: true,
                 obsecText: false,
+                limit: 12,
                 icon: const Icon(Icons.adjust_sharp)),
             customTextfield(
                 context: context,
@@ -587,6 +711,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 textfield_no: 5,
                 lock: true,
                 obsecText: false,
+                limit: 10,
                 icon: const Icon(Icons.credit_card)),
             Container(
               child: Column(
@@ -720,11 +845,13 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
       required int textfield_no,
       required bool lock,
       required bool obsecText,
+      required int limit,
       required Icon icon}) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       height: MediaQuery.of(context).size.height / 24.h,
       child: TextField(
+        maxLength: limit,
         enableInteractiveSelection: !obsecText,
         obscureText: obsecText,
         enabled: lock,
