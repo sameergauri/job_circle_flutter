@@ -280,6 +280,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       data: (data) {
         setState(() {
           if (data.is_freelancer == 2) {
+            //TODO:: 1 = JobSeeker, 2 = Freelancer, 0 = Both.
             freelancer = true;
             jobSeeker = false;
             both = false;
@@ -620,7 +621,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     title: const Text('LogOut'),
                     onTap: () {
                       prefs.clear();
-
+                      jobsController.searchController.clear();
                       Future.delayed(const Duration(seconds: 0), () async {
                         await AppUtils.clearSession();
 
@@ -1745,412 +1746,388 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                       width: double.maxFinite,
                                                       height: 0.5.h,
                                                     ),
-                                                    Row(
+                                                    Column(
                                                       children: [
-                                                        Column(
-                                                          children: [
-                                                            data.usertype ==
-                                                                        3 &&
-                                                                    data.id ==
-                                                                        item.spoc
-                                                                ? InkWell(
-                                                                    onTap: () {
-                                                                      Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) => const MatchingJobs()));
-                                                                    },
-                                                                    child:
-                                                                        Container(
-                                                                      margin: const EdgeInsets
-                                                                          .only(
-                                                                          right:
-                                                                              10),
-                                                                      padding: EdgeInsets.symmetric(
-                                                                          vertical: 4
-                                                                              .h,
-                                                                          horizontal:
-                                                                              8.w),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        border: Border.all(
-                                                                            color:
-                                                                                Constants.subtitleclr),
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8),
-                                                                      ),
+                                                        if (data.usertype == 3)
+                                                          Row(
+                                                            children: [
+                                                              data.usertype ==
+                                                                          3 &&
+                                                                      data.id ==
+                                                                          item.spoc
+                                                                  ? InkWell(
+                                                                      onTap:
+                                                                          () {
+                                                                        Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(builder: (context) => const MatchingJobs()));
+                                                                      },
                                                                       child:
-                                                                          Row(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          Text(
-                                                                            "Matching CV",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: Constants.subtitleclr,
-                                                                              fontWeight: FontWeight.bold,
-                                                                              fontSize: 15.h,
+                                                                          Container(
+                                                                        margin: const EdgeInsets
+                                                                            .only(
+                                                                            right:
+                                                                                10),
+                                                                        padding: EdgeInsets.symmetric(
+                                                                            vertical:
+                                                                                4.h,
+                                                                            horizontal: 8.w),
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          border:
+                                                                              Border.all(color: Constants.subtitleclr),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(8),
+                                                                        ),
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            Text(
+                                                                              "Matching CV",
+                                                                              style: TextStyle(
+                                                                                color: Constants.subtitleclr,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 15.h,
+                                                                              ),
                                                                             ),
-                                                                          ),
-                                                                        ],
+                                                                          ],
+                                                                        ),
                                                                       ),
-                                                                    ),
-                                                                  )
-                                                                : const SizedBox()
-                                                          ],
-                                                        ),
-                                                        if (data.is_freelancer ==
-                                                                null ||
-                                                            data.is_freelancer ==
-                                                                1)
-                                                          const Spacer(),
-                                                        Visibility(
-                                                          visible: data.usertype ==
-                                                                  1 &&
-                                                              (data.is_freelancer ==
-                                                                      0 ||
-                                                                  data.is_freelancer ==
-                                                                      1 ||
-                                                                  data.is_freelancer ==
-                                                                      null),
-                                                          child: InkWell(
-                                                            onTap: () async {
-                                                              CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
-                                                                  companyId: item
-                                                                      .companyId!
-                                                                      .toInt(),
-                                                                  process: item
-                                                                      .process
-                                                                      .toString(),
-                                                                  role: item
-                                                                      .roleName
-                                                                      .toString(),
-                                                                  now: item
-                                                                      .natureOfWork
-                                                                      .toString());
-                                                              //
-                                                              //
-                                                              //
-                                                              DateTime dolDate =
-                                                                  DateFormat(
-                                                                          "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                                                                      .parse(apiresult
-                                                                          .dol);
-                                                              DateTime
-                                                                  currentDate =
-                                                                  DateTime
-                                                                      .now();
-                                                              int differenceInDays =
-                                                                  currentDate
-                                                                      .difference(
-                                                                          dolDate)
-                                                                      .inDays;
-                                                              final diff =
-                                                                  differenceInDays >
-                                                                      30;
-                                                              //
-                                                              //
-                                                              //
-                                                              if (apiresult.status != "Interview bay" &&
-                                                                  apiresult
-                                                                          .status !=
-                                                                      "Assign" &&
-                                                                  apiresult
-                                                                          .status !=
-                                                                      "Application" &&
-                                                                  diff) {
-                                                                if (data.cvLink !=
-                                                                    null) {
-                                                                  await JobPostApiService.postJobApply(
-                                                                      jobId: item
-                                                                          .id!
-                                                                          .toInt(),
-                                                                      userId: await Utils.getPreferencesValue(
-                                                                          null,
-                                                                          ESharedPreferences
-                                                                              .user_id
-                                                                              .name),
-                                                                      context:
-                                                                          context);
-                                                                  ref.refresh(
-                                                                      fetchAllApplyProvider);
-                                                                  ref.refresh(
-                                                                      fetchAllTalentPool);
-                                                                } else {
-                                                                  if (item.id !=
-                                                                      null) {
+                                                                    )
+                                                                  : const SizedBox(),
+                                                              const Spacer(),
+                                                              Visibility(
+                                                                child: InkWell(
+                                                                  onTap: () {
                                                                     Navigator.push(
                                                                         context,
                                                                         MaterialPageRoute(
-                                                                            builder: (context) => AddCvtoApply(
+                                                                            builder: (context) => AddResume(
+                                                                                  interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                  company_name: item.companyName.toString(),
+                                                                                  role: item.roleName.toString(),
+                                                                                  process: item.process.toString(),
+                                                                                  nature_of_work: item.natureOfWork.toString(),
+                                                                                  company_id: item.companyId!.toInt(),
                                                                                   jobId: item.id!.toInt(),
+                                                                                  sourceId: data.id != null ? data.id!.toInt() : 0,
+                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                  isRefer: false,
+                                                                                  spocId: item.spoc!.toInt(),
+                                                                                  is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                  is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                  userNumber: data.mobile!.toInt(),
+                                                                                  useAlternateNumber: data.alternate_no!.toInt(),
                                                                                 )));
-                                                                  }
-
-                                                                  /*  showDialog(
-                                                                  context: context,
-                                                                  builder: (context) {
-                                                                    return CustomDialog(
-                                                                        fetchDataFromApi:
-                                                                            () {},
-                                                                        onClose: () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          /*  Navigator.pushAndRemoveUntil(
-                                                                              context,
-                                                                              MaterialPageRoute(
-                                                                                builder: (context) => HomeScreen(),
-                                                                              ),
-                                                                              (route) => false); */
-                                                                        },
-                                                                        isFisrt:
-                                                                            false,
-                                                                        title:
-                                                                            "Error",
-                                                                        subtitle:
-                                                                            "Resume is not uploaded in your profile");
                                                                   },
-                                                                ); */
-                                                                }
-                                                              } else {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                        fetchDataFromApi:
-                                                                            () {},
-                                                                        onClose:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          /*  Navigator.pushAndRemoveUntil(
-                                                                              context,
-                                                                              MaterialPageRoute(
-                                                                                builder: (context) => HomeScreen(),
-                                                                              ),
-                                                                              (route) => false); */
-                                                                        },
-                                                                        isFisrt:
-                                                                            false,
-                                                                        title:
-                                                                            "Error",
-                                                                        subtitle:
-                                                                            "Your CV is already in process in the PipeLine");
-                                                                  },
-                                                                );
-                                                              }
-                                                            },
-                                                            child: Container(
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                left: 10,
+                                                                  child:
+                                                                      Container(
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                        right:
+                                                                            10),
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        vertical:
+                                                                            4.h,
+                                                                        horizontal:
+                                                                            8.w),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      border: Border.all(
+                                                                          color:
+                                                                              Constants.themeBgColor),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                    ),
+                                                                    child: Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        Icon(
+                                                                          Icons
+                                                                              .add,
+                                                                          color:
+                                                                              Constants.themeBgColor,
+                                                                          size:
+                                                                              15.h,
+                                                                        ),
+                                                                        Text(
+                                                                          "Resume",
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Constants.themeBgColor,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                15.h,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
                                                               ),
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
+                                                            ],
+                                                          ),
+                                                        Row(
+                                                          children: [
+                                                            if (data.usertype ==
+                                                                    1 &&
+                                                                (data.is_freelancer ==
+                                                                        null ||
+                                                                    data.is_freelancer ==
+                                                                        1))
+                                                              const Spacer(),
+                                                            Visibility(
+                                                              visible: data.usertype ==
+                                                                      1 &&
+                                                                  (data.is_freelancer ==
+                                                                          0 ||
+                                                                      data.is_freelancer ==
+                                                                          1 ||
+                                                                      data.is_freelancer ==
+                                                                          null),
+                                                              child: InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
+                                                                      companyId: item
+                                                                          .companyId!
+                                                                          .toInt(),
+                                                                      process: item
+                                                                          .process
+                                                                          .toString(),
+                                                                      role: item
+                                                                          .roleName
+                                                                          .toString(),
+                                                                      now: item
+                                                                          .natureOfWork
+                                                                          .toString());
+                                                                  //
+                                                                  //
+                                                                  //
+                                                                  DateTime
+                                                                      dolDate =
+                                                                      DateFormat(
+                                                                              "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                                                                          .parse(
+                                                                              apiresult.dol);
+                                                                  DateTime
+                                                                      currentDate =
+                                                                      DateTime
+                                                                          .now();
+                                                                  int differenceInDays =
+                                                                      currentDate
+                                                                          .difference(
+                                                                              dolDate)
+                                                                          .inDays;
+                                                                  final diff =
+                                                                      differenceInDays >
+                                                                          30;
+                                                                  //
+                                                                  //
+                                                                  //
+                                                                  if (apiresult.status != "Interview bay" &&
+                                                                      apiresult
+                                                                              .status !=
+                                                                          "Assign" &&
+                                                                      apiresult
+                                                                              .status !=
+                                                                          "Application" &&
+                                                                      diff) {
+                                                                    if (data.cvLink !=
+                                                                        null) {
+                                                                      await JobPostApiService.postJobApply(
+                                                                          jobId: item
+                                                                              .id!
+                                                                              .toInt(),
+                                                                          userId: await Utils.getPreferencesValue(
+                                                                              null,
+                                                                              ESharedPreferences
+                                                                                  .user_id.name),
+                                                                          context:
+                                                                              context);
+                                                                      ref.refresh(
+                                                                          fetchAllApplyProvider);
+                                                                      ref.refresh(
+                                                                          fetchAllTalentPool);
+                                                                    } else {
+                                                                      if (item.id !=
+                                                                          null) {
+                                                                        Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => AddCvtoApply(
+                                                                                      jobId: item.id!.toInt(),
+                                                                                    )));
+                                                                      }
+
+                                                                      /*  showDialog(
+                                                                      context: context,
+                                                                      builder: (context) {
+                                                                        return CustomDialog(
+                                                                            fetchDataFromApi:
+                                                                                () {},
+                                                                            onClose: () {
+                                                                              Navigator.pop(
+                                                                                  context);
+                                                                              /*  Navigator.pushAndRemoveUntil(
+                                                                                  context,
+                                                                                  MaterialPageRoute(
+                                                                                    builder: (context) => HomeScreen(),
+                                                                                  ),
+                                                                                  (route) => false); */
+                                                                            },
+                                                                            isFisrt:
+                                                                                false,
+                                                                            title:
+                                                                                "Error",
+                                                                            subtitle:
+                                                                                "Resume is not uploaded in your profile");
+                                                                      },
+                                                                    ); */
+                                                                    }
+                                                                  } else {
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (context) {
+                                                                        return CustomDialog(
+                                                                            fetchDataFromApi:
+                                                                                () {},
+                                                                            onClose:
+                                                                                () {
+                                                                              Navigator.pop(context);
+                                                                              /*  Navigator.pushAndRemoveUntil(
+                                                                                  context,
+                                                                                  MaterialPageRoute(
+                                                                                    builder: (context) => HomeScreen(),
+                                                                                  ),
+                                                                                  (route) => false); */
+                                                                            },
+                                                                            isFisrt:
+                                                                                false,
+                                                                            title:
+                                                                                "Error",
+                                                                            subtitle:
+                                                                                "Your CV is already in process in the PipeLine");
+                                                                      },
+                                                                    );
+                                                                  }
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  margin:
+                                                                      const EdgeInsets
+                                                                          .only(
+                                                                    left: 10,
+                                                                  ),
+                                                                  padding: EdgeInsets.symmetric(
                                                                       vertical:
                                                                           4.h,
                                                                       horizontal:
                                                                           16.w),
-                                                              decoration: BoxDecoration(
-                                                                  border: Border.all(
-                                                                      color: Constants
-                                                                          .navyblue),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
+                                                                  decoration: BoxDecoration(
+                                                                      border: Border.all(
+                                                                          color: Constants
+                                                                              .navyblue),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
                                                                               8)),
-                                                              child: Text(
-                                                                "Apply",
-                                                                style: GoogleFonts.varela(
-                                                                    color: Constants
-                                                                        .navyblue,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        if (data.usertype == 3)
-                                                          const Spacer(),
-                                                        Visibility(
-                                                          visible:
-                                                              data.usertype ==
-                                                                  3,
-                                                          child: InkWell(
-                                                            onTap: () {
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          AddResume(
-                                                                            interviewRounds:
-                                                                                item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                            company_name:
-                                                                                item.companyName.toString(),
-                                                                            role:
-                                                                                item.roleName.toString(),
-                                                                            process:
-                                                                                item.process.toString(),
-                                                                            nature_of_work:
-                                                                                item.natureOfWork.toString(),
-                                                                            company_id:
-                                                                                item.companyId!.toInt(),
-                                                                            jobId:
-                                                                                item.id!.toInt(),
-                                                                            sourceId: data.id != null
-                                                                                ? data.id!.toInt()
-                                                                                : 0,
-                                                                            sourceName:
-                                                                                "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                            isRefer:
-                                                                                false,
-                                                                            spocId:
-                                                                                item.spoc!.toInt(),
-                                                                            is90: item.payment_clause == "90 Days"
-                                                                                ? true
-                                                                                : false,
-                                                                            is30: item.payment_clause == "30 Days"
-                                                                                ? true
-                                                                                : false,
-                                                                            userNumber:
-                                                                                data.mobile!.toInt(),
-                                                                            useAlternateNumber:
-                                                                                data.alternate_no!.toInt(),
-                                                                          )));
-                                                            },
-                                                            child: Container(
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      right:
-                                                                          10),
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      vertical:
-                                                                          4.h,
-                                                                      horizontal:
-                                                                          8.w),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                border: Border.all(
-                                                                    color: Constants
-                                                                        .themeBgColor),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              child: Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons.add,
-                                                                    color: Constants
-                                                                        .themeBgColor,
-                                                                    size: 15.h,
+                                                                  child: Text(
+                                                                    "Apply",
+                                                                    style: GoogleFonts.varela(
+                                                                        color: Constants
+                                                                            .navyblue,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
                                                                   ),
-                                                                  Text(
-                                                                    "Resume",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Constants
-                                                                          .themeBgColor,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontSize:
-                                                                          15.h,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        if (data.is_freelancer !=
-                                                                    null &&
-                                                                data.is_freelancer ==
-                                                                    2 ||
-                                                            data.is_freelancer ==
-                                                                0)
-                                                          const Spacer(),
-                                                        if (item.payoutType !=
-                                                            null)
-                                                          Visibility(
-                                                            visible: data.usertype ==
-                                                                    1 &&
-                                                                (data.is_freelancer ==
-                                                                        2 ||
-                                                                    data.is_freelancer ==
-                                                                        0 ||
-                                                                    data.is_freelancer ==
-                                                                        null),
-                                                            child: InkWell(
-                                                              onTap: () {
-                                                                var profilemodel;
-                                                                Navigator.push(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder: (context) =>
-                                                                            AddResume(
-                                                                              company_name: item.companyName.toString(),
-                                                                              role: item.roleName.toString(),
-                                                                              process: item.process.toString(),
-                                                                              nature_of_work: item.natureOfWork.toString(),
-                                                                              company_id: item.companyId!.toInt(),
-                                                                              //anyId!.toInt(),
-                                                                              jobId: item.id!.toInt(),
-                                                                              sourceId: data.id!.toInt(),
-                                                                              sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                              isRefer: true,
-                                                                              spocId: item.spoc!.toInt(),
-                                                                              is90: item.payment_clause == "90 Days" ? true : false,
-                                                                              is30: item.payment_clause == "30 Days" ? true : false,
-                                                                              userNumber: data.mobile!.toInt(),
-                                                                              useAlternateNumber: data.alternate_no?.toInt() ?? 0,
-                                                                              interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                            )));
-                                                              },
-                                                              child: Container(
-                                                                margin:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                  left: 10,
                                                                 ),
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
+                                                              ),
+                                                            ),
+                                                            if (data.usertype ==
+                                                                    1 &&
+                                                                (data.is_freelancer !=
+                                                                            null &&
+                                                                        data.is_freelancer ==
+                                                                            2 ||
+                                                                    data.is_freelancer ==
+                                                                        0))
+                                                              const Spacer(),
+                                                            if (item.payoutType !=
+                                                                null)
+                                                              Visibility(
+                                                                visible: data.usertype ==
+                                                                        1 &&
+                                                                    (data.is_freelancer ==
+                                                                            2 ||
+                                                                        data.is_freelancer ==
+                                                                            0 ||
+                                                                        data.is_freelancer ==
+                                                                            null),
+                                                                child: InkWell(
+                                                                  onTap: () {
+                                                                    var profilemodel;
+                                                                    Navigator.push(
+                                                                        context,
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) => AddResume(
+                                                                                  company_name: item.companyName.toString(),
+                                                                                  role: item.roleName.toString(),
+                                                                                  process: item.process.toString(),
+                                                                                  nature_of_work: item.natureOfWork.toString(),
+                                                                                  company_id: item.companyId!.toInt(),
+                                                                                  //anyId!.toInt(),
+                                                                                  jobId: item.id!.toInt(),
+                                                                                  sourceId: data.id!.toInt(),
+                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                  isRefer: true,
+                                                                                  spocId: item.spoc!.toInt(),
+                                                                                  is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                  is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                  userNumber: data.mobile!.toInt(),
+                                                                                  useAlternateNumber: data.alternate_no?.toInt() ?? 0,
+                                                                                  interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                )));
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    margin:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                      left: 10,
+                                                                    ),
+                                                                    padding: EdgeInsets.symmetric(
                                                                         vertical:
                                                                             4.h,
                                                                         horizontal:
                                                                             10.w),
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                        border: Border
-                                                                            .all(
-                                                                          color:
-                                                                              Colors.blue,
-                                                                        ),
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8)),
-                                                                child: Text(
-                                                                  "Refer Now",
-                                                                  style: GoogleFonts.varela(
-                                                                      color: Colors
-                                                                          .blue,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Colors.blue,
+                                                                            ),
+                                                                            borderRadius: BorderRadius.circular(8)),
+                                                                    child: Text(
+                                                                      "Refer Now",
+                                                                      style: GoogleFonts.varela(
+                                                                          color: Colors
+                                                                              .blue,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ),
+                                                          ],
+                                                        ),
                                                       ],
                                                     ),
                                                   ],

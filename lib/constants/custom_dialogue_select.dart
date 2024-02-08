@@ -471,15 +471,16 @@ class CustomDialogueForRemark extends StatefulWidget {
   final Function(String) callBack;
   final Applicant item;
   final String hint;
+  final Function onCancel;
 
-  const CustomDialogueForRemark({
-    super.key,
-    required this.onTab,
-    required this.controller,
-    required this.item,
-    required this.callBack,
-    required this.hint,
-  });
+  const CustomDialogueForRemark(
+      {super.key,
+      required this.onTab,
+      required this.controller,
+      required this.item,
+      required this.callBack,
+      required this.hint,
+      required this.onCancel});
 
   @override
   State<CustomDialogueForRemark> createState() =>
@@ -583,6 +584,7 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
               children: [
                 GestureDetector(
                   onTap: () {
+                    widget.onCancel();
                     Navigator.pop(context);
                     remarkController.clear();
                   },

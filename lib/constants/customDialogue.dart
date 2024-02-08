@@ -592,28 +592,34 @@ class _CustomDialogState extends State<CustomDialog> {
                             ),
                           ],
                         )
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                      : Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Add your custom dialog content here
-                            Text(
-                              widget.title,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10.0),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Add your custom dialog content here
+                                Text(
+                                  widget.title,
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10.0),
 
-                            Text(
-                              widget.subtitle,
-                              style: const TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 20.0),
-                            ElevatedButton(
-                              onPressed: widget.onClose,
-                              child: const Text('Close'),
+                                Text(
+                                  widget.subtitle,
+                                  style: const TextStyle(fontSize: 16.0),
+                                ),
+                                const SizedBox(height: 20.0),
+                                ElevatedButton(
+                                  onPressed: widget.onClose,
+                                  child: const Text('Close'),
+                                ),
+                              ],
                             ),
                           ],
                         ),

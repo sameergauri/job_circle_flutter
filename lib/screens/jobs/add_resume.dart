@@ -1031,7 +1031,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                     child: AbsorbPointer(
                       absorbing:
                           true, // Prevent interaction with elements behind
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
                 )

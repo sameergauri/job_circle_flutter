@@ -107,7 +107,7 @@ class ApplicationRouter {
    /*  ERoute.jobsdetail.name: (context) => FutureBuilder(  //TODO:: Navigate to jobDetails page...
         future: lazyJobDetails,
         builder: (snapshot, context) {
-          return jobsdetails.JobDetails();
+          return jobsdetails.JobDetails(Applies: false, referal: false, is_freelancer: 0,);
         }), */
     ERoute.businesspartner.name: (context) => FutureBuilder(
         future: lazyBusinessPartner,

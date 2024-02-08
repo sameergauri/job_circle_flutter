@@ -378,6 +378,7 @@ class _AddExperienceState extends State<AddExperience> {
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        companyController.clear();
       },
       child: Scaffold(
           backgroundColor: Colors.white,
@@ -955,7 +956,7 @@ class _AddExperienceState extends State<AddExperience> {
                                         }
                                         return null;
                                       },
-
+    
                                       onFieldSubmitted: (value) {
                                         companyController.text.isNotEmpty
                                             ? setState(() {
@@ -1068,7 +1069,7 @@ class _AddExperienceState extends State<AddExperience> {
                                   yes = true;
                                   no = false;
                                 });
-                                 if (someid == null) {
+                                if (someid == null) {
                                   await JobPostApiService.AddCompanytoMom(
                                       companyController.text.toString());
                                 }
@@ -1127,7 +1128,7 @@ class _AddExperienceState extends State<AddExperience> {
                     height: 10,
                   ),
 
-//TODO: All the details view only when any one option from current company is selected.
+                  //TODO: All the details view only when any one option from current company is selected.
 
                   if (jobTitleController.text.isNotEmpty &&
                       companyController.text.isNotEmpty)
@@ -1217,7 +1218,7 @@ class _AddExperienceState extends State<AddExperience> {
                                             }
                                             return null;
                                           },
-
+    
                                           // focusNode: titleFocus,
                                           // maxLength: 3,
                                           onFieldSubmitted: (value) {
@@ -2071,7 +2072,7 @@ class _AddExperienceState extends State<AddExperience> {
                                                 currentDate: joiningDateValue,
                                                 firstDate: DateTime.now(),
                                               );
-
+    
                                               if (pickedDate != null) {
                                                 String formattedDate =
                                                     DateFormat('dd-MM-yyyy')
@@ -2247,7 +2248,7 @@ class _AddExperienceState extends State<AddExperience> {
                                                       lastWorkingDateValue,
                                                   firstDate: DateTime.now(),
                                                 );
-
+    
                                                 if (pickedDate != null) {
                                                   String formattedDate =
                                                       DateFormat('dd-MM-yyyy')

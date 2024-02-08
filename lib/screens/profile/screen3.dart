@@ -626,148 +626,153 @@ class _Screen3State extends ConsumerState<Screen3> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
+    return GestureDetector(
+      onTap: () {
+        companyController.clear();
+      },
+      child: Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Constants.themeBgColor),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              widget.prevPageModel == null
-                  ? Text(
-                      "Add Experience",
-                      style: GoogleFonts.varela(
-                        fontSize: 18.sp,
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  : Text(
-                      "Edit Experience",
-                      style: GoogleFonts.varela(
-                        fontSize: 18.sp,
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-              Text(
-                "Adding role and companies you've worked with, help employers to understand your professional background.",
-                softWrap: true,
-                maxLines: 2,
-                style: GoogleFonts.varela(
-                    color: Constants.hintColor,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.normal),
-              ),
-              //const Spacer(),
-            ],
-          ),
-        ),
-        extendBodyBehindAppBar: true,
-        bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
-                    companyController.text.isNotEmpty) &&
-                (yes || no)
-            ? InkWell(
-                onTap: () async {
-                  if (jobTitleController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Job title is not optional", true));
-                  } else if (companyController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Company is not optional", true));
-                  } else if (!yes && !no) {
-                    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                        "Select any one option from yes and no", true));
-                  } else if (!isPartTime &&
-                      !isFullTime &&
-                      !isContract &&
-                      !isIntern) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Specify your Employment type.", true));
-                  } else if (companyLocationController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Provide your work city", true));
-                  } else if (!isOnsite && !isHybrid && !isWfh) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Specify your Work Mode / Type", true));
-                  } else if (fetchApiskill.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                        "Add skills that match your Job Responsibilities.",
-                        true));
-                  } else if (joiningDataController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                        "Enter your employment Start date", true));
-                  } else if (no && lastWorkingController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Enter your employment End date", true));
-                  } else if (currentSalaryController.text.isNotEmpty &&
-                      (!isMonthly && !isYearly) &&
-                      yes) {
-                    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                        "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
-                        true));
-                  } else if (currentSalaryController.text.isEmpty &&
-                      yes &&
-                      (isMonthly || isYearly)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        customSnackbar("Specify your current salary.", true));
-                  } else if (apportunities &&
-                      (!imd && !day15 && !day30 && !day60 && !day90)) {
-                    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                      "Specify your availability to join.",
-                      true,
-                    ));
-                  } else {
-                    var payload = {
-                      "stage": "experience",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "experience": 1,
-                      }
-                    };
-                    await saveExperience(payload);
-                    save();
-                  }
-                },
-                child: isLoading == false
-                    ? Container(
-                        margin: const EdgeInsets.only(
-                            top: 10, left: 20, right: 20, bottom: 10),
-                        decoration: BoxDecoration(
-                            color: Constants.themeBgColor,
-                            borderRadius: BorderRadius.circular(8.r)),
-                        width: double.maxFinite,
-                        padding: const EdgeInsets.only(bottom: 8, top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Save",
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ],
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Constants.themeBgColor),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.prevPageModel == null
+                    ? Text(
+                        "Add Experience",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       )
-                    : const SizedBox(),
-              )
-            : const SizedBox(),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(children: [
-              isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : _education(),
-            ]),
+                    : Text(
+                        "Edit Experience",
+                        style: GoogleFonts.varela(
+                          fontSize: 18.sp,
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                Text(
+                  "Adding role and companies you've worked with, help employers to understand your professional background.",
+                  softWrap: true,
+                  maxLines: 2,
+                  style: GoogleFonts.varela(
+                      color: Constants.hintColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.normal),
+                ),
+                //const Spacer(),
+              ],
+            ),
           ),
-        ));
+          extendBodyBehindAppBar: true,
+          bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
+                      companyController.text.isNotEmpty) &&
+                  (yes || no)
+              ? InkWell(
+                  onTap: () async {
+                    if (jobTitleController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Job title is not optional", true));
+                    } else if (companyController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Company is not optional", true));
+                    } else if (!yes && !no) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Select any one option from yes and no", true));
+                    } else if (!isPartTime &&
+                        !isFullTime &&
+                        !isContract &&
+                        !isIntern) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Specify your Employment type.", true));
+                    } else if (companyLocationController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Provide your work city", true));
+                    } else if (!isOnsite && !isHybrid && !isWfh) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Specify your Work Mode / Type", true));
+                    } else if (fetchApiskill.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Add skills that match your Job Responsibilities.",
+                          true));
+                    } else if (joiningDataController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Enter your employment Start date", true));
+                    } else if (no && lastWorkingController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Enter your employment End date", true));
+                    } else if (currentSalaryController.text.isNotEmpty &&
+                        (!isMonthly && !isYearly) &&
+                        yes) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                          "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
+                          true));
+                    } else if (currentSalaryController.text.isEmpty &&
+                        yes &&
+                        (isMonthly || isYearly)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackbar("Specify your current salary.", true));
+                    } else if (apportunities &&
+                        (!imd && !day15 && !day30 && !day60 && !day90)) {
+                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
+                        "Specify your availability to join.",
+                        true,
+                      ));
+                    } else {
+                      var payload = {
+                        "stage": "experience",
+                        "data": {
+                          "id": await Utils.getPreferencesValue(
+                              null, ESharedPreferences.user_id.name),
+                          "experience": 1,
+                        }
+                      };
+                      await saveExperience(payload);
+                      save();
+                    }
+                  },
+                  child: isLoading == false
+                      ? Container(
+                          margin: const EdgeInsets.only(
+                              top: 10, left: 20, right: 20, bottom: 10),
+                          decoration: BoxDecoration(
+                              color: Constants.themeBgColor,
+                              borderRadius: BorderRadius.circular(8.r)),
+                          width: double.maxFinite,
+                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Save",
+                                style: GoogleFonts.varela(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox(),
+                )
+              : const SizedBox(),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(children: [
+                isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _education(),
+              ]),
+            ),
+          )),
+    );
   }
 
   SnackBar customSnackbar(String title, bool error) {
@@ -1106,15 +1111,20 @@ class _Screen3State extends ConsumerState<Screen3> {
                             apportunities = false;
                           });
                         },
-                        child: Text(
-                          "Clear All",
-                          style: GoogleFonts.varela(color: Colors.red),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            "Clear All",
+                            style: GoogleFonts.varela(color: Colors.red),
+                          ),
                         ),
                       ),
                     ],
                   ),
 
-                if (isEdit2 &&
+                if (jobTitleController.text.isNotEmpty &&
+                    companyController.text.isNotEmpty &&
+                    isEdit2 &&
                     isEdit1 &&
                     widget.isEdit != null &&
                     !widget.isEdit!)

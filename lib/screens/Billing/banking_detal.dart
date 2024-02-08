@@ -112,6 +112,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
 
   String cancelCheckCopy = "", panCardCopy = "";
 
+  String checkBankName = "";
+
   String bankid = "";
   //TODO:: variable Decl End....
 
@@ -153,162 +155,189 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                           return customCardToViewBank(bankData);
                         },
                       ))
-                  : Scaffold(
-                      backgroundColor: Colors.white,
-                      appBar: AppBar(
-                        centerTitle: true,
-                        automaticallyImplyLeading: false,
-                        title: Text(
-                          "Banking Details",
-                          style: GoogleFonts.varela(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                      ),
-                      bottomNavigationBar: GestureDetector(
-                        onTap: () {
-                          if (_ac_no.text == null || _ac_no.text == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify Account Number",
-                                    error: true));
-                          } else if (_ac_no.text != _ac_no_verify.text) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Account Number mismatch",
-                                    error: true));
-                          } else if (_bank_name == null ||
-                              _bank_name.text == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify Bank Name", error: true));
-                          } else if (_ifsc_code == null ||
-                              _ifsc_code.text == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify IFSC Code", error: true));
-                          } else if (_pan_no == null || _pan_no.text == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify Pan Card Number",
-                                    error: true));
-                          } else if (panCardCopy == null || panCardCopy == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify The copy of Pan Card",
-                                    error: true));
-                          } else if (cancelCheckCopy == null ||
-                              cancelCheckCopy == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbarfinal(
-                                    title: "Specify The copy of Cancel Check",
-                                    error: true));
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                    title: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text("Bank Details Confirmation"),
-                                      ],
-                                    ),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text("Bank Name :- ${_bank_name.text}"),
-                                        Text(
-                                            "Account Type :- ${saving ? "Saving" : "Current"}"),
-                                        Text("A/C Number :- ${_ac_no.text}"),
-                                        Text(
-                                            "A/C Holder Name :- ${widget.name}"),
-                                        Text(
-                                            "IFSC code :- ${_ifsc_code.text.toUpperCase()}"),
-                                        Text(
-                                            "Pan Card :- ${_pan_no.text.toUpperCase()}"),
-                                        SizedBox(
-                                          height: 10.h,
-                                        ),
-                                        Row(
+                  : GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          hideText = true;
+                        });
+                      },
+                      child: Scaffold(
+                          backgroundColor: Colors.white,
+                          appBar: AppBar(
+                            centerTitle: true,
+                            automaticallyImplyLeading: false,
+                            title: Text(
+                              "Banking Details",
+                              style: GoogleFonts.varela(
+                                  color: Colors.black,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            elevation: 0,
+                            backgroundColor: Colors.white,
+                          ),
+                          bottomNavigationBar: GestureDetector(
+                            onTap: () {
+                              if (_ac_no.text == null || _ac_no.text == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Specify Account Number",
+                                        error: true));
+                              } else if (_ac_no.text != _ac_no_verify.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Account Number mismatch",
+                                        error: true));
+                              } else if (_bank_name.text.isEmpty ||
+                                  _bank_name.text == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Specify Bank Name.",
+                                        error: true));
+                              } else if (checkBankName == null ||
+                                  checkBankName == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title:
+                                            "Select Bank Name from given list.",
+                                        error: true));
+                              } else if (_ifsc_code == null ||
+                                  _ifsc_code.text == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Specify IFSC Code",
+                                        error: true));
+                              } else if (_pan_no == null ||
+                                  _pan_no.text == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Specify Pan Card Number",
+                                        error: true));
+                              } else if (panCardCopy == null ||
+                                  panCardCopy == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Specify The copy of Pan Card",
+                                        error: true));
+                              } else if (cancelCheckCopy == null ||
+                                  cancelCheckCopy == "") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title:
+                                            "Specify The copy of Cancel Check",
+                                        error: true));
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                        title: const Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                              MainAxisAlignment.center,
                                           children: [
-                                            GestureDetector(
-                                              onTap: () async {
-                                                
-                                                await addBankingDetails();
-                                               
-                                              },
-                                              child: Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 2.h,
-                                                    horizontal: 8.w),
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 6.h,
-                                                    horizontal: 12.w),
-                                                decoration: BoxDecoration(
-                                                    color: Constants.blue,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r)),
-                                                child: const Text("Confirm"),
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 2.h,
-                                                    horizontal: 8.w),
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 6.h,
-                                                    horizontal: 12.w),
-                                                decoration: BoxDecoration(
-                                                    color: Constants.lightdull,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r)),
-                                                child: const Text("Edit"),
-                                              ),
-                                            ),
+                                            Text("Bank Details Confirmation"),
                                           ],
-                                        )
-                                      ],
-                                    ));
-                              },
-                            );
-                          }
+                                        ),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                "Bank Name :- ${_bank_name.text}"),
+                                            Text(
+                                                "Account Type :- ${saving ? "Saving" : "Current"}"),
+                                            Text(
+                                                "A/C Number :- ${_ac_no.text}"),
+                                            Text(
+                                                "A/C Holder Name :- ${widget.name}"),
+                                            Text(
+                                                "IFSC code :- ${_ifsc_code.text.toUpperCase()}"),
+                                            Text(
+                                                "Pan Card :- ${_pan_no.text.toUpperCase()}"),
+                                            SizedBox(
+                                              height: 10.h,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    await addBankingDetails();
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 2.h,
+                                                            horizontal: 8.w),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 6.h,
+                                                            horizontal: 12.w),
+                                                    decoration: BoxDecoration(
+                                                        color: Constants.blue,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.r)),
+                                                    child:
+                                                        const Text("Confirm"),
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    _bank_name.clear();
+                                                    checkBankName = "";
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 2.h,
+                                                            horizontal: 8.w),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 6.h,
+                                                            horizontal: 12.w),
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            Constants.lightdull,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.r)),
+                                                    child: const Text("Edit"),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ));
+                                  },
+                                );
+                              }
 
-                          //
-                        },
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8.h, horizontal: 16.w),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              color: Constants.themeBgColor),
-                          height: 40.sp,
-                          width: double.maxFinite,
-                          child: Center(
-                              child: Text("Review & Submit",
-                                  style: GoogleFonts.varela(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold))),
-                        ),
-                      ),
-                      //TODO:: Ui to send banking detail.......
-                      body: customCard(context));
+                              //
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 8.h, horizontal: 16.w),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  color: Constants.themeBgColor),
+                              height: 40.sp,
+                              width: double.maxFinite,
+                              child: Center(
+                                  child: Text("Review & Submit",
+                                      style: GoogleFonts.varela(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold))),
+                            ),
+                          ),
+                          //TODO:: Ui to send banking detail.......
+                          body: customCard(context)),
+                    );
             },
             error: (error, stackTrace) {
               return const Scaffold(
@@ -569,242 +598,273 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
     }
   }
 
-  Container customCard(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      child: SingleChildScrollView(
-        child: Column(
-          //crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-                radius: 50.r,
-                backgroundColor: Constants.borderColor,
-                backgroundImage:
-                    widget.profilePic != null && widget.profilePic != "null"
-                        ? Image.network(
-                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.profilePic}",
-                            fit: BoxFit.fill,
-                          ).image
-                        : Image.asset(
-                            widget.gender != "Male"
-                                ? "assets/images/leadfemal.png"
-                                : "assets/images/leadmale.png",
-                            //  height: 8.h,
-                            fit: BoxFit.fill,
-                          ).image),
-            SizedBox(
-              height: 20.h,
-            ),
-            customTextfield(
-                context: context,
-                controller: _ac_type,
-                label: widget.name,
-                hint: widget.name,
-                focusNode: _ac_focus_node,
-                textfield_no: 1,
-                lock: false,
-                obsecText: false,
-                limit: 30,
-                icon: const Icon(Icons.person_2_outlined)),
-            customTextFieldForBank(
-              contextIn: context,
-              controller: _bank_name,
-              getvalue: (p0) {
-                setState(() {
-                  _bank_name.text = p0;
-                });
-              },
-              getid: (p0) {
-                setState(() {
-                  bankid = p0;
-                });
-              },
-            ),
-            /*  customTextfield(
-                context: context,
+  Widget customCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          hideText = true;
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.w),
+        child: SingleChildScrollView(
+          child: Column(
+            //crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                  radius: 50.r,
+                  backgroundColor: Constants.borderColor,
+                  backgroundImage:
+                      widget.profilePic != null && widget.profilePic != "null"
+                          ? Image.network(
+                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.profilePic}",
+                              fit: BoxFit.fill,
+                            ).image
+                          : Image.asset(
+                              widget.gender != "Male"
+                                  ? "assets/images/leadfemal.png"
+                                  : "assets/images/leadmale.png",
+                              //  height: 8.h,
+                              fit: BoxFit.fill,
+                            ).image),
+              SizedBox(
+                height: 20.h,
+              ),
+              customTextfield(
+                  onTab: () {},
+                  context: context,
+                  controller: _ac_type,
+                  label: widget.name,
+                  hint: widget.name,
+                  focusNode: _ac_focus_node,
+                  textfield_no: 1,
+                  lock: false,
+                  obsecText: false,
+                  limit: 30,
+                  icon: const Icon(Icons.person_2_outlined)),
+              customTextFieldForBank(
+                contextIn: context,
                 controller: _bank_name,
-                label: "Bank Name",
-                hint: "Bank of India",
-                focusNode: _bank_focus_node,
-                textfield_no: 3,
-                lock: true,
-                obsecText: false,
-                icon: const Icon(Icons.account_balance_outlined)), */
-            Container(
-              margin: EdgeInsets.only(bottom: 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Account Type",
-                    style: GoogleFonts.varela(
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      customAccountType(
-                          context: context,
-                          isSelect: saving,
-                          title: "Saving",
-                          onTab: () {
-                            setState(() {
-                              saving = true;
-                              current = false;
-                            });
-                          }),
-                      customAccountType(
-                          context: context,
-                          isSelect: current,
-                          title: "Current",
-                          onTab: () {
-                            setState(() {
-                              saving = false;
-                              current = true;
-                            });
-                          }),
-                    ],
-                  ),
-                ],
+                getvalue: (p0) {
+                  setState(() {
+                    _bank_name.text = p0;
+                    checkBankName = p0;
+                  });
+                },
+                getid: (p0) {
+                  setState(() {
+                    bankid = p0;
+                  });
+                },
               ),
-            ),
-            customTextfield(
-                context: context,
-                controller: _ac_no,
-                label: "A/C Number",
-                hint: "021215******",
-                focusNode: _ac_focus_node,
-                textfield_no: 1,
-                lock: true,
-                obsecText: true,
-                limit: 16,
-                icon: const Icon(Icons.account_balance_wallet_outlined)),
-            customTextfield(
-                context: context,
-                controller: _ac_no_verify,
-                label: "Verify A/C Number",
-                hint: "021215******",
-                focusNode: _ac_verify_focus_node,
-                textfield_no: 2,
-                lock: true,
-                obsecText: false,
-                limit: 16,
-                icon: const Icon(Icons.account_balance_wallet_outlined)),
-            customTextfield(
-                context: context,
-                controller: _ifsc_code,
-                label: "IFCS code",
-                hint: "BK***15D",
-                focusNode: _ifsc_focus_node,
-                textfield_no: 4,
-                lock: true,
-                obsecText: false,
-                limit: 12,
-                icon: const Icon(Icons.adjust_sharp)),
-            customTextfield(
-                context: context,
-                controller: _pan_no,
-                label: "Pan Card Number",
-                hint: "MG1**32D4",
-                focusNode: _pan_focus_node,
-                textfield_no: 5,
-                lock: true,
-                obsecText: false,
-                limit: 10,
-                icon: const Icon(Icons.credit_card)),
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Upload Document",
-                    style: GoogleFonts.varela(
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: 4.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          panCardCopy == ""
-                              ? setState(() async {
-                                  panCardCopy = (await uploadFile(['pdf']))!;
-                                  setState(() {});
-                                })
-                              : showPdfUploadDialog(context, "pan");
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              border:
-                                  Border.all(color: Constants.themeBgColor)),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 12),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text("PanCard"),
-                              if (panCardCopy != "")
-                                SizedBox(
-                                  width: 4.sp,
-                                ),
-                              if (panCardCopy != "")
-                                Icon(
-                                  Icons.visibility_outlined,
-                                  size: 15.sp,
-                                )
-                            ],
+              /*  customTextfield(
+                  context: context,
+                  controller: _bank_name,
+                  label: "Bank Name",
+                  hint: "Bank of India",
+                  focusNode: _bank_focus_node,
+                  textfield_no: 3,
+                  lock: true,
+                  obsecText: false,
+                  icon: const Icon(Icons.account_balance_outlined)), */
+              Container(
+                margin: EdgeInsets.only(bottom: 10.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Account Type",
+                      style: GoogleFonts.varela(
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        customAccountType(
+                            context: context,
+                            isSelect: saving,
+                            title: "Saving",
+                            onTab: () {
+                              setState(() {
+                                saving = true;
+                                current = false;
+                                hideText = true;
+                              });
+                            }),
+                        customAccountType(
+                            context: context,
+                            isSelect: current,
+                            title: "Current",
+                            onTab: () {
+                              setState(() {
+                                saving = false;
+                                current = true;
+                                hideText = true;
+                              });
+                            }),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              customTextfield(
+                  onTab: () {
+                    setState(() {
+                      hideText = false;
+                    });
+                  },
+                  context: context,
+                  controller: _ac_no,
+                  label: "A/C Number",
+                  hint: "021215******",
+                  focusNode: _ac_focus_node,
+                  textfield_no: 1,
+                  lock: true,
+                  obsecText: true,
+                  limit: 16,
+                  icon: const Icon(Icons.account_balance_wallet_outlined)),
+              customTextfield(
+                  onTab: () {
+                    setState(() {
+                      hideText = true;
+                    });
+                  },
+                  context: context,
+                  controller: _ac_no_verify,
+                  label: "Verify A/C Number",
+                  hint: "021215******",
+                  focusNode: _ac_verify_focus_node,
+                  textfield_no: 2,
+                  lock: true,
+                  obsecText: false,
+                  limit: 16,
+                  icon: const Icon(Icons.account_balance_wallet_outlined)),
+              customTextfield(
+                  onTab: () {
+                    setState(() {
+                      hideText = true;
+                    });
+                  },
+                  context: context,
+                  controller: _ifsc_code,
+                  label: "IFCS code",
+                  hint: "BK***15D",
+                  focusNode: _ifsc_focus_node,
+                  textfield_no: 4,
+                  lock: true,
+                  obsecText: false,
+                  limit: 12,
+                  icon: const Icon(Icons.adjust_sharp)),
+              customTextfield(
+                  onTab: () {
+                    setState(() {
+                      hideText = true;
+                    });
+                  },
+                  context: context,
+                  controller: _pan_no,
+                  label: "Pan Card Number",
+                  hint: "MG1**32D4",
+                  focusNode: _pan_focus_node,
+                  textfield_no: 5,
+                  lock: true,
+                  obsecText: false,
+                  limit: 10,
+                  icon: const Icon(Icons.credit_card)),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Upload Document",
+                      style: GoogleFonts.varela(
+                          color: Constants.themeBgColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            panCardCopy == ""
+                                ? setState(() async {
+                                    panCardCopy = (await uploadFile(['pdf']))!;
+                                    setState(() {});
+                                  })
+                                : showPdfUploadDialog(context, "pan");
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 12),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text("PanCard"),
+                                if (panCardCopy != "")
+                                  SizedBox(
+                                    width: 4.sp,
+                                  ),
+                                if (panCardCopy != "")
+                                  Icon(
+                                    Icons.visibility_outlined,
+                                    size: 15.sp,
+                                  )
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          cancelCheckCopy == ""
-                              ? setState(() async {
-                                  cancelCheckCopy =
-                                      (await uploadFile(['pdf']))!;
-                                  setState(() {});
-                                })
-                              : showPdfUploadDialog(context, "cancel");
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              border:
-                                  Border.all(color: Constants.themeBgColor)),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 12),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text("Cancel Check"),
-                              if (cancelCheckCopy != "")
-                                SizedBox(
-                                  width: 4.sp,
-                                ),
-                              if (cancelCheckCopy != "")
-                                Icon(
-                                  Icons.visibility_outlined,
-                                  size: 15.sp,
-                                )
-                            ],
-                          ),
+                        SizedBox(
+                          width: 10.w,
                         ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            )
-          ],
+                        GestureDetector(
+                          onTap: () async {
+                            cancelCheckCopy == ""
+                                ? setState(() async {
+                                    cancelCheckCopy =
+                                        (await uploadFile(['pdf']))!;
+                                    setState(() {});
+                                  })
+                                : showPdfUploadDialog(context, "cancel");
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                border:
+                                    Border.all(color: Constants.themeBgColor)),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 12),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text("Cancel Cheque"),
+                                if (cancelCheckCopy != "")
+                                  SizedBox(
+                                    width: 4.sp,
+                                  ),
+                                if (cancelCheckCopy != "")
+                                  Icon(
+                                    Icons.visibility_outlined,
+                                    size: 15.sp,
+                                  )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -836,6 +896,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
     );
   }
 
+  bool hideText = false;
+
   Widget customTextfield(
       {required String hint,
       required String label,
@@ -846,14 +908,18 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
       required bool lock,
       required bool obsecText,
       required int limit,
+      required Function onTab,
       required Icon icon}) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       height: MediaQuery.of(context).size.height / 24.h,
       child: TextField(
+        onTap: () {
+          onTab();
+        },
         maxLength: limit,
         enableInteractiveSelection: !obsecText,
-        obscureText: obsecText,
+        obscureText: obsecText ? hideText : obsecText,
         enabled: lock,
         keyboardType: textfield_no == 1
             ? TextInputType.number
@@ -874,6 +940,11 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                           RegExp(r'[a-zA-Z0-9]'),
                         ),
         ],
+        onSubmitted: (value) {
+          setState(() {
+            hideText = true;
+          });
+        },
         textCapitalization: TextCapitalization.sentences,
         controller: controller,
         style:

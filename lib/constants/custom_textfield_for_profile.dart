@@ -1210,12 +1210,7 @@ class _customCompanyforExperienceState
       });
     }); */
   }
-
-  @override
-  void dispose() {
-    //  widget.focusNode!.dispose(); // Don't forget to dispose of the focus node
-    super.dispose();
-  }
+ 
 
   late final Function(String) onIDSelected;
   int suggestionIndex = 0;
@@ -1245,6 +1240,11 @@ class _customCompanyforExperienceState
           cursorColor: Constants.themeBgColor,
           // enabled: !suggestionSelected,
           focusNode: widget.focusNode,
+          onEditingComplete: () {
+            setState(() {
+              controller!.clear();
+            });
+          },
           onTapOutside: (event) {
             setState(() {
               controller!.clear();
@@ -1252,6 +1252,11 @@ class _customCompanyforExperienceState
           },
           onChanged: (value) {
             setState(() {});
+          },
+          onSubmitted: (value) {
+            setState(() {
+              controller!.clear();
+            });
           },
           /* onSubmitted: (value) {
             setState(() {
@@ -1377,8 +1382,12 @@ class _customCompanyforExperienceState
               : 'Searching';
 
           return InkWell(
-            onTap: () {
+            onTap: () async {
               FocusScope.of(context).unfocus();
+              if (compid == 0) {
+                await JobPostApiService.AddCompanytoMom(
+                    controller!.text.toString());
+              }
               widget.onChanged(true);
             },
             child: Container(
@@ -1560,6 +1569,13 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
           onChanged: (value) {
             setState(() {});
           },
+          onSubmitted: (event) {
+            if (controller != null) {
+              setState(() {
+                controller!.clear();
+              });
+            }
+          },
 
           textCapitalization: TextCapitalization.sentences,
           controller: controller,
@@ -1633,7 +1649,11 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
               : 'Searching';
 
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                controller!.clear();
+              });
+            },
             child: Container(
                 margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
                 padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
