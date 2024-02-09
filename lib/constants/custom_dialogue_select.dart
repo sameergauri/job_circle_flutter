@@ -638,12 +638,16 @@ class CustomDialogueForJoin extends ConsumerStatefulWidget {
   final Applicant item;
   final int secStatusId;
   final int statusId;
+  final Function onCancel;
+  final Function onTab;
 
   const CustomDialogueForJoin(
       {super.key,
       required this.item,
       required this.secStatusId,
-      required this.statusId
+      required this.statusId,
+      required this.onCancel,
+      required this.onTab
       //   required this.controller,
       //  required this.callBack
       });
@@ -909,6 +913,7 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                         widget.item.company_workstatus != null))
                   GestureDetector(
                     onTap: () {
+                      widget.onCancel();
                       Navigator.pop(context);
                       empid.clear();
                     },
@@ -1084,6 +1089,7 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                         ref.refresh(fetchAllApplicantProvider);
                         ref.refresh(fetchAllReferalProvider);
                         ref.refresh(fetchAllApplyProvider);
+                        widget.onTab();
                         Navigator.pop(context);
                       } catch (e) {
                         print('Error: $e');

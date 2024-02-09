@@ -1016,10 +1016,27 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                             .priStatusId ==
                                         18
                                     ? () {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
                                         showDialog(
                                           context: context,
                                           builder: (context) {
                                             return CustomDialogueForJoin(
+                                              onTab: () {
+                                                Future.delayed(
+                                                    const Duration(seconds: 2),
+                                                    () {
+                                                  setState(() {
+                                                    isLoading = false;
+                                                  });
+                                                });
+                                              },
+                                              onCancel: () {
+                                                setState(() {
+                                                  isLoading = false;
+                                                });
+                                              },
                                               item: widget.item,
                                               secStatusId: widget
                                                   .finalDropDownItemforJoinNot[
@@ -1043,6 +1060,9 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                     .pri_status_remark !=
                                                 1 //TODO:: check for remark
                                             ? () async {
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
                                                 NewChangeStatusModel
                                                     changeStatusModel =
                                                     NewChangeStatusModel(
@@ -1075,17 +1095,31 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 2), () {
+                                                    setState(() {
+                                                      isLoading = false;
+                                                    });
+                                                  });
                                                 } catch (e) {
                                                   print('Error: $e');
                                                   // Handle error...
                                                 }
                                               }
                                             : () {
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) {
                                                     return CustomDialogueForRemark(
-                                                      onCancel: () {},
+                                                      onCancel: () {
+                                                        setState(() {
+                                                          isLoading = false;
+                                                        });
+                                                      },
                                                       hint: widget
                                                           .finalDropDownItemforJoinNot[
                                                               index]
@@ -1131,6 +1165,14 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
+                                                          Future.delayed(
+                                                              const Duration(
+                                                                  seconds: 2),
+                                                              () {
+                                                            setState(() {
+                                                              isLoading = false;
+                                                            });
+                                                          });
                                                           Navigator.pop(
                                                               context);
                                                         } catch (e) {
@@ -1197,6 +1239,9 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                     .pri_status_remark !=
                                                 1
                                             ? () async {
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
                                                 //TODO: To hide ready to join
                                                 NewChangeStatusModel
                                                     changeStatusModel =
@@ -1230,17 +1275,31 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 2), () {
+                                                    setState(() {
+                                                      isLoading = false;
+                                                    });
+                                                  });
                                                 } catch (e) {
                                                   print('Error: $e');
                                                   // Handle error...
                                                 }
                                               }
                                             : () {
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) {
                                                     return CustomDialogueForRemark(
-                                                      onCancel: () {},
+                                                      onCancel: () {
+                                                        setState(() {
+                                                          isLoading = false;
+                                                        });
+                                                      },
                                                       hint: widget
                                                           .finalDropDownItemforReadyOffer[
                                                               index]
@@ -1286,6 +1345,14 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
+                                                          Future.delayed(
+                                                              const Duration(
+                                                                  seconds: 2),
+                                                              () {
+                                                            setState(() {
+                                                              isLoading = false;
+                                                            });
+                                                          });
                                                           Navigator.pop(
                                                               context);
                                                         } catch (e) {
@@ -1364,6 +1431,9 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                             .pri_status_remark !=
                                         1
                                     ? () async {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
                                         //TODO: To hide ready to join
                                         NewChangeStatusModel changeStatusModel =
                                             NewChangeStatusModel(
@@ -1383,17 +1453,30 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                               fetchAllApplicantProvider);
                                           ref.refresh(fetchAllReferalProvider);
                                           ref.refresh(fetchAllApplyProvider);
+                                          Future.delayed(
+                                              const Duration(seconds: 2), () {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          });
                                         } catch (e) {
                                           print('Error: $e');
                                           // Handle error...
                                         }
                                       }
                                     : () {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
                                         showDialog(
                                           context: context,
                                           builder: (context) {
                                             return CustomDialogueForRemark(
-                                              onCancel: () {},
+                                              onCancel: () {
+                                                setState(() {
+                                                  isLoading = false;
+                                                });
+                                              },
                                               hint: widget
                                                   .finalDropDownItemForTrainingDrop[
                                                       index]
@@ -1425,6 +1508,13 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 2), () {
+                                                    setState(() {
+                                                      isLoading = false;
+                                                    });
+                                                  });
                                                   Navigator.pop(context);
                                                 } catch (e) {
                                                   print('Error: $e');
@@ -1473,6 +1563,9 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                       widget.item.document_status == "Submitted"))
                     InkWell(
                       onTap: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
                         if (empIdController.text.isEmpty &&
                             widget.item.empCID == 1) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -1503,6 +1596,11 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                             ref.refresh(fetchAllApplicantProvider);
                             ref.refresh(fetchAllReferalProvider);
                             ref.refresh(fetchAllApplyProvider);
+                            Future.delayed(const Duration(seconds: 2), () {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
                           } catch (e) {
                             print('Error: $e');
                             // Handle error...
