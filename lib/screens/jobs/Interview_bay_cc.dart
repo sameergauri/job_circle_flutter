@@ -219,8 +219,12 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
         final List<dynamic> contentList = jsonData['resultData']['content'];
 
         // Convert the list of Map to a list of Applicant objects
-        List<Applicant> applicants =
-            contentList.map((json) => Applicant.fromJson(json)).toList();
+        List<Applicant> applicants = contentList
+            /*  .where((element) =>
+                element.is_status_hide != 1 || element.is_status_hide!=null || element.s2_is_status_hide != 1 ||
+                element.s2_is_status_hide != null) */
+            .map((json) => Applicant.fromJson(json))
+            .toList();
         return applicants;
       } else {
         print('Failed to fetch data. Status Code: ${response.statusCode}');
@@ -284,6 +288,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
+
         /*  .where((element) => element.s2DdStatusId != 22)//TODO: all id for the tab which we dont want to display..
         .where((element) => element.s2DdStatusId != 19)
         .where((element) => element.s2DdStatusId != 21)
@@ -445,8 +450,8 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                             FloatingActionButtonLocation.centerDocked, */
                         backgroundColor: Constants.bgColorWhite,
                         appBar: PreferredSize(
-                            preferredSize: const Size(
-                                double.maxFinite, kTextTabBarHeight * 2),
+                          preferredSize: const Size(
+                              double.maxFinite, kTextTabBarHeight * 2),
                           child: AppBar(
                             title: Container(
                               margin: EdgeInsets.only(top: 10.h),
@@ -461,7 +466,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                     color: Constants.subtitleclr,
                                     fontSize: 14.sp),
                                 decoration: InputDecoration(
-                                    filled: true,
+                                    filled: false,
                                     fillColor: Constants.borderColor,
                                     prefixIcon: const Icon(Icons.search),
                                     prefixIconColor: Constants.themeBgColor,
@@ -475,7 +480,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8.r),
                                       borderSide: const BorderSide(
-                                          color: Color(0xffff0eceb)),
+                                          color: Constants.themeBgColor),
                                     ),
                                     focusColor: const Color(0xffff0eceb),
                                     focusedBorder: OutlineInputBorder(
@@ -520,7 +525,9 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                         data
                                             .where((applicant) =>
                                                 applicant.hr_status.toString() ==
-                                                status)
+                                                    status ||
+                                                applicant.s2HrStatus.toString() ==
+                                                    status)
                                             .where((element) =>
                                                 element.applicantName!
                                                     .toLowerCase()
@@ -534,12 +541,9 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                         .toLowerCase()) ||
                                                 element.companyName!
                                                     .toLowerCase()
-                                                    .contains(_searchController
-                                                        .text
-                                                        .toLowerCase()) ||
-                                                element.process!
-                                                    .toLowerCase()
-                                                    .contains(_searchController.text.toLowerCase()))
+                                                    .contains(
+                                                        _searchController.text.toLowerCase()) ||
+                                                element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
                                             .length // Show status in the top-level tab bar
                                         ),
                                   )

@@ -2,31 +2,31 @@
 
 import 'dart:convert';
 
-class JobDetails {
+class JobsDetailTemp {
   final String resultKey;
   final List<JobData> resultData;
   final String code;
   final String errorMessage;
 
-  JobDetails({
+  JobsDetailTemp({
     required this.resultKey,
     required this.resultData,
     required this.code,
     required this.errorMessage,
   });
 
-  factory JobDetails.fromJson(Map<String, dynamic> json) {
+  factory JobsDetailTemp.fromJson(Map<String, dynamic> json) {
     List<dynamic> jsonData = json['resultData'];
     if (jsonData.isNotEmpty) {
       Map<String, dynamic> jobDataJson = jsonData[0];
-      return JobDetails(
+      return JobsDetailTemp(
         resultKey: json['resultKey'],
         resultData: [JobData.fromJson(jobDataJson)],
         code: json['code'],
         errorMessage: json['errorMessage'],
       );
     } else {
-      return JobDetails(
+      return JobsDetailTemp(
         resultKey: json['resultKey'],
         resultData: [],
         code: json['code'],
@@ -466,7 +466,7 @@ void main() {
   ''';
 
   Map<String, dynamic> jsonData = jsonDecode(json);
-  JobDetails jobDetails = JobDetails.fromJson(jsonData);
+  JobsDetailTemp jobDetails = JobsDetailTemp.fromJson(jsonData);
   print(jobDetails.resultData[0].industry);
 }
 

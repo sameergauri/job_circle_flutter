@@ -335,7 +335,10 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                           NewChangeStatusModel
                                               changeStatusModel =
                                               NewChangeStatusModel(
-                                            hrStatusId: 0,
+                                            // hrStatusId: 0, // TODO:: Previous one before new modification
+                                            hrStatusId: widget
+                                                .finalDropDownItem[index]
+                                                .statusId,
                                             remark: remark.text,
                                             interviewRounds: widget
                                                 .item.interview_rounds
@@ -390,7 +393,9 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                   /*  hrStatusId:
                                                         finalDropDownItem[index]
                                                             .statusId, */
-                                  hrStatusId: 0,
+                                  // hrStatusId: 0, //TODO:: Previous one before new modification
+                                  hrStatusId:
+                                      widget.finalDropDownItem[index].statusId,
                                   statusId: widget
                                       .finalDropDownItem[index].secStatusId,
                                 );
@@ -566,18 +571,40 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                     }
                                   }
                             : () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
                                 showDialog(
                                   context: context,
+                                  barrierDismissible: false,
                                   builder: (context) {
-                                    return CustomDialogueForSelect(
-                                      item: widget.item,
-                                      refreshCallback: () {
-                                        ref.refresh(fetchAllApplicantProvider);
-                                        ref.refresh(fetchAllReferalProvider);
-                                        ref.refresh(fetchAllApplyProvider);
+                                    return WillPopScope(
+                                      onWillPop: () async {
+                                        // Return false to prevent dialog from closing with back button
+                                        return Future.value(false);
                                       },
-                                      finalDropDown:
-                                          widget.finalDropDownItem[index],
+                                      child: CustomDialogueForSelect(
+                                        onCancel: () {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        },
+                                        item: widget.item,
+                                        refreshCallback: () {
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
+                                          ref.refresh(fetchAllReferalProvider);
+                                          ref.refresh(fetchAllApplyProvider);
+                                          Future.delayed(
+                                              const Duration(seconds: 2), () {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          });
+                                        },
+                                        finalDropDown:
+                                            widget.finalDropDownItem[index],
+                                      ),
                                     );
                                   },
                                 );

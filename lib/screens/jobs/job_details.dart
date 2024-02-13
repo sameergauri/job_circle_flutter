@@ -301,7 +301,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
           children: [
             Text(
               // jobDetailsModel.name
-              jobDetailsModel.rolename.toString(),
+              jobDetailsModel.rolename != null
+                  ? jobDetailsModel.rolename.toString()
+                  : "",
               textAlign: TextAlign.center,
               style: GoogleFonts.varela(
                 // fontWeight: FontWeight.bold,
@@ -319,7 +321,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   width: 5,
                 ), */
                 Text(
-                  jobDetailsModel.process.toString(),
+                  jobDetailsModel.process != null
+                      ? jobDetailsModel.process.toString()
+                      : "",
                   style: GoogleFonts.varela(
                     //fontWeight: FontWeight.bold,
                     fontSize: 12.h,
@@ -329,7 +333,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   width: 2,
                 ),
                 Text(
-                  " ||",
+                  jobDetailsModel.naturofwork != null ? " ||" : "",
                   style: GoogleFonts.varela(
                     // fontWeight: FontWeight.bold,
                     fontSize: 12.h,
@@ -339,7 +343,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   width: 2,
                 ),
                 Text(
-                  jobDetailsModel.naturofwork.toString(),
+                  jobDetailsModel.naturofwork != null
+                      ? jobDetailsModel.naturofwork.toString()
+                      : "",
                   style: GoogleFonts.varela(
                     //  fontWeight: FontWeight.bold,
                     fontSize: 12.h,

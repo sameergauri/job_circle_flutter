@@ -7,6 +7,7 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/cooling.dart';
+import 'package:job_circle/models/cooling_p_model.dart';
 
 import '../models/application_status_model.dart';
 import '../models/get_user_for_add_Resume.dart';
@@ -35,6 +36,24 @@ class ApplicationAPI {
     } else {
       // If the request fails, throw an exception or handle the error as needed
       throw Exception('Failed to load data');
+    }
+  }
+
+  Future<List<CoolingModel>> fetchCoolingData() async {
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host}/leads/v1/getAllLeadsForCoolingPeriod?page=1&size=10000'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      final List<dynamic> content = jsonData['resultData']['content'];
+
+      List<CoolingModel> coolingList = [];
+      for (var data in content) {
+        coolingList.add(CoolingModel.fromJson(data));
+      }
+      return coolingList;
+    } else {
+      throw Exception('Failed to load cooling data');
     }
   }
 

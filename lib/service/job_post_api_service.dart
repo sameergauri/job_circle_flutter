@@ -417,6 +417,8 @@ class JobPostApiService {
             context: context,
             builder: (context) {
               return CustomDialogueForAddResume(
+                error: false,
+
                 onClose: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
@@ -431,6 +433,7 @@ class JobPostApiService {
             context: context,
             builder: (context) {
               return CustomDialogueForAddResume(
+                error: false,
                 onClose: () {
                   Navigator.pop(context);
                 },
@@ -446,6 +449,7 @@ class JobPostApiService {
           context: context,
           builder: (context) {
             return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
               },
@@ -461,6 +465,7 @@ class JobPostApiService {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+            error: true,
             onClose: () {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
@@ -521,6 +526,7 @@ class JobPostApiService {
           context: context,
           builder: (context) {
             return CustomDialogueForAddResume(
+              error:  true,
               onClose: () {
                 Navigator.pop(context);
               },

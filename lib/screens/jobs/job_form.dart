@@ -23,6 +23,7 @@ import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/commercial_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
+import 'package:job_circle/models/matching_commercial_model.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
@@ -435,17 +436,16 @@ class _JobFormState extends ConsumerState<JobForm> {
   void assignDataToController(JobData? jobData) {
     if (jobData != null) {
       if (jobData.active == 1 && widget.formEdit == false) {
-        /*  Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context)=> JobDetails(
-                                          id: jobData.id,
-                                          Applies: false,
-                                          referal: false,
-                                          is_freelancer: 
-                                                  0,
-                                      
-        ))); */
-        /*  Navigator.pushReplacement(context, MaterialPageRoute(
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => JobDetails(
+                      id: jobData.id,
+                      Applies: false,
+                      referal: false,
+                      is_freelancer: 0,
+                    )));
+        /* Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) {
             return JobDetails(
               id: jobData.id,
@@ -764,7 +764,16 @@ class _JobFormState extends ConsumerState<JobForm> {
               },
 
               isFisrt: true,
-              onClose: () {},
+              onClose: () {
+                setState(() {
+                  isLoading = true;
+                  Future.delayed(const Duration(seconds: 2), () {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  });
+                });
+              },
               title: "Quick & Easy Job Posting",
               subtitle: "",
             );
@@ -1745,6 +1754,28 @@ class _JobFormState extends ConsumerState<JobForm> {
     // Perform any other actions with the ID
   }
 
+  Future<List<MetchingCommercialModel>> fetchCommercialData(
+      {required int compid,
+      required String process,
+      required String role,
+      required String natur}) async {
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host}/commercial/v1/matchngCommercial?company_id=$compid&process=$process&naturofwork=$natur&rolename=$role&page=1&size=10'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      final List<dynamic> resultData = jsonData['resultData'];
+
+      List<MetchingCommercialModel> commercialList = [];
+      for (var data in resultData) {
+        commercialList.add(MetchingCommercialModel.fromJson(data));
+      }
+      return commercialList;
+    } else {
+      throw Exception('Failed to load commercial data');
+    }
+  }
+
   Future<void> saveCommercial() async {
     Commercial commercial = Commercial(
         companyId: int.tryParse(CompanyID.toString()),
@@ -1788,6 +1819,56 @@ class _JobFormState extends ConsumerState<JobForm> {
               );
       } else {
         print("Error while posting commercial");
+      }
+    } catch (e) {
+      print('Error saving data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred')),
+      );
+    }
+    // ref.refresh(commercialProvider);
+  }
+
+  Future<void> UpdateCommercial(int id) async {
+    Commercial commercial =
+        Commercial(jobActive: 1, isConfirm: 0, commercialActive: 0);
+    Map<String, dynamic> requestBody = commercial.toJson();
+
+    try {
+      final response = await http.put(
+        Uri.parse(
+            'http://${GlobalConstants.API_Host}/commercial/v1/$id/jobActive'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print("Commercial added");
+        widget.formEdit
+            ? ""
+            : showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CustomDialog(
+                    fetchDataFromApi: () {},
+                    isFisrt: false,
+                    onClose: () {
+                      /*  Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const PartnerHomeScreen()),
+                          (Route<dynamic> route) => false); */
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    title: "Success",
+                    subtitle: "Job Posted Successfully!",
+                  );
+                },
+              );
+      } else {
+        print("Error while posting commercial InActive commercial");
       }
     } catch (e) {
       print('Error saving data: $e');
@@ -2511,9 +2592,36 @@ class _JobFormState extends ConsumerState<JobForm> {
                     await JobPostApiService.postDataToApi(
                         jsonData, context, widget.formEdit);
                     if (!widget.formEdit) {
-                      commercialid == 0 || commercialid == null
-                          ? await saveCommercial()
-                          : await InActiveCommercial();
+                      //
+                      //
+                      //
+                      // Call fetchCommercialData function to get the list of commercial data
+                      List<MetchingCommercialModel> commercialList =
+                          await fetchCommercialData(
+                              //TODO: function to get commercial data as per crpf and find recent start_date..
+                              compid:
+                                  int.tryParse(CompanyID.toString())!.toInt(),
+                              process: proces.text,
+                              role: role.text,
+                              natur: natureOfWork.text);
+
+                      commercialList.sort((a, b) => a.id!.compareTo(b
+                          .id!)); //TODO: using sorting i m finding which one is recent.
+
+                      int? mostRecentId = commercialList.isNotEmpty
+                          ? commercialList.first.id
+                          : null;
+                      //
+                      //
+                      //
+                      Future.delayed(const Duration(seconds: 2), () async {
+                        commercialid == 0 || commercialid == null
+                            ? commercialList
+                                    .isNotEmpty //TODO : list on which matching commercial data is available
+                                ? await UpdateCommercial(mostRecentId!.toInt())
+                                : await saveCommercial()
+                            : await InActiveCommercial();
+                      });
                     }
                     ref.refresh(userJobDataProvider);
                     // ref.refresh();

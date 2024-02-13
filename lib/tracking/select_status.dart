@@ -88,7 +88,11 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
         await JobPostApiService.NewchangeStatus(
             jsonData, widget.item.id!.toInt());
         ref.refresh(fetchAllApplicantProvider);
-        setState(() {});
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {
+            isLoading = false;
+          });
+        });
         // First pop to close the dialog
       } catch (e) {
         print('Error: $e');
@@ -853,11 +857,19 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                 children: [
                   InkWell(
                     onTap: () {
+                      setState(() {
+                        isLoading = true;
+                      });
                       isToday ||
                               isYesterday ||
                               widget.item.status_id == 1 //TODO :: Ready to join
                           ? null
                           : singleSelectPicker();
+                      Future.delayed(const Duration(seconds: 2), () {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      });
                     },
                     child: Container(
                         margin: EdgeInsets.only(top: 4.h, right: 8.w),
@@ -1072,7 +1084,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                                         index]
                                                                     .priStatusId ==
                                                                 16 //TODO:: ID of "not join"..
-                                                            ? 0
+                                                            ? widget
+                                                                .finalDropDownItemforJoinNot[
+                                                                    index]
+                                                                .statusId
                                                             : widget
                                                                 .finalDropDownItemforJoinNot[
                                                                     index]
@@ -1139,7 +1154,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                                                 index]
                                                                             .priStatusId ==
                                                                         16 //TODO:: ID of "not join"..
-                                                                    ? 0
+                                                                    ? widget
+                                                                        .finalDropDownItemforJoinNot[
+                                                                            index]
+                                                                        .statusId
                                                                     : widget
                                                                         .finalDropDownItemforJoinNot[
                                                                             index]
@@ -1252,7 +1270,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                                         index]
                                                                     .priStatusId ==
                                                                 17
-                                                            ? 0
+                                                            ? widget
+                                                                .finalDropDownItemforReadyOffer[
+                                                                    index]
+                                                                .statusId
                                                             : widget
                                                                 .finalDropDownItemforReadyOffer[
                                                                     index]
@@ -1319,7 +1340,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                                                 index]
                                                                             .priStatusId ==
                                                                         17
-                                                                    ? 0
+                                                                    ? widget
+                                                                        .finalDropDownItemforReadyOffer[
+                                                                            index]
+                                                                        .statusId
                                                                     : widget
                                                                         .finalDropDownItemforReadyOffer[
                                                                             index]
@@ -1438,7 +1462,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                         NewChangeStatusModel changeStatusModel =
                                             NewChangeStatusModel(
                                                 doj: widget.item.doj,
-                                                hrStatusId: 0,
+                                                hrStatusId: widget
+                                                    .finalDropDownItemForTrainingDrop[
+                                                        index]
+                                                    .statusId,
                                                 statusId: widget
                                                     .finalDropDownItemForTrainingDrop[
                                                         index]
@@ -1489,9 +1516,16 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                     NewChangeStatusModel(
                                                         remark: remark2.text,
                                                         doj: widget.item.doj,
-                                                        hrStatusId: 0,
-                                                        statusId: widget
+                                                        hrStatusId: widget
+                                                            .finalDropDownItemForTrainingDrop[
+                                                                index]
+                                                            .statusId,
+                                                        /*   statusId: widget
                                                             .finalDropDownItemforReadyOffer[
+                                                                index]
+                                                            .priStatusId */ //TODO :: for testing i m not sure about this ......
+                                                        statusId: widget
+                                                            .finalDropDownItemForTrainingDrop[
                                                                 index]
                                                             .priStatusId);
                                                 Map<String, dynamic> jsonData =

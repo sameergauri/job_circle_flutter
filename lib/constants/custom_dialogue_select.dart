@@ -23,11 +23,13 @@ class CustomDialogueForSelect extends StatefulWidget {
   final Applicant item;
   final Function refreshCallback;
   final DropDownItem finalDropDown;
+  final Function onCancel;
   const CustomDialogueForSelect(
       {super.key,
       required this.item,
       required this.refreshCallback,
-      required this.finalDropDown});
+      required this.finalDropDown,
+      required this.onCancel});
 
   @override
   State<CustomDialogueForSelect> createState() =>
@@ -423,13 +425,30 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
               children: [
                 InkWell(
                   onTap: () async {
-                    NewChangeStatusModel changeStatusModel =
-                        NewChangeStatusModel(
-                            hrStatusId: widget.finalDropDown.priStatusId,
-                            statusId: widget.finalDropDown.statusId,
-                            doj: singleSelect,
-                            // mode_document: f2f ? 0 : 1,
-                            document_status: "Not Submitted");
+                    Navigator.pop(context);
+                    widget.onCancel();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text("Cancel",
+                        style: GoogleFonts.varela(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                InkWell(
+                  onTap: () async {
+                    NewChangeStatusModel changeStatusModel = NewChangeStatusModel(
+                        hrStatusId: widget.finalDropDown.priStatusId,
+                        //  statusId: widget.finalDropDown.statusId, //TODO:: Previous one before new modification
+                        statusId: 0,
+                        doj: singleSelect,
+                        // mode_document: f2f ? 0 : 1,
+                        document_status: "Not Submitted");
                     Map<String, dynamic> jsonData = changeStatusModel.toJson();
                     try {
                       await JobPostApiService.NewchangeStatus(

@@ -8,8 +8,12 @@ import 'package:job_circle/themes/colors.dart';
 class CustomDialogueForAddResume extends StatefulWidget {
   final String subtitle;
   final VoidCallback onClose;
+  final bool error;
   const CustomDialogueForAddResume(
-      {super.key, required this.subtitle, required this.onClose});
+      {super.key,
+      required this.subtitle,
+      required this.onClose,
+      required this.error});
 
   @override
   State<CustomDialogueForAddResume> createState() =>
@@ -21,11 +25,15 @@ class _CustomDialogueForAddResumeState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.red,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: widget.error ? Colors.red : Colors.white),
+            borderRadius: BorderRadius.circular(8.r),
+            color: Colors.white),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -44,9 +52,8 @@ class _CustomDialogueForAddResumeState
                 padding:
                     const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                 decoration: BoxDecoration(
-                    border: Border.all(color: Constants.themeBgColor),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Constants.themeBgColor),
+                    borderRadius: BorderRadius.circular(8.r),
+                    color: widget.error ? Colors.red : Constants.themeBgColor),
                 child: Text(
                   "Close",
                   style: GoogleFonts.varela(

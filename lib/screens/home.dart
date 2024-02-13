@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
@@ -112,7 +113,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notification
-          showUpdateDialog();
+
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return WillPopScope(
+                  onWillPop: () async {
+                    // Define your custom logic here to determine whether the dialog should close or not.
+                    // Return true to allow the dialog to close or false to prevent it from closing.
+                    return false; // Change this as needed.
+                  },
+                  child: const CustomDialog());
+            },
+          );
         }
       } else {
         print('Failed to fetch data. Status Code: ${response.statusCode}');
@@ -178,6 +192,117 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     pageController.jumpToPage(value);
     await checkAppVersion();
+  }
+}
+
+class CustomDialog extends StatelessWidget {
+  const CustomDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: contentBox(context),
+    );
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget contentBox(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              FutureBuilder(
+                future: Future.delayed(const Duration(
+                    seconds: 1)), // Simulating image loading delay
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Show a loading indicator while the image is loading
+                    return const CircularProgressIndicator(
+                      strokeWidth: 1,
+                    );
+                  } else {
+                    // Image is loaded, display it
+                    return Image.asset("assets/images/rocket.jpg");
+                  }
+                },
+              ),
+              /* const Text(
+                'Update Available',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ), */
+              const SizedBox(height: 15),
+              Text(
+                'A new version of the app is available. Please update for the latest features and improvements.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.varela(fontSize: 18),
+              ),
+              const SizedBox(height: 22),
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child: GestureDetector(
+                    onTap: () {
+                      _launchURL(
+                          'https://play.google.com/store/apps/details?id=com.job_circle_flutter');
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                          color: Constants.blue,
+                          borderRadius: BorderRadius.circular(8.r)),
+                      child: Text(
+                        "Update Now",
+                        style: GoogleFonts.varela(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+        ),
+        /*   const Positioned(
+          top: 0,
+          left: 16,
+          right: 16,
+          child: CircleAvatar(
+            backgroundColor: Colors.blue,
+            radius: 40,
+            child: Icon(
+              Icons.favorite,
+              color: Colors.white,
+              size: 50,
+            ),
+          ),
+        ), */
+      ],
+    );
   }
 }
 

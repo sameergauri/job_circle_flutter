@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/models/add_resume_model.dart';
+import 'package:job_circle/models/cooling_p_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
@@ -1200,8 +1201,34 @@ class _AddResumeState extends ConsumerState<AddResume> {
       print('Error during file upload: $e');
     }
   } */
+  int differenceInDays(DateTime? date1, DateTime date2) {
+    final difference = date1!.difference(date2).inDays;
+    return difference
+        .abs(); // Return the absolute value to handle negative differences
+  }
+
+  bool isDifferenceLessThan30Days(DateTime? date1, DateTime date2) {
+    if (date1 != null) {
+      return differenceInDays(date1, date2) < 30;
+    } else {
+      // Handle the case where date1 is null
+      // For example, you could consider it as greater than 30 days
+      return false; // Or you can return false, depending on your use case
+    }
+  }
+
+  bool isDifferenceGreaterThan30Days(DateTime? date1, DateTime date2) {
+    if (date1 != null) {
+      return differenceInDays(date1, date2) > 30;
+    } else {
+      // Handle the case where date1 is null
+      // For example, you could consider it as greater than 30 days
+      return false; // Or you can return false, depending on your use case
+    }
+  }
 
   List<UserDataForAddResumeModelResultData>? applicationList = [];
+  List<CoolingModel>? ListOfCoolingData = [];
   void fetchData() async {
     try {
       setState(() {
@@ -1210,88 +1237,168 @@ class _AddResumeState extends ConsumerState<AddResume> {
       ApplicationAPI api = ApplicationAPI();
       applicationList =
           await api.getUserForAddResume(int.parse(primary_number.text));
-      if (widget.isRefer) {
-        final addResumeModel = JobApplicationModel(
-          resume: icon_data,
-          isRef: 1,
-          uid: 0,
-          rid: await Utils.getPreferencesValue(
-              null, ESharedPreferences.user_id.name),
-          id: 0,
-          applicantName: firt_name.text,
-          lastName: last_name.text,
-          contactNo: int.parse(primary_number.text.trim()),
-          qualification: graduate == true ? "Graduate" : "Under Graduate",
-          isExperienced: fresher ? 0 : 1,
-          companyName: widget.company_name,
-          process: widget.process,
-          level: widget.role,
-          naturofwork: widget.nature_of_work,
-          shortListFor: widget.company_id,
-          status_id: 3,
-          hrStatusId: 11,
-          //  status: "TP1", //TODO in use before changes in status ..
-          alternateNo:
-              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
-          // subStatus: "Shortlist",
-          sourceId: 0,
-          //sourceName: widget.sourceName,
-          jobid: widget.jobId,
-          spoc: widget.spocId,
-          // dol: DateTime.now()
-          // ... fill in other properties as needed
-        );
-        final jsonData = addResumeModel.toJson();
-        await JobPostApiService.addResume(jsonData, context, false);
-        ref.refresh(fetchAllTalentPool);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllMyPipeLineJobs);
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
+      ListOfCoolingData = await api.fetchCoolingData();
 
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        final addResumeModel = JobApplicationModel(
-          isRef: 2,
-          uid: 0,
-          resume: icon_data,
-          id: 0,
-          applicantName: firt_name.text,
-          lastName: last_name.text,
-          contactNo: int.parse(primary_number.text.trim()),
-          qualification: graduate == true ? "Graduate" : "Under Graduate",
-          isExperienced: fresher ? 0 : 1,
-          companyName: widget.company_name,
-          process: widget.process,
-          level: widget.role,
-          naturofwork: widget.nature_of_work,
-          shortListFor: widget.company_id,
-          status_id: 1, //TODO : directly in interviewBay..
-          hrStatusId: 14,
-          /*  status: "IB4",  //TODO: before changes in status...
-            subStatus: "Shortlist", */
-          sourceId: widget.sourceId,
-          sourceName: widget.sourceName,
-          jobid: widget.jobId,
-          spoc: widget.spocId,
-          alternateNo:
-              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
-          dol: DateTime.now(),
-          interview_rounds: widget.interviewRounds,
-          // ... fill in other properties as needed
+      CoolingModel? recentElement;
+      DateTime? mostRecentDol;
+
+      for (var element in ListOfCoolingData!) {
+        if ((element.contactNo == int.parse(primary_number.text.trim()) ||
+                element.contactNo == int.tryParse(secondry.text.trim())) &&
+            element.dol != null &&
+            (mostRecentDol == null || element.dol!.isAfter(mostRecentDol))) {
+          recentElement = element;
+          mostRecentDol = element.dol;
+        }
+      }
+      // print(ListOfCoolingData);
+      if ((ListOfCoolingData!.any((element) =>
+          (element.contactNo == int.parse(primary_number.text.trim()) ||
+              element.contactNo == int.tryParse(secondry.text.trim())) &&
+          element.dol == null))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in PipeLine ...",
+            );
+          },
         );
-        final jsonData = addResumeModel.toJson();
-        await JobPostApiService.addResume(jsonData, context, false);
-        ref.refresh(fetchAllTalentPool);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllMyPipeLineJobs);
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
-        setState(() {
-          isLoading = false;
-        });
+      } else if ((ListOfCoolingData!.any((element) =>
+          recentElement != null &&
+          isDifferenceLessThan30Days(element.dol, DateTime.now())))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in PipeLine",
+            );
+          },
+        );
+      } else if ((ListOfCoolingData!.any((element) =>
+          (element.contactNo == int.parse(primary_number.text.trim()) ||
+              element.contactNo == int.tryParse(secondry.text.trim())) &&
+          isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
+          element.status == "Interview Bay" &&
+          element.subStatus == null))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in Interview Process",
+            );
+          },
+        );
+      } else {
+        if (widget.isRefer) {
+          final addResumeModel = JobApplicationModel(
+            resume: icon_data,
+            isRef: 1,
+            uid: 0,
+            rid: await Utils.getPreferencesValue(
+                null, ESharedPreferences.user_id.name),
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status_id: 3,
+            hrStatusId: 11,
+            //  status: "TP1", //TODO in use before changes in status ..
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            // subStatus: "Shortlist",
+            sourceId: 0,
+            //sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.spocId,
+            // dol: DateTime.now()
+            // ... fill in other properties as needed
+          );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
+
+          setState(() {
+            isLoading = false;
+          });
+        } else {
+          final addResumeModel = JobApplicationModel(
+            isRef: 2,
+            uid: 0,
+            resume: icon_data,
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status_id: 1, //TODO : directly in interviewBay..
+            hrStatusId: 14,
+            /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
+            sourceId: widget.sourceId,
+            sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.spocId,
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            dol: DateTime.now(),
+            interview_rounds: widget.interviewRounds,
+            // ... fill in other properties as needed
+          );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
+          setState(() {
+            isLoading = false;
+          });
+        }
       }
 
 //TODO old code which is check that the refer candidate is exiting user or not.....{
@@ -1467,6 +1574,22 @@ class _AddResumeState extends ConsumerState<AddResume> {
       // }
     } catch (e) {
       print('Error fetching data: $e');
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            error: true,
+            onClose: () {
+              setState(() {
+                isLoading = false;
+              });
+              Navigator.pop(context);
+            },
+            subtitle: "Error While Uplaoding. Connect with tech Team.",
+          );
+        },
+      );
     }
   }
 
@@ -1478,6 +1601,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+            error: true,
             subtitle: "First name is mandatory",
             onClose: () {
               Navigator.pop(context);
@@ -1491,6 +1615,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text2.requestFocus();
@@ -1503,6 +1628,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text3.requestFocus();
@@ -1515,6 +1641,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 // text3.requestFocus();
@@ -1527,6 +1654,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 // text3.requestFocus();
@@ -1539,6 +1667,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 // text3.requestFocus();
@@ -1546,11 +1675,12 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Number should have 10 digit");
         },
       );
-    } else if (icon_data == null) {
+    } /* else if (icon_data == null) {
       showDialog(
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text2.requestFocus();
@@ -1558,11 +1688,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } else if (!termAndConditionOne && widget.isRefer && widget.is90) {
+    } */
+    else if (!termAndConditionOne && widget.isRefer && widget.is90) {
       showDialog(
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text2.requestFocus();
@@ -1611,6 +1743,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text2.requestFocus();
@@ -1623,6 +1756,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         context: context,
         builder: (context) {
           return CustomDialogueForAddResume(
+              error: true,
               onClose: () {
                 Navigator.pop(context);
                 text2.requestFocus();
