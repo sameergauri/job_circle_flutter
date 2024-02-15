@@ -1638,7 +1638,7 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
         },
         onSuggestionSelected: (suggestion) {
           setState(() {
-            controller!.text = suggestion.name.toString() ?? "";
+            controller!.text = suggestion.name.toString();
             widget.getid(suggestion.id.toString());
             widget.getvalue(suggestion.name.toString());
           });

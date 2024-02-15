@@ -355,6 +355,7 @@ class NewChangeStatusModel {
   int? isExp;
   String? document_status;
   int? isJoinSubmitted;
+  int? isCvDownload;
 
   NewChangeStatusModel({
     this.alternateNo,
@@ -433,6 +434,7 @@ class NewChangeStatusModel {
     this.isExp,
     this.document_status,
     this.isJoinSubmitted,
+    this.isCvDownload,
   });
 
   factory NewChangeStatusModel.fromJson(Map<String, dynamic> json) {
@@ -523,6 +525,7 @@ class NewChangeStatusModel {
       isExp: json['isExp'],
       document_status: json['document_status'],
       isJoinSubmitted: json['isJoinSubmitted'],
+      isCvDownload: json['isCvDownload'],
     );
   }
 
@@ -604,6 +607,7 @@ class NewChangeStatusModel {
       'isExp': isExp,
       'document_status': document_status,
       'isJoinSubmitted': isJoinSubmitted,
+      'isCvDownload': isCvDownload,
     };
     return data;
   }

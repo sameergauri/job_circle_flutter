@@ -1390,12 +1390,16 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             context,
                             MaterialPageRoute(
                               builder: (context) => PDFViewerScreen(
+                                  isCvDownloaded: item.isCvDownload != null
+                                    ? item.isCvDownload!.toInt()
+                                    : 0,
                                 isref: false,
                                 pdfAssetPath: item.resume.toString(),
                                 phoneNumber1: item.contactNo!.toInt(),
                                 phoneNumber2: item.alternateNo == null
                                     ? 0
                                     : item.alternateNo!.toInt(),
+                                      name: "${item.applicantName} ${item.last_name}",
                                 // Replace with the actual asset path of your PDF file
                               ),
                             ),
@@ -1420,10 +1424,14 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                             context,
                             MaterialPageRoute(
                               builder: (context) => PDFViewerScreen(
+                                  isCvDownloaded: item.isCvDownload != null
+                                    ? item.isCvDownload!.toInt()
+                                    : 0,
                                 isref: false,
                                 pdfAssetPath: item.resume.toString(),
                                 phoneNumber1: item.contactNo!.toInt(),
                                 phoneNumber2: item.alternateNo!.toInt(),
+                                  name: "${item.applicantName} ${item.last_name}",
                                 // Replace with the actual asset path of your PDF file
                               ),
                             ),

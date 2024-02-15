@@ -1,30 +1,44 @@
 // ignore_for_file: unused_field, deprecated_member_use, unused_element
 
+import 'dart:io';
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/customdialogue_for_call_whatsapp.dart';
+import 'package:job_circle/models/changeStatusModel.dart';
+import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:job_circle/themes/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PDFViewerScreen extends StatefulWidget {
+class PDFViewerScreen extends ConsumerStatefulWidget {
   final String pdfAssetPath;
   final int phoneNumber1, phoneNumber2;
   final bool isref;
+  final String name;
+  final int isCvDownloaded;
+  final int? id;
 
-  const PDFViewerScreen({
-    super.key,
-    required this.pdfAssetPath,
-    required this.phoneNumber1,
-    required this.phoneNumber2,
-    required this.isref,
-  });
+  const PDFViewerScreen(
+      {super.key,
+      required this.pdfAssetPath,
+      required this.phoneNumber1,
+      required this.phoneNumber2,
+      required this.isref,
+      required this.name,
+      required this.isCvDownloaded,
+      this.id});
 
   @override
-  State<PDFViewerScreen> createState() => _PDFViewerScreenState();
+  ConsumerState<PDFViewerScreen> createState() => _PDFViewerScreenState();
 }
 
-class _PDFViewerScreenState extends State<PDFViewerScreen> {
+class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
   Future<void> _makePhoneCall() async {
     String number = "+911234567890"; // Replace with the desired phone number
     bool? res = await FlutterPhoneDirectCaller.callNumber(number);
@@ -57,8 +71,105 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     }
   }
 
+  Future<void> apicallfunction() async {
+    NewChangeStatusModel changeStatusModel =
+        NewChangeStatusModel(isCvDownload: 1);
+    Map<String, dynamic> jsonData = changeStatusModel.toJson();
+    try {
+      await JobPostApiService.CvDowloadDone(jsonData, widget.id!.toInt());
+      ref.refresh(fetchAllApplicantProvider);
+    } catch (e) {
+      print('Error: $e');
+      // Handle error...
+    }
+  }
+
+  //TODO:: Download pdf option..
+
+  PDFDocument? _pdfDocument;
+  final bool _isDownloaded = false;
+
+  // Function to download the PDF
+  Future<void> downloadFileToDownloadsFolder(
+      String url, String fileName) async {
+    // Construct the file path in the downloads directory
+    final filePath = '/storage/emulated/0/Download/$fileName';
+
+    // Save the file to the downloads directory
+    final file = File(filePath);
+    try {
+      // Send a GET request to the URL
+      var response = await http.get(Uri.parse(url));
+
+      // Check if the request was successful (status code 200)
+      if (response.statusCode == 200) {
+        // Get the downloads directory
+
+        await file.writeAsBytes(response.bodyBytes);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return WillPopScope(
+              onWillPop: () async {
+                // Define your custom logic here to determine whether the dialog should close or not.
+                // Return true to allow the dialog to close or false to prevent it from closing.
+                return false; // Change this as needed.
+              },
+              child: CustomDialog(
+                  fetchDataFromApi: () {},
+                  onClose: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  isFisrt: false,
+                  title: "CV downloaded",
+                  subtitle: "Path : /Download/$fileName"),
+            );
+          },
+        );
+        await apicallfunction();
+        print('File saved to Downloads folder: $filePath');
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return WillPopScope(
+              onWillPop: () async {
+                // Define your custom logic here to determine whether the dialog should close or not.
+                // Return true to allow the dialog to close or false to prevent it from closing.
+                return false; // Change this as needed.
+              },
+              child: CustomDialog(
+                  fetchDataFromApi: () {},
+                  onClose: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  isFisrt: false,
+                  title: "Fail!",
+                  subtitle: "CV Not downlaoded due to some technical fault."),
+            );
+          },
+        );
+        // Handle the error if the request was not successful
+        print('Failed to download file: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the process
+      print('Error downloading file: $e');
+    }
+  }
+
+  //TODO:: Download pdf option..
+
   @override
   Widget build(BuildContext context) {
+    String fileUrl =
+        'https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.pdfAssetPath}';
+    String fileName = "${widget.name}_cv.pdf";
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -67,8 +178,29 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           'PDF Viewer',
           style: TextStyle(color: Colors.black),
         ),
+        actions: [
+          if (widget.isref != true &&
+              widget.isCvDownloaded !=
+                  1) // Show download button if PDF is loaded and not downloaded yet
+            IconButton(
+                icon: const Icon(
+                  Icons.download,
+                  color: Constants.blue,
+                ),
+                onPressed: () async {
+                  await downloadFileToDownloadsFolder(fileUrl, fileName);
+                }),
+        ],
       ),
-      floatingActionButton: widget.isref!=true
+      /*  appBar: AppBar(
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text(
+          'PDF Viewer',
+          style: TextStyle(color: Colors.black),
+        ),
+      ), */
+      floatingActionButton: widget.isref != true
           ? widget.phoneNumber2 == 0
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.end,

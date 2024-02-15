@@ -1,4 +1,4 @@
-// ignore_for_file: override_on_non_overriding_member, unused_field, unused_local_variable, unused_result, file_names, avoid_print, unused_element, prefer_final_fields, non_constant_identifier_names, avoid_unnecessary_containers, use_build_context_synchronously, unnecessary_null_comparison
+// ignore_for_file: override_on_non_overriding_member, unused_field, unused_local_variable, unused_result, file_names, avoid_print, unused_element, prefer_final_fields, non_constant_identifier_names, avoid_unnecessary_containers, use_build_context_synchronously, unnecessary_null_comparison, use_full_hex_values_for_flutter_colors
 // ignore_for_file: todo
 import 'dart:convert';
 
@@ -23,6 +23,7 @@ import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
 import 'package:job_circle/tracking/interview_bay.dart';
 import 'package:job_circle/tracking/select_status.dart';
+import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 //import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -2734,74 +2735,125 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    child: IconButton(
-                        onPressed: item.hr_status_id != 11
-                            ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PDFViewerScreen(
-                                      pdfAssetPath: item.resume.toString(),
-                                      phoneNumber1: item.contactNo!.toInt(),
-                                      isref: false,
-                                      phoneNumber2: item.alternateNo != null
-                                          ? item.alternateNo!.toInt()
-                                          : 0,
+                  if (item.resume != null)
+                    Positioned(
+                      right: 0,
+                      child: IconButton(
+                          onPressed: item.hr_status_id != 11
+                              ? () {
+                                  item.resume != null
+                                      ? item.resume!.contains(".docx")
+                                          ? FutureBuilder<void>(
+                                              future: pdftron.PdftronFlutter
+                                                  .openDocument(
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
+                                                config:
+                                                    pdftron.Config.fromJson({
+                                                  'readOnly':
+                                                      true, // Set to read-only mode
+                                                  // Add other configuration options as needed to remove watermark or customize viewer
+                                                }),
+                                              ),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                } else if (snapshot.hasError) {
+                                                  return Center(
+                                                      child: Text(
+                                                          'Error: ${snapshot.error}'));
+                                                } else {
+                                                  // PDF document has been opened successfully
+                                                  return Container(); // Placeholder widget
+                                                }
+                                              },
+                                            )
+                                          : Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PDFViewerScreen(
+                                                  isCvDownloaded:
+                                                      item.isCvDownload != null
+                                                          ? item.isCvDownload!
+                                                              .toInt()
+                                                          : 0,
+                                                  pdfAssetPath:
+                                                      item.resume.toString(),
+                                                  phoneNumber1:
+                                                      item.contactNo!.toInt(),
+                                                  isref: false,
+                                                  id: item.id,
+                                                  phoneNumber2:
+                                                      item.alternateNo != null
+                                                          ? item.alternateNo!
+                                                              .toInt()
+                                                          : 0,
+                                                  name:
+                                                      "${item.applicantName} ${item.last_name}",
 
-                                      // Replace with the actual asset path of your PDF file
-                                    ),
-                                  ),
-                                );
-                              }
-                            : () async {
-                                if (item.hr_status_id == 11 ||
-                                    item.s2DdHrStatusId == 11) {
-                                  try {
-                                    // Find the first matching item
-
-                                    NewChangeStatusModel changeStatusModel =
-                                        NewChangeStatusModel(
-                                            statusId: 4,
-                                            hrStatusId: 12,
-                                            dol: DateTime.now(),
-                                            sourceId: id,
-                                            sourceName: sourceName);
-                                    Map<String, dynamic> jsonData =
-                                        changeStatusModel.toJson();
-
-                                    await JobPostApiService.NewchangeStatus(
-                                        jsonData, item.id!.toInt());
-
-                                    ref.refresh(fetchAllApplicantProvider);
-                                    setState(() {});
-                                  } catch (e) {
-                                    print('Error: $e');
-                                    // Handle error...
-                                  }
+                                                  // Replace with the actual asset path of your PDF file
+                                                ),
+                                              ),
+                                            )
+                                      : const SizedBox();
                                 }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PDFViewerScreen(
-                                      pdfAssetPath: item.resume.toString(),
-                                      phoneNumber1: item.contactNo!.toInt(),
-                                      isref: false,
-                                      phoneNumber2: item.alternateNo != null
-                                          ? item.alternateNo!.toInt()
-                                          : 0,
+                              : () async {
+                                  if (item.hr_status_id == 11 ||
+                                      item.s2DdHrStatusId == 11) {
+                                    try {
+                                      // Find the first matching item
 
-                                      // Replace with the actual asset path of your PDF file
+                                      NewChangeStatusModel changeStatusModel =
+                                          NewChangeStatusModel(
+                                              statusId: 4,
+                                              hrStatusId: 12,
+                                              dol: DateTime.now(),
+                                              sourceId: id,
+                                              sourceName: sourceName);
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+
+                                      await JobPostApiService.NewchangeStatus(
+                                          jsonData, item.id!.toInt());
+
+                                      ref.refresh(fetchAllApplicantProvider);
+                                      setState(() {});
+                                    } catch (e) {
+                                      print('Error: $e');
+                                      // Handle error...
+                                    }
+                                  }
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PDFViewerScreen(
+                                        isCvDownloaded:
+                                            item.isCvDownload != null
+                                                ? item.isCvDownload!.toInt()
+                                                : 0,
+                                        id: item.id,
+                                        pdfAssetPath: item.resume.toString(),
+                                        phoneNumber1: item.contactNo!.toInt(),
+                                        isref: false,
+                                        phoneNumber2: item.alternateNo != null
+                                            ? item.alternateNo!.toInt()
+                                            : 0,
+                                        name:
+                                            "${item.applicantName} ${item.last_name}",
+
+                                        // Replace with the actual asset path of your PDF file
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                        icon: Image.asset(
-                          "assets/images/cv.png",
-                          height: 15.h,
-                        )),
-                  ),
+                                  );
+                                },
+                          icon: Image.asset(
+                            "assets/images/cv.png",
+                            height: 15.h,
+                          )),
+                    ),
                 ],
               ),
             ),

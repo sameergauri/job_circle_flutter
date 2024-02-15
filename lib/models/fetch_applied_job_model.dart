@@ -153,6 +153,7 @@ class Applicant {
   int? is_work_pay;
   int? is_status_hide;
   int? s2_is_status_hide;
+  int? isCvDownload;
 
   Applicant({
     this.showRejectTextField,
@@ -258,6 +259,7 @@ class Applicant {
     this.is_work_pay,
     this.is_status_hide,
     this.s2_is_status_hide,
+    this.isCvDownload,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
@@ -365,6 +367,7 @@ class Applicant {
       is_work_pay: json['is_work_pay'],
       is_status_hide: json['is_status_hide'],
       s2_is_status_hide: json['s2_is_status_hide'],
+      isCvDownload:json['isCvDownload'],
     );
   }
 
@@ -510,6 +513,7 @@ class Applicant {
       'is_ctc_pay': is_ctc_pay,
       'is_status_hide': is_status_hide,
       's2_is_status_hide': s2_is_status_hide,
+      'isCvDownload': isCvDownload,
     };
   }
 }

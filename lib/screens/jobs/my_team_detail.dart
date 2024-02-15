@@ -113,6 +113,12 @@ class _MyTeamDetailState extends ConsumerState<MyTeamDetail> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   PDFViewerScreen(
+                                                      isCvDownloaded:
+                                                    widget.leadModel.isCvDownload != null
+                                                        ? widget.leadModel
+                                                        .isCvDownload!
+                                                            .toInt()
+                                                        : 0,
                                                     isref: false,
                                                 pdfAssetPath: widget
                                                     .leadModel.resume
@@ -127,6 +133,8 @@ class _MyTeamDetailState extends ConsumerState<MyTeamDetail> {
                                                         .leadModel.alternateNo!
                                                         .toInt()
                                                     : 0,
+                                                      name:
+                                                    "${widget.leadModel.applicantName} ${widget.leadModel.last_name}",
                                               ),
                                             ),
                                           );

@@ -17,6 +17,7 @@ import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
+import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timelines/timelines.dart';
@@ -518,7 +519,12 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
       onTap: () {
         Navigator.push(context, MaterialPageRoute(
           builder: (context) {
-            return JobDetails(id: item.jobId, Applies: false, referal: true,is_freelancer: 3,);
+            return JobDetails(
+              id: item.jobId,
+              Applies: false,
+              referal: true,
+              is_freelancer: 3,
+            );
           },
         ));
         /* Navigator.pushNamed(
@@ -659,21 +665,49 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PDFViewerScreen(
-                                pdfAssetPath: item.resume.toString(),
-                                isref: true,
-                                phoneNumber1: item.spocContactNo!.toInt(),
-                                phoneNumber2: item.alternateNo != null
-                                    ? item.alternateNo!.toInt()
-                                    : 0,
-
-                                // Replace with the actual asset path of your PDF file
-                              ),
-                            ),
-                          );
+                          item.resume!.contains(".docx")
+                              ? FutureBuilder<void>(
+                                  future: pdftron.PdftronFlutter.openDocument(
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
+                                    config: pdftron.Config.fromJson({
+                                      'readOnly': true, // Set to read-only mode
+                                      // Add other configuration options as needed to remove watermark or customize viewer
+                                    }),
+                                  ),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child:
+                                              Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      // PDF document has been opened successfully
+                                      return Container(); // Placeholder widget
+                                    }
+                                  },
+                                )
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PDFViewerScreen(
+                                      isCvDownloaded: item.isCvDownload != null
+                                          ? item.isCvDownload!.toInt()
+                                          : 0,
+                                      pdfAssetPath: item.resume.toString(),
+                                      isref: true,
+                                      phoneNumber1: item.spocContactNo!.toInt(),
+                                      phoneNumber2: item.alternateNo != null
+                                          ? item.alternateNo!.toInt()
+                                          : 0,
+                                      name:
+                                          "${item.applicantName} ${item.last_name}",
+                                      // Replace with the actual asset path of your PDF file
+                                    ),
+                                  ),
+                                );
                         },
                         icon: Image.asset(
                           "assets/images/cv.png",

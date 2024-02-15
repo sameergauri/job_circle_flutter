@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  docx_template:
+    dependency: "direct main"
+    description:
+      name: docx_template
+      sha256: "0dbdaa47c1ef6cf34565820c647771721886170d8fbc5dd6ca6c0af6adc17503"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
   dotted_border:
     dependency: "direct main"
     description:
@@ -584,14 +592,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
-  in_app_update:
-    dependency: "direct main"
-    description:
-      name: in_app_update
-      sha256: b6ccb757281a96a4b18536f68fe2567aeca865134218719364212da8fe94615c
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.2"
   infinite_listview:
     dependency: transitive
     description:
@@ -688,6 +688,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  open_file:
+    dependency: "direct main"
+    description:
+      name: open_file
+      sha256: a5a32d44acb7c899987d0999e1e3cbb0a0f1adebbf41ac813ec6d2d8faa0af20
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.2"
   overlay_support:
     dependency: "direct main"
     description:
@@ -776,6 +784,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.6"
+  pdftron_flutter:
+    dependency: "direct main"
+    description:
+      name: pdftron_flutter
+      sha256: a543df30d85d8415257aee6d31910a10d53b951efab026c7aec06363ce7526bb
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1-27"
   pdfx:
     dependency: "direct main"
     description:

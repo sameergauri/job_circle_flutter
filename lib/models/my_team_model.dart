@@ -112,6 +112,7 @@ class Applicant {
   String? referral_name;
   String? spoc_name;
   int? reportTo;
+  int? isCvDownload;
 
   Applicant(
       {this.showRejectTextField,
@@ -175,7 +176,9 @@ class Applicant {
       this.dol,
       this.referral_name,
       this.spoc_name,
-      this.reportTo});
+      this.reportTo,
+      this.isCvDownload,
+      });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
     return Applicant(
@@ -240,6 +243,7 @@ class Applicant {
       referral_name: json['referral_name'],
       spoc_name: json['spoc_name'],
       reportTo: json['report_to'],
+      isCvDownload: json['isCvDownload'],
     );
   }
 
@@ -344,7 +348,9 @@ class Applicant {
       'dol': dol,
       'referral_name': referral_name,
       'spoc_name': spoc_name,
-      'report_to': reportTo
+      'report_to': reportTo,
+      'isCvDownload': isCvDownload
+
     };
   }
 }

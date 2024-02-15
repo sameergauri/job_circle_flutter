@@ -1614,12 +1614,16 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                           context,
                           MaterialPageRoute(
                             builder: (context) => PDFViewerScreen(
+                                isCvDownloaded: item.isCvDownload != null
+                                  ? item.isCvDownload!.toInt()
+                                  : 0,
                               pdfAssetPath: item.resume.toString(),
                               isref: false,
                               phoneNumber1: item.contactNo!.toInt(),
                               phoneNumber2: item.alternateNo != null
                                   ? item.alternateNo!.toInt()
                                   : 0,
+                                    name: "${item.applicantName} ${item.last_name}",
                               // Replace with the actual asset path of your PDF file
                             ),
                           ),

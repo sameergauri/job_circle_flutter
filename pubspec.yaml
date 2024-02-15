@@ -84,7 +84,10 @@ dependencies:
   overlay_support: ^2.1.0
   super_banners: ^0.0.1
   flutter_plugin_android_lifecycle: ^2.0.17
-  in_app_update: ^4.1.0
+  open_file: ^3.3.2
+  docx_template: ^0.4.0
+  pdftron_flutter: ^1.0.1-27
+  
   #share_plus: ^4.0.10
   #cached_network_image: ^3.2.3
   #month_picker_dialog_2: ^0.6.2+1

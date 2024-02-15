@@ -1,4 +1,4 @@
-// ignore_for_file: todo
+// ignore_for_file: todo, unused_result, avoid_print, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

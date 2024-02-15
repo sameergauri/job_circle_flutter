@@ -259,6 +259,28 @@ class JobPostApiService {
       print('Error: $e');
     }
   }
+  static Future<void> CvDowloadDone(
+      Map<String, dynamic> jsonData, int id) async {
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/$id/cvDownload';
+
+    try {
+      var response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(jsonData));
+
+      if (response.statusCode == 200) {
+        // Successful request
+        // print(response.body);
+        print('Status Updated Successfully');
+      } else {
+        // Request failed
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   static Future<void> AddBankingDetails(
       Map<String, dynamic> jsonData, BuildContext context) async {

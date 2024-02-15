@@ -19,8 +19,10 @@ import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/refer_now.dart';
+import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// import 'package:document_viewer/document_viewer.dart';
 import '../../enums/enums.dart';
 import '../../models/get_user_for_add_Resume.dart';
 import '../../models/profileSummary.dart';
@@ -66,8 +68,31 @@ class _AddResumeState extends ConsumerState<AddResume> {
   @override
   void initState() {
     //fetchData();
+    initPlatformState();
     // TODO: implement initState
     super.initState();
+  }
+
+  String _version = 'Unknown';
+
+  Future<void> initPlatformState() async {
+    String version;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      pdftron.PdftronFlutter.initialize();
+      version = await pdftron.PdftronFlutter.version;
+    } on PlatformException {
+      version = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _version = version;
+    });
   }
 
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -108,6 +133,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
   String? icon_data;
 
   bool termAndConditionOne = false, termAndConditionTwo = false;
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -596,7 +623,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
                           InkWell(
                             onTap: icon_data == null
                                 ? () async {
-                                    var data = await uploadFile(['pdf'], false);
+                                    var data = await uploadFile(
+                                        ['pdf', 'docx'], false);
                                     if (data != null) {
                                       setState(() {
                                         icon_data = data;
@@ -604,91 +632,134 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                     }
                                   }
                                 : () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return Scaffold(
-                                          floatingActionButton: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              InkWell(
-                                                onTap: () async {
-                                                  icon_data = await uploadFile(
-                                                      ['pdf'], true);
+                                    icon_data!.contains(".docx")
+                                        ? FutureBuilder<void>(
+                                            future: pdftron.PdftronFlutter
+                                                .openDocument(
+                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data",
+                                              config: pdftron.Config.fromJson({
+                                                'readOnly':
+                                                    true, // Set to read-only mode
+                                                // Add other configuration options as needed to remove watermark or customize viewer
+                                              }),
+                                            ),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return const Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              } else if (snapshot.hasError) {
+                                                return Center(
+                                                    child: Text(
+                                                        'Error: ${snapshot.error}'));
+                                              } else {
+                                                // PDF document has been opened successfully
+                                                return Container(); // Placeholder widget
+                                              }
+                                            },
+                                          )
+                                        : showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return Scaffold(
+                                                floatingActionButton: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        icon_data =
+                                                            await uploadFile(
+                                                                ['pdf', 'docx'],
+                                                                true);
 
-                                                  /*  if (data != null) {
+                                                        /*  if (data != null) {
                                                     setState(() {
                                                       icon_data = data;
                                                     });
                                                   } */
-                                                },
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      left: 20.w),
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 4.h,
-                                                      horizontal: 8.r),
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.r),
-                                                      border: Border.all(
-                                                          color: Constants
-                                                              .themeBgColor)),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.upload_file,
-                                                        size: 15.h,
-                                                        color: Constants
-                                                            .themeBgColor,
+                                                      },
+                                                      child: Container(
+                                                        margin: EdgeInsets.only(
+                                                            left: 20.w),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 4.h,
+                                                                horizontal:
+                                                                    8.r),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.r),
+                                                            border: Border.all(
+                                                                color: Constants
+                                                                    .themeBgColor)),
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons.upload_file,
+                                                              size: 15.h,
+                                                              color: Constants
+                                                                  .themeBgColor,
+                                                            ),
+                                                            SizedBox(
+                                                              width: 4.w,
+                                                            ),
+                                                            const Text(
+                                                                "Replace"),
+                                                          ],
+                                                        ),
                                                       ),
-                                                      SizedBox(
-                                                        width: 4.w,
-                                                      ),
-                                                      const Text("Replace"),
-                                                    ],
+                                                    )
+                                                  ],
+                                                ),
+                                                body: Container(
+                                                  child: /* icon_data!.contains(".docx")
+                                                ? 
+                                                : */
+                                                      FutureBuilder<
+                                                          PDFDocument>(
+                                                    //TODO ::for only pdf file
+                                                    future: PDFDocument.fromURL(
+                                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data"),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .done) {
+                                                        if (snapshot.hasData) {
+                                                          return PDFViewer(
+                                                            scrollDirection:
+                                                                Axis.vertical,
+                                                            panLimit: 1.1,
+                                                            document:
+                                                                snapshot.data!,
+                                                            zoomSteps: 3,
+                                                            showNavigation:
+                                                                false,
+                                                            showPicker: false,
+
+                                                            // numberPickerConfirmWidget: f,
+                                                          );
+                                                        } else {
+                                                          return const Center(
+                                                              child: Text(
+                                                                  'Failed to load PDF'));
+                                                        }
+                                                      } else {
+                                                        return const Center(
+                                                            child:
+                                                                CircularProgressIndicator());
+                                                      }
+                                                    },
                                                   ),
                                                 ),
-                                              )
-                                            ],
-                                          ),
-                                          body: Container(
-                                            child: FutureBuilder<PDFDocument>(
-                                              future: PDFDocument.fromURL(
-                                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data"),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.done) {
-                                                  if (snapshot.hasData) {
-                                                    return PDFViewer(
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      panLimit: 1.1,
-                                                      document: snapshot.data!,
-                                                      zoomSteps: 3,
-                                                      showNavigation: false,
-                                                      showPicker: false,
-
-                                                      // numberPickerConfirmWidget: f,
-                                                    );
-                                                  } else {
-                                                    return const Center(
-                                                        child: Text(
-                                                            'Failed to load PDF'));
-                                                  }
-                                                } else {
-                                                  return const Center(
-                                                      child:
-                                                          CircularProgressIndicator());
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
+                                              );
+                                            },
+                                          );
                                   },
                             child: Container(
                               margin: const EdgeInsets.only(top: 20),
@@ -753,6 +824,24 @@ class _AddResumeState extends ConsumerState<AddResume> {
                           ),
                         ],
                       ),
+                      if (icon_data != null)
+                        Padding(
+                          padding: EdgeInsets.only(left: 5.w),
+                          child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  icon_data = null;
+                                });
+                              },
+                              child: CircleAvatar(
+                                radius: 10,
+                                backgroundColor: Colors.grey.shade200,
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 18,
+                                ),
+                              )),
+                        )
                     ],
                   ),
 
@@ -1046,7 +1135,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
 
   //TODO: old code to upload file.
 
-  /*  Future uploadFile(allowExt) async {
+  /*  Future 
+  (allowExt) async {
     Utils.showLoaderDialog(context, "");
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -1243,6 +1333,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
       DateTime? mostRecentDol;
 
       for (var element in ListOfCoolingData!) {
+        //TODO:: To check recent  dol from the list
         if ((element.contactNo == int.parse(primary_number.text.trim()) ||
                 element.contactNo == int.tryParse(secondry.text.trim())) &&
             element.dol != null &&
@@ -1252,10 +1343,11 @@ class _AddResumeState extends ConsumerState<AddResume> {
         }
       }
       // print(ListOfCoolingData);
-      if ((ListOfCoolingData!.any((element) =>
-          (element.contactNo == int.parse(primary_number.text.trim()) ||
-              element.contactNo == int.tryParse(secondry.text.trim())) &&
-          element.dol == null))) {
+      if ((ListOfCoolingData!.any(
+          (element) => //TODO:: here check contact number and then dol == null that means lead is in application.
+              (element.contactNo == int.parse(primary_number.text.trim()) ||
+                  element.contactNo == int.tryParse(secondry.text.trim())) &&
+              element.dol == null))) {
         showDialog(
           barrierDismissible: false,
           context: context,
@@ -1273,7 +1365,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
           },
         );
       } else if ((ListOfCoolingData!.any((element) =>
-          recentElement != null &&
+          recentElement !=
+              null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
           isDifferenceLessThan30Days(element.dol, DateTime.now())))) {
         showDialog(
           barrierDismissible: false,
@@ -1291,12 +1384,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
             );
           },
         );
-      } else if ((ListOfCoolingData!.any((element) =>
-          (element.contactNo == int.parse(primary_number.text.trim()) ||
-              element.contactNo == int.tryParse(secondry.text.trim())) &&
-          isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
-          element.status == "Interview Bay" &&
-          element.subStatus == null))) {
+      } else if ((ListOfCoolingData!.any(
+          (element) => //TODO:: here it check same contact number and thn if dol is more thne 30 days before thn check the status is no interviewBay.
+              (element.contactNo == int.parse(primary_number.text.trim()) ||
+                  element.contactNo == int.tryParse(secondry.text.trim())) &&
+              isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
+              element.status == "Interview Bay" &&
+              element.subStatus == null))) {
         showDialog(
           barrierDismissible: false,
           context: context,
@@ -1675,7 +1769,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Number should have 10 digit");
         },
       );
-    } /* else if (icon_data == null) {
+    } else if (icon_data == null) {
       showDialog(
         context: context,
         builder: (context) {
@@ -1688,8 +1782,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } */
-    else if (!termAndConditionOne && widget.isRefer && widget.is90) {
+    } else if (!termAndConditionOne && widget.isRefer && widget.is90) {
       showDialog(
         context: context,
         builder: (context) {

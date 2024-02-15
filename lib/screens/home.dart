@@ -1,5 +1,5 @@
-// ignore_for_file: must_be_immutable
-
+// ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use, avoid_print
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

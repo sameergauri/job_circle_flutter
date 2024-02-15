@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unused_result, use_full_hex_values_for_flutter_colors
+// ignore_for_file: unnecessary_null_comparison, unused_result, use_full_hex_values_for_flutter_colors, duplicate_ignore
 // ignore_for_file: override_on_non_overriding_member, unused_field, unused_local_variable, unused_result, file_names, avoid_print, unused_element, prefer_final_fields, non_constant_identifier_names, avoid_unnecessary_containers, use_build_context_synchronously, unnecessary_null_comparison
 // ignore_for_file: todo
 import 'dart:convert';
