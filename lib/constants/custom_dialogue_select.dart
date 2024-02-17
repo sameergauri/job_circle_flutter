@@ -497,7 +497,7 @@ class CustomDialogueForRemark extends StatefulWidget {
       required this.onTab,
       required this.controller,
       required this.item,
-      required this.callBack,
+      required this.callBack, 
       required this.hint,
       required this.onCancel});
 

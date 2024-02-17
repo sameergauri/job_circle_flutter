@@ -32,7 +32,6 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:super_banners/super_banners.dart';
 
 import '../../enums/enums.dart';
 import '../../models/active_state_model.dart';
@@ -264,6 +263,12 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
         .toList();
     List<JobsModel> campusHiringList = jobsController.jobs
         .where((job) => job.is_campus == 1)
+        // .where((element) => element.location == jobsController.selectedLocation)
+        .where((element) => element.active == 1)
+        .toList();
+
+    List<JobsModel> linguistic = jobsController.jobs
+        .where((job) => job.languagesKnown!.isNotEmpty)
         // .where((element) => element.location == jobsController.selectedLocation)
         .where((element) => element.active == 1)
         .toList();
@@ -761,6 +766,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       width: 5,
                     ),
                     // if (data.usertype == 1)
+
                     InkWell(
                         onTap: () {
                           cutTab = 3;
@@ -1280,21 +1286,178 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
 
                                               margin: const EdgeInsets.only(
                                                   left: 10, right: 10, top: 1),
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 5.w,
-                                                    right: 5.w,
-                                                    bottom: 5.h,
-                                                    top: 5.h),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  item.sponsored_position != //TODO:: Urgent Hiring.
+                                                          null
+                                                      ? Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  top: 5.h),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 2.h,
+                                                                  horizontal:
+                                                                      4.w),
+                                                          decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.only(
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          8.r),
+                                                                  bottomRight: Radius
+                                                                      .circular(
+                                                                          8.r)),
+                                                              color: Colors
+                                                                  .orange),
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.star,
+                                                                size: 15.sp,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              /*  Image.asset(
+                                                                  "assets/images/top.png",
+                                                                  height: 15.sp,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ), */
+                                                              Text(
+                                                                "Urgent Hiring",
+                                                                style: GoogleFonts.varela(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        12.sp),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        )
+                                                      : const SizedBox(),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 5.w,
+                                                        right: 5.w,
+                                                        bottom: 5.h,
+                                                        top: 5.h),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left: 10),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Row(
+                                                                    children: [
+                                                                      Text(
+                                                                        item.roleName ??
+                                                                            '',
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: GoogleFonts.varela(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize: 16.sp),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        width:
+                                                                            5.w,
+                                                                      ),
+                                                                      if (item
+                                                                          .languagesKnown!
+                                                                          .isNotEmpty)
+                                                                        Image
+                                                                            .network(
+                                                                          "https://cdn.discordapp.com/attachments/1095606068614283337/1177834889115074610/5665479-middle-removebg-preview.png?ex=6573f338&is=65617e38&hm=6b274668f0c3fdf32153d15150ee7679b7c29644241fd51c52c18afe745c7c35&",
+                                                                          height:
+                                                                              18.h,
+                                                                        ),
+                                                                      SizedBox(
+                                                                        width:
+                                                                            5.w,
+                                                                      ),
+                                                                      /* if (item.is_campus ==  //TODO: for campus....
+                                                                          1)
+                                                                        Image.asset(
+                                                                          "assets/images/campus.png",
+                                                                          height:
+                                                                              18.h,
+                                                                        ), */
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      if (item.process !=
+                                                                          null)
+                                                                        Text(
+                                                                          item.process
+                                                                              .toString(),
+                                                                          style: GoogleFonts.varela(
+                                                                              fontWeight: FontWeight.w500,
+                                                                              fontSize: 14.sp),
+                                                                        ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      Text(
+                                                                        "||",
+                                                                        style: GoogleFonts
+                                                                            .varela(
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      // if (item["0"] != null)
+                                                                      Text(
+                                                                        item.natureOfWork
+                                                                            .toString(),
+                                                                        style: GoogleFonts.varela(
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                            fontSize: 14.sp),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5.h,
+                                                        ),
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
@@ -1306,180 +1469,43 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                     .start,
                                                             children: [
                                                               Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
                                                                 children: [
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        top: 1),
+                                                                    child: Image
+                                                                        .asset(
+                                                                      "assets/images/cmpny.png",
+                                                                      height:
+                                                                          12.5.h,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 8.w,
+                                                                  ),
                                                                   Text(
-                                                                    item.roleName ??
-                                                                        '',
-                                                                    maxLines: 2,
+                                                                    item.companyName
+                                                                        .toString(),
                                                                     overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
                                                                     style: GoogleFonts.varela(
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                        fontSize:
-                                                                            16.sp),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 5.w,
-                                                                  ),
-                                                                  if (item
-                                                                      .languagesKnown!
-                                                                      .isNotEmpty)
-                                                                    Image
-                                                                        .network(
-                                                                      "https://cdn.discordapp.com/attachments/1095606068614283337/1177834889115074610/5665479-middle-removebg-preview.png?ex=6573f338&is=65617e38&hm=6b274668f0c3fdf32153d15150ee7679b7c29644241fd51c52c18afe745c7c35&",
-                                                                      height:
-                                                                          18.h,
-                                                                    ),
-                                                                  SizedBox(
-                                                                    width: 5.w,
-                                                                  ),
-                                                                  /* if (item.is_campus ==  //TODO: for campus....
-                                                                      1)
-                                                                    Image.asset(
-                                                                      "assets/images/campus.png",
-                                                                      height:
-                                                                          18.h,
-                                                                    ), */
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  if (item.process !=
-                                                                      null)
-                                                                    Text(
-                                                                      item.process
-                                                                          .toString(),
-                                                                      style: GoogleFonts.varela(
-                                                                          fontWeight: FontWeight
-                                                                              .w500,
-                                                                          fontSize:
-                                                                              14.sp),
-                                                                    ),
-                                                                  const SizedBox(
-                                                                    width: 2,
-                                                                  ),
-                                                                  Text(
-                                                                    "||",
-                                                                    style: GoogleFonts
-                                                                        .varela(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    width: 2,
-                                                                  ),
-                                                                  // if (item["0"] != null)
-                                                                  Text(
-                                                                    item.natureOfWork
-                                                                        .toString(),
-                                                                    style: GoogleFonts.varela(
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w500,
-                                                                        fontSize:
-                                                                            14.sp),
-                                                                  )
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      height: 5.h,
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top: 1),
-                                                                child:
-                                                                    Image.asset(
-                                                                  "assets/images/cmpny.png",
-                                                                  height:
-                                                                      12.5.h,
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                width: 8.w,
-                                                              ),
-                                                              Text(
-                                                                item.companyName
-                                                                    .toString(),
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: GoogleFonts
-                                                                    .varela(
                                                                         // color: Colors.black54,
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .normal,
-                                                                        fontSize:
-                                                                            13.sp),
+                                                                        color: Constants.subtitleclr,
+                                                                        fontWeight: FontWeight.normal,
+                                                                        fontSize: 13.sp),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ],
-                                                          ),
-                                                          item.isFresher ==
-                                                                  "Fresher"
-                                                              ? Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Image.asset(
-                                                                      "assets/images/bag.png",
-                                                                      height:
-                                                                          12.5.h,
-                                                                      //  color: Constants.subtitleclr,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      width:
-                                                                          8.w,
-                                                                    ),
-                                                                    Text(
-                                                                      "Fresher can apply.",
-                                                                      style: GoogleFonts.varela(
-                                                                          // color: Colors.black54,
-                                                                          color: Constants.subtitleclr,
-                                                                          fontWeight: FontWeight.normal,
-                                                                          fontSize: 13.sp),
-                                                                    )
-                                                                  ],
-                                                                )
-                                                              : (item.totalExperience !=
-                                                                      null)
+                                                              item.isFresher ==
+                                                                      "Fresher"
                                                                   ? Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
@@ -1499,156 +1525,229 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           width:
                                                                               8.w,
                                                                         ),
-                                                                        item.maxExperience ==
-                                                                                "& above"
-                                                                            ? item.minExperience == "0.6"
-                                                                                ? Text(
-                                                                                    // "${item.minexperience.replaceAll(".0", "")} Years & above.",
-                                                                                    "6 Month & Above.",
-                                                                                    style: GoogleFonts.varela(
-                                                                                        // color: Colors.black54,
-                                                                                        color: Constants.subtitleclr,
-                                                                                        fontWeight: FontWeight.normal,
-                                                                                        fontSize: 13.sp),
-                                                                                  )
-                                                                                : Text(
-                                                                                    "${item.minExperience?.replaceAll(".0", "")} Years & above.",
-                                                                                    style: GoogleFonts.varela(
-                                                                                        // color: Colors.black54,
-                                                                                        color: Constants.subtitleclr,
-                                                                                        fontWeight: FontWeight.normal,
-                                                                                        fontSize: 13.sp),
-                                                                                  )
-                                                                            : Text(
-                                                                                "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years",
-                                                                                style: GoogleFonts.varela(
-                                                                                    // color: Colors.black54,
-                                                                                    color: Constants.subtitleclr,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                    fontSize: 13.sp),
-                                                                              )
+                                                                        Text(
+                                                                          "Fresher can apply.",
+                                                                          style: GoogleFonts.varela(
+                                                                              // color: Colors.black54,
+                                                                              color: Constants.subtitleclr,
+                                                                              fontWeight: FontWeight.normal,
+                                                                              fontSize: 13.sp),
+                                                                        )
                                                                       ],
                                                                     )
-                                                                  : const SizedBox(),
-                                                          if (item.minCTC !=
-                                                              null)
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Image.asset(
-                                                                  "assets/images/wallet.png",
-                                                                  height:
-                                                                      12.5.h,
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 6.w,
-                                                                ),
-                                                                Text(
-                                                                  formatSalaryRange(
-                                                                      item.minCTC!
-                                                                          .toInt(),
-                                                                      item.maxCTC!
-                                                                          .toInt()),
-                                                                  style:
-                                                                      GoogleFonts
+                                                                  : (item.totalExperience !=
+                                                                          null)
+                                                                      ? Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.start,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.center,
+                                                                          children: [
+                                                                            Image.asset(
+                                                                              "assets/images/bag.png",
+                                                                              height: 12.5.h,
+                                                                              //  color: Constants.subtitleclr,
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 8.w,
+                                                                            ),
+                                                                            item.maxExperience == "& above"
+                                                                                ? item.minExperience == "0.6"
+                                                                                    ? Text(
+                                                                                        // "${item.minexperience.replaceAll(".0", "")} Years & above.",
+                                                                                        "6 Month & Above.",
+                                                                                        style: GoogleFonts.varela(
+                                                                                            // color: Colors.black54,
+                                                                                            color: Constants.subtitleclr,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                            fontSize: 13.sp),
+                                                                                      )
+                                                                                    : Text(
+                                                                                        "${item.minExperience?.replaceAll(".0", "")} Years & above.",
+                                                                                        style: GoogleFonts.varela(
+                                                                                            // color: Colors.black54,
+                                                                                            color: Constants.subtitleclr,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                            fontSize: 13.sp),
+                                                                                      )
+                                                                                : Text(
+                                                                                    "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years",
+                                                                                    style: GoogleFonts.varela(
+                                                                                        // color: Colors.black54,
+                                                                                        color: Constants.subtitleclr,
+                                                                                        fontWeight: FontWeight.normal,
+                                                                                        fontSize: 13.sp),
+                                                                                  )
+                                                                          ],
+                                                                        )
+                                                                      : const SizedBox(),
+                                                              if (item.minCTC !=
+                                                                  null)
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .start,
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Image.asset(
+                                                                      "assets/images/wallet.png",
+                                                                      height:
+                                                                          12.5.h,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width:
+                                                                          6.w,
+                                                                    ),
+                                                                    Text(
+                                                                      formatSalaryRange(
+                                                                          item.minCTC!
+                                                                              .toInt(),
+                                                                          item.maxCTC!
+                                                                              .toInt()),
+                                                                      style: GoogleFonts
                                                                           .varela(
-                                                                    fontSize:
-                                                                        13.sp,
-                                                                    color: Constants
-                                                                        .subtitleclr,
-                                                                  ),
+                                                                        fontSize:
+                                                                            13.sp,
+                                                                        color: Constants
+                                                                            .subtitleclr,
+                                                                      ),
+                                                                    ),
+                                                                    if (item.isMonthly !=
+                                                                        "")
+                                                                      Text(
+                                                                        " ${item.isMonthly}",
+                                                                        style: GoogleFonts
+                                                                            .varela(
+                                                                          fontSize:
+                                                                              13.sp,
+                                                                          color:
+                                                                              Constants.subtitleclr,
+                                                                        ),
+                                                                      )
+                                                                  ],
                                                                 ),
-                                                                if (item.isMonthly !=
-                                                                    "")
-                                                                  Text(
-                                                                    " ${item.isMonthly}",
+                                                              const SizedBox(
+                                                                height: 2,
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Image.asset(
+                                                                    "assets/images/loc.png",
+                                                                    height:
+                                                                        12.5.sp,
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 6.w,
+                                                                  ),
+                                                                  Expanded(
+                                                                    child: Text(
+                                                                      item.location ??
+                                                                          '',
+                                                                      maxLines:
+                                                                          2,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      style: GoogleFonts
+                                                                          .varela(
+                                                                        fontSize:
+                                                                            13.sp,
+                                                                        color: Constants
+                                                                            .subtitleclr,
+                                                                      ),
+                                                                    ),
+                                                                  )
+
+                                                                  /* Text(
+                                                                    item.location ??
+                                                                        '',
+                                                                    maxLines:
+                                                                        2,
+                                                                    overflow:
+                                                                        TextOverflow.ellipsis,
                                                                     style: GoogleFonts
                                                                         .varela(
                                                                       fontSize:
-                                                                          13.sp,
-                                                                      color: Constants
-                                                                          .subtitleclr,
+                                                                          18.sp,
+                                                                      color:
+                                                                          Constants.subtitleclr,
                                                                     ),
-                                                                  )
-                                                              ],
-                                                            ),
-                                                          const SizedBox(
-                                                            height: 2,
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Image.asset(
-                                                                "assets/images/loc.png",
-                                                                height: 12.5.sp,
+                                                                    softWrap:
+                                                                        true,
+                                                                  ), */
+                                                                ],
                                                               ),
-                                                              SizedBox(
-                                                                width: 6.w,
-                                                              ),
-                                                              Expanded(
-                                                                child: Text(
-                                                                  item.location ??
-                                                                      '',
-                                                                  maxLines: 2,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        13.sp,
-                                                                    color: Constants
-                                                                        .subtitleclr,
-                                                                  ),
-                                                                ),
-                                                              )
-
-                                                              /* Text(
-                                                                item.location ??
-                                                                    '',
-                                                                maxLines:
-                                                                    2,
-                                                                overflow:
-                                                                    TextOverflow.ellipsis,
-                                                                style: GoogleFonts
-                                                                    .varela(
-                                                                  fontSize:
-                                                                      18.sp,
-                                                                  color:
-                                                                      Constants.subtitleclr,
-                                                                ),
-                                                                softWrap:
-                                                                    true,
-                                                              ), */
                                                             ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 3.h,
-                                                    ),
-                                                    Wrap(
-                                                      alignment:
-                                                          WrapAlignment.start,
-                                                      spacing: 8.0,
-                                                      children: [
-                                                        ...updatedList
-                                                            .take(5)
-                                                            .map(
-                                                              (skillItem) =>
-                                                                  Container(
+                                                        ),
+                                                        SizedBox(
+                                                          height: 3.h,
+                                                        ),
+                                                        Wrap(
+                                                          alignment:
+                                                              WrapAlignment
+                                                                  .start,
+                                                          spacing: 8.0,
+                                                          children: [
+                                                            ...updatedList
+                                                                .take(5)
+                                                                .map(
+                                                                  (skillItem) =>
+                                                                      Container(
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                        bottom:
+                                                                            5),
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        vertical:
+                                                                            4,
+                                                                        horizontal:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .shade200,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                    ),
+                                                                    child: Text(
+                                                                      "#$skillItem"
+                                                                          .replaceAll(
+                                                                              '"',
+                                                                              '')
+                                                                          .replaceAll(
+                                                                              '[',
+                                                                              '')
+                                                                          .replaceAll(
+                                                                              ']',
+                                                                              ''),
+                                                                      style: GoogleFonts
+                                                                          .varela(
+                                                                        color: Colors
+                                                                            .black54,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            13.sp,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                            if (updatedList
+                                                                    .length >
+                                                                5)
+                                                              Container(
                                                                 margin:
                                                                     const EdgeInsets
                                                                         .only(
@@ -1661,16 +1760,15 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         8),
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade200,
+                                                                  color: Constants
+                                                                      .borderColor,
                                                                   borderRadius:
                                                                       BorderRadius
                                                                           .circular(
                                                                               8),
                                                                 ),
                                                                 child: Text(
-                                                                  "#$skillItem"
+                                                                  '+${updatedList.length - 5}'
                                                                       .replaceAll(
                                                                           '"',
                                                                           '')
@@ -1684,7 +1782,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       GoogleFonts
                                                                           .varela(
                                                                     color: Colors
-                                                                        .black54,
+                                                                        .black,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
@@ -1693,74 +1791,89 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                        if (updatedList.length >
-                                                            5)
-                                                          Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    bottom: 5),
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    vertical: 4,
-                                                                    horizontal:
-                                                                        8),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Constants
-                                                                  .borderColor,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8),
-                                                            ),
-                                                            child: Text(
-                                                              '+${updatedList.length - 5}'
-                                                                  .replaceAll(
-                                                                      '"', '')
-                                                                  .replaceAll(
-                                                                      '[', '')
-                                                                  .replaceAll(
-                                                                      ']', ''),
-                                                              style: GoogleFonts
-                                                                  .varela(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 13.sp,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                    Container(
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 5.h),
-                                                      color:
-                                                          Colors.grey.shade400,
-                                                      width: double.maxFinite,
-                                                      height: 0.5.h,
-                                                    ),
-                                                    Column(
-                                                      children: [
-                                                        if (data.usertype == 3)
-                                                          Row(
-                                                            children: [
-                                                              data.usertype ==
-                                                                          3 &&
-                                                                      data.id ==
-                                                                          item.spoc
-                                                                  ? InkWell(
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                          margin: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical:
+                                                                      5.h),
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          width:
+                                                              double.maxFinite,
+                                                          height: 0.5.h,
+                                                        ),
+                                                        Column(
+                                                          children: [
+                                                            if (data.usertype ==
+                                                                3)
+                                                              Row(
+                                                                children: [
+                                                                  data.usertype ==
+                                                                              3 &&
+                                                                          data.id ==
+                                                                              item.spoc
+                                                                      ? InkWell(
+                                                                          onTap:
+                                                                              () {
+                                                                            Navigator.push(context,
+                                                                                MaterialPageRoute(builder: (context) => const MatchingJobs()));
+                                                                          },
+                                                                          child:
+                                                                              Container(
+                                                                            margin:
+                                                                                const EdgeInsets.only(right: 10),
+                                                                            padding:
+                                                                                EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              border: Border.all(color: Constants.subtitleclr),
+                                                                              borderRadius: BorderRadius.circular(8),
+                                                                            ),
+                                                                            child:
+                                                                                Row(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Matching CV",
+                                                                                  style: TextStyle(
+                                                                                    color: Constants.subtitleclr,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontSize: 15.h,
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        )
+                                                                      : const SizedBox(),
+                                                                  const Spacer(),
+                                                                  Visibility(
+                                                                    child:
+                                                                        InkWell(
                                                                       onTap:
                                                                           () {
                                                                         Navigator.push(
                                                                             context,
-                                                                            MaterialPageRoute(builder: (context) => const MatchingJobs()));
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => AddResume(
+                                                                                      interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                      company_name: item.companyName.toString(),
+                                                                                      role: item.roleName.toString(),
+                                                                                      process: item.process.toString(),
+                                                                                      nature_of_work: item.natureOfWork.toString(),
+                                                                                      company_id: item.companyId!.toInt(),
+                                                                                      jobId: item.id!.toInt(),
+                                                                                      sourceId: data.id != null ? data.id!.toInt() : 0,
+                                                                                      sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                      isRefer: false,
+                                                                                      spocId: item.spoc!.toInt(),
+                                                                                      is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                      is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                      userNumber: data.mobile!.toInt(),
+                                                                                      useAlternateNumber: data.alternate_no!.toInt(),
+                                                                                    )));
                                                                       },
                                                                       child:
                                                                           Container(
@@ -1775,7 +1888,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         decoration:
                                                                             BoxDecoration(
                                                                           border:
-                                                                              Border.all(color: Constants.subtitleclr),
+                                                                              Border.all(color: Constants.themeBgColor),
                                                                           borderRadius:
                                                                               BorderRadius.circular(8),
                                                                         ),
@@ -1784,10 +1897,15 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           mainAxisSize:
                                                                               MainAxisSize.min,
                                                                           children: [
+                                                                            Icon(
+                                                                              Icons.add,
+                                                                              color: Constants.themeBgColor,
+                                                                              size: 15.h,
+                                                                            ),
                                                                             Text(
-                                                                              "Matching CV",
+                                                                              "Resume",
                                                                               style: TextStyle(
-                                                                                color: Constants.subtitleclr,
+                                                                                color: Constants.themeBgColor,
                                                                                 fontWeight: FontWeight.bold,
                                                                                 fontSize: 15.h,
                                                                               ),
@@ -1795,360 +1913,251 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           ],
                                                                         ),
                                                                       ),
-                                                                    )
-                                                                  : const SizedBox(),
-                                                              const Spacer(),
-                                                              Visibility(
-                                                                child: InkWell(
-                                                                  onTap: () {
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => AddResume(
-                                                                                  interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                                  company_name: item.companyName.toString(),
-                                                                                  role: item.roleName.toString(),
-                                                                                  process: item.process.toString(),
-                                                                                  nature_of_work: item.natureOfWork.toString(),
-                                                                                  company_id: item.companyId!.toInt(),
-                                                                                  jobId: item.id!.toInt(),
-                                                                                  sourceId: data.id != null ? data.id!.toInt() : 0,
-                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                  isRefer: false,
-                                                                                  spocId: item.spoc!.toInt(),
-                                                                                  is90: item.payment_clause == "90 Days" ? true : false,
-                                                                                  is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                  userNumber: data.mobile!.toInt(),
-                                                                                  useAlternateNumber: data.alternate_no!.toInt(),
-                                                                                )));
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                    margin: const EdgeInsets
-                                                                        .only(
-                                                                        right:
-                                                                            10),
-                                                                    padding: EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            4.h,
-                                                                        horizontal:
-                                                                            8.w),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      border: Border.all(
-                                                                          color:
-                                                                              Constants.themeBgColor),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                    ),
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        Icon(
-                                                                          Icons
-                                                                              .add,
-                                                                          color:
-                                                                              Constants.themeBgColor,
-                                                                          size:
-                                                                              15.h,
-                                                                        ),
-                                                                        Text(
-                                                                          "Resume",
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Constants.themeBgColor,
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize:
-                                                                                15.h,
-                                                                          ),
-                                                                        ),
-                                                                      ],
                                                                     ),
                                                                   ),
-                                                                ),
+                                                                ],
                                                               ),
-                                                            ],
-                                                          ),
-                                                        Row(
-                                                          children: [
-                                                            if (data.usertype ==
-                                                                    1 &&
-                                                                (data.is_freelancer ==
-                                                                        null ||
-                                                                    data.is_freelancer ==
-                                                                        1))
-                                                              const Spacer(),
-                                                            Visibility(
-                                                              visible: data.usertype ==
-                                                                      1 &&
-                                                                  (data.is_freelancer ==
-                                                                          0 ||
-                                                                      data.is_freelancer ==
-                                                                          1 ||
-                                                                      data.is_freelancer ==
-                                                                          null),
-                                                              child: InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
-                                                                      companyId: item
-                                                                          .companyId!
-                                                                          .toInt(),
-                                                                      process: item
-                                                                          .process
-                                                                          .toString(),
-                                                                      role: item
-                                                                          .roleName
-                                                                          .toString(),
-                                                                      now: item
-                                                                          .natureOfWork
-                                                                          .toString());
-                                                                  //
-                                                                  //
-                                                                  //
-                                                                  DateTime
-                                                                      dolDate =
-                                                                      DateFormat(
-                                                                              "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                                                                          .parse(
-                                                                              apiresult.dol);
-                                                                  DateTime
-                                                                      currentDate =
+                                                            Row(
+                                                              children: [
+                                                                if (data.usertype ==
+                                                                        1 &&
+                                                                    (data.is_freelancer ==
+                                                                            null ||
+                                                                        data.is_freelancer ==
+                                                                            1))
+                                                                  const Spacer(),
+                                                                Visibility(
+                                                                  visible: data
+                                                                              .usertype ==
+                                                                          1 &&
+                                                                      (data.is_freelancer == 0 ||
+                                                                          data.is_freelancer ==
+                                                                              1 ||
+                                                                          data.is_freelancer ==
+                                                                              null),
+                                                                  child:
+                                                                      InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
+                                                                          //TODO:: To avoid dublicate
+                                                                          companyId: item.companyId!.toInt(),
+                                                                          process: item.process.toString(),
+                                                                          role: item.roleName.toString(),
+                                                                          now: item.natureOfWork.toString());
+                                                                      //
+                                                                      //
+                                                                      //
+
+                                                                      DateTime dolDate = apiresult.dol !=
+                                                                              ""
+                                                                          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse(apiresult
+                                                                              .dol)
+                                                                          : DateTime
+                                                                              .now();
                                                                       DateTime
-                                                                          .now();
-                                                                  int differenceInDays =
-                                                                      currentDate
+                                                                          currentDate =
+                                                                          DateTime
+                                                                              .now();
+                                                                      int differenceInDays = currentDate
                                                                           .difference(
                                                                               dolDate)
                                                                           .inDays;
-                                                                  final diff =
-                                                                      differenceInDays >
-                                                                          30;
-                                                                  //
-                                                                  //
-                                                                  //
-                                                                  if (apiresult.status != "Interview bay" &&
-                                                                      apiresult
-                                                                              .status !=
-                                                                          "Assign" &&
-                                                                      apiresult
-                                                                              .status !=
-                                                                          "Application" &&
-                                                                      diff) {
-                                                                    if (data.cvLink !=
-                                                                        null) {
-                                                                      await JobPostApiService.postJobApply(
-                                                                          jobId: item
-                                                                              .id!
-                                                                              .toInt(),
-                                                                          userId: await Utils.getPreferencesValue(
-                                                                              null,
-                                                                              ESharedPreferences
-                                                                                  .user_id.name),
-                                                                          context:
-                                                                              context);
-                                                                      ref.refresh(
-                                                                          fetchAllApplyProvider);
-                                                                      ref.refresh(
-                                                                          fetchAllTalentPool);
-                                                                    } else {
-                                                                      if (item.id !=
-                                                                          null) {
-                                                                        Navigator.push(
-                                                                            context,
-                                                                            MaterialPageRoute(
-                                                                                builder: (context) => AddCvtoApply(
-                                                                                      jobId: item.id!.toInt(),
-                                                                                    )));
-                                                                      }
+                                                                      final diff =
+                                                                          differenceInDays >
+                                                                              30;
+                                                                      //
+                                                                      //
+                                                                      //
+                                                                      if (apiresult.status != "Interview bay" &&
+                                                                          apiresult.status !=
+                                                                              "Assign" &&
+                                                                          apiresult.status !=
+                                                                              "Application" &&
+                                                                          (apiresult.dol == "" ||
+                                                                              diff)) {
+                                                                        if (data.cvLink !=
+                                                                            null) {
+                                                                          await JobPostApiService.postJobApply(
+                                                                              jobId: item.id!.toInt(),
+                                                                              userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                              context: context);
+                                                                          ref.refresh(
+                                                                              fetchAllApplyProvider);
+                                                                          ref.refresh(
+                                                                              fetchAllTalentPool);
+                                                                        } else {
+                                                                          if (item.id !=
+                                                                              null) {
+                                                                            Navigator.push(
+                                                                                context,
+                                                                                MaterialPageRoute(
+                                                                                    builder: (context) => AddCvtoApply(
+                                                                                          jobId: item.id!.toInt(),
+                                                                                        )));
+                                                                          }
 
-                                                                      /*  showDialog(
-                                                                      context: context,
-                                                                      builder: (context) {
-                                                                        return CustomDialog(
-                                                                            fetchDataFromApi:
-                                                                                () {},
-                                                                            onClose: () {
-                                                                              Navigator.pop(
-                                                                                  context);
-                                                                              /*  Navigator.pushAndRemoveUntil(
-                                                                                  context,
-                                                                                  MaterialPageRoute(
-                                                                                    builder: (context) => HomeScreen(),
-                                                                                  ),
-                                                                                  (route) => false); */
-                                                                            },
-                                                                            isFisrt:
-                                                                                false,
-                                                                            title:
-                                                                                "Error",
-                                                                            subtitle:
-                                                                                "Resume is not uploaded in your profile");
-                                                                      },
-                                                                    ); */
-                                                                    }
-                                                                  } else {
-                                                                    showDialog(
-                                                                      context:
-                                                                          context,
-                                                                      builder:
-                                                                          (context) {
-                                                                        return CustomDialog(
-                                                                            fetchDataFromApi:
-                                                                                () {},
-                                                                            onClose:
-                                                                                () {
-                                                                              Navigator.pop(context);
-                                                                              /*  Navigator.pushAndRemoveUntil(
-                                                                                  context,
-                                                                                  MaterialPageRoute(
-                                                                                    builder: (context) => HomeScreen(),
-                                                                                  ),
-                                                                                  (route) => false); */
-                                                                            },
-                                                                            isFisrt:
-                                                                                false,
-                                                                            title:
-                                                                                "Error",
-                                                                            subtitle:
-                                                                                "Your CV is already in process in the PipeLine");
-                                                                      },
-                                                                    );
-                                                                  }
-                                                                },
-                                                                child:
-                                                                    Container(
-                                                                  margin:
-                                                                      const EdgeInsets
+                                                                          /*  showDialog(
+                                                                          context: context,
+                                                                          builder: (context) {
+                                                                            return CustomDialog(
+                                                                                fetchDataFromApi:
+                                                                                    () {},
+                                                                                onClose: () {
+                                                                                  Navigator.pop(
+                                                                                      context);
+                                                                                  /*  Navigator.pushAndRemoveUntil(
+                                                                                      context,
+                                                                                      MaterialPageRoute(
+                                                                                        builder: (context) => HomeScreen(),
+                                                                                      ),
+                                                                                      (route) => false); */
+                                                                                },
+                                                                                isFisrt:
+                                                                                    false,
+                                                                                title:
+                                                                                    "Error",
+                                                                                subtitle:
+                                                                                    "Resume is not uploaded in your profile");
+                                                                          },
+                                                                        ); */
+                                                                        }
+                                                                      } else {
+                                                                        showDialog(
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return CustomDialog(
+                                                                                fetchDataFromApi: () {},
+                                                                                onClose: () {
+                                                                                  Navigator.pop(context);
+                                                                                  /*  Navigator.pushAndRemoveUntil(
+                                                                                      context,
+                                                                                      MaterialPageRoute(
+                                                                                        builder: (context) => HomeScreen(),
+                                                                                      ),
+                                                                                      (route) => false); */
+                                                                                },
+                                                                                isFisrt: false,
+                                                                                title: "Error",
+                                                                                subtitle: "Your CV is already in process in the PipeLine");
+                                                                          },
+                                                                        );
+                                                                      }
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      margin: const EdgeInsets
                                                                           .only(
-                                                                    left: 10,
-                                                                  ),
-                                                                  padding: EdgeInsets.symmetric(
-                                                                      vertical:
-                                                                          4.h,
-                                                                      horizontal:
-                                                                          16.w),
-                                                                  decoration: BoxDecoration(
-                                                                      border: Border.all(
-                                                                          color: Constants
-                                                                              .navyblue),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8)),
-                                                                  child: Text(
-                                                                    "Apply",
-                                                                    style: GoogleFonts.varela(
-                                                                        color: Constants
-                                                                            .navyblue,
-                                                                        fontWeight:
-                                                                            FontWeight.bold),
+                                                                        left:
+                                                                            10,
+                                                                      ),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical: 4
+                                                                              .h,
+                                                                          horizontal:
+                                                                              16.w),
+                                                                      decoration: BoxDecoration(
+                                                                          border:
+                                                                              Border.all(color: Constants.navyblue),
+                                                                          borderRadius: BorderRadius.circular(8)),
+                                                                      child:
+                                                                          Text(
+                                                                        "Apply",
+                                                                        style: GoogleFonts.varela(
+                                                                            color:
+                                                                                Constants.navyblue,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            ),
-                                                            if (data.usertype ==
-                                                                    1 &&
-                                                                (data.is_freelancer !=
-                                                                            null &&
-                                                                        data.is_freelancer ==
-                                                                            2 ||
-                                                                    data.is_freelancer ==
-                                                                        0))
-                                                              const Spacer(),
-                                                            if (item.payoutType !=
-                                                                null)
-                                                              Visibility(
-                                                                visible: data.usertype ==
+                                                                if (data.usertype ==
                                                                         1 &&
-                                                                    (data.is_freelancer ==
-                                                                            2 ||
+                                                                    (data.is_freelancer !=
+                                                                                null &&
+                                                                            data.is_freelancer ==
+                                                                                2 ||
                                                                         data.is_freelancer ==
-                                                                            0 ||
-                                                                        data.is_freelancer ==
-                                                                            null),
-                                                                child: InkWell(
-                                                                  onTap: () {
-                                                                    var profilemodel;
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => AddResume(
-                                                                                  company_name: item.companyName.toString(),
-                                                                                  role: item.roleName.toString(),
-                                                                                  process: item.process.toString(),
-                                                                                  nature_of_work: item.natureOfWork.toString(),
-                                                                                  company_id: item.companyId!.toInt(),
-                                                                                  //anyId!.toInt(),
-                                                                                  jobId: item.id!.toInt(),
-                                                                                  sourceId: data.id!.toInt(),
-                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                  isRefer: true,
-                                                                                  spocId: item.spoc!.toInt(),
-                                                                                  is90: item.payment_clause == "90 Days" ? true : false,
-                                                                                  is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                  userNumber: data.mobile!.toInt(),
-                                                                                  useAlternateNumber: data.alternate_no?.toInt() ?? 0,
-                                                                                  interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                                )));
-                                                                  },
+                                                                            0))
+                                                                  const Spacer(),
+                                                                /* if (item.payoutType !=   //TODO:: commented because i wanna display refer now button for all hiring if the hiring dont have payout..
+                                                                    null) */
+                                                                Visibility(
+                                                                  visible: data
+                                                                              .usertype ==
+                                                                          1 &&
+                                                                      (data.is_freelancer == 2 ||
+                                                                          data.is_freelancer ==
+                                                                              0 ||
+                                                                          data.is_freelancer ==
+                                                                              null),
                                                                   child:
-                                                                      Container(
-                                                                    margin:
-                                                                        const EdgeInsets
-                                                                            .only(
-                                                                      left: 10,
-                                                                    ),
-                                                                    padding: EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            4.h,
-                                                                        horizontal:
-                                                                            10.w),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Colors.blue,
-                                                                            ),
-                                                                            borderRadius: BorderRadius.circular(8)),
-                                                                    child: Text(
-                                                                      "Refer Now",
-                                                                      style: GoogleFonts.varela(
-                                                                          color: Colors
-                                                                              .blue,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
+                                                                      InkWell(
+                                                                    onTap: () {
+                                                                      var profilemodel;
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => AddResume(
+                                                                                    company_name: item.companyName.toString(),
+                                                                                    role: item.roleName.toString(),
+                                                                                    process: item.process.toString(),
+                                                                                    nature_of_work: item.natureOfWork.toString(),
+                                                                                    company_id: item.companyId!.toInt(),
+                                                                                    //anyId!.toInt(),
+                                                                                    jobId: item.id!.toInt(),
+                                                                                    sourceId: data.id!.toInt(),
+                                                                                    sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                    isRefer: true,
+                                                                                    spocId: item.spoc!.toInt(),
+                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                    userNumber: data.mobile!.toInt(),
+                                                                                    useAlternateNumber: data.alternate_no?.toInt() ?? 0,
+                                                                                    interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                  )));
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      margin: const EdgeInsets
+                                                                          .only(
+                                                                        left:
+                                                                            10,
+                                                                      ),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical: 4
+                                                                              .h,
+                                                                          horizontal:
+                                                                              10.w),
+                                                                      decoration: BoxDecoration(
+                                                                          border: Border.all(
+                                                                            color:
+                                                                                Colors.blue,
+                                                                          ),
+                                                                          borderRadius: BorderRadius.circular(8)),
+                                                                      child:
+                                                                          Text(
+                                                                        "Refer Now",
+                                                                        style: GoogleFonts.varela(
+                                                                            color:
+                                                                                Colors.blue,
+                                                                            fontWeight: FontWeight.bold),
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ),
+                                                              ],
+                                                            ),
                                                           ],
                                                         ),
                                                       ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            if (item.is_campus == 1)
-                                              Positioned(
-                                                left: 10.w,
-                                                child: CornerBanner(
-                                                    elevation: 1,
-                                                    bannerColor: Constants.blue,
-                                                    child: Text(
-                                                      "Campus",
-                                                      style: GoogleFonts.roboto(
-                                                          fontSize: 10.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.white),
-                                                    )),
-                                              ),
 
                                             /*  item.is_campus == 1  // TODO: left corner Ribbin indicator.... for campus hiring..
                                                 ? Positioned(
@@ -2170,7 +2179,54 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                       ),
                                       item.spoc.toString() == data.id.toString()
                                           ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
                                               children: [
+                                                if (item.is_campus == 1)
+                                                  Container(
+                                                      margin: EdgeInsets.only(
+                                                          right: 10.w,
+                                                          top: 5.h),
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 2.h,
+                                                              horizontal: 4.w),
+                                                      decoration: BoxDecoration(
+                                                        color: Constants.blue,
+                                                        border: Border.all(
+                                                            color:
+                                                                Constants.blue),
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        8.r),
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        8.r)),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Image.asset(
+                                                            "assets/images/campus.png",
+                                                            height: 15.sp,
+                                                          ),
+                                                          Text(
+                                                            "Campus",
+                                                            style: GoogleFonts
+                                                                .roboto(
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Colors
+                                                                        .white),
+                                                          ),
+                                                        ],
+                                                      )),
                                                 Padding(
                                                   padding: EdgeInsets.only(
                                                       right: 15.w),
@@ -2406,9 +2462,55 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                             )
                                           : Positioned(
                                               top: 0,
-                                              right: 6.w,
+                                              right: 10.w,
                                               child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: [
+                                                  if (item.is_campus ==
+                                                      1) //TODO:: Campus Hiring hilights for jobseeker.
+                                                    Container(
+                                                        margin: EdgeInsets.only(
+                                                            top: 5.h),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 2.h,
+                                                                horizontal:
+                                                                    4.w),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Constants.blue,
+                                                          border: Border.all(
+                                                              color: Constants
+                                                                  .blue),
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          8.r),
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          8.r)),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Image.asset(
+                                                              "assets/images/campus.png",
+                                                              height: 15.sp,
+                                                            ),
+                                                            Text(
+                                                              "Campus",
+                                                              style: GoogleFonts.roboto(
+                                                                  fontSize:
+                                                                      12.sp,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                          ],
+                                                        )),
                                                   jobsController.isFavLoading
                                                       ? const Padding(
                                                           padding:

@@ -848,7 +848,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
                   const SizedBox(
                     height: 10,
                   ),
-                  if (widget.isRefer && widget.is90)
+                  // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+                  if (widget.isRefer)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -897,7 +898,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
                         SizedBox(
                           width: 10.w,
                         ),
-                        if (widget.isRefer && widget.is90)
+                        // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+                        if (widget.isRefer)
                           Expanded(
                               child: RichText(
                                   text: TextSpan(
@@ -1782,7 +1784,10 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } else if (!termAndConditionOne && widget.isRefer && widget.is90) {
+    } else if (!termAndConditionOne &&
+            widget
+                .isRefer //&& widget.is90  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+        ) {
       showDialog(
         context: context,
         builder: (context) {

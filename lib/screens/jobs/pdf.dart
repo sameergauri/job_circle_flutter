@@ -1,5 +1,5 @@
-// ignore_for_file: unused_field, deprecated_member_use, unused_element
-
+// ignore_for_file: unused_field, deprecated_member_use, unused_element, unused_result, avoid_print, use_build_context_synchronously
+// ignore_for_file: todo
 import 'dart:io';
 
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';

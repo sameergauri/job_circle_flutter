@@ -663,57 +663,108 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                   const Spacer(),
                   Column(
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          item.resume!.contains(".docx")
-                              ? FutureBuilder<void>(
-                                  future: pdftron.PdftronFlutter.openDocument(
-                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
-                                    config: pdftron.Config.fromJson({
-                                      'readOnly': true, // Set to read-only mode
-                                      // Add other configuration options as needed to remove watermark or customize viewer
-                                    }),
-                                  ),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                          child:
-                                              Text('Error: ${snapshot.error}'));
-                                    } else {
-                                      // PDF document has been opened successfully
-                                      return Container(); // Placeholder widget
-                                    }
-                                  },
-                                )
-                              : Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PDFViewerScreen(
-                                      isCvDownloaded: item.isCvDownload != null
-                                          ? item.isCvDownload!.toInt()
-                                          : 0,
-                                      pdfAssetPath: item.resume.toString(),
-                                      isref: true,
-                                      phoneNumber1: item.spocContactNo!.toInt(),
-                                      phoneNumber2: item.alternateNo != null
-                                          ? item.alternateNo!.toInt()
-                                          : 0,
-                                      name:
-                                          "${item.applicantName} ${item.last_name}",
-                                      // Replace with the actual asset path of your PDF file
+                      if (item.resume != null)
+                        IconButton(
+                          onPressed: () {
+                            item.resume!.contains(".docx")
+                                ? Stack(
+                                    children: [
+                                      FutureBuilder<void>(
+                                        future:
+                                            pdftron.PdftronFlutter.openDocument(
+                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
+                                          config: pdftron.Config.fromJson({
+                                            'readOnly': true,
+                                            // Add other configuration options as needed
+                                          }),
+                                        ),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          } else if (snapshot.hasError) {
+                                            return Center(
+                                                child: Text(
+                                                    'Error: ${snapshot.error}'));
+                                          } else {
+                                            // PDF document has been opened successfully
+                                            return Container(); // Placeholder widget
+                                          }
+                                        },
+                                      ),
+                                      Positioned(
+                                        top:
+                                            20, // Adjust the top position as needed
+                                        right:
+                                            20, // Adjust the right position as needed
+                                        child: ElevatedButton(
+                                          style: ButtonStyle(
+                                            backgroundColor: MaterialStateProperty
+                                                .all<Color>(Colors
+                                                    .blue), // Change the color here
+                                          ),
+                                          onPressed: () {
+                                            // Handle button press
+                                          },
+                                          child: const Text('Button'),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+
+                                /* FutureBuilder<void>(
+                                    future: pdftron.PdftronFlutter.openDocument(
+                                      "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
+                                      config: pdftron.Config.fromJson({
+                                        'readOnly':
+                                            true, // Set to read-only mode
+                                        // Add other configuration options as needed to remove watermark or customize viewer
+                                      }),
                                     ),
-                                  ),
-                                );
-                        },
-                        icon: Image.asset(
-                          "assets/images/cv.png",
-                          height: 20.h,
-                        ),
-                      )
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                            child: Text(
+                                                'Error: ${snapshot.error}'));
+                                      } else {
+                                        // PDF document has been opened successfully
+                                        return Container(); // Placeholder widget
+                                      }
+                                    },
+                                  ) */
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PDFViewerScreen(
+                                        isCvDownloaded:
+                                            item.isCvDownload != null
+                                                ? item.isCvDownload!.toInt()
+                                                : 0,
+                                        pdfAssetPath: item.resume.toString(),
+                                        isref: true,
+                                        phoneNumber1:
+                                            item.spocContactNo!.toInt(),
+                                        phoneNumber2: item.alternateNo != null
+                                            ? item.alternateNo!.toInt()
+                                            : 0,
+                                        name:
+                                            "${item.applicantName} ${item.last_name}",
+                                        // Replace with the actual asset path of your PDF file
+                                      ),
+                                    ),
+                                  );
+                          },
+                          icon: Image.asset(
+                            "assets/images/cv.png",
+                            height: 20.h,
+                          ),
+                        )
                     ],
                   )
                 ],

@@ -2674,8 +2674,284 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   ),
                 ),
                             ), */
+                    if (jobDetailsModel.partnerPayout == null ||
+                        jobDetailsModel.partnerPayout == "" &&
+                            (!widget.referal || widget.Applies) &&
+                            (jobDetailsModel.partnerPayout != 'Flat' ||
+                                jobDetailsModel.partnerPayout != 'Slab' ||
+                                jobDetailsModel.partnerPayout != 'CTC Based' ||
+                                jobDetailsModel.partnerPayout != "Work Pay" ||
+                                jobDetailsModel.specialClause == null ||
+                                jobDetailsModel.specialClause == ""))
+                      Visibility(
+                          visible: usertype != 3,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            padding: const EdgeInsets.only(
+                              top: 2,
+                              left: 20,
+                              right: 5,
+                            ),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Constants.borderColor),
+                                color: Constants.borderColor,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      offset: const Offset(0, 0),
+                                      blurRadius: 2)
+                                ]),
+                            child: Container(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Join our ",
+                                        style: GoogleFonts.varela(
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                      Text(
+                                        "Talent Referral Program",
+                                        style: GoogleFonts.varela(
+                                            color: Colors.indigo,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            margin:
+                                                const EdgeInsets.only(top: 5),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Refer a Friend Get\nRewarded",
+                                                      style: GoogleFonts.varela(
+                                                          // color: Colors.white,
+                                                          fontSize: 16.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                        width: 50.w,
+                                                        child: const Divider(
+                                                          thickness: 1.5,
+                                                        )),
+                                                    Row(
+                                                      children: [
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons
+                                                                      .currency_rupee_outlined,
+                                                                  color: Colors
+                                                                      .amber,
+                                                                ),
+                                                                Text(
+                                                                  "Payout will update soon!",
+                                                                  style: GoogleFonts.varela(
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color: Colors
+                                                                          .indigo),
+                                                                ),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
+                                                        /*   Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .end,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            const Text(""),
+                                                            Text(
+                                                              " Per Referral",
+                                                              style: GoogleFonts
+                                                                  .varela(
+                                                                fontSize: 8.sp,
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ) */
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    AddResume(
+                                                                      company_name: jobDetailsModel
+                                                                          .name
+                                                                          .toString(),
+                                                                      role: jobDetailsModel
+                                                                          .rolename
+                                                                          .toString(),
+                                                                      process: jobDetailsModel
+                                                                          .process
+                                                                          .toString(),
+                                                                      nature_of_work: jobDetailsModel
+                                                                          .naturofwork
+                                                                          .toString(),
+                                                                      company_id: jobDetailsModel
+                                                                          .compnayid!
+                                                                          .toInt(),
+                                                                      jobId: jobDetailsModel
+                                                                          .id!
+                                                                          .toInt(),
+                                                                      sourceId: profilemodel
+                                                                          .id!
+                                                                          .toInt(),
+                                                                      sourceName:
+                                                                          "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                                                                      isRefer:
+                                                                          true,
+                                                                      spocId: jobDetailsModel
+                                                                          .spoc!
+                                                                          .toInt(),
+                                                                      is90: jobDetailsModel.payment_clause ==
+                                                                              "90 Days"
+                                                                          ? true
+                                                                          : false,
+                                                                      is30: jobDetailsModel.payment_clause ==
+                                                                              "30 Days"
+                                                                          ? true
+                                                                          : false,
+                                                                      userNumber: profilemodel
+                                                                          .mobile!
+                                                                          .toInt(),
+                                                                      useAlternateNumber:
+                                                                          profilemodel.alternate_no?.toInt() ??
+                                                                              0,
+                                                                      interviewRounds: jobDetailsModel
+                                                                          .interviewrounds!
+                                                                          .first
+                                                                          .replaceAll(
+                                                                              '[',
+                                                                              '')
+                                                                          .replaceAll(
+                                                                              ']',
+                                                                              '')
+                                                                          .replaceAll(
+                                                                              '"',
+                                                                              ''),
+                                                                    )));
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 6,
+                                                        horizontal: 15),
+                                                    margin: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 10),
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color:
+                                                                Colors.white),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                              color: Colors.grey
+                                                                  .shade400,
+                                                              //  blurRadius: 10,
+                                                              blurRadius: 15.0,
+                                                              offset:
+                                                                  const Offset(
+                                                                      1, 1))
+                                                        ],
+                                                        color: Constants
+                                                            .borderColor,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.r)),
+                                                    child: Text(
+                                                      "Refer Now",
+                                                      style: GoogleFonts.varela(
+                                                          fontSize: 14.sp,
+                                                          letterSpacing: 1,
+                                                          color: Colors.indigo,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 20),
+                                            child: Column(
+                                              children: [
+                                                Image.network(
+                                                  "https://cdn.discordapp.com/attachments/1095606068614283337/1169591660976558090/referal-removebg-preview.png?ex=6555f61d&is=6543811d&hm=a6938cb3ebe43c9f03e193765f25243c66a180aeca82e0faf738603109c9b321&",
+                                                  height: 100.h,
+                                                ),
+                                                // const Text("T & C apply")
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          )),
 
                     if (jobDetailsModel.partnerPayout != null &&
+                        jobDetailsModel.partnerPayout != "" &&
                         (widget.referal || !widget.Applies) &&
                         (jobDetailsModel.partnerPayout == 'Flat' ||
                             jobDetailsModel.partnerPayout == 'Slab' ||

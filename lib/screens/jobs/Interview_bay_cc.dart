@@ -2776,10 +2776,19 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                 builder: (context) =>
                                                     PDFViewerScreen(
                                                   isCvDownloaded:
+                                                      item.hr_status_id == 14
+                                                          ? item.isCvDownload !=
+                                                                  null
+                                                              ? item
+                                                                  .isCvDownload!
+                                                                  .toInt()
+                                                              : 0
+                                                          : 1,
+                                                  /*  isCvDownloaded:
                                                       item.isCvDownload != null
                                                           ? item.isCvDownload!
                                                               .toInt()
-                                                          : 0,
+                                                          : 0, */
                                                   pdfAssetPath:
                                                       item.resume.toString(),
                                                   phoneNumber1:
@@ -2830,10 +2839,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => PDFViewerScreen(
-                                        isCvDownloaded:
-                                            item.isCvDownload != null
+                                        isCvDownloaded: item.status_id == 14
+                                            ? item.isCvDownload != null
                                                 ? item.isCvDownload!.toInt()
-                                                : 0,
+                                                : 0
+                                            : 1,
                                         id: item.id,
                                         pdfAssetPath: item.resume.toString(),
                                         phoneNumber1: item.contactNo!.toInt(),

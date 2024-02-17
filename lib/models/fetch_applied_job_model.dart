@@ -321,7 +321,7 @@ class Applicant {
       is_ref: json['is_ref'],
       last_name: json['last_name'],
       source_name: json['source_name'],
-      company_resumeId: json['company_resumeId'],
+      company_resumeId: json['z'],
       dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
       gender: json['gender'],
       sub_source: json['sub_source'],
