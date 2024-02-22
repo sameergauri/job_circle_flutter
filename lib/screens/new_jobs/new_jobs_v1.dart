@@ -235,6 +235,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    // Clear the searchController when the screen is disposed
+
+    super.dispose();
+  }
+
   List<String> updatedList = [];
   List<String> myString = [];
   late Timer timer;
@@ -570,7 +577,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const PaymentStatus()));
+                                         PaymentStatus()));
                             closeDrawer();
                             // Navigator.pop(context);
                           },
@@ -589,8 +596,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BankingDetals(
-                                          name:
-                                              "${data.firstName} ${data.middleName} ${data.lastName}",
+                                          name: data.middleName != null &&
+                                                  data.middleName != ""
+                                              ? "${data.firstName} ${data.middleName} ${data.lastName}"
+                                              : "${data.firstName} ${data.lastName}",
                                           profilePic:
                                               data.profilePic.toString(),
                                           gender: data.gender.toString(),

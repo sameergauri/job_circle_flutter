@@ -259,6 +259,7 @@ class JobPostApiService {
       print('Error: $e');
     }
   }
+
   static Future<void> CvDowloadDone(
       Map<String, dynamic> jsonData, int id) async {
     String apiUrl =
@@ -440,7 +441,6 @@ class JobPostApiService {
             builder: (context) {
               return CustomDialogueForAddResume(
                 error: false,
-
                 onClose: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
@@ -548,7 +548,7 @@ class JobPostApiService {
           context: context,
           builder: (context) {
             return CustomDialogueForAddResume(
-              error:  true,
+              error: true,
               onClose: () {
                 Navigator.pop(context);
               },
@@ -663,6 +663,40 @@ class JobPostApiService {
       }
     } catch (e) {
       print("An error occurred: $e");
+    }
+  }
+
+  Future<void> updateInvoiceDetails({
+    required String partnerInvoiceNo,
+    required int partnerTotalAmount,
+    required DateTime invoiceDate,
+    required List<int> id,
+  }) async {
+    const String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/updateInvoiceDetails';
+
+    final Map<String, dynamic> requestData = {
+      'partner_invoice_no': partnerInvoiceNo,
+      'partner_total_amount': partnerTotalAmount,
+      'invoice_date': invoiceDate.toIso8601String(),
+      'id': id,
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(requestData),
+    );
+
+    if (response.statusCode == 200) {
+      // Data sent successfully
+      print('Data sent successfully');
+    } else {
+      // Failed to send data
+      throw Exception('Failed to send Invoice data: ${response.statusCode}');
     }
   }
 }

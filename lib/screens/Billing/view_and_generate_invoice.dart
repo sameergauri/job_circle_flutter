@@ -290,10 +290,11 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
     // Display message when no data is found
     if (additionalFilteredData.isEmpty) {
       return Center(
-        child: Text(
+        child: Image.asset("assets/images/nodata.jpg"),
+        /* Text(
           "No results found.",
           style: GoogleFonts.varela(),
-        ),
+        ), */
       );
     }
 

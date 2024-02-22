@@ -13,11 +13,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customSnackBar.dart';
+import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/get_banking_detail_model.dart';
 import 'package:job_circle/service/FileUploadService.dart';
+import 'package:job_circle/service/data_delete_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:super_banners/super_banners.dart';
@@ -217,14 +219,12 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                                   panCardCopy == "") {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     CustomSnackbarfinal(
-                                        title: "Specify The copy of Pan Card",
-                                        error: true));
+                                        title: "Add Pan Card", error: true));
                               } else if (cancelCheckCopy == null ||
                                   cancelCheckCopy == "") {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     CustomSnackbarfinal(
-                                        title:
-                                            "Specify The copy of Cancel Check",
+                                        title: "Add Cancel Cheque",
                                         error: true));
                               } else {
                                 showDialog(
@@ -358,7 +358,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
             },
           )
         : const SizedBox(
-            child: Text("Error"),
+            child: Text("No Data to display."),
           );
   }
 
@@ -403,11 +403,21 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 children: [
                   Column(
                     children: [
-                      Image.asset(
-                        "assets/images/bank.png",
-                        height: 30.h,
-                        fit: BoxFit.fill,
-                      )
+                      data.icon != null
+                          ? Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              height: 40.h,
+                              width: 50.w,
+                              child: CustomImage(
+                                imageUrl:
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.icon}",
+                                defaultImageUrl: "assets/images/bank.png",
+                              ))
+                          : Image.asset(
+                              "assets/images/bank.png",
+                              height: 30.h,
+                              fit: BoxFit.fill,
+                            )
                     ],
                   ),
                   SizedBox(
@@ -429,24 +439,63 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
               SizedBox(
                 height: 6.h,
               ),
-              Text("Holder Name:- ${widget.name.toTitleCase()}",
-                  style: GoogleFonts.varela()),
-              Text("A/C:- ${data.accountNumber}", style: GoogleFonts.varela()),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("IFSC:- ${data.ifscCode}", style: GoogleFonts.varela()),
-                  /* data.isVerify == null
-                      ? Container(
-                          child: const Text("Under Review"),
-                        )
-                      : data.isVerify == 0
-                          ? Container(
-                              child: const Text("InActive"),
-                            )
-                          : Container(
-                              child: const Text("Active"),
-                            ) */
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Name as per Bank Record",
+                          style: GoogleFonts.varela()),
+                      Text("Account Number", style: GoogleFonts.varela()),
+                      Text("IFSC Code", style: GoogleFonts.varela()),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(" : ${widget.name.toTitleCase()}",
+                          style: GoogleFonts.varela()),
+                      Text(" : ${data.accountNumber}",
+                          style: GoogleFonts.varela()),
+                      Text(" : ${data.ifscCode}", style: GoogleFonts.varela()),
+                    ],
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    margin:
+                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            showUploadedDocument(
+                                context, data.panCardCopy.toString());
+                          },
+                          child: Image.asset(
+                            "assets/images/pancard.png",
+                            height: 30,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 20.w,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showUploadedDocument(
+                                context, data.panCardCopy.toString());
+                          },
+                          child: Image.asset(
+                            "assets/images/cancel_check.png",
+                            height: 30,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -506,39 +555,6 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                     color: Colors.white),
               )),
         ),
-        Positioned(
-            right: 15.w,
-            bottom: 0,
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      showUploadedDocument(
-                          context, data.panCardCopy.toString());
-                    },
-                    child: Image.asset(
-                      "assets/images/pancard.png",
-                      height: 30,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20.w,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showUploadedDocument(
-                          context, data.panCardCopy.toString());
-                    },
-                    child: Image.asset(
-                      "assets/images/cancel_check.png",
-                      height: 30,
-                    ),
-                  ),
-                ],
-              ),
-            )),
       ],
     );
   }
@@ -754,7 +770,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   textfield_no: 4,
                   lock: true,
                   obsecText: false,
-                  limit: 12,
+                  limit: 11,
                   icon: const Icon(Icons.adjust_sharp)),
               customTextfield(
                   onTab: () {
@@ -807,7 +823,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text("PanCard"),
+                                const Text("Pan Card"),
                                 if (panCardCopy != "")
                                   SizedBox(
                                     width: 4.sp,
@@ -921,6 +937,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
         enableInteractiveSelection: !obsecText,
         obscureText: obsecText ? hideText : obsecText,
         enabled: lock,
+
         keyboardType: textfield_no == 1
             ? TextInputType.number
             : textfield_no == 2
@@ -936,16 +953,21 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   ? FilteringTextInputFormatter.digitsOnly
                   : textfield_no == 3
                       ? FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
-                      : FilteringTextInputFormatter.allow(
-                          RegExp(r'[a-zA-Z0-9]'),
-                        ),
+                      : textfield_no == 4 || textfield_no == 5
+                          ? FilteringTextInputFormatter.allow(
+                              RegExp(r'[A-Z0-9]'))
+                          : FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z0-9]'),
+                            ),
         ],
         onSubmitted: (value) {
           setState(() {
             hideText = true;
           });
         },
-        textCapitalization: TextCapitalization.sentences,
+        textCapitalization: textfield_no == 4 || textfield_no == 5
+            ? TextCapitalization.characters
+            : TextCapitalization.sentences,
         controller: controller,
         style:
             GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
@@ -1058,7 +1080,13 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                onTap: () {
+                onTap: () async {
+                  ApplicationDeletApi api = ApplicationDeletApi();
+                  data == "pan"
+                      ? await api.DeleteDocument(
+                          panCardCopy..toString(), context)
+                      : await api.DeleteDocument(
+                          cancelCheckCopy.toString(), context);
                   setState(() {
                     data == "pan" ? panCardCopy = "" : cancelCheckCopy = "";
                   });

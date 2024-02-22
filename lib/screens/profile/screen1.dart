@@ -161,7 +161,7 @@ class _Screen1State extends ConsumerState<Screen1> {
 
   late List list;
 
-   GlobalKey<FormState> basicForm3 = GlobalKey<FormState>();
+  GlobalKey<FormState> basicForm3 = GlobalKey<FormState>();
 
   late List<AutoCompleteModel> stateList = [];
   late List<AutoCompleteModel> cityList = [];
@@ -322,7 +322,9 @@ class _Screen1State extends ConsumerState<Screen1> {
             widget.prevPageModel!.alternate_no != 0) {
           secondaryNumber.text = widget.prevPageModel!.alternate_no.toString();
         }
-        bio.text = widget.prevPageModel!.bio.toString();
+        if (widget.prevPageModel!.bio != null) {
+          bio.text = widget.prevPageModel!.bio.toString();
+        }
 
         if (widget.prevPageModel!.gender == "Male") {
           setState(() {
@@ -686,7 +688,7 @@ class _Screen1State extends ConsumerState<Screen1> {
     age = ((DateTime.now().difference(dataOfBirthValue)).inDays / 365.floor());
     return Container(
       //margin: const EdgeInsets.only(top: 10),
-     
+
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 10),
@@ -2539,7 +2541,7 @@ class _Screen1State extends ConsumerState<Screen1> {
         "vaccination": vaccination,
         "dateofbirth":
             DateFormat("yyyy-MM-dd").format(dataOfBirthValue).toString(),
-        "bio": bio.text,
+        "bio": bio.text.trim().isEmpty ? null : bio.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
         "vaccination_certificate":

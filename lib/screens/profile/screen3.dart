@@ -628,7 +628,8 @@ class _Screen3State extends ConsumerState<Screen3> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        companyController.clear();
+        // companyController.clear();
+        jobTitleController.clear();
       },
       child: Scaffold(
           backgroundColor: Colors.white,
@@ -1113,9 +1114,24 @@ class _Screen3State extends ConsumerState<Screen3> {
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            "Clear All",
-                            style: GoogleFonts.varela(color: Colors.red),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Clear All",
+                                style: GoogleFonts.varela(color: Colors.red),
+                              ),
+                              jobTitleController.text.isEmpty
+                                  ? const Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text("Specify the designation/Title")
+                                      ],
+                                    )
+                                  : const SizedBox()
+                            ],
                           ),
                         ),
                       ),

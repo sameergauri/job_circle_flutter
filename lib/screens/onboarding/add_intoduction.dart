@@ -153,7 +153,7 @@ class _AddIntoductionState extends State<AddIntoduction>
 
   late List list;
 
-   GlobalKey<FormState> basicForm = GlobalKey<FormState>();
+  GlobalKey<FormState> basicForm = GlobalKey<FormState>();
 
   late List<AutoCompleteModel> stateList = [];
   late List<AutoCompleteModel> cityList = [];
@@ -308,7 +308,9 @@ class _AddIntoductionState extends State<AddIntoduction>
             widget.prevPageModel!.alternate_no != 0) {
           secondaryNumber.text = widget.prevPageModel!.alternate_no.toString();
         }
-        bio.text = widget.prevPageModel!.bio.toString();
+        if (widget.prevPageModel!.bio != null) {
+          bio.text = widget.prevPageModel!.bio.toString();
+        }
 
         if (widget.prevPageModel!.gender == "Male") {
           setState(() {
@@ -2419,7 +2421,7 @@ class _AddIntoductionState extends State<AddIntoduction>
         "vaccination": vaccination,
         "dateofbirth":
             DateFormat("yyyy-MM-dd").format(dataOfBirthValue).toString(),
-        "bio": bio.text,
+        "bio": bio.text.trim().isEmpty ? null : bio.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
         "vaccination_certificate":
