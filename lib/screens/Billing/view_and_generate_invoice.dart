@@ -10,9 +10,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/get_banking_detail_model.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
+import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/payment_status.dart';
+import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -23,7 +28,14 @@ final fetchAllBillingDataProvider =
 });
 
 class GenerateInvoice extends ConsumerStatefulWidget {
-  const GenerateInvoice({super.key});
+  final String name;
+  final String profilePic;
+  final String gender;
+  const GenerateInvoice(
+      {super.key,
+      required this.name,
+      required this.profilePic,
+      required this.gender});
 
   @override
   ConsumerState<GenerateInvoice> createState() => _GenerateInvoiceState();
@@ -188,37 +200,91 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
               ],
             ),
             shouldDisplayBottomNavBar(fetchData)
-                ? Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      color: Constants.blue,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: const Offset(0.5, 2),
-                            blurRadius: 2,
-                            spreadRadius: 2,
-                            color: Colors.grey.shade200)
-                      ],
-                      // border: Border.all(color: Constants.subtitleclr)
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Create Invoice",
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        SizedBox(
-                          width: 4.sp,
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 13.sp,
-                          color: Colors.white,
-                        )
-                      ],
+                ? GestureDetector(
+                    onTap: () async {
+                      try {
+                        List<GetBankingModel> data = await ApplicationAPI
+                            .fetchBankingDataForBankDetail();
+                        if (data.isEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomDialogueForAddResume(
+                                error: false,
+                                subtitle:
+                                    "Add banking Detail to generate invoice",
+                                onClose: () {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => BankingDetals(
+                                                gender: widget.gender,
+                                                name: widget.name,
+                                                profilePic: widget.profilePic,
+                                              )));
+                                },
+                              );
+                            },
+                          );
+                        } else if (data.isNotEmpty &&
+                            (data.first.isVerify == 0 ||
+                                data.first.isVerify == null)) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomDialogueForAddResume(
+                                error: false,
+                                subtitle: "Your banking detail is under review",
+                                onClose: () {
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          );
+                        } else {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const PaymentStatus()));
+                        }
+                      } catch (error) {
+                        // Handle errors
+                        print('Error fetching banking data: $error');
+                      }
+                    },
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: Constants.blue,
+                        boxShadow: [
+                          BoxShadow(
+                              offset: const Offset(0.5, 2),
+                              blurRadius: 2,
+                              spreadRadius: 2,
+                              color: Colors.grey.shade200)
+                        ],
+                        // border: Border.all(color: Constants.subtitleclr)
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Create Invoice",
+                            style: GoogleFonts.varela(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          SizedBox(
+                            width: 4.sp,
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 13.sp,
+                            color: Colors.white,
+                          )
+                        ],
+                      ),
                     ),
                   )
                 : Container(

@@ -26,7 +26,7 @@ import 'package:super_banners/super_banners.dart';
 
 final fetchBankingDetails = FutureProvider<List<GetBankingModel>>((ref) {
   Future.delayed(const Duration(milliseconds: 10));
-  return _BankingDetalsState.fetchBillingData();
+  return _BankingDetalsState.fetchBankingData();
 });
 
 class BankingDetals extends ConsumerStatefulWidget {
@@ -44,7 +44,7 @@ class BankingDetals extends ConsumerStatefulWidget {
 }
 
 class _BankingDetalsState extends ConsumerState<BankingDetals> {
-  static Future<List<GetBankingModel>> fetchBillingData() async {
+  static Future<List<GetBankingModel>> fetchBankingData() async {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
@@ -267,6 +267,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                                                 GestureDetector(
                                                   onTap: () async {
                                                     await addBankingDetails();
+                                                    ref.refresh(
+                                                        fetchBankingDetails);
                                                   },
                                                   child: Container(
                                                     margin:

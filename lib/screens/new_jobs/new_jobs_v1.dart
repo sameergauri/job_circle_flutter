@@ -557,7 +557,14 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const GenerateInvoice(),
+                                  builder: (context) =>  GenerateInvoice(
+                                     name: data.middleName != null &&
+                                            data.middleName != ""
+                                        ? "${data.firstName} ${data.middleName} ${data.lastName}"
+                                        : "${data.firstName} ${data.lastName}",
+                                    profilePic: data.profilePic.toString(),
+                                    gender: data.gender.toString(),
+                                  ),
                                 ));
                             closeDrawer();
                             //Navigator.pop(context);

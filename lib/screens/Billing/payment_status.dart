@@ -189,7 +189,7 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getInvoiceDetailsOfReferral?rid=${810}&pageNumber=1&pageSize=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getInvoiceDetailsOfReferral?rid=$userid&pageNumber=1&pageSize=100');
 
     try {
       final response = await http.get(url);
@@ -595,7 +595,7 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
     String words = '';
 
     if (amount >= 1000) {
-      words += '${units[amount ~/ 1000]} Thousand ';
+      words += '${amountToWords(amount ~/ 1000)} Thousand ';
       amount %= 1000;
     }
 
@@ -618,6 +618,111 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
 
     return words.trim();
   }
+
+  /*  String amountToWords(int amount) {
+    if (amount == 0) {
+      return 'Zero';
+    }
+
+    final List<String> units = [
+      '',
+      'One',
+      'Two',
+      'Three',
+      'Four',
+      'Five',
+      'Six',
+      'Seven',
+      'Eight',
+      'Nine'
+    ];
+
+    final List<String> teens = [
+      'Ten',
+      'Eleven',
+      'Twelve',
+      'Thirteen',
+      'Fourteen',
+      'Fifteen',
+      'Sixteen',
+      'Seventeen',
+      'Eighteen',
+      'Nineteen'
+    ];
+
+    final List<String> tens = [
+      '',
+      '',
+      'Twenty',
+      'Thirty',
+      'Forty',
+      'Fifty',
+      'Sixty',
+      'Seventy',
+      'Eighty',
+      'Ninety'
+    ];
+
+    String words = '';
+
+    if (amount >= 1000) {
+      int thousandIndex =
+          (amount ~/ 1000) - 1; // Adjusting index to match list index
+      if (thousandIndex >= 0 && thousandIndex < units.length) {
+        words += '${units[thousandIndex]} Thousand ';
+        amount %= 1000;
+      } else {
+        // Handle case where index is out of range
+        // You can print an error message or handle it as per your requirements
+        print('Error: Index out of range for "units" list');
+      }
+    }
+
+    if (amount >= 100) {
+      int hundredIndex =
+          (amount ~/ 100) - 1; // Adjusting index to match list index
+      if (hundredIndex >= 0 && hundredIndex < units.length) {
+        words += '${units[hundredIndex]} Hundred ';
+        amount %= 100;
+      } else {
+        // Handle case where index is out of range
+        // You can print an error message or handle it as per your requirements
+        print('Error: Index out of range for "units" list');
+      }
+    }
+
+    if (amount >= 10 && amount < 20) {
+      int teenIndex = amount - 10;
+      if (teenIndex >= 0 && teenIndex < teens.length) {
+        words += '${teens[teenIndex]} ';
+        amount = 0;
+      } else {
+        // Handle case where index is out of range
+        print('Error: Index out of range for "teens" list');
+      }
+    } else if (amount >= 20) {
+      int tenIndex = (amount ~/ 10) - 2; // Adjusting index to match list index
+      if (tenIndex >= 0 && tenIndex < tens.length) {
+        words += '${tens[tenIndex]} ';
+        amount %= 10;
+      } else {
+        // Handle case where index is out of range
+        print('Error: Index out of range for "tens" list');
+      }
+    }
+    if (amount > 0) {
+      int unitIndex = amount;
+      if (unitIndex >= 0 && unitIndex < units.length) {
+        words += '${units[unitIndex]} ';
+      } else {
+        // Handle case where index is out of range
+        print('Error: Index out of range for "units" list');
+      }
+    }
+
+    return words.trim();
+  }
+ */
 }
 
 class InvoiceNumberGenerator {

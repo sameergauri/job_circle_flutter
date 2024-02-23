@@ -416,6 +416,11 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                                 title:
                                     "Select one option from graduate and under-graduate.",
                                 error: true));
+                      } else if (boardController.text.isEmpty &&
+                          isundergradute) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Select or add board", error: true));
                       } else if (degreeController.text.isEmpty &&
                           !isundergradute) {
                         ScaffoldMessenger.of(context).showSnackBar(

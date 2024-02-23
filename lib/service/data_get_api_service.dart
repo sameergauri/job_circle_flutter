@@ -8,6 +8,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/cooling_p_model.dart';
+import 'package:job_circle/models/get_banking_detail_model.dart';
 
 import '../models/application_status_model.dart';
 import '../models/get_user_for_add_Resume.dart';
@@ -149,6 +150,35 @@ class ApplicationAPI {
       throw Exception('Error: $error');
     }
   }
+
+  static Future<List<GetBankingModel>> fetchBankingDataForBankDetail() async {
+    var userid =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    final url = Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/bankDetails/v1/getBankingDetailsOfUserByUserId?uid=$userid&pageNumber=1&pageSize=10');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final List<dynamic> contentList = jsonData['resultData']['content'];
+
+        // Convert the list of Map to a list of Applicant objects
+        List<GetBankingModel> applicants =
+            contentList.map((json) => GetBankingModel.fromJson(json)).toList();
+        return applicants;
+      } else {
+        print(
+            'Failed to fetch banking data. Status Code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error while fetching data: $e');
+      return [];
+    }
+  }
+
+
 }
 
 
