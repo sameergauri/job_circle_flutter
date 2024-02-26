@@ -671,6 +671,7 @@ class JobPostApiService {
     required int partnerTotalAmount,
     required DateTime invoiceDate,
     required List<int> id,
+    required String payment_status,
   }) async {
     const String apiUrl =
         'http://${GlobalConstants.API_Host_one}/leads/v1/updateInvoiceDetails';
@@ -680,6 +681,7 @@ class JobPostApiService {
       'partner_total_amount': partnerTotalAmount,
       'invoice_date': invoiceDate.toIso8601String(),
       'id': id,
+      'payment_status': payment_status
     };
 
     final response = await http.post(

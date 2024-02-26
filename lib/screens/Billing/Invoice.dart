@@ -1,3 +1,5 @@
+// ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, prefer_typing_uninitialized_variables
+
 /* import 'package:flutter/material.dart';
 
 class PaymentStatus extends StatefulWidget {
@@ -150,7 +152,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
 // ignore_for_file: unnecessary_null_comparison
 
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,17 +169,17 @@ import 'package:job_circle/themes/colors.dart';
 
 final fetchPaymentStatus = FutureProvider<List<InvoiceModel>>((ref) {
   Future.delayed(const Duration(milliseconds: 10));
-  return _PaymentStatusState.fetchPayment();
+  return _InvoiceState.fetchPayment();
 });
 
-class PaymentStatus extends ConsumerStatefulWidget {
-  const PaymentStatus({super.key});
+class Invoice extends ConsumerStatefulWidget {
+  const Invoice({super.key});
 
   @override
-  ConsumerState<PaymentStatus> createState() => _PaymentStatusState();
+  ConsumerState<Invoice> createState() => _InvoiceState();
 }
 
-class _PaymentStatusState extends ConsumerState<PaymentStatus> {
+class _InvoiceState extends ConsumerState<Invoice> {
   @override
 
 //
@@ -213,6 +214,7 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
     }
   }
 
+/* 
   String generateInvoiceNumber(String userId) {
     // Get the current month and year
     DateTime now = DateTime.now();
@@ -224,20 +226,20 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
 
     // Concatenate the parts to form the invoice number
     return '$userId/$month$year/$sequenceNumber';
-  }
+  } */
+  String nextInvoiceNumber = '';
 
   @override
   Widget build(BuildContext context) {
-    var userid =
-        Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('dd MMM yyyy').format(now);
     var fetchPaymentStatusData = ref.watch(fetchPaymentStatus);
     return fetchPaymentStatusData != null
         ? fetchPaymentStatusData.when(data: (data) {
-            String nextInvoiceNumber =
-                InvoiceNumberGenerator.generateInvoiceNumber(
-                    data.first.userId.toString());
+            if (data.isNotEmpty) {
+              nextInvoiceNumber = InvoiceNumberGenerator.generateInvoiceNumber(
+                  data.first.userId.toString());
+            }
             double totalAmount = 0.0; // Initialize total amount variable
             List<int?>? leadIdList = data.map((e) => e.id).toList();
             List<int> filteredLeadIdList =
@@ -462,6 +464,34 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
                         children: [
                           InkWell(
                             onTap: () async {
+                              try {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  CustomSnackbarfinal(
+                                    title: "Invoice Submitted",
+                                    error: false,
+                                  ),
+                                );
+                                Navigator.pop(context);
+
+                                JobPostApiService api = JobPostApiService();
+                                await api.updateInvoiceDetails(
+                                  partnerInvoiceNo: nextInvoiceNumber,
+                                  partnerTotalAmount: totalAmount.toInt(),
+                                  invoiceDate: DateTime.now(),
+                                  payment_status: "Invoice Submitted",
+                                  id: filteredLeadIdList,
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  CustomSnackbarfinal(
+                                    title: "Error submitting invoice",
+                                    error: true,
+                                  ),
+                                );
+                              }
+                            },
+
+                            /* onTap: () async {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   CustomSnackbarfinal(
                                       title: "Invoice Submitted",
@@ -472,8 +502,9 @@ class _PaymentStatusState extends ConsumerState<PaymentStatus> {
                                   partnerInvoiceNo: nextInvoiceNumber,
                                   partnerTotalAmount: totalAmount.toInt(),
                                   invoiceDate: DateTime.now(),
+                                  payment_status: "Invoice Submited",
                                   id: filteredLeadIdList);
-                            },
+                            }, */
                             child: Container(
                               margin: EdgeInsets.symmetric(
                                   horizontal: 8.w, vertical: 10.h),

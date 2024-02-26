@@ -1258,7 +1258,10 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
             border: Border.all(color: Constants.borderColor, width: 1)),
         child: Row(
           children: [
-            Text(title),
+            Text(
+              title,
+              style: GoogleFonts.varela(),
+            ),
             SizedBox(
               width: 5.w,
             ),

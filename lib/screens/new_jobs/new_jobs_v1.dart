@@ -16,7 +16,7 @@ import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/screens/Billing/payment_status.dart';
+import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
@@ -557,8 +557,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>  GenerateInvoice(
-                                     name: data.middleName != null &&
+                                  builder: (context) => GenerateInvoice(
+                                    name: data.middleName != null &&
                                             data.middleName != ""
                                         ? "${data.firstName} ${data.middleName} ${data.lastName}"
                                         : "${data.firstName} ${data.lastName}",
@@ -584,7 +584,12 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                         PaymentStatus()));
+                                        const ListOfInvoice()));
+                            /*  Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PaymentStatus())); */
                             closeDrawer();
                             // Navigator.pop(context);
                           },

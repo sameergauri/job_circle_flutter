@@ -624,7 +624,7 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                   onTap: remarkController.text.isNotEmpty
                       ? () async {
                           await widget.onTab();
-                          remarkController.clear();
+                         remarkController.clear();
                         }
                       : () {
                           ScaffoldMessenger.of(context).showSnackBar(

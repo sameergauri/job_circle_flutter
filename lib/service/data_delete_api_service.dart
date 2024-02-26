@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, unused_local_variable, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 

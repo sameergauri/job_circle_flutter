@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "512219533795",
+    "project_id": "job-circle-c0173",
+    "storage_bucket": "job-circle-c0173.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512219533795:android:f1150c9bbb91ef8e8b90d6",
+        "android_client_info": {
+          "package_name": "com.job_circle_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcc0lRhkSDgJVRUBIH1l1A-qNf4BGrNv0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

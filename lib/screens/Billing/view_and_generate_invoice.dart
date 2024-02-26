@@ -16,7 +16,7 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/get_banking_detail_model.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/screens/Billing/payment_status.dart';
+import 'package:job_circle/screens/Billing/Invoice.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -245,7 +245,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const PaymentStatus()));
+                                  builder: (context) => const Invoice()));
                         }
                       } catch (error) {
                         // Handle errors
