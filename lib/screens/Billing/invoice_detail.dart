@@ -26,7 +26,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
     List<List<String>> tableData = invoicedata.candidates.map((invoice) {
       return [
         invoice.candidateName,
-        (invoice.shortCode !=null?invoice.shortCode: invoice.companyName),
+        (invoice.shortCode != null ? invoice.shortCode : invoice.companyName),
         invoice.process,
         DateFormat('dd-MMM-yy').format(invoice.doj),
         invoice.candidateAmount.toString().replaceAll(".0", "")
@@ -140,10 +140,12 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                     fontSize: 16.sp,
                   ),
                 ),
-                Text(
-                  "${amountToWords(invoicedata.total_amount.toInt())} only",
-                  style: GoogleFonts.varela(
-                      fontSize: 16.sp, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    "${amountToWords(invoicedata.total_amount.toInt())} only",
+                    style: GoogleFonts.varela(
+                        fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),

@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_unnecessary_containers
 // ignore_for_file: todo
-import 'package:fl_chart/fl_chart.dart';
+//import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -249,7 +249,7 @@ class _AttendenceState extends State<Attendence> {
                           customContainer("Sick Leave", "18 Days",
                               "assets/images/sick.png", Colors.indigo.shade100),
                           customContainer("Paid Holiday", "28 Days",
-                              "assets/images/paid.png", Colors.red.shade100),
+                              "assets/images/id-card.png", Colors.red.shade100),
                         ],
                       ),
                     )
@@ -293,11 +293,11 @@ class _AttendenceState extends State<Attendence> {
                 ),
               ),
               isgraph == true
-                  ? Container(
+                  ? SizedBox()/* Container(
                       decoration:
                           BoxDecoration(color: Colors.white, boxShadow: [
                         BoxShadow(
-                            color: Colors.grey.shade300,
+              //              color: Colors.grey.shade300,
                             offset: const Offset(1, 1),
                             blurRadius: 5)
                       ]),
@@ -332,7 +332,7 @@ class _AttendenceState extends State<Attendence> {
                                   sideTitles: SideTitles(showTitles: false))),
                         )),
                       ),
-                    )
+                    ) */
                   : Container(
                       child: Column(
                         children: [
@@ -1215,7 +1215,7 @@ class _AttendenceState extends State<Attendence> {
     );
   }
 
-  List<BarChartGroupData> _chartGroups() {
+/*   List<BarChartGroupData> _chartGroups() {
     List<BarChartGroupData> list =
         List<BarChartGroupData>.empty(growable: true);
     for (int i = 0; i < _list.length; i++) {
@@ -1225,8 +1225,8 @@ class _AttendenceState extends State<Attendence> {
     }
     return list;
   }
-
-  SideTitles get _bottomTitles => SideTitles(
+ */
+ /*  SideTitles get _bottomTitles => SideTitles(
       showTitles: true,
       getTitlesWidget: (value, meta) {
         String text = '';
@@ -1248,5 +1248,5 @@ class _AttendenceState extends State<Attendence> {
             break;
         }
         return Text(text);
-      });
+      }); */
 }

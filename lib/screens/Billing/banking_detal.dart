@@ -500,6 +500,14 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   ),
                 ],
               ),
+              if (data.isVerify == 0)
+                Padding(
+                  padding: EdgeInsets.only(top: 4.sp),
+                  child: Text(
+                    "Reason : Incorrect data.",
+                    style: GoogleFonts.varela(fontSize: 14.sp),
+                  ),
+                ),
             ],
           ),
         ),

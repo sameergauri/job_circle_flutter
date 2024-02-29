@@ -2243,7 +2243,7 @@ class _Screen2State extends ConsumerState<Screen2> {
 
                       /*  isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(
@@ -3540,7 +3540,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                             ),
                       isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(
@@ -3730,7 +3730,7 @@ InkWell customContainerSelect1(
                     ),
                     isFetch
                         ? Image.asset(
-                            "assets/images/cross.png",
+                            "assets/images/close.png",
                             height: 12,
                           )
                         : const Icon(

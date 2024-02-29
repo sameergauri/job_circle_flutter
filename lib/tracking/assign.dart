@@ -31,6 +31,13 @@ class AssignData extends ConsumerStatefulWidget {
 }
 
 class _AssignDataState extends ConsumerState<AssignData> {
+  @override
+  void dispose() {
+    // Clear the controller when the state is disposed
+    isLoading = false;
+    super.dispose();
+  }
+
   TextEditingController remark = TextEditingController();
   bool showDialogue = false;
   bool isLoading = false;
@@ -429,7 +436,14 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                     ? showDialog(
                                         context: context,
                                         builder: (context) {
+                                          isLoading = true;
+
                                           return CustomDialogueForNew(
+                                            cancel: () {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            },
                                             title: 'Register ',
                                             title2: "for an Interview.",
                                             company_name: widget
@@ -455,6 +469,8 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                                   fetchAllApplyProvider);
                                               ref.refresh(
                                                   fetchAllApplicantProvider);
+
+                                              isLoading = false;
                                             },
                                             statusDdId: subValue,
                                           );
@@ -465,11 +481,11 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                 ref.refresh(fetchAllApplicantProvider);
                                 ref.refresh(fetchAllReferalProvider);
                                 ref.refresh(fetchAllApplyProvider);
-                                Future.delayed(const Duration(seconds: 2), () {
+                                /* Future.delayed(const Duration(seconds: 2), () {
                                   setState(() {
                                     isLoading = false;
                                   });
-                                });
+                                }); */
                               } catch (e) {
                                 print('Error: $e');
                               }

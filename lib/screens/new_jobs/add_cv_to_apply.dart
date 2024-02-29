@@ -284,7 +284,7 @@ class _AddCvtoApplyState extends ConsumerState<AddCvtoApply> {
                               StackTrace? stackTrace) {
                             // If there's an error loading the image, you can return an error image or message here.
                             return Image.asset(
-                                "assets/images/cv_doc.png"); // Replace 'assets/error_image.png' with your error image.
+                                "assets/images/cv.png"); // Replace 'assets/error_image.png' with your error image.
                           },
                         ),
                         /*  child: Image.network(

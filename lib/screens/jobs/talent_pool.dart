@@ -1083,7 +1083,7 @@ class _TalentPoolState extends ConsumerState<TalentPool>
                                     : Row(
                                         children: [
                                           Image.asset(
-                                            "assets/images/graduate.png",
+                                            "assets/images/education_d.png",
                                             height: 15.h,
                                             //  color: Constants.subtitleclr,
                                           ),

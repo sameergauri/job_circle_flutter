@@ -650,7 +650,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       jobsController.searchController.clear();
                       Future.delayed(const Duration(seconds: 0), () async {
                         await AppUtils.clearSession();
-
                         await Navigator.pushNamedAndRemoveUntil(
                             context,
                             ERoute.login.value,
@@ -683,7 +682,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   const Color.fromARGB(255, 190, 190, 190),
                               radius: 35,
                               onBackgroundImageError: ((error, stackTrace) =>
-                                  Image.asset("assets/images/company.png",
+                                  Image.asset("assets/images/cmpny.png",
                                       height: 80,
                                       width: 80,
                                       fit: BoxFit.contain)),
@@ -1412,8 +1411,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           .languagesKnown!
                                                                           .isNotEmpty)
                                                                         Image
-                                                                            .network(
-                                                                          "https://cdn.discordapp.com/attachments/1095606068614283337/1177834889115074610/5665479-middle-removebg-preview.png?ex=6573f338&is=65617e38&hm=6b274668f0c3fdf32153d15150ee7679b7c29644241fd51c52c18afe745c7c35&",
+                                                                            .asset(
+                                                                          "assets/images/languages.png",
                                                                           height:
                                                                               18.h,
                                                                         ),

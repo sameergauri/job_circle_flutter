@@ -419,7 +419,7 @@ class _SuggestionTextFieldState extends State<SuggestionTextField> {
                             color: Colors.white,
                           )
                           /*  Image.asset(
-                            "assets/images/cross.png",
+                            "assets/images/close.png",
                             height: 12,
                           ) */
                         ],

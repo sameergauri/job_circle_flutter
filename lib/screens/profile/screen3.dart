@@ -4119,7 +4119,7 @@ class _Screen3State extends ConsumerState<Screen3> {
 
                       /*  isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(
@@ -4174,7 +4174,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                       ),
                       isFetch
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(

@@ -178,7 +178,7 @@ class JobProvider extends ChangeNotifier {
     isLanguilTabSelected = false;
     isCompusTabSelected = false;
     isFavoriteTabSelected = false;
-    
+
     if (isSupportStaff) {
       filteredJobs = (jobs ?? this.jobs)
           .where((job) => job.is_support_staff == 1)
@@ -371,7 +371,7 @@ class JobProvider extends ChangeNotifier {
 
   Future<List<JobsModel>> bindAllJobs() async {
     final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/jobs/v1/all?pageNumber=1&pageSize=3000'));
+        'http://${GlobalConstants.API_Host_one}/jobs/v1/all?pageNumber=1&pageSize=150'));
 
     if (response.statusCode == 200) {
       final parsedResponse =

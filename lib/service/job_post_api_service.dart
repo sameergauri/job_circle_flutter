@@ -5,7 +5,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/role_model.dart';
@@ -666,25 +668,67 @@ class JobPostApiService {
     }
   }
 
-  Future<void> updateInvoiceDetails({
-    required String partnerInvoiceNo,
-    required int partnerTotalAmount,
-    required DateTime invoiceDate,
-    required List<int> id,
-    required String payment_status,
-  }) async {
+  Future<void> updateInvoiceDetails(
+      {required String partnerInvoiceNo,
+      required double partnerTotalAmount,
+      required DateTime invoiceDate,
+      required List<int> id,
+      required String payment_status,
+      required BuildContext context}) async {
     const String apiUrl =
         'http://${GlobalConstants.API_Host_one}/leads/v1/updateInvoiceDetails';
+    String formattedDate =
+        DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(invoiceDate);
 
     final Map<String, dynamic> requestData = {
       'partner_invoice_no': partnerInvoiceNo,
       'partner_total_amount': partnerTotalAmount,
-      'invoice_date': invoiceDate.toIso8601String(),
+      'invoice_date': formattedDate,
       'id': id,
-      'payment_status': payment_status
+      'sp_payment_status': payment_status
     };
 
-    final response = await http.post(
+    final response = await http.put(
+      Uri.parse(apiUrl),
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(requestData),
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // Data sent successfully
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackbarfinal(
+          title: "Invoice Submitted",
+          error: false,
+        ),
+      );
+    } else {
+      print(response.body);
+      // Failed to send data
+      throw Exception('Failed to send Invoice data: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateInvoiceToMakeNonPayable({
+    required String partnerInvoiceNo,
+    required List<int> id,
+  }) async {
+    const String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/leads/v1/updateInvoiceNo';
+
+    final Map<String, dynamic> requestData = {
+      'partner_invoice_no': partnerInvoiceNo,
+      'partner_total_amount': null,
+      'invoice_date': null,
+      'id': id,
+      'payment_status': null
+    };
+
+    final response = await http.put(
       Uri.parse(apiUrl),
       headers: {
         'accept': '*/*',

@@ -199,7 +199,7 @@ class _TalentPoolDetailState extends State<TalentPoolDetail>
                   Row(
                     children: [
                       Image.asset(
-                        "assets/images/graduate.png",
+                        "assets/images/education_d.png",
                         height: 13.h,
                       ),
                       SizedBox(

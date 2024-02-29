@@ -15,9 +15,10 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/get_banking_detail_model.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
-import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/Invoice.dart';
+import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -53,10 +54,12 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
         final jsonData = jsonDecode(response.body);
         final List<dynamic> contentList = jsonData['resultData']['content'];
 
-        // Convert the list of Map to a list of Applicant objects
+        // Filter the list based on the condition invoice_no == null
         List<ViewAndGenerateBillingModel> applicants = contentList
+            .where((json) => json['invoice_no'] == null)
             .map((json) => ViewAndGenerateBillingModel.fromJson(json))
             .toList();
+
         return applicants;
       } else {
         print('Failed to fetch data. Status Code: ${response.statusCode}');
@@ -96,8 +99,12 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                     automaticallyImplyLeading: false,
                     backgroundColor: Colors.white,
                     elevation: 0,
-                    title: customSearchField(context),
-                    actions: [buildMonthAndYearSelector(fetchData)],
+                    title: fetchData.isNotEmpty
+                        ? customSearchField(context)
+                        : const Text(""),
+                    actions: fetchData.isNotEmpty
+                        ? [buildMonthAndYearSelector(fetchData)]
+                        : [],
                   ),
                 ),
                 body: SmartRefresher(
@@ -144,7 +151,9 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
     // Check if there is no lead with a status other than "Payable" in the selected month
     bool allPayable = selectedMonthData.every((item) =>
         item.attrStatus != null &&
-        item.attrStatus!.toLowerCase() == 'Payable'.toLowerCase());
+        item.attrStatus!.toLowerCase() != 'other source' &&
+        item.attrStatus!.toLowerCase() != 'pending' &&
+        item.attrStatus!.toLowerCase() != 'under clause');
 
     return allPayable;
   }
@@ -166,6 +175,10 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
             item.attrStatus != null &&
             item.attrStatus!.toLowerCase() == 'payable')
         .fold(0.0, (sum, item) => sum + item.partnerPayout!);
+
+    String formattedTotalAmount = totalAmount
+        .toStringAsFixed(0)
+        .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '');
 
     return BottomAppBar(
       //... (existing properties)
@@ -191,7 +204,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                       size: 15.sp,
                     ),
                     Text(
-                      totalAmount.toString().replaceAll('.0', ''),
+                      formattedTotalAmount.toString().replaceAll('.0', ''),
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
@@ -234,7 +247,8 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                             builder: (context) {
                               return CustomDialogueForAddResume(
                                 error: false,
-                                subtitle: "Your banking detail is under review",
+                                subtitle:
+                                    "Your banking detail is under review you have to wait.",
                                 onClose: () {
                                   Navigator.pop(context);
                                 },
@@ -242,6 +256,32 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                             },
                           );
                         } else {
+                          List<int?>? leadIdList = fetchData
+                              .where(
+                                  (element) => element.attrStatus != "Payable")
+                              .map((e) => e.id)
+                              .toList();
+                          List<int> filteredLeadIdList = leadIdList
+                              .where((id) => id != null)
+                              .cast<int>()
+                              .toList();
+
+                          try {
+                            JobPostApiService api = JobPostApiService();
+                            await api.updateInvoiceToMakeNonPayable(
+                              partnerInvoiceNo: "Not Applicable",
+                              id: filteredLeadIdList,
+                            );
+                            ref.refresh(fetchAllBillingDataProvider);
+                          } catch (e) {
+                            print("Error $e");
+                            /* ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbarfinal(
+                                title: "Error submitting invoice",
+                                error: true,
+                              ),
+                            ); */
+                          }
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -376,6 +416,10 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
   }
 
   Container CustomCard(ViewAndGenerateBillingModel filteredData) {
+    String formattedAmount = filteredData.partnerPayout!
+        .toStringAsFixed(0)
+        .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '');
+
     DateTime dateTime = DateTime.parse(filteredData.doj.toString());
     String formattedDate = DateFormat("d MMM yyyy").format(dateTime);
     return Container(
@@ -413,9 +457,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                       size: 15.sp,
                     ),
                     Text(
-                      filteredData.partnerPayout
-                          .toString()
-                          .replaceAll('.0', ''),
+                      formattedAmount.toString().replaceAll(".0", ""),
                       style: GoogleFonts.varela(
                           fontWeight: FontWeight.bold, fontSize: 16.sp),
                     ),
@@ -487,7 +529,9 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                         // border: Border.all(color: Constants.themeBgColor)
                       ),
                       child: Text(
-                        "Billing Status:-${filteredData.attrStatus == null ? "Pending" : filteredData.attrStatus.toString()}",
+                        filteredData.attrStatus == null
+                            ? "Pending"
+                            : filteredData.attrStatus.toString(),
                         style: GoogleFonts.varela(color: Constants.subtitleclr),
                       ),
                     ),

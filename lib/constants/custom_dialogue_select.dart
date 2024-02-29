@@ -367,8 +367,8 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                       });
                     },
                     child: Image.asset(
-                      "assets/images/close (1).png",
-                      height: 16.h,
+                      "assets/images/close.png",
+                      height: 12.h,
                       color: Colors.grey.shade400,
                     ),
                   ),
@@ -497,7 +497,7 @@ class CustomDialogueForRemark extends StatefulWidget {
       required this.onTab,
       required this.controller,
       required this.item,
-      required this.callBack, 
+      required this.callBack,
       required this.hint,
       required this.onCancel});
 
@@ -507,6 +507,13 @@ class CustomDialogueForRemark extends StatefulWidget {
 }
 
 class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
+  @override
+  void dispose() {
+    // Clear the controller when the state is disposed
+    remarkController.dispose();
+    super.dispose();
+  }
+
   TextEditingController remarkController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -605,7 +612,7 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                   onTap: () {
                     widget.onCancel();
                     Navigator.pop(context);
-                    remarkController.clear();
+                    // remarkController.clear();
                   },
                   child: Container(
                     margin: EdgeInsets.only(top: 15.h),
@@ -620,17 +627,17 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                 ),
                 //if (remarkController.text.isNotEmpty)
 
-                InkWell(
-                  onTap: remarkController.text.isNotEmpty
-                      ? () async {
-                          await widget.onTab();
-                         remarkController.clear();
-                        }
-                      : () {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                GestureDetector(
+                  onTap:
+                  ()async{
+                    if(remarkController.text.isNotEmpty){
+                        await widget.onTab();
+                    }else{
+                         ScaffoldMessenger.of(context).showSnackBar(
                               CustomSnackbarfinal(
                                   title: "Specify proper reason", error: true));
-                        },
+                    }
+                  },
                   child: Container(
                     margin: EdgeInsets.only(top: 15.h),
                     padding:
@@ -703,7 +710,7 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
           children: [
             if (widget.item.empCID == 0 &&
                 widget.item.company_gender == 0 &&
-                (widget.item.is_ctc_pay == 0 || widget.item.is_work_pay == 0) &&
+                (widget.item.is_ctc_pay == 0 && widget.item.is_work_pay == 0) &&
                 // widget.item.company_salary == 0 &&
                 (widget.item.company_workstatus == 0 ||
                     widget.item.company_workstatus == null))
@@ -875,7 +882,8 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                           color: Constants.hintColor, fontSize: 15.sp)),
                 ),
               ),
-            if (widget.item.is_ctc_pay == 1 || widget.item.is_work_pay == 1)
+            if (widget.item.is_ctc_pay == 1 ||
+                widget.item.is_work_pay == 1 && !fresher)
               Container(
                 margin: EdgeInsets.only(top: 8.h),
                 height: MediaQuery.of(context).size.height / 24,
@@ -978,9 +986,10 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                                   : experience
                                       ? 1
                                       : null,
-                              attrStatus: widget.item.is_ref == 1
+                              attrStatus: "Under Clause",
+                              /*  attrStatus: widget.item.is_ref == 1  //TODO: old
                                   ? "Under Clause"
-                                  : null,
+                                  : null, */
                               isJoinSubmitted: widget.item.company_workstatus == 1 &&
                                       widget.item.empCID == 1 &&
                                       (widget.item.is_ctc_pay == 1 ||

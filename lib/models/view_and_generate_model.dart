@@ -10,6 +10,7 @@ class ViewAndGenerateBillingModel {
   final String? applicantName;
   final int? rid;
   final String? subStatus;
+  final String? invoice_no;
 
   ViewAndGenerateBillingModel({
     required this.doj,
@@ -23,6 +24,7 @@ class ViewAndGenerateBillingModel {
     required this.applicantName,
     required this.rid,
     required this.subStatus,
+    required this.invoice_no,
   });
 
   factory ViewAndGenerateBillingModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class ViewAndGenerateBillingModel {
       applicantName: json['applicant_name'],
       rid: json['rid'],
       subStatus: json['sub_status'],
+      invoice_no: json['invoice_no'],
     );
   }
 }

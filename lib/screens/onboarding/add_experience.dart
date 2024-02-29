@@ -3368,7 +3368,7 @@ class _AddExperienceState extends State<AddExperience> {
 
                       /*  isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(
@@ -3423,7 +3423,7 @@ class _AddExperienceState extends State<AddExperience> {
                       ),
                       isFetch
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(

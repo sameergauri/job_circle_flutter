@@ -17,7 +17,7 @@ import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
-import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
+// import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timelines/timelines.dart';
@@ -669,7 +669,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             item.resume!.contains(".docx")
                                 ? Stack(
                                     children: [
-                                      FutureBuilder<void>(
+                                      SizedBox(),
+                                     /*  FutureBuilder<void>(    //TODO: Docs view for cv.
                                         future:
                                             pdftron.PdftronFlutter.openDocument(
                                           "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
@@ -693,7 +694,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                             return Container(); // Placeholder widget
                                           }
                                         },
-                                      ),
+                                      ), */
                                       Positioned(
                                         top:
                                             20, // Adjust the top position as needed

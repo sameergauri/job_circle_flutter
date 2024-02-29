@@ -272,7 +272,7 @@ class _JobsState extends ConsumerState<Jobs>
   }
 
   ProfileSummaryModel profileSummaryModel = ProfileSummaryModel();
-   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   int? cutTab;
   bool isSelect = false;
@@ -284,7 +284,8 @@ class _JobsState extends ConsumerState<Jobs>
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
-        linkUrl: 'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+        linkUrl:
+            'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
   }
 
@@ -563,7 +564,8 @@ class _JobsState extends ConsumerState<Jobs>
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
                     leading: Image.asset(
-                      "assets/images/career.png",
+                      "",
+                      //  "assets/images/career.png",
                       height: 18.h,
                       color: Constants.themeBgColor,
                     ),
@@ -605,7 +607,7 @@ class _JobsState extends ConsumerState<Jobs>
                             (Route<dynamic> route) => false);
                         // Navigator.pushReplacementNamed(context, nextRoute.value);
                       });
-                      
+
                       Navigator.pop(context);
                     },
                   ),
@@ -2817,16 +2819,15 @@ class _JobsState extends ConsumerState<Jobs>
                                             "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                         isRefer: false,
                                         spocId: item['spoc'],
-                                         is90: item.payment_clause == "90 Days"
+                                        is90: item.payment_clause == "90 Days"
                                             ? true
                                             : false,
                                         is30: item.payment_clause == "30 Days"
                                             ? true
                                             : false,
-                                             userNumber:
-                                            464546456,
-                                               useAlternateNumber: 464546456,
-                                               interviewRounds: jobDetailsModel
+                                        userNumber: 464546456,
+                                        useAlternateNumber: 464546456,
+                                        interviewRounds: jobDetailsModel
                                             .interviewrounds!.first
                                             .replaceAll('[', '')
                                             .replaceAll(']', '')

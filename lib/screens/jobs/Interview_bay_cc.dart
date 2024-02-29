@@ -23,7 +23,7 @@ import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
 import 'package:job_circle/tracking/interview_bay.dart';
 import 'package:job_circle/tracking/select_status.dart';
-import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
+// import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 //import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -221,6 +221,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
         // Convert the list of Map to a list of Applicant objects
         List<Applicant> applicants = contentList
+       //.where((element) => element.is_join_submitted!=1)  //TODO:: to hide join submitted data....
             /*  .where((element) =>
                 element.is_status_hide != 1 || element.is_status_hide!=null || element.s2_is_status_hide != 1 ||
                 element.s2_is_status_hide != null) */
@@ -2743,7 +2744,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                               ? () {
                                   item.resume != null
                                       ? item.resume!.contains(".docx")
-                                          ? FutureBuilder<void>(
+                                          ? SizedBox()/* FutureBuilder<void>(    //TODO: Docs view for cv.
                                               future: pdftron.PdftronFlutter
                                                   .openDocument(
                                                 "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
@@ -2769,7 +2770,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                                   return Container(); // Placeholder widget
                                                 }
                                               },
-                                            )
+                                            ) */
                                           : Navigator.push(
                                               context,
                                               MaterialPageRoute(

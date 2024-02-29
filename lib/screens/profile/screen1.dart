@@ -2405,7 +2405,7 @@ class _Screen1State extends ConsumerState<Screen1> {
                             ),
                       isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(

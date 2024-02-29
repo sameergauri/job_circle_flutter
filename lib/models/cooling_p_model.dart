@@ -15,10 +15,10 @@ class CoolingModel {
 
   factory CoolingModel.fromJson(Map<String, dynamic> json) {
     return CoolingModel(
-      id: json['id'],
-      status: json['status'],
-      subStatus: json['sub_status'],
-      contactNo: json['contact_no'],
+      id: json['id'] ?? 0,
+      status: json['status'] ?? "",
+      subStatus: json['sub_status'] ?? "",
+      contactNo: json['contact_no'] ?? "",
       dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
     );
   }

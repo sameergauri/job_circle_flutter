@@ -852,7 +852,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         width: 5,
                       ),
                       /*   Image.asset(
-                        "assets/images/cross.png",
+                        "assets/images/close.png",
                         height: 12,
                       ) */
                       const Icon(
@@ -2519,7 +2519,7 @@ class _CustomJobFormTextFieldJobRespoState
                         width: 5,
                       ),
                       /* Image.asset(
-                        "assets/images/cross.png",
+                        "assets/images/close.png",
                         height: 12,
                       ) */
                       Icon(
@@ -4156,7 +4156,7 @@ class _CustomJobFormForUpdateCRPFState
                         width: 5,
                       ),
                       /*   Image.asset(
-                        "assets/images/cross.png",
+                        "assets/images/close.png",
                         height: 12,
                       ) */
                       const Icon(

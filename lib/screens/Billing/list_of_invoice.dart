@@ -114,8 +114,8 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
 
         // Convert the list of Map to a list of ListOfInvoiceModel objects
         List<ListOfInvoiceModel> applicants = contentList
-                .map((json) => ListOfInvoiceModel.fromJson(json))
-                .toList();
+            .map((json) => ListOfInvoiceModel.fromJson(json))
+            .toList();
 
         // Sort the list based on invoice date in descending order (most recent first)
         applicants.sort((a, b) => b.invoice_date.compareTo(a.invoice_date));
@@ -625,11 +625,17 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
                                 "assets/images/inprocess.png",
                                 height: 13.sp,
                               )
-                            : Icon(
-                                Icons.done_all_outlined,
-                                size: 15.sp,
-                                color: Constants.green,
-                              ),
+                            : filteredData.payment_status == "Paid"
+                                ? Icon(
+                                    Icons.done_all_outlined,
+                                    size: 15.sp,
+                                    color: Constants.green,
+                                  )
+                                : Icon(
+                                    Icons.error_outline,
+                                    size: 15.sp,
+                                    color: Colors.red,
+                                  ),
                     SizedBox(width: 4.w),
                     Text(
                       filteredData.payment_status != ""
@@ -642,7 +648,12 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
                               ? Constants.subtitleclr
                               : filteredData.payment_status == "Under Process"
                                   ? Colors.orange
-                                  : Constants.green),
+                                  : filteredData.payment_status ==
+                                          "Invoice Submited"
+                                      ? Constants.subtitleclr
+                                      : filteredData.payment_status == "Paid"
+                                          ? Constants.green
+                                          : Colors.red),
                     ),
                   ],
                 ),
@@ -680,6 +691,14 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
                   )),
             ],
           ),
+          if (filteredData.payment_status == "Reject")
+            Padding(
+              padding: EdgeInsets.only(top: 4.sp),
+              child: Text(
+                "Reason : Incorrect data.",
+                style: GoogleFonts.varela(fontSize: 14.sp),
+              ),
+            ),
         ],
       ),
     );

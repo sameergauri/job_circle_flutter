@@ -2283,7 +2283,7 @@ class _AddIntoductionState extends State<AddIntoduction>
                             ),
                       isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(

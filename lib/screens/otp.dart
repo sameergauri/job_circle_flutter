@@ -13,13 +13,15 @@ import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
+import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/list_of_invoice.dart';
+import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,7 +145,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                               builder: (context) => const Login()));
                     },
                     child: Image.asset(
-                      "assets/images/edit.png",
+                      "assets/images/pencil.png",
                       height: 16.h,
                     ),
                   )
@@ -324,8 +326,19 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   color: Constants.themeBgColor,
                   radious: 8.r,
                   // disabled: vrifyButtonDisabled,
-                  onPressed: () {
-                    varifyOTP();
+                  onPressed: () async {
+                    await varifyOTP();
+                    ref.refresh(fetchAllApplicantProvider);  //TODO:: refresh when new user login
+                    ref.refresh(fetchAllApplyProvider);
+                    ref.refresh(fetchAllReferalProvider);
+                    ref.refresh(profileSummaryProvider);
+                    ref.refresh(jobsProvider);
+                    ref.refresh(fetchAllBillingDataProvider);
+                    ref.refresh(fetchAllInvoice);
+                    ref.refresh(fetchBankingDetails);
+                    ref.refresh(userDataProvider);
+                    ref.refresh(experienceProvider);
+                    ref.refresh(educationProvider);
                   },
                   text: "Verify & Proceed",
                 ),
@@ -475,12 +488,12 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
 
         await Utils.setPreference(
             pres, ESharedPreferences.user_rawData.name, jsonEncode(data));
-        ref.refresh(userJobDataProvider);
-        ref.refresh(fetchAllApplyProvider);
-        ref.refresh(fetchAllTalentPool);
-        ref.refresh(userDataProvider);
-        ref.refresh(profileSummaryProvider);
-        ref.refresh(fetchAllApplicantProvider);
+        // ref.refresh(userJobDataProvider);
+        // ref.refresh(fetchAllApplyProvider);
+        // ref.refresh(fetchAllTalentPool);
+        // ref.refresh(userDataProvider);
+        // ref.refresh(profileSummaryProvider);
+        // ref.refresh(fetchAllApplicantProvider);
 
         Utils.gotoScreen(context, data, model.mobile);
 

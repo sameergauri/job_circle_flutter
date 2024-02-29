@@ -406,7 +406,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                               color: Colors.white,
                               size: 15.h,
                             ) /* Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             ) */
                           : const SizedBox()

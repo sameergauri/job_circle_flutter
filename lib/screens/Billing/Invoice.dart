@@ -1,4 +1,4 @@
-// ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, prefer_typing_uninitialized_variables
+// ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, prefer_typing_uninitialized_variables, unused_result
 
 /* import 'package:flutter/material.dart';
 
@@ -164,6 +164,8 @@ import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/invoice_model.dart';
+import 'package:job_circle/screens/Billing/list_of_invoice.dart';
+import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -199,8 +201,14 @@ class _InvoiceState extends ConsumerState<Invoice> {
         final List<dynamic> contentList = jsonData['resultData']['content'];
 
         // Convert the list of Map to a list of Applicant objects
-        List<InvoiceModel> applicants =
-            contentList.map((json) => InvoiceModel.fromJson(json)).toList();
+        /*   List<InvoiceModel> applicants =
+            contentList.map((json) => InvoiceModel.fromJson(json)).toList(); */
+        List<InvoiceModel> applicants = contentList
+            .map((json) => InvoiceModel.fromJson(json))
+            .where((invoice) =>
+                invoice.attr_status != null &&
+                invoice.attr_status!.toLowerCase() == 'payable')
+            .toList();
 
         return applicants;
       } else {
@@ -349,10 +357,12 @@ class _InvoiceState extends ConsumerState<Invoice> {
                               fontSize: 16.sp,
                             ),
                           ),
-                          Text(
-                            "${amountToWords(totalAmount.toInt())} only",
-                            style: GoogleFonts.varela(
-                                fontSize: 16.sp, fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Text(
+                              "${amountToWords(totalAmount.toInt())} only",
+                              style: GoogleFonts.varela(
+                                  fontSize: 16.sp, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
@@ -465,22 +475,18 @@ class _InvoiceState extends ConsumerState<Invoice> {
                           InkWell(
                             onTap: () async {
                               try {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  CustomSnackbarfinal(
-                                    title: "Invoice Submitted",
-                                    error: false,
-                                  ),
-                                );
                                 Navigator.pop(context);
 
                                 JobPostApiService api = JobPostApiService();
                                 await api.updateInvoiceDetails(
-                                  partnerInvoiceNo: nextInvoiceNumber,
-                                  partnerTotalAmount: totalAmount.toInt(),
-                                  invoiceDate: DateTime.now(),
-                                  payment_status: "Invoice Submitted",
-                                  id: filteredLeadIdList,
-                                );
+                                    partnerInvoiceNo: nextInvoiceNumber,
+                                    partnerTotalAmount: totalAmount,
+                                    invoiceDate: DateTime.now(),
+                                    payment_status: "Invoice Submitted",
+                                    id: filteredLeadIdList,
+                                    context: context);
+                                ref.refresh(fetchAllBillingDataProvider);
+                                ref.refresh(fetchAllInvoice);
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   CustomSnackbarfinal(
@@ -514,7 +520,7 @@ class _InvoiceState extends ConsumerState<Invoice> {
                                   border: Border.all(
                                       color: Constants.blue, width: 2.sp),
                                   borderRadius: BorderRadius.circular(8.r)),
-                              child: Text("Submit & Send",
+                              child: Text("Submit Invoice",
                                   style: GoogleFonts.varela(
                                       color: Constants.blue,
                                       fontWeight: FontWeight.bold)),

@@ -19,7 +19,7 @@ import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/jobs/my_pipe_line.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/refer_now.dart';
-import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
+// import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:document_viewer/document_viewer.dart';
@@ -78,21 +78,21 @@ class _AddResumeState extends ConsumerState<AddResume> {
   Future<void> initPlatformState() async {
     String version;
     // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
+   /*  try {    //TODO: Docs view for cv.
       pdftron.PdftronFlutter.initialize();
       version = await pdftron.PdftronFlutter.version;
     } on PlatformException {
       version = 'Failed to get platform version.';
     }
-
+ */
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
+   /*  setState(() {   //TODO: Docs view for cv.
       _version = version;
-    });
+    }); */
   }
 
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -623,8 +623,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                           InkWell(
                             onTap: icon_data == null
                                 ? () async {
-                                    var data = await uploadFile(
-                                        ['pdf', 'docx'], false);
+                                    var data = await uploadFile(['pdf'], false);
                                     if (data != null) {
                                       setState(() {
                                         icon_data = data;
@@ -633,7 +632,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   }
                                 : () {
                                     icon_data!.contains(".docx")
-                                        ? FutureBuilder<void>(
+                                        ? SizedBox()/* FutureBuilder<void>(   //TODO: Docs view for cv.
                                             future: pdftron.PdftronFlutter
                                                 .openDocument(
                                               "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data",
@@ -658,7 +657,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                                 return Container(); // Placeholder widget
                                               }
                                             },
-                                          )
+                                          ) */
                                         : showDialog(
                                             context: context,
                                             builder: (context) {
@@ -671,8 +670,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                                       onTap: () async {
                                                         icon_data =
                                                             await uploadFile(
-                                                                ['pdf', 'docx'],
-                                                                true);
+                                                                ['pdf'], true);
 
                                                         /*  if (data != null) {
                                                     setState(() {

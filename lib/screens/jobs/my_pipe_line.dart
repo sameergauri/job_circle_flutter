@@ -755,7 +755,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                           : Row(
                                               children: [
                                                 Image.asset(
-                                                  "assets/images/graduate.png",
+                                                  "assets/images/education_d.png",
                                                   height: 15.h,
                                                   //  color: Constants.subtitleclr,
                                                 ),
@@ -1500,7 +1500,7 @@ class _MyPipeLineState extends ConsumerState<MyPipeLine>
                                 return CircleAvatar(
                                   radius: 8.r,
                                   child: Image.asset(
-                                    "assets/images/rejectcross.png",
+                                    "assets/images/close.png",
                                     height: 8.h,
                                     color: Colors.white,
                                   ),

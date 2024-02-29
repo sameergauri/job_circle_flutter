@@ -7,7 +7,6 @@ class JobsModel {
   final int? companyId;
   final String? roleName;
   final String? companyName;
-  final String? icon;
   final String? location;
   final String? process;
   final List<String>? skills;
@@ -19,8 +18,6 @@ class JobsModel {
   final String? totalExperience;
   final String? totalSalary;
   final String? shiftTime;
-  final String? shiftDesc;
-  final String? education;
   final List<String>? languagesKnown;
   final String? natureOfWork;
   final String? isMonthly;
@@ -30,10 +27,6 @@ class JobsModel {
   final int? isFav;
   final int? favJobId;
   final int? userId;
-  final String? status;
-  final String? sLocation;
-  final int? uid;
-  final List<String>? eligibility;
   final String? payoutType;
   late final int? active;
   late final String? payment_clause;
@@ -47,7 +40,6 @@ class JobsModel {
     this.companyId,
     this.roleName,
     this.companyName,
-    this.icon,
     this.location,
     this.process,
     this.skills,
@@ -59,8 +51,6 @@ class JobsModel {
     this.totalExperience,
     this.totalSalary,
     this.shiftTime,
-    this.shiftDesc,
-    this.education,
     this.languagesKnown,
     this.natureOfWork,
     this.isMonthly,
@@ -70,10 +60,6 @@ class JobsModel {
     this.isFav,
     this.favJobId,
     this.userId,
-    this.status,
-    this.sLocation,
-    this.uid,
-    this.eligibility,
     this.payoutType,
     this.active,
     this.payment_clause,
@@ -85,48 +71,40 @@ class JobsModel {
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
     return JobsModel(
-        id: json['id'],
-        companyId: json['compnayid'],
-        roleName: json['rolename'],
-        companyName: json['name'],
-        icon: json['icon'],
-        location: json['location'],
-        process: json['process'],
-        skills: _parseSkills(json['skills'] ?? []),
-        minCTC: json['minctc']?.toDouble(),
-        maxCTC: json['maxctc']?.toDouble(),
-        minExperience: json['minexperience'],
-        maxExperience: json['maxexperience'],
-        isFresher: json['isfresher'],
-        totalExperience: json['total_experience'],
-        totalSalary: json['total_salary'],
-        shiftTime: json['shifttime'],
-        shiftDesc: json['shiftdesc'],
-        education: json['education'],
-        languagesKnown: _parseSkills(json['languageknown'] ?? []),
-        natureOfWork: json['naturofwork'],
-        isMonthly: json['ismonthly'],
-        spoc: json['spoc'],
-        city: json['city'],
-        dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
-        isFav: json['is_fav'],
-        favJobId: json['favJobId'],
-        status: json['status'],
-        sLocation: json['s_location'],
-        userId: json['userId'],
-        uid: json['uid'],
-        eligibility: _parseSkills(json['eligibility'] ?? []),
-        payoutType: json['payout_type'],
-        active: json['active'],
-        payment_clause: json['payment_clause'],
-        is_campus: json['is_campus'],
-        is_support_staff: json['is_support_staff'],
-        interviewrounds: _parseSkills(
-          json['interviewrounds'],
-         
-        ),
-         sponsored_position: json['sponsored_position'],
-        );
+      id: json['id'],
+      companyId: json['compnayid'],
+      roleName: json['rolename'],
+      companyName: json['name'],
+      location: json['location'],
+      process: json['process'],
+      skills: _parseSkills(json['skills'] ?? []),
+      minCTC: json['minctc']?.toDouble(),
+      maxCTC: json['maxctc']?.toDouble(),
+      minExperience: json['minexperience'],
+      maxExperience: json['maxexperience'],
+      isFresher: json['isfresher'],
+      totalExperience: json['total_experience'],
+      totalSalary: json['total_salary'],
+      shiftTime: json['shifttime'],
+      languagesKnown: _parseSkills(json['languageknown'] ?? []),
+      natureOfWork: json['naturofwork'],
+      isMonthly: json['ismonthly'],
+      spoc: json['spoc'],
+      city: json['city'],
+      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      isFav: json['is_fav'],
+      favJobId: json['favJobId'],
+      userId: json['userId'],
+      payoutType: json['payout_type'],
+      active: json['active'],
+      payment_clause: json['payment_clause'],
+      is_campus: json['is_campus'],
+      is_support_staff: json['is_support_staff'],
+      interviewrounds: _parseSkills(
+        json['interviewrounds'],
+      ),
+      sponsored_position: json['sponsored_position'],
+    );
   }
   Map<String, dynamic> toJson() {
     return {
@@ -134,7 +112,6 @@ class JobsModel {
       'compnayid': companyId,
       'rolename': roleName,
       'companyname': companyName,
-      'icon': icon,
       'location': location,
       'process': process,
       'skills': skills,
@@ -146,8 +123,6 @@ class JobsModel {
       'total_experience': totalExperience,
       'total_salary': totalSalary,
       'shifttime': shiftTime,
-      'shiftdesc': shiftDesc,
-      'education': education,
       'languageknown': languagesKnown,
       'naturofwork': natureOfWork,
       'ismonthly': isMonthly,
@@ -157,10 +132,6 @@ class JobsModel {
       'is_fav': isFav,
       'favJobId': favJobId,
       'userId': userId,
-      'status': status,
-      's_location': sLocation,
-      'uid': uid,
-      'eligibility': eligibility,
       'payout_type': payoutType,
       'active': active,
       'payment_clause': payment_clause,
@@ -177,7 +148,6 @@ class JobsModel {
       companyId: map['compnayid'],
       roleName: map['rolename'],
       companyName: map['companyname'],
-      icon: map['icon'],
       location: map['location'],
       process: map['process'],
       skills: List<String>.from(map['skills'] ?? []),
@@ -189,8 +159,6 @@ class JobsModel {
       totalExperience: map['total_experience'],
       totalSalary: map['total_salary'],
       shiftTime: map['shifttime'],
-      shiftDesc: map['shiftdesc'],
-      education: map['education'],
       languagesKnown: List<String>.from(map['languageknown'] ?? []),
       natureOfWork: map['naturofwork'],
       isMonthly: map['ismonthly'],
@@ -200,10 +168,6 @@ class JobsModel {
       isFav: map['is_fav'],
       favJobId: map['favJobId'],
       userId: map['userId'],
-      status: map['status'],
-      sLocation: map['s_location'],
-      uid: map['uid'],
-      eligibility: List<String>.from(map['eligibility'] ?? []),
       payoutType: map['payout_type'],
       active: map['active'],
       payment_clause: map['payment_clause'],
@@ -220,7 +184,6 @@ class JobsModel {
       'compnayid': companyId,
       'rolename': roleName,
       'companyname': companyName,
-      'icon': icon,
       'location': location,
       'process': process,
       'skills': skills,
@@ -232,8 +195,6 @@ class JobsModel {
       'total_experience': totalExperience,
       'total_salary': totalSalary,
       'shifttime': shiftTime,
-      'shiftdesc': shiftDesc,
-      'education': education,
       'languageknown': languagesKnown,
       'naturofwork': natureOfWork,
       'ismonthly': isMonthly,
@@ -243,17 +204,13 @@ class JobsModel {
       'is_fav': isFav,
       'favJobId': favJobId,
       'userId': userId,
-      'status': status,
-      's_location': sLocation,
-      'uid': uid,
-      'eligibility': eligibility,
       'payout_type': payoutType,
       'active': active,
       'payment_clause': payment_clause,
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
       'interviewrounds': interviewrounds,
-      'sponsored_position':sponsored_position
+      'sponsored_position': sponsored_position
     };
   }
 

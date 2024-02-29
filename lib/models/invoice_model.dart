@@ -13,24 +13,24 @@ class InvoiceModel {
   final String? process;
   final String? companyName;
   final String? short_code;
+  final String? attr_status;
   final int? id;
 
   InvoiceModel(
       {this.referralName,
-     this.ifscCode,
-     this.accountNumber,
-     this.accountType,
-     this.candidateName,
-     this.userId,
-     this.doj,
-     this.bankName,
-     this.candidateAmount,
-     this.process,
-     this.companyName,
-     this.short_code,
-     this.id
-      
-      });
+      this.ifscCode,
+      this.accountNumber,
+      this.accountType,
+      this.candidateName,
+      this.userId,
+      this.doj,
+      this.bankName,
+      this.candidateAmount,
+      this.process,
+      this.companyName,
+      this.short_code,
+      this.id,
+      this.attr_status});
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
     return InvoiceModel(
@@ -46,8 +46,7 @@ class InvoiceModel {
         process: json['process'],
         companyName: json['company_name'],
         short_code: json['short_code'],
-        id: json['id']
-        
-        );
+        id: json['id'],
+        attr_status: json['attr_status']);
   }
 }

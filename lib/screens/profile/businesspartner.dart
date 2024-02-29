@@ -1282,7 +1282,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (fileLink != null && fileLink != "")
-                    Image.asset('./assets/images/cv_doc.png', height: 50),
+                    Image.asset('./assets/images/cv.png', height: 50),
                   if (fileLink != null && fileLink != "")
                     Expanded(
                       flex: 1,

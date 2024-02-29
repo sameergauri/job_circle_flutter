@@ -635,7 +635,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                     ],
                   ),
                 ),
-              if (widget.item.status_id == 18 && widget.item.company_salary == 1
+              if (widget.item.status_id == 18 &&
+                      !fresher &&
+                      (widget.item.is_ctc_pay == 1 ||
+                          widget.item.is_work_pay == 1)
                   //&&widget.item.salary == null  //TODO: use to hide the salary field when that have data on it...
                   )
                 Row(
@@ -1606,7 +1609,9 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                               CustomSnackbarfinal(
                                   title: "Specify Emp ID ", error: true));
                         } else if (salaryController.text.isEmpty &&
-                            widget.item.company_salary == 1) {
+                            !fresher &&
+                            (widget.item.is_ctc_pay == 1 ||
+                                widget.item.is_work_pay == 1)) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               CustomSnackbarfinal(
                                   title: "Specify Anual CTC", error: true));

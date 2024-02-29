@@ -1366,7 +1366,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Image.asset(
-                                    "assets/images/languages.JPG",
+                                    "assets/images/languages.png",
                                     height: 17.h,
                                     //  color: Colors.blac,
                                   ),
@@ -1520,7 +1520,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               child: Row(
                                 children: [
                                   Image.asset(
-                                    "assets/images/education.png",
+                                    "assets/images/campus.png",
                                     height: 17.h,
                                   ),
                                   const SizedBox(
@@ -2933,9 +2933,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                 bottom: 20),
                                             child: Column(
                                               children: [
-                                                Image.network(
-                                                  "https://cdn.discordapp.com/attachments/1095606068614283337/1169591660976558090/referal-removebg-preview.png?ex=6555f61d&is=6543811d&hm=a6938cb3ebe43c9f03e193765f25243c66a180aeca82e0faf738603109c9b321&",
-                                                  height: 100.h,
+                                                Image.asset(
+                                                  "assets/images/refer.png",
+                                                  height: 80.h,
                                                 ),
                                                 // const Text("T & C apply")
                                               ],
@@ -3720,9 +3720,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   padding: const EdgeInsets.only(bottom: 20),
                                   child: Column(
                                     children: [
-                                      Image.network(
-                                        "https://cdn.discordapp.com/attachments/1095606068614283337/1169591660976558090/referal-removebg-preview.png?ex=6555f61d&is=6543811d&hm=a6938cb3ebe43c9f03e193765f25243c66a180aeca82e0faf738603109c9b321&",
-                                        height: 130.h,
+                                      Image.asset(
+                                        "assets/images/refer.png",
+                                        height: 80.h,
                                       ),
                                       // const Text("T & C apply")
                                     ],

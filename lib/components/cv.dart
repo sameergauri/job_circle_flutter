@@ -117,8 +117,7 @@ class _CVWidgetState extends State<CVWidget> {
                         Container(
                           child: Row(
                             children: [
-                              Image.asset('./assets/images/cv_doc.png',
-                                  height: 50),
+                              Image.asset('./assets/images/cv.png', height: 50),
                             ],
                           ),
                         ),

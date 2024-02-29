@@ -800,7 +800,7 @@ class _AddEducationState extends ConsumerState<AddEducation> {
 
                       /*  isCross
                           ? Image.asset(
-                              "assets/images/cross.png",
+                              "assets/images/close.png",
                               height: 12,
                             )
                           : const Icon(

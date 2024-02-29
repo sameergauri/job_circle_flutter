@@ -579,12 +579,12 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                   radius: 43,
                                   onBackgroundImageError:
                                       ((error, stackTrace) => Image.asset(
-                                          "assets/images/company.png",
+                                          "assets/images/cmpny.png",
                                           height: 80,
                                           width: 80,
                                           fit: BoxFit.contain)),
                                   backgroundImage: Image.asset(
-                                          "assets/images/company.png",
+                                          "assets/images/cmpny.png",
                                           height: 80,
                                           width: 80,
                                           fit: BoxFit.contain)

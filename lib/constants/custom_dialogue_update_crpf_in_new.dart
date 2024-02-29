@@ -25,6 +25,7 @@ class CustomDialogueForNew extends ConsumerStatefulWidget {
   final int companyId;
   final Applicant item;
   final Function refreshCallback;
+  final Function cancel;
   final int statusDdId;
 
   const CustomDialogueForNew({
@@ -36,6 +37,7 @@ class CustomDialogueForNew extends ConsumerStatefulWidget {
     required this.role,
     required this.companyId,
     required this.title2,
+    required this.cancel,
     required this.refreshCallback,
     //required this.company_resumeId,
 
@@ -870,7 +872,9 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                     children: [
                       InkWell(
                         onTap: () {
+                          widget.cancel();
                           closeCustomDialogue();
+
                           Navigator.pop(context);
                         },
                         child: Container(
