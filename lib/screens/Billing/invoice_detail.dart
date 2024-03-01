@@ -278,7 +278,21 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                       ],
                     ),
                   )
-                : const SizedBox()
+                : invoicedata.payment_status == "Reject"
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20.w, vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Image.asset(
+                              "assets/images/reject.jpg",
+                              height: 20.sp,
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox()
           ],
         ),
       ),

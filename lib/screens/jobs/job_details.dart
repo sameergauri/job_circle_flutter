@@ -363,8 +363,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
           jobDetailsModel.icon != ""
               ? Container(
                   margin: const EdgeInsets.only(right: 10),
-                  height: 30.h,
-                  width: 60.w,
+                  height: 20.h,
+                  width: 40.w,
                   child: CustomImage(
                     imageUrl:
                         "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.icon}",

@@ -702,6 +702,10 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 10,
                   ),
                   CustomTextField(
+                      isDisabled: widget.prevPageModel!.is_verify == 1 && //TODO:: Disable name field when user banking detail verification done...
+                              widget.prevPageModel!.is_verify != null
+                          ? false
+                          : true,
                       focusNode: firstNameFocus,
                       controller: firstName,
                       hint: "Sameer",
@@ -711,6 +715,10 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 20.h,
                   ),
                   CustomTextField(
+                      isDisabled: widget.prevPageModel!.is_verify == 1 && //TODO:: Disable name field when user banking detail verification done...
+                              widget.prevPageModel!.is_verify != null
+                          ? false
+                          : true,
                       focusNode: middleNameFocus,
                       controller: middleName,
                       hint: "Jameel",
@@ -720,6 +728,10 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 20,
                   ),
                   CustomTextField(
+                      isDisabled: widget.prevPageModel!.is_verify == 1 &&  //TODO:: Disable name field when user banking detail verification done...
+                              widget.prevPageModel!.is_verify != null
+                          ? false
+                          : true,
                       focusNode: lastNameFocus,
                       controller: lastName,
                       hint: "Gauri",
