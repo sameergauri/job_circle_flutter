@@ -1,7 +1,7 @@
 // ignore_for_file: use_super_parameters, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 
 import '../../themes/colors.dart';
@@ -42,7 +42,10 @@ class _RecruitzState extends State<Recruitz> {
                       selectedIndex = index;
                     });
                   },
-                  children: const [TalentPool(), MyPipeLine()],
+                  children: const [
+                    TalentPoolExecutive(),
+                    InterViewBayExecutive()
+                  ],
                 ),
               ),
             ],

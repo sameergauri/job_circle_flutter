@@ -708,7 +708,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               userId: await Utils.getPreferencesValue(
                                   null, ESharedPreferences.user_id.name));
                           ref.refresh(fetchAllApplyProvider);
-                          ref.refresh(fetchAllTalentPool);
+                          ref.refresh(fetchAllTalentPoolProvider);
                         } else {
                           if (jobDetailsModel.id != null) {
                             Navigator.push(
@@ -803,6 +803,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddResume(
+                              report_to: profilemodel.report_to!.toInt(),
                                   company_name: jobDetailsModel.name.toString(),
                                   role: jobDetailsModel.rolename.toString(),
                                   process: jobDetailsModel.process.toString(),
@@ -2827,6 +2828,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                             builder:
                                                                 (context) =>
                                                                     AddResume(
+                                                                      report_to: profilemodel.report_to!.toInt(),
                                                                       company_name: jobDetailsModel
                                                                           .name
                                                                           .toString(),
@@ -3627,6 +3629,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => AddResume(
+                                                report_to: profilemodel.report_to!.toInt(),
                                                     company_name:
                                                         jobDetailsModel.name
                                                             .toString(),

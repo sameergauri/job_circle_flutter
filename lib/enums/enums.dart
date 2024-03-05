@@ -42,6 +42,7 @@ enum ESharedPreferences {
   user_type,
   role,
   user_rawData,
+  report_to,
   user_selected_lcoation;
 }
 

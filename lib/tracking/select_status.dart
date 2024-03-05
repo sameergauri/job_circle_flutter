@@ -17,6 +17,7 @@ import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -88,6 +89,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
         await JobPostApiService.NewchangeStatus(
             jsonData, widget.item.id!.toInt());
         ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
         Future.delayed(const Duration(seconds: 2), () {
           setState(() {
             isLoading = false;
@@ -382,6 +384,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                               await JobPostApiService.NewchangeStatus(
                                   jsonData, widget.item.id!.toInt());
                               ref.refresh(fetchAllApplicantProvider);
+                              ref.refresh(fetchAllExecutiveProvide);
 
                               setState(() {
                                 Future.delayed(const Duration(seconds: 2), () {
@@ -445,6 +448,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                     jsonData, widget.item.id!.toInt());
 
                                 ref.refresh(fetchAllApplicantProvider);
+                                ref.refresh(fetchAllExecutiveProvide);
 
                                 setState(() {
                                   Future.delayed(const Duration(seconds: 2),
@@ -511,7 +515,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                     jsonData, widget.item.id!.toInt());
 
                                 ref.refresh(fetchAllApplicantProvider);
-
+ref.refresh(fetchAllExecutiveProvide);
                                 setState(() {
                                   Future.delayed(const Duration(seconds: 2),
                                       () {
@@ -596,6 +600,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                   await JobPostApiService.NewchangeStatus(
                                       jsonData, widget.item.id!.toInt());
                                   ref.refresh(fetchAllApplicantProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...
@@ -621,6 +626,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                   await JobPostApiService.NewchangeStatus(
                                       jsonData, widget.item.id!.toInt());
                                   ref.refresh(fetchAllApplicantProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...
@@ -714,6 +720,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 await JobPostApiService.NewchangeStatus(
                                     jsonData, widget.item.id!.toInt());
                                 ref.refresh(fetchAllApplicantProvider);
+                                ref.refresh(fetchAllExecutiveProvide);
                               } catch (e) {
                                 print('Error: $e');
                                 // Handle error...
@@ -824,6 +831,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 await JobPostApiService.NewchangeStatus(
                                     jsonData, widget.item.id!.toInt());
                                 ref.refresh(fetchAllApplicantProvider);
+                                ref.refresh(fetchAllExecutiveProvide);
                               } catch (e) {
                                 print('Error: $e');
                                 // Handle error...
@@ -1001,6 +1009,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                           widget.item.doj == null;
                         });
                         ref.refresh(fetchAllApplicantProvider);
+                        ref.refresh(fetchAllExecutiveProvide);
                       },
                       child: Image.asset(
                         "assets/images/close (1).png",
@@ -1113,6 +1122,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                      ref.refresh(
+                                                      fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(
                                                           seconds: 2), () {
@@ -1186,6 +1197,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
+                                                              ref.refresh(
+                                                              fetchAllExecutiveProvide);
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 2),
@@ -1299,6 +1312,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                      ref.refresh(
+                                                      fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(
                                                           seconds: 2), () {
@@ -1372,6 +1387,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
+                                                              ref.refresh(
+                                                              fetchAllExecutiveProvide);
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 2),
@@ -1483,6 +1500,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                               fetchAllApplicantProvider);
                                           ref.refresh(fetchAllReferalProvider);
                                           ref.refresh(fetchAllApplyProvider);
+                                          ref.refresh(fetchAllExecutiveProvide);
                                           Future.delayed(
                                               const Duration(seconds: 2), () {
                                             setState(() {
@@ -1545,6 +1563,8 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
+                                                      ref.refresh(
+                                                      fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(
                                                           seconds: 2), () {
@@ -1634,6 +1654,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 jsonData, widget.item.id!.toInt());
                             ref.refresh(fetchAllApplicantProvider);
                             ref.refresh(fetchAllReferalProvider);
+                            ref.refresh(fetchAllExecutiveProvide);
                             ref.refresh(fetchAllApplyProvider);
                             Future.delayed(const Duration(seconds: 2), () {
                               setState(() {
@@ -1785,6 +1806,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                         jsonData, widget.item.id!.toInt());
 
                                     ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllExecutiveProvide);
                                     // ref.refresh(fetchAllReferalProvider);
                                     // ref.refresh(fetchAllApplyProvider);
                                     notes.clear();

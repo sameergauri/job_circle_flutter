@@ -7,6 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -17,8 +20,7 @@ import '../../../themes/colors.dart';
 import '../../models/my_team_model.dart';
 
 class LeadsTable extends StatefulWidget {
-  final int id;
-  const LeadsTable({super.key, required this.id});
+  const LeadsTable({super.key});
 
   @override
   State<LeadsTable> createState() => _LeadsTableState();
@@ -128,8 +130,12 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
   // }
 
   Future<void> fetchAllLeadDetails() async {
+    SharedPreferences pref = await Utils.getSharedPreferences();
+    var userid =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
+
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceid?userId1=${widget.id}&page=1&size=10000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllLeadsBySourceId?sourceId=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -176,8 +182,8 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
                   doj?.month == nextSixMonthDateTime.month ||
                   dol?.month == currentDateTime.month) ||
               (applicants[i].status == 'Select' && doj == null) ||
-              (applicants[i].status == 'In-Process' ||
-                  applicants[i].status == 'New')) {
+              (applicants[i].status == 'Interview Bay' ||
+                  applicants[i].status == 'Application')) {
             filteredApplicants.add(applicants[i]);
           }
         }
@@ -208,25 +214,25 @@ class _LeadsTableState extends State<LeadsTable> with TickerProviderStateMixin {
           }
         }
 
-        for (int i = 0; i < filteredApplicants.length; i++) {
-          if (filteredApplicants[i].status == 'In-Process') {
+        /* for (int i = 0; i < filteredApplicants.length; i++) {
+          if (filteredApplicants[i].status == 'Interview Bay') {
             filteredApplicants[i].status = 'Interview Schd';
           }
-        }
+        } */
 
         for (int i = 0; i < filteredApplicants.length; i++) {
-          if (filteredApplicants[i].sub_status == 'Shortlist') {
+          if (filteredApplicants[i].sub_status == 'Interview Bay') {
             filteredApplicants[i].sub_status = null;
           }
         }
         for (int i = 0; i < filteredApplicants.length; i++) {
-          if (filteredApplicants[i].sub_status == 'Virtual Interview') {
-            filteredApplicants[i].sub_status = "Virtual";
+          if (filteredApplicants[i].sub_status == 'Interview Bay') {
+            filteredApplicants[i].sub_status = "Interview Bay";
           }
         }
         for (int i = 0; i < filteredApplicants.length; i++) {
-          if (filteredApplicants[i].sub_status == 'On-Site Interview') {
-            filteredApplicants[i].sub_status = "Face2Face";
+          if (filteredApplicants[i].sub_status == 'Interview Bay') {
+            filteredApplicants[i].sub_status = "Interview Bay";
           }
         }
 

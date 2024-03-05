@@ -44,8 +44,8 @@ class _CCState extends State<CC> {
                     });
                   },
                   children: const [
-                    InterViewBay(),
-                    TalentPool(),
+                    InterViewBayCC(),
+                    TalentPoolExecutive(),
                     MyPipeLineCC()
                   ],
                 ),

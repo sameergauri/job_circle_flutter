@@ -13,6 +13,7 @@ import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -244,6 +245,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                 ref.refresh(fetchAllApplicantProvider);
                                 ref.refresh(fetchAllReferalProvider);
                                 ref.refresh(fetchAllApplyProvider);
+                                ref.refresh(fetchAllExecutiveProvide);
                                 Future.delayed(const Duration(seconds: 2), () {
                                   setState(() {
                                     isLoading = false;
@@ -361,6 +363,8 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                             ref.refresh(
                                                 fetchAllReferalProvider);
                                             ref.refresh(fetchAllApplyProvider);
+                                            ref.refresh(
+                                                fetchAllExecutiveProvide);
                                             Future.delayed(
                                                 const Duration(seconds: 2), () {
                                               setState(() {
@@ -407,6 +411,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                   ref.refresh(fetchAllApplicantProvider);
                                   ref.refresh(fetchAllReferalProvider);
                                   ref.refresh(fetchAllApplyProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                   Future.delayed(const Duration(seconds: 2),
                                       () {
                                     setState(() {
@@ -508,6 +513,8 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                                     fetchAllReferalProvider);
                                                 ref.refresh(
                                                     fetchAllApplyProvider);
+                                                    ref.refresh(
+                                                    fetchAllExecutiveProvide);
                                                 Future.delayed(
                                                     const Duration(seconds: 2),
                                                     () {
@@ -559,6 +566,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                       ref.refresh(fetchAllApplicantProvider);
                                       ref.refresh(fetchAllReferalProvider);
                                       ref.refresh(fetchAllApplyProvider);
+                                      ref.refresh(fetchAllExecutiveProvide);
                                       Future.delayed(const Duration(seconds: 2),
                                           () {
                                         setState(() {
@@ -595,6 +603,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                               fetchAllApplicantProvider);
                                           ref.refresh(fetchAllReferalProvider);
                                           ref.refresh(fetchAllApplyProvider);
+                                          ref.refresh(fetchAllExecutiveProvide);
                                           Future.delayed(
                                               const Duration(seconds: 2), () {
                                             setState(() {
@@ -611,6 +620,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                 ref.refresh(fetchAllApplicantProvider);
                                 ref.refresh(fetchAllReferalProvider);
                                 ref.refresh(fetchAllApplyProvider);
+                                ref.refresh(fetchAllExecutiveProvide);
                                 /*    Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -774,6 +784,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                           jsonData, widget.item.id!.toInt());
 
                                       ref.refresh(fetchAllApplicantProvider);
+                                      ref.refresh(fetchAllExecutiveProvide);
                                       // ref.refresh(fetchAllReferalProvider);
                                       // ref.refresh(fetchAllApplyProvider);
                                       notes.clear();

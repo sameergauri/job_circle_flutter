@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customTextfield.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/update_crpf_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/fetch_applied_job_model.dart';
 import '../themes/colors.dart';
@@ -912,6 +915,17 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                     resumeID == "")),
                         child: InkWell(
                           onTap: () async {
+                            SharedPreferences pref =
+                                await Utils.getSharedPreferences();
+                            var userType = await Utils.getPreferencesValue(
+                                pref, ESharedPreferences.user_type.name);
+                            var report_to = await Utils.getPreferencesValue(
+                                pref, ESharedPreferences.report_to.name);
+                            var userrole = await Utils.getPreferencesValue(
+                                pref, ESharedPreferences.role.name);
+                            var userid = await Utils.getPreferencesValue(
+                                pref, ESharedPreferences.user_id.name);
+
                             /* final addResumeModel = JobApplicationModel(  //TODO:: old code which is using old api ...
                               resume: widget.item.resume,
                               isRef: widget.item.is_ref,
@@ -985,7 +999,10 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                               jobid: isComp == false
                                   ? widget.item.jobId
                                   : newJobID,
-                              spoc: spoc ?? widget.item.spoc,
+                              // spoc: spoc ?? widget.item.spoc, //TODO spoc chnages as per srcpf
+                              spoc: userType == 3 && userrole == "3"
+                                  ? userid
+                                  : report_to,
                               client_resume_id: ResumeId.text.isNotEmpty
                                   ? ResumeId.text
                                   : null,
@@ -1004,6 +1021,10 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 NewChangeStatusModel(
                                     statusId: 1,
                                     hrStatusId: widget.statusDdId,
+                                    spoc: userType == 3 && userrole == "3"
+                                        ? userid
+                                        : report_to,
+                                    sourceId: userid,
                                     interviewRounds: widget
                                         .item.inteviewrounds!.first
                                         .replaceAll('[', '')

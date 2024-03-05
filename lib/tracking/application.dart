@@ -7,25 +7,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplicantContainerWidget extends ConsumerStatefulWidget {
   final Applicant item;
   final int id;
   final List<DropDownItem> dropDownItemList;
   final String sourcename;
+  final int report_to;
 
   ApplicantContainerWidget(
       {required this.item,
       required this.dropDownItemList,
       required this.id,
-      required this.sourcename});
+      required this.sourcename,
+      required this.report_to});
 
   @override
   _ApplicantContainerWidgetState createState() =>
@@ -35,12 +41,20 @@ class ApplicantContainerWidget extends ConsumerStatefulWidget {
 class _ApplicantContainerWidgetState
     extends ConsumerState<ApplicantContainerWidget> {
   bool isLoading = false;
+
+  var userType;
+  var userrole;
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         GestureDetector(
           onTap: () async {
+            SharedPreferences pref = await Utils.getSharedPreferences();
+            userType = await Utils.getPreferencesValue(
+                pref, ESharedPreferences.user_type.name);
+            userrole = await Utils.getPreferencesValue(
+                pref, ESharedPreferences.role.name);
             setState(() {
               isLoading = true;
             });
@@ -51,6 +65,9 @@ class _ApplicantContainerWidgetState
                     hrStatusId: 12,
                     sourceId: widget.id,
                     dol: DateTime.now(),
+                    spoc: userType == 3 && userrole == "3"
+                        ? widget.id
+                        : widget.item.spoc,
                     sourceName: widget.sourcename);
                 Map<String, dynamic> jsonData = changeStatusModel.toJson();
 
@@ -59,7 +76,8 @@ class _ApplicantContainerWidgetState
 
                 // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                 ref.refresh(fetchAllApplicantProvider);
-
+                ref.refresh(fetchAllTalentPoolProvider);
+                ref.refresh(fetchAllExecutiveProvide);
                 Future.delayed(const Duration(seconds: 2), () {
                   setState(() {
                     isLoading = false;

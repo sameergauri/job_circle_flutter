@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,8 +34,8 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   @override
   void initState() {
     super.initState();
-    bindBottomTabs();
     getData();
+    // bindBottomTabs();
   }
 
   getData() {
@@ -62,17 +62,13 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         index: selectedIndex,
         children: [
           const NewJobsV1(),
-          // const TalentPool(), 
+          // const TalentPool(),
           if (role == "3")
-            const InterViewBay()
+            const InterViewBayCC()
           //CC()
           else
-            const MyPipeLine(),
-          role == "3"
-              ? LeadsTable(
-                  id: id,
-                )
-              : const Placeholder(),
+            const InterViewBayExecutive(),
+          role == "3" ? const LeadsTable() : const TalentPoolExecutive(),
           //Recruitz(),
         ],
       ),
@@ -86,7 +82,45 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          items: bottomTabItems,
+          items: [
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                "assets/images/jobs.png",
+                height: 15.h,
+              ),
+              activeIcon: Image.asset(
+                "assets/images/jobs.png",
+                height: 25.h,
+              ),
+              label: 'Hiring',
+              backgroundColor: Colors.blue,
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                "assets/images/recruitz.png",
+                height: 20.h,
+              ),
+              activeIcon: Image.asset(
+                "assets/images/recruitz.png",
+                height: 25.h,
+              ),
+              label: role == "3" ? 'My PipeLine' : "Tracking",
+              //'Recruitz',
+              backgroundColor: Colors.blue,
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                "assets/images/user-group.png",
+                height: 20.h,
+              ),
+              activeIcon: Image.asset(
+                "assets/images/user-group.png",
+                height: 25.h,
+              ),
+              label: role == "3" ? "Team" : "TalentPool",
+              backgroundColor: Colors.blue,
+            ),
+          ],
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
           unselectedItemColor: Colors.black45,
@@ -125,7 +159,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
       label: 'Hiring',
       backgroundColor: Colors.blue,
     ));
-   /*  bottomTabItems.add(BottomNavigationBarItem(
+    /*  bottomTabItems.add(BottomNavigationBarItem(
       icon: Image.asset(
         "assets/images/jobs.png",
         height: 15.h,

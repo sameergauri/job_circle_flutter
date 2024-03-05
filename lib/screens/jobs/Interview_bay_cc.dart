@@ -16,6 +16,7 @@ import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
@@ -41,18 +42,18 @@ import '../../themes/colors.dart';
 //enum Issue { no, incorrect, recruiter, other }
 
 final fetchAllApplicantProvider = FutureProvider<List<Applicant>>(
-    (ref) => _InterViewBayState.fetchAllApplicants());
+    (ref) => _InterViewBayCCState.fetchAllApplicants());
 
-class InterViewBay extends ConsumerStatefulWidget {
-  const InterViewBay({
+class InterViewBayCC extends ConsumerStatefulWidget {
+  const InterViewBayCC({
     super.key,
   });
 
   @override
-  ConsumerState<InterViewBay> createState() => _InterViewBayState();
+  ConsumerState<InterViewBayCC> createState() => _InterViewBayCCState();
 }
 
-class _InterViewBayState extends ConsumerState<InterViewBay>
+class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
     with TickerProviderStateMixin {
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
@@ -212,7 +213,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&userId2=$userid&page=1&size=1000');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&page=1&size=100');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -221,7 +222,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
         // Convert the list of Map to a list of Applicant objects
         List<Applicant> applicants = contentList
-       //.where((element) => element.is_join_submitted!=1)  //TODO:: to hide join submitted data....
+            //.where((element) => element.is_join_submitted!=1)  //TODO:: to hide join submitted data....
             /*  .where((element) =>
                 element.is_status_hide != 1 || element.is_status_hide!=null || element.s2_is_status_hide != 1 ||
                 element.s2_is_status_hide != null) */
@@ -608,6 +609,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   itemBuilder: (context, index) {
                                     final applicant = applicants[index];
                                     return listViewItem_new(
+                                        profilemodel.report_to!.toInt(),
                                         context,
                                         applicant,
                                         true,
@@ -689,6 +691,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                               filteredApplicants[index];
 
                                           return listViewItem_new(
+                                              profilemodel.report_to!.toInt(),
                                               context,
                                               applicant,
                                               true,
@@ -734,6 +737,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
   //TODO:: New InterviewBay For CC.....{
 
   Widget listViewItem_new(
+      int report_to,
       BuildContext context,
       Applicant item,
       bool isTrue,
@@ -841,6 +845,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
         try {
           await JobPostApiService.NewchangeStatus(jsonData, item.id!.toInt());
           ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllExecutiveProvide);
           setState(() {});
           // First pop to close the dialog
         } catch (e) {
@@ -856,6 +861,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
             iconOnLeftSwipe: Icons.sms_outlined,
             onRightSwipe: item.alternateNo == 0 || item.alternateNo == null
                 ? (details) async {
+                    SharedPreferences pref = await Utils.getSharedPreferences();
+                    var userType = await Utils.getPreferencesValue(
+                        pref, ESharedPreferences.user_type.name);
+                    var userrole = await Utils.getPreferencesValue(
+                        pref, ESharedPreferences.role.name);
                     await FlutterPhoneDirectCaller.callNumber(
                         "+91${item.contactNo}");
                     {
@@ -868,6 +878,9 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                   hrStatusId: 12,
                                   sourceId: id,
                                   dol: DateTime.now(),
+                                  spoc: userType == 3 && userrole == "3"
+                                      ? id
+                                      : null,
                                   sourceName: sourceName);
                           Map<String, dynamic> jsonData =
                               changeStatusModel.toJson();
@@ -877,6 +890,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
                           // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                           ref.refresh(fetchAllApplicantProvider);
+                          ref.refresh(fetchAllExecutiveProvide);
 
                           setState(() {});
                         } catch (e) {
@@ -908,6 +922,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                   },
             onLeftSwipe: item.alternateNo == 0 || item.alternateNo == null
                 ? (details) async {
+                    SharedPreferences pref = await Utils.getSharedPreferences();
+                    var userType = await Utils.getPreferencesValue(
+                        pref, ESharedPreferences.user_type.name);
+                    var userrole = await Utils.getPreferencesValue(
+                        pref, ESharedPreferences.role.name);
                     Uri url =
                         Uri.parse("whatsapp://send?phone=91${item.contactNo}");
                     await canLaunchUrl(url)
@@ -921,6 +940,9 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                 statusId: 4,
                                 hrStatusId: 12,
                                 sourceId: id,
+                                spoc: userType == 3 && userrole == "3"
+                                    ? id
+                                    : null,
                                 dol: DateTime.now(),
                                 sourceName: sourceName);
                         Map<String, dynamic> jsonData =
@@ -931,6 +953,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
 
                         // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                         ref.refresh(fetchAllApplicantProvider);
+                        ref.refresh(fetchAllExecutiveProvide);
 
                         setState(() {});
                       } catch (e) {
@@ -985,6 +1008,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                           11, //TODO:: Application
                                   child: ApplicantContainerWidget(
                                     item: item,
+                                    report_to: report_to,
                                     dropDownItemList: dropDownItemList!,
                                     id: id,
                                     sourcename: sourceName,
@@ -2744,7 +2768,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                               ? () {
                                   item.resume != null
                                       ? item.resume!.contains(".docx")
-                                          ? SizedBox()/* FutureBuilder<void>(    //TODO: Docs view for cv.
+                                          ? const SizedBox() /* FutureBuilder<void>(    //TODO: Docs view for cv.
                                               future: pdftron.PdftronFlutter
                                                   .openDocument(
                                                 "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
@@ -2811,6 +2835,14 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                       : const SizedBox();
                                 }
                               : () async {
+                                  SharedPreferences pref =
+                                      await Utils.getSharedPreferences();
+                                  var userType =
+                                      await Utils.getPreferencesValue(pref,
+                                          ESharedPreferences.user_type.name);
+                                  var userrole =
+                                      await Utils.getPreferencesValue(
+                                          pref, ESharedPreferences.role.name);
                                   if (item.hr_status_id == 11 ||
                                       item.s2DdHrStatusId == 11) {
                                     try {
@@ -2821,6 +2853,11 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                               statusId: 4,
                                               hrStatusId: 12,
                                               dol: DateTime.now(),
+                                              spoc: userType == 3 &&
+                                                      userrole == "3" &&
+                                                      item.status_id == 3
+                                                  ? id
+                                                  : item.spoc,
                                               sourceId: id,
                                               sourceName: sourceName);
                                       Map<String, dynamic> jsonData =
@@ -2830,6 +2867,7 @@ class _InterViewBayState extends ConsumerState<InterViewBay>
                                           jsonData, item.id!.toInt());
 
                                       ref.refresh(fetchAllApplicantProvider);
+                                      ref.refresh(fetchAllExecutiveProvide);
                                       setState(() {});
                                     } catch (e) {
                                       print('Error: $e');

@@ -2806,6 +2806,7 @@ class _JobsState extends ConsumerState<Jobs>
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddResume(
+                                    report_to: 2,
                                         company_name: item['companyname'],
                                         role: item['rolename'],
                                         process: item['process'],

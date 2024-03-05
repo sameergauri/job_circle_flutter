@@ -24,6 +24,7 @@ class CardModel {
   String? user_locality;
   String? usertype;
   int? id;
+  int? report_to;
 
   String? userLocation;
   CardModel({
@@ -50,6 +51,7 @@ class CardModel {
     this.user_locality,
     this.usertype,
     this.id,
+    this.report_to,
   });
   factory CardModel.fromJson(dynamic json) {
     return CardModel(
@@ -70,6 +72,7 @@ class CardModel {
       user_locality: json['user_locality'],
       id: json['id'],
       usertype: json['usertype'],
+      report_to: json['report_to']??0
     );
   }
 
@@ -91,5 +94,6 @@ class CardModel {
         'user_locality': user_locality,
         'usertpe': usertype,
         'id': id,
+        'report_to':report_to
       };
 }

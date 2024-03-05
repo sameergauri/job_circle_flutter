@@ -328,7 +328,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   // disabled: vrifyButtonDisabled,
                   onPressed: () async {
                     await varifyOTP();
-                    ref.refresh(fetchAllApplicantProvider);  //TODO:: refresh when new user login
+                    ref.refresh(
+                        fetchAllApplicantProvider); //TODO:: refresh when new user login
                     ref.refresh(fetchAllApplyProvider);
                     ref.refresh(fetchAllReferalProvider);
                     ref.refresh(profileSummaryProvider);
@@ -480,8 +481,11 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         model.email = data['email'];
         model.role = data['role'];
         model.gender = data['gender'];
+        model.report_to = data['report_to'];
         await Utils.setPreference(
             pres, ESharedPreferences.role.name, data['role']);
+        await Utils.setPreference(
+            pres, ESharedPreferences.report_to.name, data['report_to']);
 
         await Utils.setPreference(pres, ESharedPreferences.user_data.name,
             jsonEncode(model.toJson()));

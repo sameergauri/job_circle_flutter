@@ -1535,6 +1535,8 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                           context,
                                                                           MaterialPageRoute(
                                                                               builder: (context) => AddResume(
+
+                                                                                   report_to: 2,
                                                                                     company_name: item.companyName.toString(),
                                                                                     role: item.roleName.toString(),
                                                                                     process: item.process.toString(),
@@ -1610,6 +1612,7 @@ class _NewJobsState extends ConsumerState<NewJobs>
                                                                           context,
                                                                           MaterialPageRoute(
                                                                               builder: (context) => AddResume(
+                                                                                report_to: 2,
                                                                                     company_name: item.companyName.toString(),
                                                                                     role: item.roleName.toString(),
                                                                                     process: item.process.toString(),

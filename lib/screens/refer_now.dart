@@ -669,8 +669,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             item.resume!.contains(".docx")
                                 ? Stack(
                                     children: [
-                                      SizedBox(),
-                                     /*  FutureBuilder<void>(    //TODO: Docs view for cv.
+                                      const SizedBox(),
+                                      /*  FutureBuilder<void>(    //TODO: Docs view for cv.
                                         future:
                                             pdftron.PdftronFlutter.openDocument(
                                           "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",

@@ -155,6 +155,14 @@ class Applicant {
   int? s2_is_status_hide;
   int? isCvDownload;
   int? is_join_submitted;
+  String? executive_icon;
+  String? executive_feedback1;
+  String? executive_feedback2;
+  String? executive_status;
+  String? s2ExecutiveIcon;
+  String? s2ExecutiveFeedback1;
+  String? s2ExecutiveFeedback2;
+  String? s2ExecutiveStatus;
 
   Applicant({
     this.showRejectTextField,
@@ -262,6 +270,14 @@ class Applicant {
     this.s2_is_status_hide,
     this.isCvDownload,
     this.is_join_submitted,
+    this.executive_icon,
+    this.executive_status,
+    this.executive_feedback1,
+    this.executive_feedback2,
+    this.s2ExecutiveFeedback1,
+    this.s2ExecutiveFeedback2,
+    this.s2ExecutiveIcon,
+    this.s2ExecutiveStatus,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
@@ -371,6 +387,14 @@ class Applicant {
       s2_is_status_hide: json['s2_is_status_hide'],
       isCvDownload: json['isCvDownload'],
       is_join_submitted: json['is_join_submitted'],
+      executive_feedback1: json['executive_feedback1'],
+      executive_feedback2: json['executive_feedback2'],
+      executive_icon: json['executive_icon'],
+      executive_status: json['executive_status'],
+      s2ExecutiveFeedback1: json['s2_executive_feedback1'],
+      s2ExecutiveFeedback2: json['s2_executive_feedback2'],
+      s2ExecutiveIcon: json['s2_executive_icon'],
+      s2ExecutiveStatus: json['s2_executive_status'],
     );
   }
 
@@ -518,6 +542,14 @@ class Applicant {
       's2_is_status_hide': s2_is_status_hide,
       'isCvDownload': isCvDownload,
       'is_join_submitted': is_join_submitted,
+      'executive_feedback1': executive_feedback1,
+      'executive_feedback2': executive_feedback2,
+      'executive_icon': executive_icon,
+      'executive_status': executive_status,
+      's2ExecutiveFeedback1': s2ExecutiveFeedback1,
+      's2ExecutiveFeedback2': s2ExecutiveFeedback2,
+      's2ExecutiveIcon': s2ExecutiveIcon,
+      's2ExecutiveStatus': s2ExecutiveStatus,
     };
   }
 }

@@ -123,7 +123,7 @@ class _AddCvState extends ConsumerState<AddCv> {
                 InkWell(
                   onTap: () async {
                     ref.refresh(fetchAllApplyProvider);
-                    ref.refresh(fetchAllTalentPool);
+                    ref.refresh(fetchAllTalentPoolProvider);
                     ref.refresh(userDataProvider);
                     ref.refresh(profileSummaryProvider);
                     ref.refresh(fetchAllApplicantProvider);

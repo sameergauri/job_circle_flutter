@@ -16,7 +16,7 @@ import 'package:job_circle/models/add_resume_model.dart';
 import 'package:job_circle/models/cooling_p_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/my_pipe_line.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/refer_now.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
@@ -41,6 +41,7 @@ class AddResume extends ConsumerStatefulWidget {
   final int userNumber;
   final int useAlternateNumber;
   final String interviewRounds;
+  final int report_to;
 
   const AddResume(
       {super.key,
@@ -58,7 +59,8 @@ class AddResume extends ConsumerStatefulWidget {
       required this.is30,
       required this.userNumber,
       required this.useAlternateNumber,
-      required this.interviewRounds});
+      required this.interviewRounds,
+      required this.report_to});
 
   @override
   ConsumerState<AddResume> createState() => _AddResumeState();
@@ -73,12 +75,12 @@ class _AddResumeState extends ConsumerState<AddResume> {
     super.initState();
   }
 
-  String _version = 'Unknown';
+  final String _version = 'Unknown';
 
   Future<void> initPlatformState() async {
     String version;
     // Platform messages may fail, so we use a try/catch PlatformException.
-   /*  try {    //TODO: Docs view for cv.
+    /*  try {    //TODO: Docs view for cv.
       pdftron.PdftronFlutter.initialize();
       version = await pdftron.PdftronFlutter.version;
     } on PlatformException {
@@ -90,7 +92,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-   /*  setState(() {   //TODO: Docs view for cv.
+    /*  setState(() {   //TODO: Docs view for cv.
       _version = version;
     }); */
   }
@@ -632,7 +634,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                                   }
                                 : () {
                                     icon_data!.contains(".docx")
-                                        ? SizedBox()/* FutureBuilder<void>(   //TODO: Docs view for cv.
+                                        ? const SizedBox() /* FutureBuilder<void>(   //TODO: Docs view for cv.
                                             future: pdftron.PdftronFlutter
                                                 .openDocument(
                                               "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data",
@@ -1320,6 +1322,15 @@ class _AddResumeState extends ConsumerState<AddResume> {
   List<UserDataForAddResumeModelResultData>? applicationList = [];
   List<CoolingModel>? ListOfCoolingData = [];
   void fetchData() async {
+    SharedPreferences pref = await Utils.getSharedPreferences();
+    final userRole =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
+
+    final userType = await Utils.getPreferencesValue(
+        pref, ESharedPreferences.user_type.name);
+
+    final userId =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
     try {
       setState(() {
         isLoading = true;
@@ -1436,15 +1447,15 @@ class _AddResumeState extends ConsumerState<AddResume> {
             sourceId: 0,
             //sourceName: widget.sourceName,
             jobid: widget.jobId,
-            spoc: widget.spocId,
+            spoc: widget.report_to == 0 ? 2 : widget.report_to,
             // dol: DateTime.now()
             // ... fill in other properties as needed
           );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllTalentPoolProvider);
           ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllExecutiveProvide);
           ref.refresh(fetchAllReferalProvider);
           ref.refresh(fetchAllApplyProvider);
 
@@ -1474,7 +1485,11 @@ class _AddResumeState extends ConsumerState<AddResume> {
             sourceId: widget.sourceId,
             sourceName: widget.sourceName,
             jobid: widget.jobId,
-            spoc: widget.spocId,
+            spoc: (userType == 3 && userRole == "3")
+                ? userId
+                : (userType == 3 && userRole == "1")
+                    ? widget.report_to
+                    : 2,
             alternateNo: secondry.text.isNotEmpty
                 ? int.parse(secondry.text.trim())
                 : null,
@@ -1484,9 +1499,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
           );
           final jsonData = addResumeModel.toJson();
           await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
+          ref.refresh(fetchAllTalentPoolProvider);
           ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
+          ref.refresh(fetchAllExecutiveProvide);
           ref.refresh(fetchAllReferalProvider);
           ref.refresh(fetchAllApplyProvider);
           setState(() {

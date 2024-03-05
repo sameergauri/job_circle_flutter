@@ -5,11 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomFloatCall extends StatelessWidget {
@@ -189,6 +193,12 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                         children: [
                           InkWell(
                             onTap: () async {
+                               SharedPreferences pref =
+                                  await Utils.getSharedPreferences();
+                              var userType = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_type.name);
+                              var userrole = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.role.name);
                               await FlutterPhoneDirectCaller.callNumber(
                                   "+91${widget.phoneNumber1}");
                               if (widget.item.hr_status_id == 10 ||
@@ -199,6 +209,9 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
+                                           spoc: userType == 3 && userrole == "3"&&widget.item.status_id==3
+                                        ? widget.id
+                                        : widget.item.spoc,
                                           sourceName: widget.sourcename,
                                           dol: DateTime.now(),
                                           );
@@ -210,6 +223,8 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...
@@ -251,6 +266,12 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                           ),
                           InkWell(
                             onTap: () async {
+                               SharedPreferences pref =
+                                  await Utils.getSharedPreferences();
+                              var userType = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_type.name);
+                              var userrole = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.role.name);
                               await FlutterPhoneDirectCaller.callNumber(
                                   "+91${widget.phoneNumber2}");
 
@@ -262,6 +283,11 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
+                                              spoc: userType == 3 &&
+                                                  userrole == "3" &&
+                                                  widget.item.status_id == 3
+                                              ? widget.id
+                                              : widget.item.spoc,
                                           dol: DateTime.now(),
                                            sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
@@ -272,6 +298,8 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...
@@ -334,6 +362,12 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                         children: [
                           InkWell(
                             onTap: () async {
+                               SharedPreferences pref =
+                                  await Utils.getSharedPreferences();
+                              var userType = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_type.name);
+                              var userrole = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.role.name);
                               Navigator.pop(context);
                               Uri url = Uri.parse(
                                   "whatsapp://send?phone=91${widget.phoneNumber1}");
@@ -348,6 +382,11 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
+                                               spoc: userType == 3 &&
+                                                  userrole == "3" &&
+                                                  widget.item.status_id == 3
+                                              ? widget.id
+                                              : widget.item.spoc,
                                           dol: DateTime.now(),
                                            sourceName: widget.sourcename
                                           );
@@ -359,6 +398,8 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...
@@ -399,6 +440,12 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                           ),
                           InkWell(
                             onTap: () async {
+                               SharedPreferences pref =
+                                  await Utils.getSharedPreferences();
+                              var userType = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_type.name);
+                              var userrole = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.role.name);
                               Navigator.pop(context);
                               Uri url = Uri.parse(
                                   "whatsapp://send?phone=91${widget.phoneNumber2}");
@@ -412,6 +459,11 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                       NewChangeStatusModel(
                                           statusId: 6,
                                           hrStatusId: 18,
+                                               spoc: userType == 3 &&
+                                                  userrole == "3" &&
+                                                  widget.item.status_id == 3
+                                              ? widget.id
+                                              : widget.item.spoc,
                                           sourceId: widget.id,
                                           dol: DateTime.now(),
                                            sourceName: widget.sourcename);
@@ -423,6 +475,8 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
                                   // Handle error...

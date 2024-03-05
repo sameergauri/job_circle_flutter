@@ -136,7 +136,7 @@ class _AddCvtoApplyState extends ConsumerState<AddCvtoApply> {
                         context: context);
 
                     ref.refresh(fetchAllApplyProvider);
-                    ref.refresh(fetchAllTalentPool);
+                    ref.refresh(fetchAllTalentPoolProvider);
                     ref.refresh(userDataProvider);
                     ref.refresh(profileSummaryProvider);
                     /* Navigator.pop(context);

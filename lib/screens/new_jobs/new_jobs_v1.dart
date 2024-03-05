@@ -292,7 +292,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       data: (data) {
         setState(() {
           if (data.is_freelancer == 2) {
-            //TODO:: 1 = JobSeeker, 2 = Freelancer, 0 = Both.
+            //TODO:: 1 = JobSeeker, 2 = Freelancer, 0 = Both. // login type for user.
             freelancer = true;
             jobSeeker = false;
             both = false;
@@ -535,7 +535,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     },
                   ), */
 
-                  if (data.usertype == 1)
+                  if (data.usertype == 1 && !jobSeeker)
                     ExpansionTile(
                       leading: Image.network(
                         "https://cdn-icons-png.flaticon.com/128/1570/1570887.png",
@@ -745,11 +745,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         ),
                       ),
                     ),
-                    if (data.usertype != 1)
+                    if (data.usertype == 3 && data.role != "HR-Executive")
                       const SizedBox(
                         width: 5,
                       ),
-                    if (data.usertype != 1)
+                    if (data.usertype == 3 && data.role != "HR-Executive")
                       InkWell(
                           onTap: () {
                             cutTab = 1;
@@ -1878,6 +1878,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             context,
                                                                             MaterialPageRoute(
                                                                                 builder: (context) => AddResume(
+                                                                                      report_to: data.reportTo!.toInt(),
                                                                                       interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
                                                                                       company_name: item.companyName.toString(),
                                                                                       role: item.roleName.toString(),
@@ -2005,7 +2006,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           ref.refresh(
                                                                               fetchAllApplyProvider);
                                                                           ref.refresh(
-                                                                              fetchAllTalentPool);
+                                                                              fetchAllTalentPoolProvider);
                                                                         } else {
                                                                           if (item.id !=
                                                                               null) {
@@ -2121,6 +2122,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           context,
                                                                           MaterialPageRoute(
                                                                               builder: (context) => AddResume(
+                                                                                    report_to: data.reportTo!.toInt(),
                                                                                     company_name: item.companyName.toString(),
                                                                                     role: item.roleName.toString(),
                                                                                     process: item.process.toString(),
@@ -2642,8 +2644,22 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
         );
       },
       error: (error, stackTrace) {
-        return const Center(
-          child: Text("Due to some technical issue data not loaded"),
+        return Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/images/maintenance.gif",
+                height: 200.sp,
+              ),
+              Text("Application is under maintenance.",
+                  style: GoogleFonts.varela(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromARGB(255, 21, 176, 187))),
+            ],
+          ),
         );
       },
       loading: () {
