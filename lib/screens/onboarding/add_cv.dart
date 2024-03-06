@@ -263,26 +263,17 @@ class _AddCvState extends ConsumerState<AddCv> {
                                 offset: const Offset(1, 1))
                           ], */ //"assets/images/cv_doc.png"
                         ),
-                        child: Image.network(
-                          "https://cdn.discordapp.com/attachments/1095606068614283337/1169234100503191562/Profile_data.gif?ex=6554a91c&is=6542341c&hm=7d792b032b842e88e73481281c9281d951545f3e8d8988abd07ed4f91b85ff41&",
+                        child: Image.asset(
+                          "assets/images/profiledata.gif",
                           height: 300.0,
                           fit: BoxFit.contain,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              // If the image is fully loaded, return the child (original image)
-                              return child;
-                            } else {
-                              // While the image is loading, you can return a loading indicator here (e.g., CircularProgressIndicator).
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          },
                           errorBuilder: (BuildContext context, Object exception,
                               StackTrace? stackTrace) {
                             // If there's an error loading the image, you can return an error image or message here.
                             return Image.asset(
-                                "assets/images/cv.png"); // Replace 'assets/error_image.png' with your error image.
+                              "assets/images/cv.png",
+                              height: 200,
+                            ); // Replace 'assets/error_image.png' with your error image.
                           },
                         ),
                         /*  child: Image.network(

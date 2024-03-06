@@ -63,11 +63,10 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         children: [
           const NewJobsV1(),
           // const TalentPool(),
-          if (role == "3")
-            const InterViewBayCC()
+          if (role == "3") const InterViewBayCC(),
           //CC()
-          else
-            const InterViewBayExecutive(),
+          // else
+          //   const InterViewBayExecutive(),
           role == "3" ? const LeadsTable() : const TalentPoolExecutive(),
           //Recruitz(),
         ],
@@ -95,19 +94,20 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
               label: 'Hiring',
               backgroundColor: Colors.blue,
             ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/images/recruitz.png",
-                height: 20.h,
+            if (role == "3")
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  "assets/images/recruitz.png",
+                  height: 20.h,
+                ),
+                activeIcon: Image.asset(
+                  "assets/images/recruitz.png",
+                  height: 25.h,
+                ),
+                label: 'My PipeLine',
+                //'Recruitz',
+                backgroundColor: Colors.blue,
               ),
-              activeIcon: Image.asset(
-                "assets/images/recruitz.png",
-                height: 25.h,
-              ),
-              label: role == "3" ? 'My PipeLine' : "Tracking",
-              //'Recruitz',
-              backgroundColor: Colors.blue,
-            ),
             BottomNavigationBarItem(
               icon: Image.asset(
                 "assets/images/user-group.png",

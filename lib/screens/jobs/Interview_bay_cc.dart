@@ -404,6 +404,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
     return null;
   } */
 
+  bool isSearchEnable = false;
+
+  FocusNode searchNode = FocusNode();
+
   TextEditingController _searchController = TextEditingController();
   List<Applicant>? _filteredData;
 
@@ -442,6 +446,18 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                     return DefaultTabController(
                       length: statuses.length,
                       child: Scaffold(
+                        floatingActionButton: FloatingActionButton(
+                            backgroundColor: Constants.themeBgColor,
+                            child: const Icon(Icons.search),
+                            onPressed: () {
+                              setState(() {
+                                isSearchEnable = !isSearchEnable;
+                                _searchController.clear();
+                              });
+                              if (isSearchEnable) {
+                                searchNode.requestFocus();
+                              }
+                            }),
                         /*  floatingActionButton: FloatingActionButton(  //TODO: Refresh button.....
                           backgroundColor: Constants.maintheme_light_color,
                           onPressed: () {
@@ -453,54 +469,73 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                             FloatingActionButtonLocation.centerDocked, */
                         backgroundColor: Constants.bgColorWhite,
                         appBar: PreferredSize(
-                          preferredSize: const Size(
-                              double.maxFinite, kTextTabBarHeight * 2),
+                          preferredSize: Size(
+                              double.maxFinite,
+                              isSearchEnable
+                                  ? kTextTabBarHeight * 2
+                                  : kToolbarHeight),
                           child: AppBar(
-                            title: Container(
-                              margin: EdgeInsets.only(top: 10.h),
-                              height: MediaQuery.of(context).size.height / 24.h,
-                              child: TextField(
-                                keyboardType: TextInputType.name,
-                                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                controller: _searchController,
-                                style: GoogleFonts.varela(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 14.sp),
-                                decoration: InputDecoration(
-                                    filled: false,
-                                    fillColor: Constants.borderColor,
-                                    prefixIcon: const Icon(Icons.search),
-                                    prefixIconColor: Constants.themeBgColor,
-                                    contentPadding: const EdgeInsets.only(
-                                        top: 8, bottom: 8, left: 10, right: 10),
-                                    counterText: '',
-                                    // labelText: "Remark",
-                                    labelStyle: const TextStyle(
-                                      color: Constants.themeBgColor,
+                            title: isSearchEnable
+                                ? Container(
+                                    margin: EdgeInsets.only(top: 10.h),
+                                    height: MediaQuery.of(context).size.height /
+                                        24.h,
+                                    child: TextField(
+                                      focusNode: searchNode,
+                                      keyboardType: TextInputType.name,
+                                      //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                                      textCapitalization:
+                                          TextCapitalization.sentences,
+                                      controller: _searchController,
+                                      style: GoogleFonts.varela(
+                                          color: Constants.subtitleclr,
+                                          fontSize: 14.sp),
+                                      decoration: InputDecoration(
+                                          filled: false,
+                                          fillColor: Constants.borderColor,
+                                          prefixIcon: const Icon(Icons.search),
+                                          prefixIconColor:
+                                              Constants.themeBgColor,
+                                          contentPadding: const EdgeInsets.only(
+                                              top: 8,
+                                              bottom: 8,
+                                              left: 10,
+                                              right: 10),
+                                          counterText: '',
+                                          // labelText: "Remark",
+                                          labelStyle: const TextStyle(
+                                            color: Constants.themeBgColor,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                                color: Constants.themeBgColor),
+                                          ),
+                                          focusColor: const Color(0xffff0eceb),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                              color: Constants.themeBgColor,
+                                            ),
+                                          ),
+                                          hintText: "Search",
+                                          hintStyle: GoogleFonts.sourceSansPro(
+                                              color: Constants.hintColor,
+                                              fontSize: 15.sp)),
+                                      onChanged: (value) {
+                                        // setState(() {});
+                                        _searchController.text.isEmpty
+                                            ? setState(() {
+                                                isSearchEnable =
+                                                    !isSearchEnable;
+                                              })
+                                            : setState(() {});
+                                      },
                                     ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                          color: Constants.themeBgColor),
-                                    ),
-                                    focusColor: const Color(0xffff0eceb),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                        color: Constants.themeBgColor,
-                                      ),
-                                    ),
-                                    hintText: "Search",
-                                    hintStyle: GoogleFonts.sourceSansPro(
-                                        color: Constants.hintColor,
-                                        fontSize: 15.sp)),
-                                onChanged: (value) {
-                                  setState(() {});
-                                },
-                              ),
-                            ),
+                                  )
+                                : null,
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(

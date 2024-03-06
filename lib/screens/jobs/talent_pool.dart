@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:awesome_calendar/awesome_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/customdialogue_for_call_whatsapp.dart';
 import 'package:job_circle/constants/drop_down_class.dart';
 import 'package:job_circle/constants/gobal.dart';
@@ -18,7 +18,6 @@ import 'package:job_circle/models/application_status_model.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
-import 'package:job_circle/models/interview_rounds_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
@@ -32,6 +31,7 @@ import 'package:job_circle/tracking/assign.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:timelines/timelines.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final fetchAllTalentPoolProvider = FutureProvider<List<Applicant>>(
@@ -97,8 +97,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
         // Convert the list of Map to a list of Applicant objects
         List<Applicant> applicants = contentList
             .map((json) => Applicant.fromJson(json))
-            .where(
-                (element) => element.status_id == 3 || element.status_id == 4)
+            /*  .where((applicant) =>
+                applicant.hr_status_id == 11 ||
+                applicant.hr_status_id==12) */
             .toList();
         return applicants;
       } else {
@@ -238,23 +239,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
   final bool _showRejectTextField = false;
   final bool _showremarkfordropandNotJoin = false;
 
-  void toggleSearchVisibility() {
-    setState(() {
-      isSearchVisible = !isSearchVisible;
-    });
-  }
-
   late AnimationController _animationController;
 
   Map<int, SelectedOption> selectedValueMap = {};
 
   Map<int, String> selectedRoundsMap = {};
-
-  void updateSelectedRoundForJob(int jobId, String selectedRound) {
-    setState(() {
-      selectedRoundsMap[jobId] = selectedRound;
-    });
-  }
 
   bool _isVi = false, isf2f = false;
   late TabController customTabController;
@@ -280,6 +269,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
       });
     }
   }
+
+  bool isSearchEnable = false;
+
+  FocusNode searchNode = FocusNode();
 
   final TextEditingController _searchController = TextEditingController();
   List<Applicant>? _filteredData;
@@ -319,69 +312,91 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     return DefaultTabController(
                       length: statuses.length,
                       child: Scaffold(
-                        /*  floatingActionButton: FloatingActionButton(  //TODO: Refresh button.....
-                          backgroundColor: Constants.maintheme_light_color,
-                          onPressed: () {
-                            ref.refresh(fetchAllApplicantProvider);
-                          },
-                          child: const Icon(Icons.refresh),
-                        ),
-                        floatingActionButtonLocation:
-                            FloatingActionButtonLocation.centerDocked, */
+                        floatingActionButton: FloatingActionButton(
+                            backgroundColor: Constants.themeBgColor,
+                            child: const Icon(Icons.search),
+                            onPressed: () {
+                              setState(() {
+                                isSearchEnable = !isSearchEnable;
+                                _searchController.clear();
+                              });
+                              if (isSearchEnable) {
+                                searchNode.requestFocus();
+                              }
+                            }),
                         backgroundColor: Colors.white,
                         appBar: PreferredSize(
-                          preferredSize: const Size(
-                              double.maxFinite, kTextTabBarHeight * 2),
+                          preferredSize: Size(
+                              double.maxFinite,
+                              isSearchEnable
+                                  ? kTextTabBarHeight * 2
+                                  : kToolbarHeight),
                           child: AppBar(
-                            title: Container(
-                              margin: EdgeInsets.only(top: 10.h),
-                              height: MediaQuery.of(context).size.height / 24.h,
-                              child: TextField(
-                                keyboardType: TextInputType.name,
-                                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                controller: _searchController,
-                                style: GoogleFonts.varela(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 14.sp),
-                                decoration: InputDecoration(
-                                    filled: false,
-                                    fillColor: Constants.borderColor,
-                                    prefixIcon: const Icon(Icons.search),
-                                    prefixIconColor: Constants.themeBgColor,
-                                    contentPadding: const EdgeInsets.only(
-                                        top: 8, bottom: 8, left: 10, right: 10),
-                                    counterText: '',
-                                    // labelText: "Remark",
-                                    labelStyle: const TextStyle(
-                                      color: Constants.themeBgColor,
+                            title: isSearchEnable
+                                ? Container(
+                                    margin: EdgeInsets.only(top: 10.h),
+                                    height: MediaQuery.of(context).size.height /
+                                        24.h,
+                                    child: TextField(
+                                      focusNode: searchNode,
+                                      keyboardType: TextInputType.name,
+                                      //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                                      textCapitalization:
+                                          TextCapitalization.sentences,
+                                      controller: _searchController,
+                                      style: GoogleFonts.varela(
+                                          color: Constants.subtitleclr,
+                                          fontSize: 14.sp),
+                                      decoration: InputDecoration(
+                                          filled: false,
+                                          fillColor: Constants.borderColor,
+                                          prefixIcon: const Icon(Icons.search),
+                                          prefixIconColor:
+                                              Constants.themeBgColor,
+                                          contentPadding: const EdgeInsets.only(
+                                              top: 8,
+                                              bottom: 8,
+                                              left: 10,
+                                              right: 10),
+                                          counterText: '',
+                                          // labelText: "Remark",
+                                          labelStyle: const TextStyle(
+                                            color: Constants.themeBgColor,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                                color: Constants.themeBgColor),
+                                          ),
+                                          focusColor: const Color(0xffff0eceb),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: const BorderSide(
+                                              color: Constants.themeBgColor,
+                                            ),
+                                          ),
+                                          hintText: "Search",
+                                          hintStyle: GoogleFonts.sourceSansPro(
+                                              color: Constants.hintColor,
+                                              fontSize: 15.sp)),
+                                      onChanged: (value) {
+                                        // setState(() {});
+                                        _searchController.text.isEmpty
+                                            ? setState(() {
+                                                isSearchEnable =
+                                                    !isSearchEnable;
+                                              })
+                                            : setState(() {});
+                                      },
                                     ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                          color: Constants.themeBgColor),
-                                    ),
-                                    focusColor: const Color(0xffff0eceb),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                        color: Constants.themeBgColor,
-                                      ),
-                                    ),
-                                    hintText: "Search",
-                                    hintStyle: GoogleFonts.sourceSansPro(
-                                        color: Constants.hintColor,
-                                        fontSize: 15.sp)),
-                                onChanged: (value) {
-                                  setState(() {});
-                                },
-                              ),
-                            ),
+                                  )
+                                : null,
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(
-                              physics: const NeverScrollableScrollPhysics(),
+                              // physics: const (),
                               labelPadding:
                                   const EdgeInsets.only(left: 5, right: 5),
                               labelColor: Colors.black,
@@ -454,22 +469,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                     ? applicant.hr_status.toString() == status
                                     : applicant.s2HrStatus == status)
                                 .toList();
-                            // final index = status.id;
-                            /*  final applicants = data  //TODO:: befor modification...
-                                .where((applicant) =>
-                                    applicant.hr_status.toString() == status)
-                                .toList(); */
 
-                            // Check if sub_status is null or not
-                            final subStatuses =
-                                []; /* applicants
-                                .map((applicant) =>
-                                    applicant.hr_sub_status?.toString())
-                                .where((subStatus) =>
-                                    subStatus != null && subStatus != "")
-                                .toSet()
-                                .toList()
-                              ..sort(); */
+                            final subStatuses = [];
 
                             if (subStatuses.isEmpty) {
                               // No second tab bar needed if subStatuses is empty
@@ -595,7 +596,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   } else {
                     // Display a "no data" message
                     return Center(
-                      child: Image.asset("assets/images/nodata.gif"),
+                      child: Image.asset(
+                        "assets/images/nodata.png",
+                        //height: 200,
+                      ),
                     );
                   }
                 },
@@ -623,113 +627,20 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
       String sourceName,
       int index,
       List<DropDownItem> dropDownModel) {
-    List<DropDownItem>? finalDropDownItem = dropDownItemList!
-        .where((element) =>
-            element.statusId == item.dd_hr_status_id ||
-            element.statusId == item.hr_status_id)
+    List<String>? finalinterviewRounds = item.inteviewrounds
+        ?.map((round) => round
+            .replaceAll('[', '')
+            .replaceAll(']', '')
+            .replaceAll('"', '')
+            .trim())
+        .expand((formattedRound) => formattedRound.split(','))
+        .toSet()
+        .map((round) => round.trim())
+        .where((round) => round.isNotEmpty)
         .toList();
-
-    List<DropDownItem>? finalDropDownItemforReadyOffer = dropDownItemList!
-        .where(
-            (element) => element.priStatusId == 15 || element.priStatusId == 17)
-        .where((element) => element.statusId == item.hr_status_id)
-        .toList();
-    List<DropDownItem>? finalDropDownItemforJoinNot = dropDownItemList!
-        .where(
-            (element) => element.priStatusId == 18 || element.priStatusId == 16)
-        .where((element) =>
-            element.statusId == item.hr_status_id || element.statusId == 13)
-        .toList();
-
-    List<DropDownItem>? finalDropDownItemforTrainingDrop =
-        dropDownItemList! //TODO: List where we have
-
-            .where((element) => element.priStatusId == 19)
-            .toList();
-
-    List<dynamic> finalInterviewRounds = item.inteviewrounds
-            ?.map((round) => round
-                .replaceAll('[', '')
-                .replaceAll(']', '')
-                .replaceAll('"', ''))
-            .expand((formattedRound) => formattedRound.split(', '))
-            .where((formattedRound) => formattedRound.isNotEmpty)
-            .toSet() // Convert to set to remove duplicates
-            .toList() ??
-        []; // Convert back to list
-    /* List<String> finalinterviewRounds = item.inteviewrounds
-            ?.map((round) => round
-                .replaceAll('[', '')
-                .replaceAll(']', '')
-                .replaceAll('"', ''))
-            .expand((formattedRound) => formattedRound.split(', '))
-            .toSet()
-            .toList() ??
-        []; */
-
-    DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
-    DateTime today = DateTime.now();
-    DateTime? doj;
-    if (item.doj != null) {
-      doj = DateTime(item.doj!.year, item.doj!.month, item.doj!.day);
-    }
-    DateTime today1 = DateTime(today.year, today.month, today.day);
-
-    bool isToday = doj != null && doj.isAtSameMomentAs(today1);
-
-    DateTime yesterday = today1.subtract(const Duration(days: 1));
-    bool isYesterday = doj != null && doj.isAtSameMomentAs(yesterday);
-
-    DateTime initialDate = DateTime.now();
-    DateTime lastAllowedDate = DateTime.now().add(const Duration(days: 4 * 31));
-    DateTime? singleSelect;
-
-    // Replace with your stored date
-    const Duration threshold = Duration(days: 6); // 6 days threshold
-
-    bool isWithinThreshold(DateTime currentDate) {
-      return doj != null
-          ? currentDate.isAfter(doj.subtract(threshold)) &&
-              currentDate.isBefore(doj)
-          : false;
-    }
-
-    bool isDateWithinThreshold = isWithinThreshold(today1);
-
-    Future<void> singleSelectPicker() async {
-      final DateTime? picked = await showDialog<DateTime>(
-        context: context,
-        builder: (BuildContext context) {
-          return AwesomeCalendarDialog(
-            initialDate: initialDate,
-            startDate: initialDate,
-            endDate: lastAllowedDate,
-            selectionMode: SelectionMode.single,
-            cancelBtnText: "",
-            confirmBtnText: "Submit",
-          );
-        },
-      );
-      if (picked != null) {
-        setState(() {
-          singleSelect = picked;
-        });
-        print(picked);
-        NewChangeStatusModel changeStatusModel =
-            NewChangeStatusModel(doj: picked);
-        Map<String, dynamic> jsonData = changeStatusModel.toJson();
-        try {
-          await JobPostApiService.NewchangeStatus(jsonData, item.id!.toInt());
-          ref.refresh(fetchAllTalentPoolProvider);
-
-          setState(() {});
-          // First pop to close the dialog
-        } catch (e) {
-          print('Error: $e');
-          // Handle error...
-        }
-      }
-    }
+    int selectedRoundIndex = item.interview_rounds != null
+        ? finalinterviewRounds!.indexOf(item.interview_rounds.toString())
+        : 0;
 
     return item.hr_status_id != 0
         ? SwipeTo(
@@ -760,8 +671,6 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                           // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                           ref.refresh(fetchAllTalentPoolProvider);
                           ref.refresh(fetchAllExecutiveProvide);
-
-                          setState(() {});
                         } catch (e) {
                           print('Error: $e');
                           // Handle error...
@@ -816,8 +725,6 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                         // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                         ref.refresh(fetchAllTalentPoolProvider);
                         ref.refresh(fetchAllExecutiveProvide);
-
-                        setState(() {});
                       } catch (e) {
                         print('Error: $e');
                         // Handle error...
@@ -881,6 +788,12 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                   child: AssignData(
                                       item: item,
                                       dropDownItemList: dropDownItemList!)),
+                              Visibility(
+                                visible: item.hr_status_id != 11 &&
+                                    item.hr_status_id != 12,
+                                child: customTalentPoolCard(item, context,
+                                    finalinterviewRounds, selectedRoundIndex),
+                              ),
                             ],
                           );
                         },
@@ -983,7 +896,6 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
 
                                       ref.refresh(fetchAllTalentPoolProvider);
                                       ref.refresh(fetchAllExecutiveProvide);
-                                      setState(() {});
                                     } catch (e) {
                                       print('Error: $e');
                                       // Handle error...
@@ -1025,77 +937,421 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
         : const SizedBox();
   }
 
-  Container CustomSearch(double height) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-      //margin: const EdgeInsets.only(right: 20),
-      height: height / 26.h,
-      // width: width / 1.10.w,
-      child: TextField(
-          controller: searchController1,
-          style: GoogleFonts.varela(color: Constants.subtitleclr),
-          decoration: InputDecoration(
-            fillColor: Colors.white,
-            focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(),
-                borderRadius: BorderRadius.circular(8.r)),
-            filled: true,
-            prefixIcon: const Icon(Icons.search),
-            contentPadding: const EdgeInsets.only(left: 5, top: 10),
-            border: OutlineInputBorder(
-                /* borderSide:
-                const BorderSide(color: Constants.borderColor), */
-                borderRadius: BorderRadius.circular(8.r)),
-            hintText: "Search",
-          )),
-    );
-  }
+  Column customTalentPoolCard(Applicant item, BuildContext context,
+      List<String>? finalinterviewRounds, int selectedRoundIndex) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r)),
+          ),
+          child: Row(
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Constants.borderColor,
+                    radius: 22,
+                    child: Text(
+                      item.applicantName!.isNotEmpty
+                          ? item.applicantName![0].toUpperCase()
+                          : 'N',
+                      style: const TextStyle(
+                        color: Constants.themeBgColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 4.w,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${item.applicantName.toString()} ${item.last_name.toString()}",
+                    // maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      item.qualification == null
+                          ? Row(
+                              children: [
+                                Image.asset(
+                                  "assets/images/bag.png",
+                                  height: 13.h,
+                                  //  color: Constants.subtitleclr,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  item.isExperienced.toString(),
+                                  style: GoogleFonts.varela(
+                                    color: Colors.black54,
+                                    // fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Image.asset(
+                                  "assets/images/education_d.png",
+                                  height: 14.h,
+                                  //  color: Constants.subtitleclr,
+                                ),
+                                const SizedBox(
+                                  width: 2,
+                                ),
+                                Text(
+                                  " ${item.qualification.toString()}  |  ",
+                                  style: GoogleFonts.varela(
+                                    color: Colors.black54,
+                                    // fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Image.asset(
+                                  "assets/images/bag.png",
+                                  height: 13.h,
+                                  //  color: Constants.subtitleclr,
+                                ),
+                                const SizedBox(
+                                  width: 2,
+                                ),
+                                Text(
+                                  " ${item.isExperienced}",
+                                  style: GoogleFonts.varela(
+                                    color: Colors.black54,
+                                    // fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            bottom: 5,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start, // Ad
+            children: [
+              if (item.companyName != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h, left: 4.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        "assets/images/cmpny.png",
+                        height: 12.5.h,
+                      ),
+                      SizedBox(
+                        width: 3.w,
+                      ),
+                      Text(
+                        item.short_name != null
+                            ? item.short_name.toString()
+                            : item.companyName.toString(),
+                        style: GoogleFonts.varela(
+                            // color: Colors.black54,
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      )
+                    ],
+                  ),
+                ),
+              if (item.process != null)
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w, top: 2.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        "assets/images/des.png",
+                        height: 12.5.h,
+                      ),
+                      SizedBox(
+                        width: 3.w,
+                      ),
+                      Text(
+                        "${item.process.toString()} || ${item.lead_level.toString()}",
+                        style: GoogleFonts.varela(
+                            // color: Colors.black54,
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      )
+                    ],
+                  ),
+                ),
+              if (item.totalSalary != null)
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w, top: 2.h),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/wallet.png",
+                        height: 12.5.h,
+                      ),
+                      const SizedBox(
+                        width: 3,
+                      ),
+                      Text(
+                        convertSalaryFormat(item.totalSalary.toString()),
+                        style: GoogleFonts.varela(
+                            // color: Colors.black54,
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      ),
+                    ],
+                  ),
+                ),
+              if (item.workLocation != null)
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w, top: 2.h),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/loc.png",
+                        height: 12.5.sp,
+                      ),
+                      const SizedBox(
+                        width: 3,
+                      ),
+                      Expanded(
+                        child: Text(
+                          item.workLocation.toString(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.varela(
+                            fontSize: 13.sp,
+                            color: Constants.subtitleclr,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              //TODO:: Interview Rounds......{
+              //
+              //
+              //
+              //
+              //
+              //
+              //
+              //
+              if (item.status_id == 1)
+                Container(
+                  margin: EdgeInsets.only(top: 4.h),
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                      color: Constants.borderColor,
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Constants.borderColor)),
+                  //  padding: const EdgeInsets.only(bottom: 5),
+                  height: MediaQuery.of(context).size.height / 15,
+                  child: Timeline.tileBuilder(
+                    //  scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(bottom: 10),
 
-  TextEditingController showrejectTextFileld = TextEditingController();
-  TextEditingController remarkfordropandNotJoin = TextEditingController();
+                    shrinkWrap: true,
+                    // padding: const EdgeInsets.only(top: 0),
+                    theme: TimelineThemeData(
+                      direction: Axis.horizontal,
+                      connectorTheme: const ConnectorThemeData(
+                        space: 8.0,
+                        thickness: 2.0,
+                      ),
+                    ),
+                    builder: TimelineTileBuilder.connected(
+                      contentsAlign: ContentsAlign.basic,
+                      connectionDirection: ConnectionDirection.before,
+                      itemCount: finalinterviewRounds != null
+                          ? finalinterviewRounds.length
+                          : 0,
+                      itemExtentBuilder: (_, __) {
+                        return (MediaQuery.of(context).size.width - 50) /
+                            finalinterviewRounds!.length.toDouble();
+                      },
+                      oppositeContentsBuilder: (context, index) {
+                        return Container();
+                      },
+                      contentsBuilder: (context, index) {
+                        return finalinterviewRounds != null
+                            ? Text(finalinterviewRounds[index])
+                            : const Text("");
+                      },
+                      indicatorBuilder: (_, index) {
+                        if (index == selectedRoundIndex) {
+                          // Customize the selected round indicator
+                          return const OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.green,
+                          );
+                        } else if (index > selectedRoundIndex) {
+                          // Customize indicators for other rounds
+                          return OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: 8.r,
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 13.h,
+                            ),
+                          ); /* const DotIndicator(
+                                                              //   borderWidth: 4.0,
+                                                              color: Colors.green,
+                                                            ); */
+                        }
+                      },
+                      connectorBuilder: (_, index, type) {
+                        if (index == selectedRoundIndex) {
+                          // Customize the selected round connector
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        } else if (index > selectedRoundIndex) {
+                          // Customize connectors for other rounds
+                          return DashedLineConnector(
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
 
-  Map<int, bool> selectedJobs = {};
-  Map<int, bool> selectedDropOut = {};
-  Map<int, bool> selectedWalkOut = {};
-  Map<int, bool> selectedoption = {};
-
-  Future<InterviewResult>? interviewResultFuture;
-// Initialize as an empty list
-
-  Future<InterviewResult> fetchDataAndUpdateDropdown(
-      int jobId, int leadId) async {
-    ApplicationAPI app = ApplicationAPI();
-
-    return interviewResultFuture = app.fetchInterviewResult(jobId, leadId);
-  }
-
-  String selectedInterviewRound = 'Select';
-
-  bool switchValue = false;
-
-  Map<int, bool> jobToggleStates = {};
-
-  List<JobItem> jobs = [];
-
-  bool submited = false,
-      under = false,
-      notSubmited = false,
-      shedule = false,
-      pending = false,
-      done = false;
-
-  bool Drop = false, notJoin = false;
-
-  Container disableContainer(String title) {
-    return Container(
-      margin: EdgeInsets.only(right: 6.w),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-      child:
-          Text(title, style: GoogleFonts.varela(color: Colors.grey.shade500)),
+              //
+              //
+              //
+              //
+              //
+              //
+              //
+              //
+              // TODO:: Interview rounds end ........}
+              if (item.status_id != 1)
+                Container(
+                  margin: const EdgeInsets.only(top: 6),
+                  padding: const EdgeInsets.only(
+                      top: 6, bottom: 6, right: 10, left: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      // border: Border.all(color: Colors.amber),
+                      //color: Colors.amberAccent.shade100,
+                      borderRadius: BorderRadius.circular(08)),
+                  width: double.maxFinite,
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if ((item.executive_icon != null &&
+                                  item.executive_icon != "null") ||
+                              item.s2ExecutiveIcon != null)
+                            CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: CustomImage(
+                                    imageUrl:
+                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.executive_icon ?? item.s2ExecutiveIcon}",
+                                    height: 24.h,
+                                    defaultImageUrl:
+                                        "assets/images/error.png") /* Image.network(
+                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.referral_icon ?? item.s2ReferralIcon}",
+                                fit: BoxFit.fill,
+                                height: 24.h,
+                              ), */
+                                )
+                        ],
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (item.executive_feedback1 != null ||
+                                      item.s2ExecutiveFeedback1 != null ||
+                                      item.executive_feedback1 != "")
+                                    Flexible(
+                                      child: Text(
+                                        item.executive_feedback1 != null
+                                            ? item.executive_feedback1
+                                                .toString()
+                                            : item.s2ExecutiveFeedback1
+                                                .toString(),
+                                        style: GoogleFonts.varela(
+                                            color: Constants.blue,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.sp),
+                                        softWrap: true,
+                                        // maxLines: 3,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              if (item.executive_feedback2 != null ||
+                                  item.s2ExecutiveFeedback2 != null)
+                                Text(
+                                  item.executive_feedback2 != null
+                                      ? item.executive_feedback2.toString()
+                                      : item.s2ExecutiveFeedback2 != null
+                                          ? item.s2ExecutiveFeedback2.toString()
+                                          : "",
+                                  softWrap: true,
+                                  // maxLines: 3,
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.sp),
+                                )
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1116,20 +1372,53 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
         ));
   }
 
-  PopupMenuItem<String> customMenuItem(DropDownItem option, bool isOdd) {
-    return PopupMenuItem<String>(
-      value: option
-          .statusDd, // Replace 'someValue' with the actual property you want to use as the value
-      child: Text(
-        option.statusDd
-            .toString(), // Replace 'applicantName' with the actual property you want to use as the label
-        style: const TextStyle(
-            color: Colors.black // Example: custom styling based on isOdd
-            ),
-      ),
-    );
+  String convertSalaryFormat(String input) {
+    // Extract numeric values from the input string
+    List<int> salaryValues = [
+      for (var value in input.split('-'))
+        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
+          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
+    ];
+
+    if (salaryValues.length == 2) {
+      int startValue = salaryValues[0];
+      int endValue = salaryValues[1];
+
+      if (input.contains('Per Month')) {
+        if (startValue >= 1000) {
+          double shortStartValue = startValue / 100000.0;
+          double shortEndValue = endValue / 100000.0;
+          String formattedStartValue =
+              '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k';
+          String formattedEndValue = endValue > 0
+              ? '${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k'
+              : '';
+          return '$formattedStartValue${formattedEndValue.isNotEmpty ? ' - $formattedEndValue' : ''} Per Month';
+        } else {
+          return '$startValue${endValue > 0 ? ' - $endValue' : ''} Per Month';
+        }
+      } else if (input.contains("Lac's P.A")) {
+        if (startValue >= 100000) {
+          double shortStartValue = startValue / 10000000.0;
+          double shortEndValue = endValue / 10000000.0;
+          String formattedStartValue =
+              '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 2)} Lac\'s';
+          String formattedEndValue = endValue > 0
+              ? '${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 2)} Lac\'s'
+              : '';
+          return '$formattedStartValue${formattedEndValue.isNotEmpty ? ' - $formattedEndValue' : ''} P.A';
+        } else {
+          return '$startValue${endValue > 0 ? ' - $endValue' : ''} Per Year';
+        }
+      }
+    }
+
+    // Handle other cases, or return the input as it is if it doesn't match any pattern
+    return input;
   }
 }
+
+
 
 
 //TODO:: Old code of talentPool.. before 02/03/2024

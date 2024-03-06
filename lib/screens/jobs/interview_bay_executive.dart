@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,15 +12,12 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
-import 'package:job_circle/screens/home.dart';
-import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timelines/timelines.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
 import '../../models/profileSummary.dart';
@@ -112,10 +108,15 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
         final List<dynamic> contentList = jsonData['resultData']['content'];
 
         // Convert the list of Map to a list of Applicant objects
+        /*   List<Applicant> applicants = contentList
+            .where((element) => element.status != "Application"|| element.status != "Assigned")
+           
+            .map((json) => Applicant.fromJson(json))
+            .toList(); */
         List<Applicant> applicants = contentList
             .map((json) => Applicant.fromJson(json))
-            .where(
-                (element) => element.status_id != 3 || element.status_id != 4)
+            .where((applicant) =>
+                applicant.hr_status_id != 11 && applicant.hr_status_id != 12)
             .toList();
         return applicants;
       } else {
@@ -521,7 +522,12 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
         : 0;
 
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var usertype = await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.user_type.name);
+        var userrole = await Utils.getPreferencesValue(
+            prefs, ESharedPreferences.role.name);
         Navigator.push(context, MaterialPageRoute(
           builder: (context) {
             return JobDetails(
@@ -529,16 +535,11 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
               Applies: false,
               referal: true,
               is_freelancer: 3,
+              userType: usertype,
+              userrole: userrole,
             );
           },
         ));
-        /* Navigator.pushNamed(
-          context,
-          ERoute.jobsdetail.name,
-          arguments: {
-            'id': item.jobId,
-          },
-        ); */
       },
       child: Container(
         decoration: BoxDecoration(
@@ -675,31 +676,6 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
                                 ? Stack(
                                     children: [
                                       const SizedBox(),
-                                      /*  FutureBuilder<void>(    //TODO: Docs view for cv.
-                                        future:
-                                            pdftron.PdftronFlutter.openDocument(
-                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
-                                          config: pdftron.Config.fromJson({
-                                            'readOnly': true,
-                                            // Add other configuration options as needed
-                                          }),
-                                        ),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          } else if (snapshot.hasError) {
-                                            return Center(
-                                                child: Text(
-                                                    'Error: ${snapshot.error}'));
-                                          } else {
-                                            // PDF document has been opened successfully
-                                            return Container(); // Placeholder widget
-                                          }
-                                        },
-                                      ), */
                                       Positioned(
                                         top:
                                             20, // Adjust the top position as needed
@@ -719,31 +695,6 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
                                       ),
                                     ],
                                   )
-
-                                /* FutureBuilder<void>(
-                                    future: pdftron.PdftronFlutter.openDocument(
-                                      "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.resume}",
-                                      config: pdftron.Config.fromJson({
-                                        'readOnly':
-                                            true, // Set to read-only mode
-                                        // Add other configuration options as needed to remove watermark or customize viewer
-                                      }),
-                                    ),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(
-                                            child: Text(
-                                                'Error: ${snapshot.error}'));
-                                      } else {
-                                        // PDF document has been opened successfully
-                                        return Container(); // Placeholder widget
-                                      }
-                                    },
-                                  ) */
                                 : Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -786,65 +737,6 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start, // Ad
                 children: [
-                  /* Container(   //TODO: CRPF container ....
-                      decoration: BoxDecoration(
-                          color: Constants.borderColor,
-                          borderRadius: BorderRadius.circular(8.r)),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4.h, horizontal: 6.w),
-                      margin: EdgeInsets.only(bottom: 4.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (item.companyName != null)
-                            Text(
-                              item.short_name != null
-                                  ? item.short_name.toString()
-                                  : item.companyName.toString(),
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.bold, fontSize: 14.sp),
-                            ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (item.process != null)
-                                Text(
-                                  item.process.toString(),
-                                  style: GoogleFonts.varela(
-                                      // color: Colors.black54,
-                                      color:
-                                          const Color.fromARGB(255, 22, 36, 32),
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 13.sp),
-                                ),
-                              if (item.lead_level != null)
-                                Text(
-                                  " || ",
-                                  style: GoogleFonts.varela(
-                                      // color: Colors.black54,
-                                      color:
-                                          const Color.fromARGB(255, 22, 36, 32),
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 13.sp),
-                                ),
-                              if (item.lead_level != null)
-                                Text(
-                                  item.lead_level == ""
-                                      ? "Role Name**"
-                                      : item.lead_level.toString(),
-                                  // overflow: TextOverflow.visible,
-                                  style: GoogleFonts.varela(
-                                      // color: Colors.black54,
-                                      color:
-                                          const Color.fromARGB(255, 22, 36, 32),
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 13.sp),
-                                ),
-                            ],
-                          ),
-                        ],
-                      )), */
                   if (item.companyName != null)
                     Padding(
                       padding: EdgeInsets.only(top: 4.h, left: 4.w),
@@ -943,14 +835,6 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
                               ),
                             ),
                           )
-                          /* Text(
-                            item.workLocation.toString(),
-                            style: GoogleFonts.varela(
-                                // color: Colors.black54,
-                                color: Constants.subtitleclr,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13.sp),
-                          ), */
                         ],
                       ),
                     ),
@@ -1148,103 +1032,6 @@ class _InterViewBayExecutiveState extends ConsumerState<InterViewBayExecutive>
                         ],
                       ),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomeScreen()));
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                                // border: Border.all(color: Constants.themeBgColor),
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/similar.png",
-                                  height: 15.h,
-                                ),
-                                const SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  "View More Jobs",
-                                  style: GoogleFonts.varela(
-                                      color: Constants.themeBgColor,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        RestrictedButton(
-                          isChat: true,
-                          onTap: () async {
-                            Uri url = Uri.parse(
-                                "whatsapp://send?phone=91${item.spocContactNo}");
-                            await canLaunchUrl(url)
-                                ? await launchUrl(url)
-                                : throw "could not launch $url";
-                          },
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        RestrictedButton(
-                          isChat: false,
-                          onTap: () async {
-                            FlutterPhoneDirectCaller.callNumber(
-                                "+91${item.spocContactNo}");
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 5.h),
-                    color: Colors.grey.shade400,
-                    width: double.maxFinite,
-                    height: 0.5.h,
-                  ),
-                  Row(
-                    children: [
-                      Column(
-                        children: [
-                          SizedBox(
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/verified.png",
-                                  height: 16.h,
-                                  color: Constants.themeBgColor,
-                                ),
-                                const SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  //𝘧𝘳𝘦𝘦 𝘢𝘯𝘥 𝘷𝘦𝘳𝘪𝘧𝘪𝘦𝘥 𝘑𝘰𝘣
-                                  "100% free and verified Job",
-                                  style: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w500,
-                                      color: Constants.subtitleclr),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

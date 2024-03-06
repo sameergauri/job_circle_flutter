@@ -1111,7 +1111,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
-                                "assets/images/nodata.gif",
+                                "assets/images/nodata.png",
                                 //  height: 300.h,
                               ),
                               /*  Padding(
@@ -1254,7 +1254,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   // handle the case where str is null
                                 }
                                 return GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
+                                    var usertype =
+                                        await Utils.getPreferencesValue(prefs,
+                                            ESharedPreferences.user_type.name);
+                                    var userrole =
+                                        await Utils.getPreferencesValue(prefs,
+                                            ESharedPreferences.role.name);
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
                                         return JobDetails(
@@ -1265,6 +1271,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                               ? 3
                                               : data.is_freelancer?.toInt() ??
                                                   0,
+                                          userType: usertype,
+                                          userrole: userrole,
                                         );
                                       },
                                     ));

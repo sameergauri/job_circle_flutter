@@ -42,14 +42,17 @@ class JobDetails extends ConsumerStatefulWidget {
   bool Applies;
   bool referal;
   int is_freelancer;
+  int? userType;
+  String? userrole;
 
-  JobDetails({
-    super.key,
-    this.id,
-    required this.Applies,
-    required this.referal,
-    required this.is_freelancer,
-  });
+  JobDetails(
+      {super.key,
+      this.id,
+      required this.Applies,
+      required this.referal,
+      required this.is_freelancer,
+      this.userType,
+      this.userrole});
 
   @override
   ConsumerState<JobDetails> createState() => _JobDetailsState();
@@ -64,6 +67,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
   late double appBarElevate = 0;
   late Color appBarIconColor = Colors.white;
   var usertype = 0;
+
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   var titleText = "";
   var subtitleText = "";
@@ -200,21 +204,26 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       profile_cv_file = Utils.getFileName(profile_cv_link); */
       // user_selected_lcoation = user_selected_lcoation;
     }
+
     setState(() {});
   }
 
-  void benefit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    usertype = await Utils.getPreferencesValue(
-        null, ESharedPreferences.user_type.name);
-  }
+  /* void benefit() async {
+    setState(() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      usertype = await Utils.getPreferencesValue(
+          prefs, ESharedPreferences.user_type.name);
+      userrole =
+          await Utils.getPreferencesValue(prefs, ESharedPreferences.role.name);
+    });
+  } */
 
   @override
   void initState() {
     super.initState();
     bindProfileSummary();
     fillCacheData();
-    benefit();
+    // benefit();
     //   const RestrictedButton();
     fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -803,7 +812,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddResume(
-                              report_to: profilemodel.report_to!.toInt(),
+                                  report_to: profilemodel.report_to!.toInt(),
                                   company_name: jobDetailsModel.name.toString(),
                                   role: jobDetailsModel.rolename.toString(),
                                   process: jobDetailsModel.process.toString(),
@@ -2094,75 +2103,75 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ),
                         ),
                       ),
-
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.maxFinite,
-                          decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                  colors: [
-                                    Colors.white,
-                                    Colors.grey.shade300,
-                                  ]),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey.shade300,
-                                    offset: const Offset(0, 0),
-                                    blurRadius: 2)
-                              ],
-                              color: Colors.grey.shade200,
-                              // border: Border.all(color: Colors.blue.shade200),
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 5, top: 10, bottom: 10),
-                          margin:
-                              const EdgeInsets.only(top: 10, left: 1, right: 1),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Recruiter Details",
-                                style: GoogleFonts.varela(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15.h),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 5.sp),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${jobDetailsModel.spoc_fname.toString()}  ${jobDetailsModel.spoc_lname.toString()}",
-                                          style: GoogleFonts.varela(
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 2,
-                                        ),
-                                        Text(
-                                          "${jobDetailsModel.spoc_designation.toString()} - ${jobDetailsModel.spoc_location.toString()}",
-                                          style: GoogleFonts.varela(
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                    if (widget.userrole != "1")
+                      Stack(
+                        children: [
+                          Container(
+                            width: double.maxFinite,
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                    colors: [
+                                      Colors.white,
+                                      Colors.grey.shade300,
+                                    ]),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      offset: const Offset(0, 0),
+                                      blurRadius: 2)
+                                ],
+                                color: Colors.grey.shade200,
+                                // border: Border.all(color: Colors.blue.shade200),
+                                borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 5, top: 10, bottom: 10),
+                            margin: const EdgeInsets.only(
+                                top: 10, left: 1, right: 1),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Recruiter Details",
+                                  style: GoogleFonts.varela(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15.h),
                                 ),
-                              ),
-                              /* Text(
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 5.sp),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${jobDetailsModel.spoc_fname.toString()}  ${jobDetailsModel.spoc_lname.toString()}",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.grey.shade700,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 2,
+                                          ),
+                                          Text(
+                                            "${jobDetailsModel.spoc_designation.toString()} - ${jobDetailsModel.spoc_location.toString()}",
+                                            style: GoogleFonts.varela(
+                                              color: Colors.grey.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                /* Text(
                             jobDetailsModel.shifttime.toString(),
                             style: const GoogleFonts.varela(
                               color: Colors.black54,
@@ -2189,55 +2198,57 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               color: Colors.black54,
                             ),
                           ), */
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              if (jobDetailsModel.interviewrounds != null)
-                                Row(
-                                  children: [
-                                    /*  Image.asset(
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                if (jobDetailsModel.interviewrounds != null)
+                                  Row(
+                                    children: [
+                                      /*  Image.asset(
                                   "assets/images/interview_round.png",
                                   height: 17.h,
                                 ), */
 
-                                    Text(
-                                      "Interview Rounds",
-                                      style: GoogleFonts.varela(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15.h),
-                                    ),
-                                  ],
-                                ),
-                              if (jobDetailsModel.interviewrounds != null)
-                                SizedBox(
-                                  height: 3.sp,
-                                ),
-                              if (jobDetailsModel.interviewrounds != null)
-                                Wrap(
-                                  children: [
-                                    ...jobDetailsModel.interviewrounds!
-                                        .toSet() // Convert to set to remove duplicates
-                                        .map((item) => customSkill(item, true)),
-                                  ],
-                                ),
-                            ],
+                                      Text(
+                                        "Interview Rounds",
+                                        style: GoogleFonts.varela(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.h),
+                                      ),
+                                    ],
+                                  ),
+                                if (jobDetailsModel.interviewrounds != null)
+                                  SizedBox(
+                                    height: 3.sp,
+                                  ),
+                                if (jobDetailsModel.interviewrounds != null)
+                                  Wrap(
+                                    children: [
+                                      ...jobDetailsModel.interviewrounds!
+                                          .toSet() // Convert to set to remove duplicates
+                                          .map((item) =>
+                                              customSkill(item, true)),
+                                    ],
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(top: 20.h, right: 20.w),
-                            child: Align(
-                                alignment: Alignment.topRight,
-                                child: jobDetailsModel.spoc_profile_pic != null
-                                    ? CircleAvatar(
-                                        radius: 30,
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(
-                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
-                                        ),
-                                      )
-                                    : const SizedBox())),
-                      ],
-                    ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 20.h, right: 20.w),
+                              child: Align(
+                                  alignment: Alignment.topRight,
+                                  child:
+                                      jobDetailsModel.spoc_profile_pic != null
+                                          ? CircleAvatar(
+                                              radius: 30,
+                                              backgroundImage:
+                                                  CachedNetworkImageProvider(
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                              ),
+                                            )
+                                          : const SizedBox())),
+                        ],
+                      ),
                     if (usertype == EUserType.businessPartner.value &&
                         partner_request == EPartnerApproval.approved.value)
                       Container(
@@ -2828,7 +2839,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                             builder:
                                                                 (context) =>
                                                                     AddResume(
-                                                                      report_to: profilemodel.report_to!.toInt(),
+                                                                      report_to: profilemodel
+                                                                          .report_to!
+                                                                          .toInt(),
                                                                       company_name: jobDetailsModel
                                                                           .name
                                                                           .toString(),
@@ -3629,7 +3642,9 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => AddResume(
-                                                report_to: profilemodel.report_to!.toInt(),
+                                                    report_to: profilemodel
+                                                        .report_to!
+                                                        .toInt(),
                                                     company_name:
                                                         jobDetailsModel.name
                                                             .toString(),
