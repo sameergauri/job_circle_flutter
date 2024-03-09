@@ -315,7 +315,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   : "",
               textAlign: TextAlign.center,
               style: GoogleFonts.varela(
-                // fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
                 fontSize: 16.h,
               ),
             ),
@@ -334,6 +335,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       ? jobDetailsModel.process.toString()
                       : "",
                   style: GoogleFonts.varela(
+                    color: Colors.black,
                     //fontWeight: FontWeight.bold,
                     fontSize: 12.h,
                   ),
@@ -344,6 +346,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                 Text(
                   jobDetailsModel.naturofwork != null ? " ||" : "",
                   style: GoogleFonts.varela(
+                    color: Colors.black,
                     // fontWeight: FontWeight.bold,
                     fontSize: 12.h,
                   ),
@@ -356,6 +359,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       ? jobDetailsModel.naturofwork.toString()
                       : "",
                   style: GoogleFonts.varela(
+                    color: Colors.black,
                     //  fontWeight: FontWeight.bold,
                     fontSize: 12.h,
                   ),
@@ -372,12 +376,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
           jobDetailsModel.icon != ""
               ? Container(
                   margin: const EdgeInsets.only(right: 10),
-                  height: 20.h,
-                  width: 40.w,
                   child: CustomImage(
                     imageUrl:
                         "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.icon}",
                     defaultImageUrl: "assets/images/logo.png",
+                    height: 80,
                   )
                   /* Image.network(
                     "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.icon}",
@@ -695,9 +698,10 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 //
 ////
                       //
-                      DateTime dolDate =
-                          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                              .parse(apiresult.dol);
+                      DateTime dolDate = apiresult.dol != ""
+                          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                              .parse(apiresult.dol)
+                          : DateTime.now();
                       DateTime currentDate = DateTime.now();
                       int differenceInDays =
                           currentDate.difference(dolDate).inDays;
@@ -705,17 +709,59 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       //
                       //
                       //
-                      if (apiresult.status != "Interview bay" &&
-                          apiresult.status != "Assign" &&
-                          apiresult.status != "Application" &&
-                          diff) {
+                      if (jobDetailsModel.id == apiresult.jobid) {
+                        if (apiresult.status != "Interview bay" &&
+                            apiresult.status != "Assign" &&
+                            apiresult.status != "Application" &&
+                            diff) {
+                          if (profilemodel.cv_link != null) {
+                            await JobPostApiService.postJobApply(
+                                context: context,
+                                jobId: int.parse(jobDetailsModel.id.toString()),
+                                // userId: int.parse(profilemodel.id.toString()
+                                userId: await Utils.getPreferencesValue(
+                                    null, ESharedPreferences.user_id.name));
+                            ref.refresh(fetchAllApplyProvider);
+                            ref.refresh(fetchAllTalentPoolProvider);
+                          } else {
+                            if (jobDetailsModel.id != null) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddCvtoApply(
+                                            jobId: jobDetailsModel.id!.toInt(),
+                                          )));
+                            }
+                          }
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomDialog(
+                                  fetchDataFromApi: () {},
+                                  onClose: () {
+                                    Navigator.pop(context);
+                                    /*  Navigator.pushAndRemoveUntil(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                builder: (context) => HomeScreen(),
+                                                                              ),
+                                                                              (route) => false); */
+                                  },
+                                  isFisrt: false,
+                                  title: "Error",
+                                  subtitle:
+                                      "Your CV is already in process in the PipeLine");
+                            },
+                          );
+                        }
+                      } else {
                         if (profilemodel.cv_link != null) {
                           await JobPostApiService.postJobApply(
-                              context: context,
-                              jobId: int.parse(jobDetailsModel.id.toString()),
-                              // userId: int.parse(profilemodel.id.toString()
+                              jobId: jobDetailsModel.id!.toInt(),
                               userId: await Utils.getPreferencesValue(
-                                  null, ESharedPreferences.user_id.name));
+                                  null, ESharedPreferences.user_id.name),
+                              context: context);
                           ref.refresh(fetchAllApplyProvider);
                           ref.refresh(fetchAllTalentPoolProvider);
                         } else {
@@ -728,27 +774,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         )));
                           }
                         }
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return CustomDialog(
-                                fetchDataFromApi: () {},
-                                onClose: () {
-                                  Navigator.pop(context);
-                                  /*  Navigator.pushAndRemoveUntil(
-                                                                              context,
-                                                                              MaterialPageRoute(
-                                                                                builder: (context) => HomeScreen(),
-                                                                              ),
-                                                                              (route) => false); */
-                                },
-                                isFisrt: false,
-                                title: "Error",
-                                subtitle:
-                                    "Your CV is already in process in the PipeLine");
-                          },
-                        );
                       }
 
                       //
@@ -777,12 +802,12 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 10),
                       decoration: BoxDecoration(
-                          border: Border.all(color: Constants.themeBgColor),
+                          border: Border.all(color: Constants.navyblue),
                           borderRadius: BorderRadius.circular(15)),
                       child: Text(
                         "Apply",
                         style: GoogleFonts.varela(
-                            color: Constants.themeBgColor,
+                            color: Constants.navyblue,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -860,7 +885,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     padding:
                         EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Constants.themeBgColor),
+                      border: Border.all(color: Constants.blue),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -868,13 +893,13 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       children: [
                         Icon(
                           Icons.add,
-                          color: Constants.themeBgColor,
+                          color: Constants.blue,
                           size: 15.h,
                         ),
                         Text(
                           "Resume",
                           style: TextStyle(
-                            color: Constants.themeBgColor,
+                            color: Constants.blue,
                             fontWeight: FontWeight.bold,
                             fontSize: 15.h,
                           ),
@@ -1266,7 +1291,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Constants.borderColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1290,7 +1315,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Constants.borderColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -1303,7 +1328,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Constants.borderColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1331,12 +1356,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     // ]),
                     Container(
                       decoration: BoxDecoration(
+                          color: Colors.lightBlue.shade300,
                           gradient: const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
                               colors: [
-                                Constants.borderColor,
-                                Constants.maintheme_light_color,
+                                Constants.dullBlue,
+                                Constants.bgColorWhite,
+
+                                /* Constants.borderColor,
+                                Constants.maintheme_light_color, */
                               ]),
                           boxShadow: [
                             BoxShadow(
@@ -1344,9 +1373,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 offset: const Offset(0, 0),
                                 blurRadius: 2)
                           ],
-                          border: Border.all(
-                              color: Constants.maintheme_light_color),
-                          color: Constants.borderColor,
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.only(
                           left: 10, right: 8, top: 6, bottom: 6),
@@ -1645,7 +1671,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.only(
                           left: 10, right: 5, top: 10, bottom: 10),
-                      margin: const EdgeInsets.only(top: 10, left: 1, right: 1),
+                      margin: EdgeInsets.only(
+                          top: 10, left: 1, right: 1, bottom: 5.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -2103,75 +2130,75 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ),
                         ),
                       ),
-                    if (widget.userrole != "1")
-                      Stack(
-                        children: [
-                          Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    begin: Alignment.topRight,
-                                    end: Alignment.bottomLeft,
-                                    colors: [
-                                      Colors.white,
-                                      Colors.grey.shade300,
-                                    ]),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.shade300,
-                                      offset: const Offset(0, 0),
-                                      blurRadius: 2)
-                                ],
-                                color: Colors.grey.shade200,
-                                // border: Border.all(color: Colors.blue.shade200),
-                                borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.only(
-                                left: 10, right: 5, top: 10, bottom: 10),
-                            margin: const EdgeInsets.only(
-                                top: 10, left: 1, right: 1),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Recruiter Details",
-                                  style: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15.h),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 5.sp),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${jobDetailsModel.spoc_fname.toString()}  ${jobDetailsModel.spoc_lname.toString()}",
-                                            style: GoogleFonts.varela(
-                                              color: Colors.grey.shade700,
-                                            ),
+                    //  if (widget.userrole != "1")
+                    Stack(
+                      children: [
+                        Container(
+                          width: double.maxFinite,
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                  colors: [
+                                    Colors.white,
+                                    Colors.grey.shade300,
+                                  ]),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    offset: const Offset(0, 0),
+                                    blurRadius: 2)
+                              ],
+                              color: Colors.grey.shade200,
+                              // border: Border.all(color: Colors.blue.shade200),
+                              borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.only(
+                              left: 10, right: 5, top: 10, bottom: 10),
+                          margin:
+                              const EdgeInsets.only(top: 10, left: 1, right: 1),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Recruiter Details",
+                                style: GoogleFonts.varela(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15.h),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 5.sp),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "${jobDetailsModel.spoc_fname.toString()}  ${jobDetailsModel.spoc_lname.toString()}",
+                                          style: GoogleFonts.varela(
+                                            color: Colors.grey.shade700,
                                           ),
-                                          const SizedBox(
-                                            height: 2,
+                                        ),
+                                        const SizedBox(
+                                          height: 2,
+                                        ),
+                                        Text(
+                                          "${jobDetailsModel.spoc_designation.toString()} - ${jobDetailsModel.spoc_location.toString()}",
+                                          style: GoogleFonts.varela(
+                                            color: Colors.grey.shade700,
                                           ),
-                                          Text(
-                                            "${jobDetailsModel.spoc_designation.toString()} - ${jobDetailsModel.spoc_location.toString()}",
-                                            style: GoogleFonts.varela(
-                                              color: Colors.grey.shade700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                /* Text(
+                              ),
+                              /* Text(
                             jobDetailsModel.shifttime.toString(),
                             style: const GoogleFonts.varela(
                               color: Colors.black54,
@@ -2198,57 +2225,55 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               color: Colors.black54,
                             ),
                           ), */
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                if (jobDetailsModel.interviewrounds != null)
-                                  Row(
-                                    children: [
-                                      /*  Image.asset(
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              if (jobDetailsModel.interviewrounds != null)
+                                Row(
+                                  children: [
+                                    /*  Image.asset(
                                   "assets/images/interview_round.png",
                                   height: 17.h,
                                 ), */
 
-                                      Text(
-                                        "Interview Rounds",
-                                        style: GoogleFonts.varela(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15.h),
-                                      ),
-                                    ],
-                                  ),
-                                if (jobDetailsModel.interviewrounds != null)
-                                  SizedBox(
-                                    height: 3.sp,
-                                  ),
-                                if (jobDetailsModel.interviewrounds != null)
-                                  Wrap(
-                                    children: [
-                                      ...jobDetailsModel.interviewrounds!
-                                          .toSet() // Convert to set to remove duplicates
-                                          .map((item) =>
-                                              customSkill(item, true)),
-                                    ],
-                                  ),
-                              ],
-                            ),
+                                    Text(
+                                      "Interview Rounds",
+                                      style: GoogleFonts.varela(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15.h),
+                                    ),
+                                  ],
+                                ),
+                              if (jobDetailsModel.interviewrounds != null)
+                                SizedBox(
+                                  height: 3.sp,
+                                ),
+                              if (jobDetailsModel.interviewrounds != null)
+                                Wrap(
+                                  children: [
+                                    ...jobDetailsModel.interviewrounds!
+                                        .toSet() // Convert to set to remove duplicates
+                                        .map((item) => customSkill(item, true)),
+                                  ],
+                                ),
+                            ],
                           ),
-                          Padding(
-                              padding: EdgeInsets.only(top: 20.h, right: 20.w),
-                              child: Align(
-                                  alignment: Alignment.topRight,
-                                  child:
-                                      jobDetailsModel.spoc_profile_pic != null
-                                          ? CircleAvatar(
-                                              radius: 30,
-                                              backgroundImage:
-                                                  CachedNetworkImageProvider(
-                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
-                                              ),
-                                            )
-                                          : const SizedBox())),
-                        ],
-                      ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 20.h, right: 20.w),
+                            child: Align(
+                                alignment: Alignment.topRight,
+                                child: jobDetailsModel.spoc_profile_pic != null
+                                    ? CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(
+                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                        ),
+                                      )
+                                    : const SizedBox())),
+                      ],
+                    ),
                     if (usertype == EUserType.businessPartner.value &&
                         partner_request == EPartnerApproval.approved.value)
                       Container(

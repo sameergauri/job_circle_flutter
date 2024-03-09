@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class CustomImage extends StatefulWidget {
   final String imageUrl;
@@ -23,9 +24,10 @@ class _CustomImageState extends State<CustomImage> {
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      widget.imageUrl,
-      fit: BoxFit.contain,
       height: widget.height,
+      width: widget.height,
+      widget.imageUrl,
+      //fit: BoxFit.cover,
       loadingBuilder: (BuildContext context, Widget child,
           ImageChunkEvent? loadingProgress) {
         if (loadingProgress == null) {
@@ -45,11 +47,33 @@ class _CustomImageState extends State<CustomImage> {
             child: CircularProgressIndicator(
           color: Constants.themeBgColor,
         )); */
-            Image.asset(
+
+            FutureBuilder(
+                future: Future.delayed(const Duration(seconds: 2)),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Display circular progress indicator for 2 seconds.
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1,
+                        color: Constants.themeBgColor,
+                      ),
+                    );
+                  } else {
+                    // After 2 seconds, switch showError flag to true to display the image.
+
+                    return Image.asset(
+                      widget.defaultImageUrl,
+                      fit: BoxFit.contain,
+                      height: widget.height,
+                    );
+                  }
+                });
+        /*  Image.asset(
           widget.defaultImageUrl,
           fit: BoxFit.contain,
           height: widget.height,
-        );
+        ); */
       },
     );
   }

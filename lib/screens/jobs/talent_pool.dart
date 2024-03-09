@@ -2,14 +2,15 @@
 
 import 'dart:convert';
 
+import 'package:draggable_fab/draggable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/customdialogue_for_call_whatsapp.dart';
 import 'package:job_circle/constants/drop_down_class.dart';
 import 'package:job_circle/constants/gobal.dart';
@@ -97,9 +98,14 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
         // Convert the list of Map to a list of Applicant objects
         List<Applicant> applicants = contentList
             .map((json) => Applicant.fromJson(json))
-            /*  .where((applicant) =>
-                applicant.hr_status_id == 11 ||
-                applicant.hr_status_id==12) */
+            .where((applicant) =>
+                (applicant.is_status_hide == 1 &&
+                    isCurrentMonth(applicant.dol)) ||
+                (applicant.is_status_hide == 0 &&
+                    applicant.sub_status == "Join" &&
+                    isCurrentMonth(applicant.dol)) ||
+                (applicant.is_status_hide == null ||
+                    applicant.is_status_hide == 0))
             .toList();
         return applicants;
       } else {
@@ -110,6 +116,12 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
       print('Error while fetching data: $e');
       return [];
     }
+  }
+
+  static bool isCurrentMonth(DateTime? date) {
+    if (date == null) return false;
+    DateTime now = DateTime.now();
+    return date.year == now.year && date.month == now.month;
   }
 
   JobDetailsModel jobDetailsModel = JobDetailsModel();
@@ -222,7 +234,38 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
+        .map((e) => e.executive_status != null
+            ? e.executive_status.toString()
+            : e.s2ExecutiveStatus)
+        // .where((element) => element == "Application" || element == "Assign")
+        .where((status) => status != null)
+        .map(
+            (status) => status!) // Non-null assertion to handle non-null values
+        .toSet()
+        .toList()
+      ..sort();
+  }
+
+  List<String> getNtiveStatus(List<Applicant> applicants) {
+    return applicants
+        .where(
+            (e) => (e.is_status_hide != null ? e.is_status_hide == 1 : false))
+        .where((element) =>
+            element.hr_status_id != 14 && element.hr_status_id != 13)
         .map((e) => e.hr_status != null ? e.hr_status.toString() : e.s2HrStatus)
+        .where((status) => status != null)
+        .map(
+            (status) => status!) // Non-null assertion to handle non-null values
+        .toSet()
+        .toList()
+      ..sort();
+  }
+
+  List<String> getSubStatus(List<Applicant> applicants) {
+    return applicants
+        .map((e) => e.hr_sub_status != null
+            ? e.hr_sub_status.toString()
+            : e.s2HrSubStatus)
         // .where((element) => element == "Application" || element == "Assign")
         .where((status) => status != null)
         .map(
@@ -299,7 +342,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   bool anyItemMeetsCondition = false;
 
                   for (Applicant item in dataList) {
-                    if (item.hr_status != null || item.s2HrStatus != null) {
+                    if (item.executive_status != null ||
+                        item.s2ExecutiveStatus != null) {
                       // If the condition is met for any item, set the flag to true and break the loop
                       anyItemMeetsCondition = true;
                       break;
@@ -308,13 +352,42 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   if (anyItemMeetsCondition) {
                     final data = fetchdata;
                     final statuses = getStatuses(data);
+                    final substatus = getSubStatus(data);
+                    final negativeStatus = getNtiveStatus(data);
 
                     return DefaultTabController(
                       length: statuses.length,
                       child: Scaffold(
+                        floatingActionButton: DraggableFab(
+                          //  initPosition: const Offset(4, 3),
+                          child: FloatingActionButton(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              child: Icon(
+                                Icons.search,
+                                size: 30.sp,
+                                color: Constants.blue,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isSearchEnable = !isSearchEnable;
+                                  _searchController.clear();
+                                });
+                                if (isSearchEnable) {
+                                  searchNode.requestFocus();
+                                }
+                              }),
+                        ),
+                        /*  floatingActionButtonLocation:
+                            FloatingActionButtonLocation.miniCenterDocked,
                         floatingActionButton: FloatingActionButton(
-                            backgroundColor: Constants.themeBgColor,
-                            child: const Icon(Icons.search),
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            child: Icon(
+                              Icons.search,
+                              size: 30.sp,
+                              color: Constants.blue,
+                            ),
                             onPressed: () {
                               setState(() {
                                 isSearchEnable = !isSearchEnable;
@@ -323,20 +396,20 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                               if (isSearchEnable) {
                                 searchNode.requestFocus();
                               }
-                            }),
+                            }), */
                         backgroundColor: Colors.white,
                         appBar: PreferredSize(
                           preferredSize: Size(
                               double.maxFinite,
                               isSearchEnable
-                                  ? kTextTabBarHeight * 2
-                                  : kToolbarHeight),
+                                  ? kTextTabBarHeight * 1.60.sp
+                                  : kToolbarHeight / 1.4.sp),
                           child: AppBar(
                             title: isSearchEnable
-                                ? Container(
-                                    margin: EdgeInsets.only(top: 10.h),
+                                ? SizedBox(
+                                    // margin: EdgeInsets.only(top: 10.h),
                                     height: MediaQuery.of(context).size.height /
-                                        24.h,
+                                        26.h,
                                     child: TextField(
                                       focusNode: searchNode,
                                       keyboardType: TextInputType.name,
@@ -347,12 +420,12 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       style: GoogleFonts.varela(
                                           color: Constants.subtitleclr,
                                           fontSize: 14.sp),
+                                      cursorColor: Colors.grey.shade600,
                                       decoration: InputDecoration(
                                           filled: false,
                                           fillColor: Constants.borderColor,
                                           prefixIcon: const Icon(Icons.search),
-                                          prefixIconColor:
-                                              Constants.themeBgColor,
+                                          prefixIconColor: Colors.grey.shade400,
                                           contentPadding: const EdgeInsets.only(
                                               top: 8,
                                               bottom: 8,
@@ -363,24 +436,35 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                           labelStyle: const TextStyle(
                                             color: Constants.themeBgColor,
                                           ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade400),
+                                          ),
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8.r),
-                                            borderSide: const BorderSide(
-                                                color: Constants.themeBgColor),
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade400),
                                           ),
                                           focusColor: const Color(0xffff0eceb),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8.r),
-                                            borderSide: const BorderSide(
-                                              color: Constants.themeBgColor,
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade400,
                                             ),
                                           ),
-                                          hintText: "Search",
+                                          hintText: "Sameer",
                                           hintStyle: GoogleFonts.sourceSansPro(
                                               color: Constants.hintColor,
                                               fontSize: 15.sp)),
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          isSearchEnable = !isSearchEnable;
+                                        });
+                                      },
                                       onChanged: (value) {
                                         // setState(() {});
                                         _searchController.text.isEmpty
@@ -419,15 +503,16 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                         status,
                                         data
                                             .where((applicant) =>
-                                                applicant.hr_status.toString() ==
+                                                applicant.executive_status
+                                                        .toString() ==
                                                     status ||
-                                                applicant.s2HrStatus.toString() ==
+                                                applicant.s2ExecutiveStatus
+                                                        .toString() ==
                                                     status)
                                             .where((element) =>
                                                 element.applicantName!
                                                     .toLowerCase()
-                                                    .contains(_searchController
-                                                        .text
+                                                    .contains(_searchController.text
                                                         .toLowerCase()) ||
                                                 element.last_name!
                                                     .toLowerCase()
@@ -436,8 +521,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                         .toLowerCase()) ||
                                                 element.companyName!
                                                     .toLowerCase()
-                                                    .contains(
-                                                        _searchController.text.toLowerCase()) ||
+                                                    .contains(_searchController.text.toLowerCase()) ||
                                                 element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
                                             .length // Show status in the top-level tab bar
                                         ),
@@ -464,15 +548,38 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                         _searchController.text.toLowerCase()) ||
                                     element.process!.toLowerCase().contains(
                                         _searchController.text.toLowerCase()))
-                                .where((applicant) => applicant.hr_status !=
+                                .where((applicant) => applicant
+                                            .executive_status !=
                                         null
-                                    ? applicant.hr_status.toString() == status
-                                    : applicant.s2HrStatus == status)
+                                    ? applicant.executive_status.toString() ==
+                                        status
+                                    : applicant.s2ExecutiveStatus == status)
                                 .toList();
 
-                            final subStatuses = [];
+                            final subStatuses = data
+                                .map((lead) =>
+                                    lead.hr_sub_status?.toString() ??
+                                    lead.s2HrSubStatus)
+                                .where((spoc) => spoc != null)
+                                .toSet()
+                                .toList()
+                              ..sort();
 
-                            if (subStatuses.isEmpty) {
+                            List<String> substatusWithData = [];
+                            for (String? sub in subStatuses) {
+                              // Check if there are leads associated with this referral source
+                              bool hasDataForSpoc = data.any((lead) =>
+                                  (lead.executive_status == status ||
+                                      lead.s2ExecutiveStatus == status) &&
+                                  (lead.hr_sub_status == sub ||
+                                      lead.s2HrSubStatus == sub));
+                              if (hasDataForSpoc) {
+                                substatusWithData
+                                    .add(sub!); // Add non-null referral sources
+                              }
+                            }
+
+                            /* if (status == "Application") {
                               // No second tab bar needed if subStatuses is empty
                               return SmartRefresher(
                                 controller: _refreshControllers[
@@ -501,63 +608,235 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                   },
                                 ),
                               );
-                            } else {
-                              // Second tab bar needed for subStatuses
+                            } */
+                            if (status == "Application") {
+                              // No second tab bar needed if subStatuses is empty
+                              return SmartRefresher(
+                                controller: _refreshControllers[
+                                    statuses.indexOf(status)],
+                                onRefresh: () async {
+                                  await _onRefresh(statuses.indexOf(status));
+                                },
+                                child: ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: applicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = applicants[index];
+                                    return listViewItem_new(
+                                      profilemodel.report_to!.toInt(),
+                                      context,
+                                      applicant,
+                                      true,
+                                      statuses,
+                                      profilemodel.id != null
+                                          ? profilemodel.id!.toInt()
+                                          : 467,
+                                      "${profilemodel.first_name} ${profilemodel.last_name}",
+                                      index,
+                                      dropDownItemList!,
+                                    );
+                                  },
+                                ),
+                              );
+                            } else if (status == "Not Selected/Not shortlist") {
                               return DefaultTabController(
-                                length: subStatuses.length,
+                                length: negativeStatus.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: const Size(
-                                        double.maxFinite, kTextTabBarHeight),
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
                                     child: AppBar(
-                                      title: const Text("Hello"),
-                                      //elevation: 0,
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
                                         isScrollable: true,
-                                        indicatorSize: TabBarIndicatorSize.tab,
-                                        //indicatorWeight: 2.0,
-                                        unselectedLabelStyle:
-                                            GoogleFonts.varela(),
-                                        labelStyle: GoogleFonts.varela(
-                                            fontWeight: FontWeight.w600),
                                         unselectedLabelColor: Colors.black,
-                                        labelColor: Constants.subtitleclr,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
                                         indicatorPadding: EdgeInsets.only(
                                             bottom: 8.h, left: 3.w, right: 3.w),
-                                        indicator: isSelect
-                                            ? BoxDecoration(
-                                                color: Constants.borderColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
-                                                    color: Constants
-                                                        .borderColor) // Creates border
-                                                )
-                                            : null,
-                                        indicatorColor: Constants.borderColor,
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
                                         /*  onTap: (value) {
                                   setState(() {
                                     isSelect = !isSelect;
                                   });
                                 }, */
-                                        tabs: subStatuses
-                                            .map((subStatus) =>
-                                                Tab(text: subStatus!))
+                                        tabs: negativeStatus
+                                            .map((subStatus) => customTab(
+                                                subStatus,
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.hr_status.toString() == subStatus ||
+                                                        applicant.s2HrStatus.toString() ==
+                                                            subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.hr_status.toString() == subStatus || applicant.s2HrStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
+                                                    .length)))
                                             .toList(),
                                       ),
                                     ),
                                   ),
                                   body: TabBarView(
-                                    children: subStatuses.map((subStatus) {
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children: negativeStatus.map((subStatus) {
                                       // Filter applicants based on the current status and sub_status
                                       final filteredApplicants = applicants
                                           .where((applicant) =>
-                                              applicant.hr_sub_status
-                                                  .toString() ==
-                                              subStatus)
+                                              (applicant.hr_status.toString() ==
+                                                      subStatus ||
+                                                  applicant.s2HrStatus
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.executive_status ==
+                                                      status ||
+                                                  applicant.s2ExecutiveStatus ==
+                                                      status))
+                                          .toList();
+
+                                      return ListView.builder(
+                                        physics: const BouncingScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: filteredApplicants.length,
+                                        itemBuilder: (context, index) {
+                                          final applicant =
+                                              filteredApplicants[index];
+
+                                          return listViewItem_new(
+                                              profilemodel.report_to!.toInt(),
+                                              context,
+                                              applicant,
+                                              true,
+                                              statuses,
+                                              profilemodel.id != null
+                                                  ? profilemodel.id!.toInt()
+                                                  : 467,
+                                              "${profilemodel.first_name} ${profilemodel.last_name}",
+                                              index,
+                                              dropDownItemList!);
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // Second tab bar needed for subStatuses
+                              return DefaultTabController(
+                                length: substatusWithData.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: substatusWithData
+                                            .map((subStatus) => customTab(
+                                                subStatus == "" &&
+                                                        status ==
+                                                            "Interview bay"
+                                                    ? "In Process"
+                                                    : subStatus == "" &&
+                                                            status == "Select"
+                                                        ? "Hired"
+                                                        : subStatus,
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.executive_status
+                                                                .toString() ==
+                                                            status ||
+                                                        applicant.s2ExecutiveStatus
+                                                                .toString() ==
+                                                            status)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.hr_sub_status.toString() == subStatus || applicant.s2HrSubStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        substatusWithData.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.hr_sub_status
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.s2HrSubStatus
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.executive_status ==
+                                                      status ||
+                                                  applicant.s2ExecutiveStatus ==
+                                                      status))
                                           .toList();
 
                                       return ListView.builder(
@@ -950,27 +1229,43 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
           child: Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Constants.borderColor,
-                    radius: 22,
-                    child: Text(
-                      item.applicantName!.isNotEmpty
-                          ? item.applicantName![0].toUpperCase()
-                          : 'N',
-                      style: const TextStyle(
-                        color: Constants.themeBgColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0,
+              if (item.gender != null)
+                item.profilePic != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.profilePic}"),
+                        radius: 22,
+                      )
+                    : CircleAvatar(
+                        backgroundColor: Constants.bgColorWhite,
+                        backgroundImage: AssetImage(item.gender == "Male"
+                            ? "assets/images/leadmale.png"
+                            : "assets/images/leadfemal.png"),
+                        radius: 22,
                       ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 4.w,
+              if (item.gender == null)
+                item.profilePic != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.profilePic}"),
+                        radius: 22,
+                      )
+                    : CircleAvatar(
+                        backgroundColor: Constants.borderColor,
+                        radius: 22,
+                        child: Text(
+                          item.applicantName!.isNotEmpty
+                              ? item.applicantName![0].toUpperCase()
+                              : 'N',
+                          style: const TextStyle(
+                            color: Constants.themeBgColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                          ),
+                        ),
+                      ),
+              const SizedBox(
+                width: 6,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -982,70 +1277,249 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      item.qualification == null
-                          ? Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/bag.png",
-                                  height: 13.h,
-                                  //  color: Constants.subtitleclr,
-                                ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  item.isExperienced.toString(),
-                                  style: GoogleFonts.varela(
-                                    color: Colors.black54,
-                                    // fontWeight: FontWeight.bold,
+                  if (item.hr_status_id == 13) //TODO:: view only for select
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.process.toString(),
+                          style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            // fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          " | ",
+                          style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            // fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          item.role_code != null
+                              ? item.role_code.toString()
+                              : item.lead_level.toString(),
+                          style: GoogleFonts.varela(
+                            color: Colors.black54,
+                            // fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (item.hr_status_id != 13) //TODO:: not view for select
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        item.qualification == null
+                            ? Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/bag.png",
+                                    height: 13.h,
+                                    //  color: Constants.subtitleclr,
                                   ),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/education_d.png",
-                                  height: 14.h,
-                                  //  color: Constants.subtitleclr,
-                                ),
-                                const SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  " ${item.qualification.toString()}  |  ",
-                                  style: GoogleFonts.varela(
-                                    color: Colors.black54,
-                                    // fontWeight: FontWeight.bold,
+                                  const SizedBox(
+                                    width: 4,
                                   ),
-                                ),
-                                Image.asset(
-                                  "assets/images/bag.png",
-                                  height: 13.h,
-                                  //  color: Constants.subtitleclr,
-                                ),
-                                const SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  " ${item.isExperienced}",
-                                  style: GoogleFonts.varela(
-                                    color: Colors.black54,
-                                    // fontWeight: FontWeight.bold,
+                                  Text(
+                                    item.isExperienced.toString(),
+                                    style: GoogleFonts.varela(
+                                      color: Colors.black54,
+                                      // fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                    ],
-                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/education_d.png",
+                                    height: 14.h,
+                                    //  color: Constants.subtitleclr,
+                                  ),
+                                  const SizedBox(
+                                    width: 2,
+                                  ),
+                                  Text(
+                                    " ${item.qualification.toString()}  |  ",
+                                    style: GoogleFonts.varela(
+                                      color: Colors.black54,
+                                      // fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    "assets/images/bag.png",
+                                    height: 13.h,
+                                    //  color: Constants.subtitleclr,
+                                  ),
+                                  const SizedBox(
+                                    width: 2,
+                                  ),
+                                  Text(
+                                    " ${item.isExperienced}",
+                                    style: GoogleFonts.varela(
+                                      color: Colors.black54,
+                                      // fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              )
+                      ],
+                    ),
                 ],
               ),
             ],
           ),
         ),
+        if (item.hr_status_id == 13) //TODO:: view only for select
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        "assets/images/cmpny.png",
+                        height: 12.5.h,
+                      ),
+                      SizedBox(
+                        width: 6.w,
+                      ),
+                      Text(
+                        item.short_name != null
+                            ? item.short_name.toString()
+                            : item.companyName.toString(),
+                        style: GoogleFonts.varela(
+                            // color: Colors.black54,
+                            color: Constants.subtitleclr,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 13.sp),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 4.h,
+                  ),
+                  Row(
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/documentStatus.png",
+                            height: 15.sp,
+                          ),
+                          SizedBox(
+                            width: 4.w,
+                          ),
+                          Text(
+                            item.document_status.toString(),
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 4.h,
+                  ),
+                  Row(
+                    // mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_month_outlined,
+                            size: 15.sp,
+                            color: Constants.blue,
+                          ),
+                          SizedBox(
+                            width: 4.w,
+                          ),
+                          Text(
+                            item.doj != null
+                                ? DateFormat('dd MMM yyyy').format(item.doj!)
+                                : "Pending",
+                            style: GoogleFonts.varela(
+                                // color: Colors.black54,
+                                color: Constants.subtitleclr,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 13.sp),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          "assets/images/loc.png",
+                          height: 12.5.sp,
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Expanded(
+                          child: Text(
+                            "(${item.workLocation.toString()})",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: GoogleFonts.varela(
+                              fontSize: 13.sp,
+                              color: Constants.subtitleclr,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    Icon(
+                      Icons.track_changes,
+                      size: 13.sp,
+                      color: Colors.transparent,
+                    ),
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.currency_rupee_outlined,
+                          size: 15.sp,
+                          color: Constants.blue,
+                        ),
+                        Text(
+                          item.salary != null ? "${item.salary}" : "Pending",
+                          style: GoogleFonts.varela(
+                            fontSize: 13.sp,
+                            color: Constants.subtitleclr,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         Padding(
           padding: const EdgeInsets.only(
             bottom: 5,
@@ -1054,7 +1528,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start, // Ad
             children: [
-              if (item.companyName != null)
+              if (item.companyName != null && item.hr_status_id != 13)
                 Padding(
                   padding: EdgeInsets.only(top: 4.h, left: 4.w),
                   child: Row(
@@ -1081,7 +1555,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.process != null)
+              if (item.process != null && item.hr_status_id != 13)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(
@@ -1096,7 +1570,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                         width: 3.w,
                       ),
                       Text(
-                        "${item.process.toString()} || ${item.lead_level.toString()}",
+                        item.role_code != null
+                            ? "${item.process.toString()} || ${item.role_code.toString()}"
+                            : "${item.process.toString()} || ${item.lead_level.toString()}",
                         style: GoogleFonts.varela(
                             // color: Colors.black54,
                             color: Constants.subtitleclr,
@@ -1106,7 +1582,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.totalSalary != null)
+              if (item.totalSalary != null && item.hr_status_id != 13)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(
@@ -1129,7 +1605,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.workLocation != null)
+              if (item.workLocation != null && item.hr_status_id != 13)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(
@@ -1263,7 +1739,141 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
               //
               //
               // TODO:: Interview rounds end ........}
-              if (item.status_id != 1)
+              //
+              //
+              //
+              //
+              // TODO:: Interview rounds for drop out and on hold
+              if (item.hr_sub_status == "Drop-out" ||
+                  item.hr_sub_status == "On-Hold" ||
+                  item.hr_status == "Reject" ||
+                  item.s2HrStatus == "Reject")
+                Container(
+                  margin: EdgeInsets.only(top: 4.h),
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                      color: Constants.borderColor,
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Constants.borderColor)),
+                  //  padding: const EdgeInsets.only(bottom: 5),
+                  height: MediaQuery.of(context).size.height / 15,
+                  child: Timeline.tileBuilder(
+                    //  scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(bottom: 10),
+
+                    shrinkWrap: true,
+                    // padding: const EdgeInsets.only(top: 0),
+                    theme: TimelineThemeData(
+                      direction: Axis.horizontal,
+                      connectorTheme: const ConnectorThemeData(
+                        space: 8.0,
+                        thickness: 2.0,
+                      ),
+                    ),
+                    builder: TimelineTileBuilder.connected(
+                      contentsAlign: ContentsAlign.basic,
+                      connectionDirection: ConnectionDirection.before,
+                      itemCount: finalinterviewRounds != null
+                          ? finalinterviewRounds.length
+                          : 0,
+                      itemExtentBuilder: (_, __) {
+                        return (MediaQuery.of(context).size.width - 50) /
+                            finalinterviewRounds!.length.toDouble();
+                      },
+                      oppositeContentsBuilder: (context, index) {
+                        return Container();
+                      },
+                      contentsBuilder: (context, index) {
+                        return finalinterviewRounds != null
+                            ? Text(finalinterviewRounds[index])
+                            : const Text("");
+                      },
+                      indicatorBuilder: (_, index) {
+                        if (index == selectedRoundIndex) {
+                          // Customize the selected round indicator
+                          return const OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.red,
+                          );
+                        } else if (index > selectedRoundIndex) {
+                          // Customize indicators for other rounds
+                          return OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: 8.r,
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 13.h,
+                            ),
+                          ); /* const DotIndicator(
+                                                              //   borderWidth: 4.0,
+                                                              color: Colors.green,
+                                                            ); */
+                        }
+                      },
+                      connectorBuilder: (_, index, type) {
+                        if (index == selectedRoundIndex) {
+                          // Customize the selected round connector
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        } else if (index > selectedRoundIndex) {
+                          // Customize connectors for other rounds
+                          return DashedLineConnector(
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+
+              if (item.hr_sub_status == "Drop-out" ||
+                  item.hr_sub_status == "On-Hold" ||
+                  item.hr_sub_status == "Offer Decline" ||
+                  item.hr_sub_status == "Not Join" ||
+                  item.s2HrSubStatus == "Not Join" ||
+                  item.hr_status == "Reject" ||
+                  item.s2HrStatus == "Reject")
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8.r),
+                    // border: Border.all(color: Colors.grey.shade400)
+                  ),
+                  margin: EdgeInsets.only(top: 4.h),
+                  padding: EdgeInsets.only(
+                      left: 4.w, right: 4.w, top: 6.h, bottom: 6.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.remark ?? "",
+                        style: GoogleFonts.varela(
+                          fontStyle: FontStyle.italic,
+                          // color: Constants.subtitleclr,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (item.hr_sub_status != "Drop-out" &&
+                  item.hr_sub_status != "On-Hold" &&
+                  item.hr_sub_status != "Offer Decline" &&
+                  (item.hr_status_id != 16) &&
+                  item.hr_status_id != 13 &&
+                  item.status_id != 1)
                 Container(
                   margin: const EdgeInsets.only(top: 6),
                   padding: const EdgeInsets.only(
@@ -1276,7 +1886,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   width: double.maxFinite,
                   child: Row(
                     children: [
-                      Column(
+                      /* Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -1297,60 +1907,83 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                               ), */
                                 )
                         ],
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  if (item.executive_feedback1 != null ||
-                                      item.s2ExecutiveFeedback1 != null ||
-                                      item.executive_feedback1 != "")
-                                    Flexible(
-                                      child: Text(
-                                        item.executive_feedback1 != null
-                                            ? item.executive_feedback1
-                                                .toString()
-                                            : item.s2ExecutiveFeedback1
-                                                .toString(),
-                                        style: GoogleFonts.varela(
-                                            color: Constants.blue,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14.sp),
-                                        softWrap: true,
-                                        // maxLines: 3,
+                      ), */
+                      if (item.hr_status_id != 15 &&
+                          item.hr_status_id != 16 &&
+                          item.hr_status_id != 17 &&
+                          item.hr_status_id != 18 &&
+                          item.hr_status_id != 19)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                // const Text("Other"),
+                                Row(
+                                  children: [
+                                    if (item.executive_feedback1 != null ||
+                                        item.s2ExecutiveFeedback1 != null ||
+                                        item.executive_feedback1 != "")
+                                      Flexible(
+                                        child: Text(
+                                          item.executive_feedback1 != null
+                                              ? item.executive_feedback1
+                                                  .toString()
+                                              : item.s2ExecutiveFeedback1
+                                                  .toString(),
+                                          style: GoogleFonts.varela(
+                                              color: Constants.blue,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14.sp),
+                                          softWrap: true,
+                                          // maxLines: 3,
+                                        ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                              if (item.executive_feedback2 != null ||
-                                  item.s2ExecutiveFeedback2 != null)
-                                Text(
-                                  item.executive_feedback2 != null
-                                      ? item.executive_feedback2.toString()
-                                      : item.s2ExecutiveFeedback2 != null
-                                          ? item.s2ExecutiveFeedback2.toString()
-                                          : "",
-                                  softWrap: true,
-                                  // maxLines: 3,
-                                  style: GoogleFonts.varela(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14.sp),
-                                )
-                            ],
+                                  ],
+                                ),
+                                if (item.executive_feedback2 != null ||
+                                    item.s2ExecutiveFeedback2 != null)
+                                  Text(
+                                    item.executive_feedback2 != null
+                                        ? item.executive_feedback2.toString()
+                                        : item.s2ExecutiveFeedback2 != null
+                                            ? item.s2ExecutiveFeedback2
+                                                .toString()
+                                            : "",
+                                    softWrap: true,
+                                    // maxLines: 3,
+                                    style: GoogleFonts.varela(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14.sp),
+                                  )
+                              ],
+                            ),
                           ),
                         ),
-                      )
+                      if (item.hr_status_id == 15 ||
+                          item.hr_status_id == 16 ||
+                          item.hr_status_id == 17 ||
+                          item.hr_status_id == 18 ||
+                          item.hr_status_id == 19)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.remark ?? "",
+                              style: GoogleFonts.varela(
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
             ],
           ),
         ),
+        //   if (item.hr_status_id == 13) //TODO: Only for Select.....
       ],
     );
   }
@@ -1417,9 +2050,6 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
     return input;
   }
 }
-
-
-
 
 //TODO:: Old code of talentPool.. before 02/03/2024
 

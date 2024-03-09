@@ -19,6 +19,7 @@ class Constants {
   static const lightyellow = Color(0xfffff6da);
   static final lightdull = Colors.grey.shade300;
   static const navyblue = Color(0xff00308f);
+  static const dullBlue = Color(0xfffccf5ff);
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

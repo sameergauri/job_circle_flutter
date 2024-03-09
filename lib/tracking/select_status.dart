@@ -515,7 +515,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                     jsonData, widget.item.id!.toInt());
 
                                 ref.refresh(fetchAllApplicantProvider);
-ref.refresh(fetchAllExecutiveProvide);
+                                ref.refresh(fetchAllExecutiveProvide);
                                 setState(() {
                                   Future.delayed(const Duration(seconds: 2),
                                       () {
@@ -1012,8 +1012,8 @@ ref.refresh(fetchAllExecutiveProvide);
                         ref.refresh(fetchAllExecutiveProvide);
                       },
                       child: Image.asset(
-                        "assets/images/close (1).png",
-                        height: 16.h,
+                        "assets/images/close.png",
+                        height: 13.h,
                         color: Colors.grey.shade400,
                       ),
                     ),
@@ -1122,7 +1122,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
-                                                      ref.refresh(
+                                                  ref.refresh(
                                                       fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(
@@ -1197,7 +1197,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
-                                                              ref.refresh(
+                                                          ref.refresh(
                                                               fetchAllExecutiveProvide);
                                                           Future.delayed(
                                                               const Duration(
@@ -1293,7 +1293,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                             : widget
                                                                 .finalDropDownItemforReadyOffer[
                                                                     index]
-                                                                .priStatusId,
+                                                                .statusId,
                                                         statusId: widget
                                                             .finalDropDownItemforReadyOffer[
                                                                 index]
@@ -1312,7 +1312,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
-                                                      ref.refresh(
+                                                  ref.refresh(
                                                       fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(
@@ -1387,7 +1387,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                               fetchAllReferalProvider);
                                                           ref.refresh(
                                                               fetchAllApplyProvider);
-                                                              ref.refresh(
+                                                          ref.refresh(
                                                               fetchAllExecutiveProvide);
                                                           Future.delayed(
                                                               const Duration(
@@ -1563,7 +1563,7 @@ ref.refresh(fetchAllExecutiveProvide);
                                                       fetchAllReferalProvider);
                                                   ref.refresh(
                                                       fetchAllApplyProvider);
-                                                      ref.refresh(
+                                                  ref.refresh(
                                                       fetchAllExecutiveProvide);
                                                   Future.delayed(
                                                       const Duration(

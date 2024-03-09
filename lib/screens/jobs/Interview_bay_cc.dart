@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:awesome_calendar/awesome_calendar.dart';
+import 'package:draggable_fab/draggable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -145,6 +146,22 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
     // Update the UI with new data
 
     _refreshControllers[index]
+        .refreshCompleted(); // Call this to end the refresh animation
+  }
+
+  final List<RefreshController> _refreshControllers1 = List.generate(
+    10,
+    (index) => RefreshController(initialRefresh: false),
+  );
+
+  Future<void> _onRefresh1(int index) async {
+    // Perform a global refresh (e.g., fetch new data for all tabs)
+    await Future.delayed(const Duration(seconds: 2));
+
+    ref.refresh(fetchAllApplicantProvider);
+    // Update the UI with new data
+
+    _refreshControllers1[index]
         .refreshCompleted(); // Call this to end the refresh animation
   }
   /* RefreshController refreshController = RefreshController();
@@ -446,18 +463,25 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                     return DefaultTabController(
                       length: statuses.length,
                       child: Scaffold(
-                        floatingActionButton: FloatingActionButton(
-                            backgroundColor: Constants.themeBgColor,
-                            child: const Icon(Icons.search),
-                            onPressed: () {
-                              setState(() {
-                                isSearchEnable = !isSearchEnable;
-                                _searchController.clear();
-                              });
-                              if (isSearchEnable) {
-                                searchNode.requestFocus();
-                              }
-                            }),
+                        floatingActionButton: DraggableFab(
+                          child: FloatingActionButton(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              child: Icon(
+                                Icons.search,
+                                size: 30.sp,
+                                color: Constants.blue,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isSearchEnable = !isSearchEnable;
+                                  _searchController.clear();
+                                });
+                                if (isSearchEnable) {
+                                  searchNode.requestFocus();
+                                }
+                              }),
+                        ),
                         /*  floatingActionButton: FloatingActionButton(  //TODO: Refresh button.....
                           backgroundColor: Constants.maintheme_light_color,
                           onPressed: () {
@@ -472,14 +496,14 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                           preferredSize: Size(
                               double.maxFinite,
                               isSearchEnable
-                                  ? kTextTabBarHeight * 2
-                                  : kToolbarHeight),
+                                  ? kTextTabBarHeight * 1.60.sp
+                                  : kToolbarHeight / 1.4.sp),
                           child: AppBar(
                             title: isSearchEnable
-                                ? Container(
-                                    margin: EdgeInsets.only(top: 10.h),
+                                ? SizedBox(
+                                    // margin: EdgeInsets.only(top: 10.h),
                                     height: MediaQuery.of(context).size.height /
-                                        24.h,
+                                        26.h,
                                     child: TextField(
                                       focusNode: searchNode,
                                       keyboardType: TextInputType.name,
@@ -490,12 +514,12 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       style: GoogleFonts.varela(
                                           color: Constants.subtitleclr,
                                           fontSize: 14.sp),
+                                      cursorColor: Colors.grey.shade600,
                                       decoration: InputDecoration(
                                           filled: false,
                                           fillColor: Constants.borderColor,
                                           prefixIcon: const Icon(Icons.search),
-                                          prefixIconColor:
-                                              Constants.themeBgColor,
+                                          prefixIconColor: Colors.grey.shade400,
                                           contentPadding: const EdgeInsets.only(
                                               top: 8,
                                               bottom: 8,
@@ -506,24 +530,35 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                           labelStyle: const TextStyle(
                                             color: Constants.themeBgColor,
                                           ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade400),
+                                          ),
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8.r),
-                                            borderSide: const BorderSide(
-                                                color: Constants.themeBgColor),
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade400),
                                           ),
                                           focusColor: const Color(0xffff0eceb),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8.r),
-                                            borderSide: const BorderSide(
-                                              color: Constants.themeBgColor,
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade400,
                                             ),
                                           ),
                                           hintText: "Search",
                                           hintStyle: GoogleFonts.sourceSansPro(
                                               color: Constants.hintColor,
                                               fontSize: 15.sp)),
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          isSearchEnable = !isSearchEnable;
+                                        });
+                                      },
                                       onChanged: (value) {
                                         // setState(() {});
                                         _searchController.text.isEmpty
@@ -619,8 +654,27 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                 .toList(); */
 
                             // Check if sub_status is null or not
-                            final subStatuses =
-                                []; /* applicants
+                            final subStatuses = data
+                                .map((lead) =>
+                                    lead.hr_sub_status?.toString() ??
+                                    lead.s2HrSubStatus)
+                                .where((spoc) => spoc != null)
+                                .toSet()
+                                .toList()
+                              ..sort();
+                            List<String> substatusWithData = [];
+                            for (String? sub in subStatuses) {
+                              // Check if there are leads associated with this referral source
+                              bool hasDataForSpoc = data.any((lead) =>
+                                  (lead.hr_status == status ||
+                                      lead.s2HrStatus == status) &&
+                                  (lead.hr_sub_status == sub ||
+                                      lead.s2HrSubStatus == sub));
+                              if (hasDataForSpoc) {
+                                substatusWithData
+                                    .add(sub!); // Add non-null referral sources
+                              }
+                            } /* applicants
                                 .map((applicant) =>
                                     applicant.hr_sub_status?.toString())
                                 .where((subStatus) =>
@@ -629,7 +683,8 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                 .toList()
                               ..sort(); */
 
-                            if (subStatuses.isEmpty) {
+                            if (substatusWithData.isEmpty ||
+                                status == "Application") {
                               // No second tab bar needed if subStatuses is empty
                               return SmartRefresher(
                                 controller: _refreshControllers[
@@ -661,61 +716,107 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                             } else {
                               // Second tab bar needed for subStatuses
                               return DefaultTabController(
-                                length: subStatuses.length,
+                                length: substatusWithData.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: const Size(
-                                        double.maxFinite, kTextTabBarHeight),
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
                                     child: AppBar(
-                                      title: const Text("Hello"),
+                                      // title: const Text("Hello"),
                                       //elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
                                         physics:
                                             const NeverScrollableScrollPhysics(),
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
                                         isScrollable: true,
-                                        indicatorSize: TabBarIndicatorSize.tab,
-                                        //indicatorWeight: 2.0,
-                                        unselectedLabelStyle:
-                                            GoogleFonts.varela(),
-                                        labelStyle: GoogleFonts.varela(
-                                            fontWeight: FontWeight.w600),
                                         unselectedLabelColor: Colors.black,
-                                        labelColor: Constants.subtitleclr,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
                                         indicatorPadding: EdgeInsets.only(
                                             bottom: 8.h, left: 3.w, right: 3.w),
-                                        indicator: isSelect
-                                            ? BoxDecoration(
-                                                color: Constants.borderColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
-                                                    color: Constants
-                                                        .borderColor) // Creates border
-                                                )
-                                            : null,
-                                        indicatorColor: Constants.borderColor,
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
                                         /*  onTap: (value) {
                                   setState(() {
                                     isSelect = !isSelect;
                                   });
                                 }, */
-                                        tabs: subStatuses
+                                        /* tabs: substatusWithData
                                             .map((subStatus) =>
-                                                Tab(text: subStatus!))
+                                                Tab(text: subStatus))
+                                            .toList(), */
+                                        tabs: substatusWithData
+                                            .map((subStatus) => customTab(
+                                                subStatus == "" &&
+                                                        status ==
+                                                            "Interview bay"
+                                                    ? "In Process"
+                                                    : subStatus == "" &&
+                                                            status == "Select"
+                                                        ? "Hired"
+                                                        : subStatus,
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.hr_sub_status
+                                                                .toString() ==
+                                                            subStatus ||
+                                                        applicant.s2HrSubStatus
+                                                                .toString() ==
+                                                            subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.hr_sub_status.toString() == subStatus || applicant.s2HrSubStatus.toString() == subStatus) && (applicant.hr_status == status || applicant.s2HrStatus == status))
+                                                    .length)))
                                             .toList(),
                                       ),
                                     ),
                                   ),
                                   body: TabBarView(
-                                    children: subStatuses.map((subStatus) {
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        substatusWithData.map((subStatus) {
                                       // Filter applicants based on the current status and sub_status
                                       final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.hr_sub_status
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.s2HrSubStatus
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.hr_status == status ||
+                                                  applicant.s2HrStatus ==
+                                                      status))
+                                          .toList();
+                                      /*  final filteredApplicants = applicants  //TODO:: old
                                           .where((applicant) =>
                                               applicant.hr_sub_status
                                                   .toString() ==
                                               subStatus)
-                                          .toList();
+                                          .toList(); */
 
                                       return ListView.builder(
                                         physics: const BouncingScrollPhysics(),

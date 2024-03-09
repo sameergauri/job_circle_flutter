@@ -140,35 +140,93 @@ class _AddResumeState extends ConsumerState<AddResume> {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
     return Scaffold(
       // backgroundColor: const Color(0xfffedf6f9), //TODO: old background color
       backgroundColor: Colors.white,
-      bottomNavigationBar: InkWell(
-        onTap: () {
-          submit();
-        },
-        child: Container(
-          margin:
-              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
-          decoration: BoxDecoration(
-              color: Constants.themeBgColor,
-              borderRadius: BorderRadius.circular(8.r)),
-          width: double.maxFinite,
-          padding: const EdgeInsets.only(bottom: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Submit",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600),
+      bottomNavigationBar: widget.isRefer
+          ? InkWell(
+              onTap: () {
+                submit();
+              },
+              child: Container(
+                margin: const EdgeInsets.only(
+                    top: 10, bottom: 10, left: 20, right: 20),
+                decoration: BoxDecoration(
+                    color: Constants.themeBgColor,
+                    borderRadius: BorderRadius.circular(8.r)),
+                width: double.maxFinite,
+                padding: const EdgeInsets.only(bottom: 8, top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Submit",
+                      style: GoogleFonts.sourceSansPro(
+                          fontSize: 18.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                InkWell(
+                  onTap: () {
+                    // submit();
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 10),
+                    decoration: BoxDecoration(
+                        color: Constants.themeBgColor,
+                        borderRadius: BorderRadius.circular(8.r)),
+                    width: width / 3,
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Line-up",
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    submit();
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 10),
+                    decoration: BoxDecoration(
+                        color: Constants.themeBgColor,
+                        borderRadius: BorderRadius.circular(8.r)),
+                    width: width / 3,
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Interview bay",
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
       appBar: AppBar(
           // automaticallyImplyLeading: false,
           title: Column(

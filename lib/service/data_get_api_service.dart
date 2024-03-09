@@ -177,8 +177,6 @@ class ApplicationAPI {
       return [];
     }
   }
-
-
 }
 
 

@@ -383,7 +383,7 @@ class Applicant {
       company_icon: json['company_icon'],
       is_ctc_pay: json['is_ctc_pay'],
       is_work_pay: json['is_work_pay'],
-      is_status_hide: json['is_status_hide'],
+      is_status_hide: json['is_status_hide'] ?? json['s2_is_status_hide'],
       s2_is_status_hide: json['s2_is_status_hide'],
       isCvDownload: json['isCvDownload'],
       is_join_submitted: json['is_join_submitted'],
@@ -397,6 +397,8 @@ class Applicant {
       s2ExecutiveStatus: json['s2_executive_status'],
     );
   }
+
+
 
   get interviewrounds => null;
   static List<String>? _parseSkills(dynamic jsonSkills) {

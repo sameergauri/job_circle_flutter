@@ -624,18 +624,36 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                   // width: width / 1.10.w,
                   child: TextField(
                       style: GoogleFonts.varela(color: Constants.subtitleclr),
+                      cursorColor: Colors.grey.shade600,
                       decoration: InputDecoration(
                         fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(),
-                            borderRadius: BorderRadius.circular(8.r)),
-                        filled: true,
-                        prefixIcon: const Icon(Icons.search),
-                        contentPadding: const EdgeInsets.only(left: 5, top: 10),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
                         border: OutlineInputBorder(
-                            /* borderSide:
-                  const BorderSide(color: Constants.borderColor), */
-                            borderRadius: BorderRadius.circular(8.r)),
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusColor: Colors.grey.shade400,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        filled: true,
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey.shade400,
+                        ),
+                        contentPadding: const EdgeInsets.only(left: 5, top: 10),
                         hintText:
                             "${data.profileSummary.first_name} ${data.profileSummary.last_name}",
                       )),

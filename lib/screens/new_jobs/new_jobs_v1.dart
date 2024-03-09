@@ -948,13 +948,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           fontSize: 14.sp,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Constants.themeBgColor),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Constants.themeBgColor),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                       ),
@@ -976,7 +974,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             jobsController.selectedLocation.isEmpty
                                 ? Icon(
                                     Icons.pin_drop,
-                                    color: Constants.themeBgColor,
+                                    color: Colors.black,
                                     size: 15.h,
                                   )
                                 : const SizedBox(),
@@ -1012,11 +1010,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     ? jobsController.selectedLocation
                                     : 'City',
                                 style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontSize: 14,
+                                  color: Colors.black,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   // height: 12.0,
-                                  textBaseline: TextBaseline.alphabetic,
+                                  // textBaseline: TextBaseline.alphabetic,
                                   // decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -1917,7 +1915,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         decoration:
                                                                             BoxDecoration(
                                                                           border:
-                                                                              Border.all(color: Constants.themeBgColor),
+                                                                              Border.all(color: Constants.blue),
                                                                           borderRadius:
                                                                               BorderRadius.circular(8),
                                                                         ),
@@ -1928,13 +1926,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           children: [
                                                                             Icon(
                                                                               Icons.add,
-                                                                              color: Constants.themeBgColor,
+                                                                              color: Constants.blue,
                                                                               size: 15.h,
                                                                             ),
                                                                             Text(
                                                                               "Resume",
                                                                               style: TextStyle(
-                                                                                color: Constants.themeBgColor,
+                                                                                color: Constants.blue,
                                                                                 fontWeight: FontWeight.bold,
                                                                                 fontSize: 15.h,
                                                                               ),
@@ -1998,13 +1996,84 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       //
                                                                       //
                                                                       //
-                                                                      if (apiresult.status != "Interview bay" &&
-                                                                          apiresult.status !=
-                                                                              "Assign" &&
-                                                                          apiresult.status !=
-                                                                              "Application" &&
-                                                                          (apiresult.dol == "" ||
-                                                                              diff)) {
+                                                                      if (item.id ==
+                                                                          apiresult
+                                                                              .jobid) {
+                                                                        if (apiresult.status != "Interview bay" &&
+                                                                            apiresult.status !=
+                                                                                "Assign" &&
+                                                                            apiresult.status !=
+                                                                                "Application" &&
+                                                                            (apiresult.dol == "" ||
+                                                                                diff)) {
+                                                                          if (data.cvLink !=
+                                                                              null) {
+                                                                            await JobPostApiService.postJobApply(
+                                                                                jobId: item.id!.toInt(),
+                                                                                userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                                context: context);
+                                                                            ref.refresh(fetchAllApplyProvider);
+                                                                            ref.refresh(fetchAllTalentPoolProvider);
+                                                                          } else {
+                                                                            if (item.id !=
+                                                                                null) {
+                                                                              Navigator.push(
+                                                                                  context,
+                                                                                  MaterialPageRoute(
+                                                                                      builder: (context) => AddCvtoApply(
+                                                                                            jobId: item.id!.toInt(),
+                                                                                          )));
+                                                                            }
+
+                                                                            /*  showDialog(
+                                                                          context: context,
+                                                                          builder: (context) {
+                                                                            return CustomDialog(
+                                                                                fetchDataFromApi:
+                                                                                    () {},
+                                                                                onClose: () {
+                                                                                  Navigator.pop(
+                                                                                      context);
+                                                                                  /*  Navigator.pushAndRemoveUntil(
+                                                                                      context,
+                                                                                      MaterialPageRoute(
+                                                                                        builder: (context) => HomeScreen(),
+                                                                                      ),
+                                                                                      (route) => false); */
+                                                                                },
+                                                                                isFisrt:
+                                                                                    false,
+                                                                                title:
+                                                                                    "Error",
+                                                                                subtitle:
+                                                                                    "Resume is not uploaded in your profile");
+                                                                          },
+                                                                        ); */
+                                                                          }
+                                                                        } else {
+                                                                          showDialog(
+                                                                            context:
+                                                                                context,
+                                                                            builder:
+                                                                                (context) {
+                                                                              return CustomDialog(
+                                                                                  fetchDataFromApi: () {},
+                                                                                  onClose: () {
+                                                                                    Navigator.pop(context);
+                                                                                    /*  Navigator.pushAndRemoveUntil(
+                                                                                      context,
+                                                                                      MaterialPageRoute(
+                                                                                        builder: (context) => HomeScreen(),
+                                                                                      ),
+                                                                                      (route) => false); */
+                                                                                  },
+                                                                                  isFisrt: false,
+                                                                                  title: "Error",
+                                                                                  subtitle: "Your CV is already in process in the PipeLine");
+                                                                            },
+                                                                          );
+                                                                        }
+                                                                      } else {
                                                                         if (data.cvLink !=
                                                                             null) {
                                                                           await JobPostApiService.postJobApply(
@@ -2051,28 +2120,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           },
                                                                         ); */
                                                                         }
-                                                                      } else {
-                                                                        showDialog(
-                                                                          context:
-                                                                              context,
-                                                                          builder:
-                                                                              (context) {
-                                                                            return CustomDialog(
-                                                                                fetchDataFromApi: () {},
-                                                                                onClose: () {
-                                                                                  Navigator.pop(context);
-                                                                                  /*  Navigator.pushAndRemoveUntil(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => HomeScreen(),
-                                                                                      ),
-                                                                                      (route) => false); */
-                                                                                },
-                                                                                isFisrt: false,
-                                                                                title: "Error",
-                                                                                subtitle: "Your CV is already in process in the PipeLine");
-                                                                          },
-                                                                        );
                                                                       }
                                                                     },
                                                                     child:
@@ -2311,7 +2358,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                     reverseCurve:
                                                         Curves.bounceInOut,
                                                     toggleButtonIconColor:
-                                                        Constants.themeBgColor,
+                                                        Constants.subtitleclr,
                                                     toggleButtonColor:
                                                         Colors.transparent,
                                                     items: [
@@ -2591,8 +2638,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   : Icons
                                                                       .bookmark_add_outlined,
                                                               size: 22.h,
-                                                              color: Constants
-                                                                  .themeBgColor)),
+                                                              color: Colors.grey
+                                                                  .shade400)),
                                                 ],
                                               ))
                                     ],

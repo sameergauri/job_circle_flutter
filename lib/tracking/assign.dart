@@ -367,7 +367,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                             ref.refresh(
                                                 fetchAllReferalProvider);
                                             ref.refresh(fetchAllApplyProvider);
-                                              ref.refresh(
+                                            ref.refresh(
                                                 fetchAllTalentPoolProvider);
                                             ref.refresh(
                                                 fetchAllExecutiveProvide);
@@ -475,7 +475,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                                   fetchAllApplyProvider);
                                               ref.refresh(
                                                   fetchAllApplicantProvider);
-                                                    ref.refresh(
+                                              ref.refresh(
                                                   fetchAllTalentPoolProvider);
                                               ref.refresh(
                                                   fetchAllExecutiveProvide);
@@ -491,13 +491,11 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                 ref.refresh(fetchAllApplicantProvider);
                                 ref.refresh(fetchAllReferalProvider);
                                 ref.refresh(fetchAllApplyProvider);
-                                  ref.refresh(fetchAllTalentPoolProvider);
+                                ref.refresh(fetchAllTalentPoolProvider);
                                 ref.refresh(fetchAllExecutiveProvide);
-                                /* Future.delayed(const Duration(seconds: 2), () {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }); */
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  isLoading = false;
+                                });
                               } catch (e) {
                                 print('Error: $e');
                               }
@@ -674,7 +672,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                   jsonData, widget.item.id!.toInt());
 
                               ref.refresh(fetchAllApplicantProvider);
-                                ref.refresh(fetchAllTalentPoolProvider);
+                              ref.refresh(fetchAllTalentPoolProvider);
                               ref.refresh(fetchAllExecutiveProvide);
                               // ref.refresh(fetchAllReferalProvider);
                               // ref.refresh(fetchAllApplyProvider);
