@@ -23,6 +23,8 @@ import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
+import '../constants/custom_dialogue_join.dart';
+
 class SelectStatus extends ConsumerStatefulWidget {
   final Applicant item;
   final List<DropDownItem> finalDropDownItemforJoinNot;
@@ -42,7 +44,7 @@ class SelectStatus extends ConsumerStatefulWidget {
 class _SelectStatusState extends ConsumerState<SelectStatus> {
   @override
   void initState() {
-    if (widget.item.salary != null) {
+    /*  if (widget.item.salary != null) {
       salaryController.text = widget.item.salary.toString();
     }
     if (widget.item.emp_id != null) {
@@ -50,10 +52,20 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
     }
     if (widget.item.is_exp != null) {
       widget.item.is_exp == 1 ? experience = true : fresher = true;
-    }
+    } */
 
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    salaryController.clear();
+    empIdController.clear();
+
+    // Perform cleanup tasks here
+    // Release resources, cancel subscriptions, etc.
+    super.dispose(); // Call the superclass dispose method if needed
   }
 
   DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
@@ -118,6 +130,15 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
+    if (widget.item.salary != null) {
+      salaryController.text = widget.item.salary.toString();
+    }
+    if (widget.item.emp_id != null) {
+      empIdController.text = widget.item.emp_id.toString();
+    }
+    if (widget.item.is_exp != null) {
+      widget.item.is_exp == 1 ? experience = true : fresher = true;
+    }
     DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
     DateTime today = DateTime.now();
     DateTime? doj;
@@ -212,7 +233,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                       ),
                       Row(
                         children: [
-                          widget.item.qualification == null
+                          /*  widget.item.qualification == null
                               ? Row(
                                   children: [
                                     Image.asset(
@@ -232,40 +253,41 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                     ),
                                   ],
                                 )
-                              : Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/education_d.png",
-                                      height: 15.h,
-                                      //  color: Constants.subtitleclr,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      "${widget.item.qualification.toString()}  |  ",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Image.asset(
-                                      "assets/images/bag.png",
-                                      height: 12.h,
-                                      //  color: Constants.subtitleclr,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      " ${widget.item.isExperienced}",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                )
+                              : */
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/images/process.png",
+                                height: 12.h,
+                                //  color: Constants.subtitleclr,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                "${widget.item.process.toString()}  |  ",
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  // fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Image.asset(
+                                "assets/images/designation.png",
+                                height: 12.h,
+                                //  color: Constants.subtitleclr,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                " ${widget.item.role_code ?? widget.item.lead_level}",
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  // fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ],
@@ -277,47 +299,29 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                 width: double.maxFinite,
                 padding: const EdgeInsets.symmetric(
                   vertical: 4,
-                  horizontal: 8,
+                  // horizontal: 8,
                 ),
-                decoration: BoxDecoration(
-                    color: Constants.borderColor,
-                    borderRadius: BorderRadius.circular(8)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(8)),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.item.short_name != null
-                                ? widget.item.short_name.toString()
-                                : widget.item.companyName.toString(),
-                            style: GoogleFonts.varela(
-                              color: Colors.black54,
-                              // fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                widget.item.role_code != null &&
-                                        widget.item.role_code != ""
-                                    ? "${widget.item.process} || ${widget.item.role_code}"
-                                    : "${widget.item.process} || ${widget.item.lead_level}",
-                                style: GoogleFonts.varela(
-                                  color: Colors.black54,
-                                  // fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Image.asset(
+                      "assets/images/cmpny.png",
+                      height: 15.sp,
+                    ),
+                    SizedBox(width: 4.sp),
+                    Text(
+                      widget.item.short_name != null
+                          ? widget.item.short_name.toString()
+                          : widget.item.companyName.toString(),
+                      style: GoogleFonts.varela(
+                        color: Constants.navyblue,
+
+                        // fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (widget.item.status_id == 18)
+                    /*  if (widget.item.status_id == 18)
                       Container(
                         margin: EdgeInsets.only(bottom: 10.h, right: 10.w),
                         child: Image.asset(
@@ -332,7 +336,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                           "assets/images/readytojoin.png",
                           height: 30.h,
                         ),
-                      ),
+                      ), */
                   ],
                 ),
               ),
@@ -570,8 +574,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
               //
               //TODO:: Documenrt Status}
 
-              if (widget.item.status_id == 18 &&
-                      widget.item.company_workstatus == 1
+              if (widget.item.company_workstatus == 1
                   // &&widget.item.is_exp == null  //TODO: use to hide the worktype data when that have data on it...
                   )
                 Container(
@@ -641,121 +644,119 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                     ],
                   ),
                 ),
-              if (widget.item.status_id == 18 &&
-                      !fresher &&
-                      (widget.item.is_ctc_pay == 1 ||
-                          widget.item.is_work_pay == 1)
-                  //&&widget.item.salary == null  //TODO: use to hide the salary field when that have data on it...
-                  )
-                Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      margin: EdgeInsets.only(top: 8.h, bottom: 4.h),
-                      height: MediaQuery.of(context).size.height / 35,
-                      child: TextField(
-                        autofocus: true,
-                        focusNode: salaryFocuNode,
-                        enabled: isSalaryEdit,
-                        maxLength: 7,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
+              // if ((widget.item.is_ctc_pay == 1 || widget.item.is_work_pay == 1))  //TODO:: Salary is allow for every lead
+              //&&widget.item.salary == null  //TODO: use to hide the salary field when that have data on it...
 
-                        keyboardType: TextInputType.number,
-                        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-                        textCapitalization: TextCapitalization.sentences,
-                        controller: salaryController,
+              Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    margin: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                    height: MediaQuery.of(context).size.height / 35,
+                    child: TextField(
+                      autofocus: true,
+                      focusNode: salaryFocuNode,
+                      enabled: isSalaryEdit,
+                      maxLength: 7,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
 
-                        style: GoogleFonts.varela(
-                            color: Constants.subtitleclr, fontSize: 14.sp),
-                        decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: Icon(
-                              Icons.currency_rupee_outlined,
+                      keyboardType: TextInputType.number,
+                      //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: salaryController,
+
+                      style: GoogleFonts.varela(
+                          color: Constants.subtitleclr, fontSize: 14.sp),
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: Icon(
+                            Icons.currency_rupee_outlined,
+                            color: Constants.subtitleclr,
+                            size: 15.h,
+                          ),
+                          contentPadding: const EdgeInsets.only(
+                              top: 8, left: 10, right: 10),
+                          counterText: '',
+                          labelText: "CTC",
+                          labelStyle: const TextStyle(
+                            color: Constants.subtitleclr,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Constants.lightdull),
+                          ),
+                          focusColor: const Color(0xffff0eceb),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: const BorderSide(
                               color: Constants.subtitleclr,
-                              size: 15.h,
                             ),
-                            contentPadding: const EdgeInsets.only(
-                                top: 8, left: 10, right: 10),
-                            counterText: '',
-                            labelText: "CTC",
-                            labelStyle: const TextStyle(
-                              color: Constants.subtitleclr,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide:
-                                  BorderSide(color: Constants.lightdull),
-                            ),
-                            focusColor: const Color(0xffff0eceb),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide: const BorderSide(
-                                color: Constants.subtitleclr,
-                              ),
-                            ),
-                            hintText: "20,000",
-                            hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.hintColor, fontSize: 15.sp)),
-                      ),
+                          ),
+                          hintText: "20,000",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                              color: Constants.hintColor, fontSize: 15.sp)),
                     ),
-                    isSalaryEdit == true
-                        ? InkWell(
-                            onTap: () async {
-                              setState(() {
-                                isSalaryEdit = false;
-                              });
-                              NewChangeStatusModel changeStatusModel =
-                                  NewChangeStatusModel(
-                                doj: widget.item.doj,
-                                salary: salaryController.text.isNotEmpty
-                                    ? double.tryParse(salaryController.text)
-                                    : null,
-                              );
-                              Map<String, dynamic> jsonData =
-                                  changeStatusModel.toJson();
-                              try {
-                                await JobPostApiService.NewchangeStatus(
-                                    jsonData, widget.item.id!.toInt());
-                                ref.refresh(fetchAllApplicantProvider);
-                                ref.refresh(fetchAllExecutiveProvide);
-                              } catch (e) {
-                                print('Error: $e');
-                                // Handle error...
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2.h, horizontal: 4.w),
-                              child: Text("Submit",
-                                  style: GoogleFonts.varela(
-                                      color: isSalaryEdit
-                                          ? Colors.red
-                                          : Constants.blue)),
+                  ),
+                  isSalaryEdit == true
+                      ? InkWell(
+                          onTap: () async {
+                            setState(() {
+                              isSalaryEdit = false;
+                            });
+                            NewChangeStatusModel changeStatusModel =
+                                NewChangeStatusModel(
+                              doj: widget.item.doj,
+                              salary: salaryController.text.isNotEmpty
+                                  ? double.tryParse(salaryController.text)
+                                  : null,
+                            );
+                            Map<String, dynamic> jsonData =
+                                changeStatusModel.toJson();
+                            try {
+                              await JobPostApiService.NewchangeStatus(
+                                  jsonData, widget.item.id!.toInt());
+                              ref.refresh(fetchAllApplicantProvider);
+                              ref.refresh(fetchAllExecutiveProvide);
+                            } catch (e) {
+                              print('Error: $e');
+                              // Handle error...
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2.h, horizontal: 4.w),
+                            child: Text("Submit",
+                                style: GoogleFonts.varela(
+                                    color: isSalaryEdit
+                                        ? Colors.red
+                                        : Constants.blue)),
+                          ),
+                        )
+                      : InkWell(
+                          onTap: () {
+                            setState(() {
+                              isSalaryEdit = true;
+                              salaryFocuNode.requestFocus();
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2.h, horizontal: 4.w),
+                            child: Image.asset(
+                              "assets/images/pencil.png",
+                              height: 15.sp,
                             ),
-                          )
-                        : InkWell(
-                            onTap: () {
-                              setState(() {
-                                isSalaryEdit = true;
-                                salaryFocuNode.requestFocus();
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2.h, horizontal: 4.w),
-                              child: Text("Edit",
-                                  style: GoogleFonts.varela(
-                                      color: Constants.blue)),
-                            ),
-                          )
-                  ],
-                ),
-              if (widget.item.status_id == 18 && widget.item.empCID == 1
-                  // &&widget.item.emp_id == null //TODO: use to hide the empid field when that have data on it...
-                  )
+                          ),
+                        )
+                ],
+              ),
+              // if (widget.item.status_id == 18 && widget.item.empCID == 1)  //TODO when all condition apply ater join not after select.
+              if (widget.item.empCID == 1)
+                // &&widget.item.emp_id == null //TODO: use to hide the empid field when that have data on it...
+
                 Row(
                   children: [
                     Container(
@@ -857,9 +858,10 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                             child: Container(
                               padding: EdgeInsets.symmetric(
                                   vertical: 2.h, horizontal: 4.w),
-                              child: Text("Edit",
-                                  style: GoogleFonts.varela(
-                                      color: Constants.blue)),
+                              child: Image.asset(
+                                "assets/images/pencil.png",
+                                height: 15.sp,
+                              ),
                             ),
                           )
                   ],
@@ -1265,7 +1267,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                 widget.finalDropDownItemforReadyOffer
                                     .length, //TODO: Ready to join and Offer decline button
                                 (index) => GestureDetector(
-                                    onTap: widget.item.status_id == 15
+                                    onTap: widget.item.status_id == 15 //TODO::
                                         ? () {}
                                         : widget
                                                     .finalDropDownItemforReadyOffer[
@@ -1357,7 +1359,7 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                                                                             .finalDropDownItemforReadyOffer[
                                                                                 index]
                                                                             .priStatusId ==
-                                                                        17
+                                                                        17 //TODO:: Offer decline.
                                                                     ? widget
                                                                         .finalDropDownItemforReadyOffer[
                                                                             index]
@@ -1620,18 +1622,13 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                       widget.item.document_status == "Submitted"))
                     InkWell(
                       onTap: () async {
-                        setState(() {
-                          isLoading = true;
-                        });
+                        int digitCount = salaryController.text.length;
                         if (empIdController.text.isEmpty &&
                             widget.item.empCID == 1) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               CustomSnackbarfinal(
                                   title: "Specify Emp ID ", error: true));
-                        } else if (salaryController.text.isEmpty &&
-                            !fresher &&
-                            (widget.item.is_ctc_pay == 1 ||
-                                widget.item.is_work_pay == 1)) {
+                        } else if (salaryController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               CustomSnackbarfinal(
                                   title: "Specify Anual CTC", error: true));
@@ -1641,7 +1638,27 @@ class _SelectStatusState extends ConsumerState<SelectStatus> {
                           ScaffoldMessenger.of(context).showSnackBar(
                               CustomSnackbarfinal(
                                   title: "Select Work Status", error: true));
+                        }
+                        if ((widget.item.is_ctc_pay == 1 ||
+                                widget.item.is_work_pay == 1) &&
+                            digitCount < 6 &&
+                            salaryController.text.isNotEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbarfinal(
+                                  title: "Salary Should be CTC based",
+                                  error: true));
+                        } else if ((widget.item.is_ctc_pay == 0 ||
+                                widget.item.is_work_pay == 0) &&
+                            digitCount < 4 &&
+                            salaryController.text.isNotEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbarfinal(
+                                  title: "Salary Should be Monthly bases",
+                                  error: true));
                         } else {
+                          setState(() {
+                            isLoading = true;
+                          });
                           NewChangeStatusModel changeStatusModel =
                               NewChangeStatusModel(
                             doj: widget.item.doj,

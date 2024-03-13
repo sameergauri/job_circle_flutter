@@ -19,7 +19,7 @@ import 'package:job_circle/themes/colors.dart';
 
 import '../service/job_post_api_service.dart';
 
-class CustomDialogueForSelect extends StatefulWidget {
+class CustomDialogueForSelect extends ConsumerStatefulWidget {
   final Applicant item;
   final Function refreshCallback;
   final DropDownItem finalDropDown;
@@ -32,11 +32,12 @@ class CustomDialogueForSelect extends StatefulWidget {
       required this.onCancel});
 
   @override
-  State<CustomDialogueForSelect> createState() =>
+  ConsumerState<CustomDialogueForSelect> createState() =>
       _CustomDialogueForSelectState();
 }
 
-class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
+class _CustomDialogueForSelectState
+    extends ConsumerState<CustomDialogueForSelect> {
   DateTime initialDate = DateTime.now();
   DateTime lastAllowedDate = DateTime.now().add(const Duration(days: 4 * 31));
   DateTime? singleSelect;
@@ -65,127 +66,6 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
     }
   }
 
-  /* Future<void> _selectDate(BuildContext context) async {
-    final DateTime currentDate = DateTime.now();
-    DateTime lastAllowedDate = currentDate.add(const Duration(days: 4 * 31));
-
-    DateTime? pickedDate = await showDialog<DateTime>(
-      context: context,
-      builder: (BuildContext context) {
-        DateTime selectedDate = currentDate;
-
-        return AlertDialog(
-          title: const Text("Date of Joining"),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DatePickerWidget(
-                    initialDate: currentDate,
-                    firstDate: currentDate,
-                    lastDate: lastAllowedDate,
-                    dateFormat: "dd-MMM-yyyy",
-                    locale: DateTimePickerLocale.en_us,
-                    looping: false,
-                    pickerTheme: const DateTimePickerTheme(
-                      itemTextStyle:
-                          TextStyle(color: Colors.black, fontSize: 19),
-                      dividerColor: Colors.blue,
-                    ),
-                    onChange: (DateTime newDate, _) {
-                      setState(() {
-                        selectedDate = newDate;
-                      });
-                    },
-                  ),
-                  InkWell(
-                    onTap: () {
-                      ChangeStatusModel changeStatusModel = ChangeStatusModel(
-                        status: "IB7",
-                        subStatus: "Confirmation Pending",
-                        doj: selectedDate,
-                        id: widget.item.id,
-                        sourceId: widget.item.sourceId,
-                      );
-                      Map<String, dynamic> jsonData =
-                          changeStatusModel.toJson();
-                      try {
-                        JobPostApiService.changeStatus(
-                            jsonData, widget.item.id!.toInt());
-                        setState(() {});
-                      } catch (e) {
-                        print('Error: $e');
-                        // Handle error...
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 3, horizontal: 10),
-                      child: Text(
-                        "Submit",
-                        style: GoogleFonts.varela(color: Colors.blue),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        selectedDate = pickedDate;
-      });
-    }
-  } */
-
-  /*  Future<void> _selectDate(BuildContext context) async {
-    final DateTime currentDate = DateTime.now();
-    final DatePickerWidget picked = DatePickerWidget(
-      looping: false, // default is not looping
-      firstDate: DateTime(1990, 01, 01),
-      lastDate: DateTime(2030, 1, 1),
-      initialDate: DateTime(1991, 10, 12),
-      dateFormat: "dd-MMM-yyyy",
-      locale: DatePicker.localeFromString('en'),
-      onChange: (DateTime newDate, _) => selectedDate = newDate,
-      pickerTheme: const DateTimePickerTheme(
-        itemTextStyle: TextStyle(color: Colors.black, fontSize: 19),
-        dividerColor: Colors.blue,
-      ),
-    );
-
-    /* showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          color: Colors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: currentDate,
-            minimumDate: currentDate,
-            maximumDate: DateTime(2101),
-            onDateTimeChanged: (DateTime newDate) {
-              setState(() {
-                selectedDate = newDate;
-              });
-            },
-          ),
-        );
-      },
-    ); */
-    /* if (picked != selectedDate) {
-      setState(() {
-        selectedDate = picked as DateTime;
-      });
-    } */
-  } */
-
   bool f2f = false, online = false;
 
   void someFunction() {
@@ -194,6 +74,15 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
     // Trigger the refresh callback
     widget.refreshCallback();
   }
+
+  TextEditingController empid = TextEditingController();
+  TextEditingController salary = TextEditingController();
+
+  bool isMale = false;
+  bool isFemale = false;
+  bool fresher = false;
+  bool experience = false;
+  bool isSalary = false;
 
   @override
   Widget build(BuildContext context) {
@@ -213,147 +102,167 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            /*  Text(
-              "Mode of Documentation",
-              style: GoogleFonts.varela(
-                  fontSize: 16.sp, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(
-              height: 6,
-            ),
-            Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      f2f = true;
-                      online = false;
-                    });
-                    //  singleSelectPicker();
-                    //Navigator.pop(context);
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                            top: 2.4.h,
-                            bottom: 2.4.h,
-                            left: width / 15.w,
-                            right: 6.h),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(15),
-                                bottomLeft: const Radius.circular(15),
-                                topRight: Radius.circular(8.r),
-                                bottomRight: Radius.circular(8.r)),
-                            border: Border.all(color: Constants.borderColor)),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: const Text("Manual / F2F"),
-                      ),
-                      CircleAvatar(
-                        backgroundColor: Constants.borderColor,
-                        radius: 11.8.r,
-                        child: Icon(
-                          f2f ? Icons.check_sharp : null,
-                          size: 15.h,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 20.w,
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      f2f = false;
-                      online = true;
-                    });
-                    //  singleSelectPicker();
-                    //Navigator.pop(context);
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                            top: 2.4.h,
-                            bottom: 2.4.h,
-                            left: width / 15.w,
-                            right: 6.h),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(15),
-                                bottomLeft: const Radius.circular(15),
-                                topRight: Radius.circular(8.r),
-                                bottomRight: Radius.circular(8.r)),
-                            border: Border.all(color: Constants.borderColor)),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: const Text("Digital / E-Mail"),
-                      ),
-                      CircleAvatar(
-                        backgroundColor: Constants.borderColor,
-                        radius: 11.8.r,
-                        child: Icon(
-                          online ? Icons.check_sharp : null,
-                          size: 15.h,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20.h,
-            ), */
-            Text(
-              "Date of Joining",
-              style: GoogleFonts.varela(
-                  fontSize: 16.sp, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(
-              height: 6,
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Has",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, fontSize: 18.sp)),
+                Text(
+                    " ${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()} ",
+                    style: GoogleFonts.varela(
+                        color: Constants.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.sp)),
+                Text("Selected ?",
+                    style: GoogleFonts.varela(
+                        fontWeight: FontWeight.bold, fontSize: 18.sp)),
+              ],
+            ),
+            const SizedBox(
+              height: 6,
+            ),
+            if (widget.item.company_gender == 1)
+              Container(
+                margin: EdgeInsets.only(top: 15.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text("Gender",
+                            style: GoogleFonts.varela(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold)),
+                        Text(" * ",
+                            style: GoogleFonts.varela(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    // if (widget.item.company_gender == 1)
+                    Row(
+                      children: [
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                isMale = true;
+                                isFemale = false;
+                              });
+                            },
+                            isSelect: isMale,
+                            title: "Male",
+                            img: "assets/images/male1.png",
+                            isimage: true),
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                isMale = false;
+
+                                isFemale = true;
+                              });
+                            },
+                            isSelect: isFemale,
+                            title: "Female",
+                            img: "assets/images/female1.png",
+                            isimage: true)
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (widget.item.company_workstatus != null &&
+                widget.item.company_workstatus == 1)
+              Container(
+                // margin: EdgeInsets.only(top: 5.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Work Status",
+                        style: GoogleFonts.varela(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    // if (widget.item.company_gender == 1)
+                    Row(
+                      children: [
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                fresher = !fresher;
+                                experience = false;
+                              });
+                            },
+                            isSelect: fresher,
+                            title: "Fresher",
+                            img: "",
+                            isimage: false),
+                        customContainerMale(
+                            onPressed: () {
+                              setState(() {
+                                fresher = false;
+
+                                experience = !experience;
+                              });
+                            },
+                            isSelect: experience,
+                            title: "Experience",
+                            img: "",
+                            isimage: false)
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 InkWell(
                   onTap: () {
                     singleSelectPicker();
                     //Navigator.pop(context);
                   },
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                            top: 2.4.h,
-                            bottom: 2.4.h,
-                            left: width / 15.w,
-                            right: 6.h),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(15),
-                                bottomLeft: const Radius.circular(15),
-                                topRight: Radius.circular(8.r),
-                                bottomRight: Radius.circular(8.r)),
-                            border: Border.all(color: Constants.borderColor)),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: singleSelect != null
-                            ? Text(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 6.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: Constants.subtitleclr)),
+                    // margin: const EdgeInsets.only(top: 6),
+                    child: singleSelect != null
+                        ? Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Constants.borderColor,
+                                radius: 11.8.r,
+                                child: Icon(
+                                  Icons.calendar_month,
+                                  size: 15.h,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4.w,
+                              ),
+                              Text(
                                 DateFormat('dd MMM yyyy').format(singleSelect!),
-                              )
-                            : const Text("Select DOJ"),
-                      ),
-                      CircleAvatar(
-                        backgroundColor: Constants.borderColor,
-                        radius: 11.8.r,
-                        child: Icon(
-                          Icons.calendar_month,
-                          size: 15.h,
-                        ),
-                      )
-                    ],
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Constants.borderColor,
+                                radius: 11.8.r,
+                                child: Icon(
+                                  Icons.calendar_month,
+                                  size: 15.h,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4.w,
+                              ),
+                              const Text("Select DOJ"),
+                            ],
+                          ),
                   ),
                 ),
                 SizedBox(
@@ -372,53 +281,104 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                       color: Colors.grey.shade400,
                     ),
                   ),
-                /* InkWell(
-                  onTap: () {
-                    ChangeStatusModel changeStatusModel = ChangeStatusModel(
-                      status: "IB7",
-                      subStatus: "Confirmation Pending",
-                      id: widget.item.id,
-                      sourceId: widget.item.sourceId,
-                    );
-                    Map<String, dynamic> jsonData = changeStatusModel.toJson();
-                    try {
-                      JobPostApiService.changeStatus(
-                          jsonData, widget.item.id!.toInt());
-                      setState(() {});
-                    } catch (e) {
-                      print('Error: $e');
-                      // Handle error...
-                    }
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                            top: 2.4.h,
-                            bottom: 2.4.h,
-                            left: width / 15.w,
-                            right: 6.h),
-                        // margin: const EdgeInsets.only(top: 6),
-                        child: const Text("Not Confirmed Yet"),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(15),
-                                bottomLeft: const Radius.circular(15),
-                                topRight: Radius.circular(8.r),
-                                bottomRight: Radius.circular(8.r)),
-                            border: Border.all(color: Constants.borderColor)),
-                      ),
-                      CircleAvatar(
-                        backgroundColor: Constants.borderColor,
-                        radius: 11.r,
-                        backgroundImage: const AssetImage(
-                          "assets/images/canceled_select.png",
-                        ),
-                      )
-                    ],
-                  ),
-                ), */
               ],
+            ),
+            if (widget.item.empCID == 1)
+              Container(
+                margin: EdgeInsets.only(top: 4.h),
+                height: MediaQuery.of(context).size.height / 24,
+                child: TextField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                  ],
+
+                  keyboardType: TextInputType.name,
+                  //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: empid,
+
+                  style: GoogleFonts.varela(
+                      color: Constants.subtitleclr, fontSize: 14.sp),
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      prefixIcon: const Icon(
+                        Icons.badge_outlined,
+                        color: Constants.subtitleclr,
+                      ),
+                      prefixIconColor: Constants.themeBgColor,
+                      contentPadding: const EdgeInsets.only(
+                          top: 8, bottom: 8, left: 10, right: 10),
+                      counterText: '',
+                      labelText: "Emp ID",
+                      labelStyle: const TextStyle(
+                        color: Constants.subtitleclr,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(color: Constants.lightdull),
+                      ),
+                      focusColor: const Color(0xffff0eceb),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: const BorderSide(
+                          color: Constants.subtitleclr,
+                        ),
+                      ),
+                      hintText: "E1515115....",
+                      hintStyle: GoogleFonts.sourceSansPro(
+                          color: Constants.hintColor, fontSize: 15.sp)),
+                ),
+              ),
+            //  if (widget.item.is_ctc_pay == 1 || widget.item.is_work_pay == 1)
+            Container(
+              margin: EdgeInsets.only(top: 8.h),
+              height: MediaQuery.of(context).size.height / 24,
+              child: TextField(
+                maxLength:
+                    widget.item.is_ctc_pay == 1 || widget.item.is_work_pay == 1
+                        ? 7
+                        : 5,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+
+                keyboardType: TextInputType.number,
+                //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                textCapitalization: TextCapitalization.sentences,
+                controller: salary,
+
+                style: GoogleFonts.varela(
+                    color: Constants.subtitleclr, fontSize: 14.sp),
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey.shade200,
+                    prefixIcon: Icon(Icons.currency_rupee_outlined,
+                        color: isSalary ? Colors.red : Constants.subtitleclr),
+                    contentPadding: const EdgeInsets.only(
+                        top: 8, bottom: 8, left: 10, right: 10),
+                    counterText: '',
+                    labelText: "Offered Salary",
+                    labelStyle: GoogleFonts.varela(
+                      color: isSalary ? Colors.red : Constants.subtitleclr,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                          color: isSalary ? Colors.red : Constants.lightdull),
+                    ),
+                    focusColor: const Color(0xffff0eceb),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: isSalary ? Colors.red : Constants.subtitleclr,
+                      ),
+                    ),
+                    hintText: "20,000",
+                    hintStyle: GoogleFonts.sourceSansPro(
+                        color: isSalary ? Colors.red : Constants.hintColor,
+                        fontSize: 15.sp)),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -440,47 +400,139 @@ class _CustomDialogueForSelectState extends State<CustomDialogueForSelect> {
                             color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                 ),
-                InkWell(
-                  onTap: () async {
-                    NewChangeStatusModel changeStatusModel = NewChangeStatusModel(
-                        hrStatusId: widget.finalDropDown.priStatusId,
-                        //  statusId: widget.finalDropDown.statusId, //TODO:: Previous one before new modification
-                        statusId: 0,
-                        doj: singleSelect,
-                        // mode_document: f2f ? 0 : 1,
-                        document_status: "Not Submitted");
-                    Map<String, dynamic> jsonData = changeStatusModel.toJson();
-                    try {
-                      await JobPostApiService.NewchangeStatus(
-                          jsonData, widget.item.id!.toInt());
-                      /* fetchApplicants = ref
+                if (widget.item.company_gender == 1
+                    ? isMale || isFemale
+                    : !isMale)
+                  InkWell(
+                    onTap: () async {
+                      int digitCount = salary.text.length;
+                      if ((widget.item.is_ctc_pay == 1 ||
+                          widget.item.is_work_pay == 1) &&
+                              digitCount < 6 &&
+                              salary.text.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Salary Should be CTC based",
+                                error: true));
+                      } else if ((widget.item.is_ctc_pay == 0 ||
+                              widget.item.is_work_pay == 0) &&
+                          digitCount < 4 &&
+                          salary.text.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            CustomSnackbarfinal(
+                                title: "Salary Should be Monthly bases",
+                                error: true));
+                      } else {
+                        NewChangeStatusModel changeStatusModel =
+                            NewChangeStatusModel(
+                                empId: empid.text.isEmpty ? null : empid.text,
+
+                                /* widget.secStatusId ==
+                                      16 //TODO:: ID of "not join"..
+                                  ? 0
+                                  : widget.statusId, */
+
+                                salary: salary.text.isNotEmpty
+                                    ? double.tryParse(salary.text)
+                                    : null,
+                                commercial_gender: isMale
+                                    ? "Male"
+                                    : isFemale
+                                        ? "Female"
+                                        : null,
+                                isExp: fresher
+                                    ? 0
+                                    : experience
+                                        ? 1
+                                        : null,
+                                hrStatusId: widget.finalDropDown.priStatusId,
+                                //  statusId: widget.finalDropDown.statusId, //TODO:: Previous one before new modification
+                                statusId: 0,
+                                doj: singleSelect,
+                                // mode_document: f2f ? 0 : 1,
+                                document_status: "Not Submitted");
+                        Map<String, dynamic> jsonData =
+                            changeStatusModel.toJson();
+                        try {
+                          await JobPostApiService.NewchangeStatus(
+                              jsonData, widget.item.id!.toInt());
+                          /* fetchApplicants = ref
                 .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */
-                      setState(() {});
-                      someFunction();
-                      Navigator.pop(context);
-                    } catch (e) {
-                      print('Error: $e');
-                      // Handle error...
-                    }
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(top: 15.h),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
+                          setState(() {});
+                          someFunction();
+                          ref.refresh(fetchAllApplicantProvider);
+                          ref.refresh(fetchAllReferalProvider);
+                          ref.refresh(fetchAllApplyProvider);
+                          Navigator.pop(context);
+                        } catch (e) {
+                          print('Error: $e');
+                          // Handle error...
+                        }
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15.h),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text("Submit",
+                          style: GoogleFonts.varela(
+                              color: Colors.blue, fontWeight: FontWeight.bold)),
                     ),
-                    child: Text("Submit",
-                        style: GoogleFonts.varela(
-                            color: Colors.blue, fontWeight: FontWeight.bold)),
-                  ),
-                )
+                  )
               ],
             )
           ],
         ),
       ),
     );
+  }
+
+  InkWell customContainerMale(
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      required String img,
+      required bool isimage,
+      bool? isSalary = false}) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            width: MediaQuery.of(context).size.width / 3.w,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color:
+                    // isSelect ? const Color(0xfff310d44) :
+                    isSelect ? Colors.grey : null,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Constants.subtitleclr)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isimage)
+                  Image.asset(
+                    img,
+                    height: 20,
+                  ),
+                if (isimage)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: isSelect ? Colors.white : null,
+                        fontSize: 15.sp,
+                        fontWeight:
+                            isSelect ? FontWeight.bold : FontWeight.normal)),
+              ],
+            )));
   }
 }
 
@@ -628,14 +680,13 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
                 //if (remarkController.text.isNotEmpty)
 
                 GestureDetector(
-                  onTap:
-                  ()async{
-                    if(remarkController.text.isNotEmpty){
-                        await widget.onTab();
-                    }else{
-                         ScaffoldMessenger.of(context).showSnackBar(
-                              CustomSnackbarfinal(
-                                  title: "Specify proper reason", error: true));
+                  onTap: () async {
+                    if (remarkController.text.isNotEmpty) {
+                      await widget.onTab();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackbarfinal(
+                              title: "Specify proper reason", error: true));
                     }
                   },
                   child: Container(
@@ -657,611 +708,5 @@ class _CustomDialogueForRemarkState extends State<CustomDialogueForRemark> {
         ),
       ),
     );
-  }
-}
-
-class CustomDialogueForJoin extends ConsumerStatefulWidget {
-  final Applicant item;
-  final int secStatusId;
-  final int statusId;
-  final Function onCancel;
-  final Function onTab;
-
-  const CustomDialogueForJoin(
-      {super.key,
-      required this.item,
-      required this.secStatusId,
-      required this.statusId,
-      required this.onCancel,
-      required this.onTab
-      //   required this.controller,
-      //  required this.callBack
-      });
-
-  @override
-  ConsumerState<CustomDialogueForJoin> createState() =>
-      _CustomDialogueForJoinState();
-}
-
-class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
-  TextEditingController empid = TextEditingController();
-  TextEditingController salary = TextEditingController();
-  bool isMale = false;
-  bool isFemale = false;
-  bool fresher = false;
-  bool experience = false;
-  @override
-  Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
-    return Dialog(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: Container(
-        padding:
-            EdgeInsets.only(top: 20.h, left: 15.w, right: 15.w, bottom: 20.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.item.empCID == 0 &&
-                widget.item.company_gender == 0 &&
-                (widget.item.is_ctc_pay == 0 && widget.item.is_work_pay == 0) &&
-                // widget.item.company_salary == 0 &&
-                (widget.item.company_workstatus == 0 ||
-                    widget.item.company_workstatus == null))
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Has",
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 18.sp)),
-                  Text(
-                      " ${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()} ",
-                      style: GoogleFonts.varela(
-                          color: Constants.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.sp)),
-                  Text("Joined ?",
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 18.sp)),
-                ],
-              ),
-            if (widget.item.empCID != 0 &&
-                widget.item.company_gender != 0 &&
-                (widget.item.is_ctc_pay != 0 || widget.item.is_work_pay != 0)
-                // widget.item.company_salary != 0
-                &&
-                (widget.item.company_workstatus != 0 ||
-                    widget.item.company_workstatus != null))
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Additional details of ",
-                      style: GoogleFonts.varela(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.sp)),
-                  Text(
-                      "${widget.item.applicantName.toString().toTitleCase()} ${widget.item.last_name.toString().toTitleCase()}",
-                      style: GoogleFonts.varela(
-                          color: Constants.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.sp))
-                ],
-              ),
-            if (widget.item.company_gender == 1)
-              Container(
-                margin: EdgeInsets.only(top: 15.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Gender",
-                        style: GoogleFonts.varela(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
-                    // if (widget.item.company_gender == 1)
-                    Row(
-                      children: [
-                        customContainerMale(
-                            onPressed: () {
-                              setState(() {
-                                isMale = true;
-                                isFemale = false;
-                              });
-                            },
-                            isSelect: isMale,
-                            title: "Male",
-                            img: "assets/images/male1.png",
-                            isimage: true),
-                        customContainerMale(
-                            onPressed: () {
-                              setState(() {
-                                isMale = false;
-
-                                isFemale = true;
-                              });
-                            },
-                            isSelect: isFemale,
-                            title: "Female",
-                            img: "assets/images/female1.png",
-                            isimage: true)
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            if (widget.item.company_workstatus != null &&
-                widget.item.company_workstatus == 1)
-              Container(
-                // margin: EdgeInsets.only(top: 5.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Work Status",
-                        style: GoogleFonts.varela(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
-                    // if (widget.item.company_gender == 1)
-                    Row(
-                      children: [
-                        customContainerMale(
-                            onPressed: () {
-                              setState(() {
-                                fresher = !fresher;
-                                experience = false;
-                              });
-                            },
-                            isSelect: fresher,
-                            title: "Fresher",
-                            img: "",
-                            isimage: false),
-                        customContainerMale(
-                            onPressed: () {
-                              setState(() {
-                                fresher = false;
-
-                                experience = !experience;
-                              });
-                            },
-                            isSelect: experience,
-                            title: "Experience",
-                            img: "",
-                            isimage: false)
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            if (widget.item.empCID == 1)
-              Container(
-                margin: EdgeInsets.only(top: 4.h),
-                height: MediaQuery.of(context).size.height / 24,
-                child: TextField(
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
-                  ],
-
-                  keyboardType: TextInputType.name,
-                  //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-                  textCapitalization: TextCapitalization.sentences,
-                  controller: empid,
-
-                  style: GoogleFonts.varela(
-                      color: Constants.subtitleclr, fontSize: 14.sp),
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      prefixIcon: const Icon(
-                        Icons.badge_outlined,
-                        color: Constants.subtitleclr,
-                      ),
-                      prefixIconColor: Constants.themeBgColor,
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      counterText: '',
-                      labelText: "Emp ID",
-                      labelStyle: const TextStyle(
-                        color: Constants.subtitleclr,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                        borderSide: BorderSide(color: Constants.lightdull),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                        borderSide: const BorderSide(
-                          color: Constants.subtitleclr,
-                        ),
-                      ),
-                      hintText: "E1515115....",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.hintColor, fontSize: 15.sp)),
-                ),
-              ),
-            if (widget.item.is_ctc_pay == 1 ||
-                widget.item.is_work_pay == 1 && !fresher)
-              Container(
-                margin: EdgeInsets.only(top: 8.h),
-                height: MediaQuery.of(context).size.height / 24,
-                child: TextField(
-                  maxLength: 7,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-
-                  keyboardType: TextInputType.number,
-                  //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-                  textCapitalization: TextCapitalization.sentences,
-                  controller: salary,
-
-                  style: GoogleFonts.varela(
-                      color: Constants.subtitleclr, fontSize: 14.sp),
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      prefixIcon: const Icon(Icons.currency_rupee_outlined,
-                          color: Constants.subtitleclr),
-                      contentPadding: const EdgeInsets.only(
-                          top: 8, bottom: 8, left: 10, right: 10),
-                      counterText: '',
-                      labelText: "Salary",
-                      labelStyle: const TextStyle(
-                        color: Constants.subtitleclr,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                        borderSide: BorderSide(color: Constants.lightdull),
-                      ),
-                      focusColor: const Color(0xffff0eceb),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                        borderSide: const BorderSide(
-                          color: Constants.subtitleclr,
-                        ),
-                      ),
-                      hintText: "20,000",
-                      hintStyle: GoogleFonts.sourceSansPro(
-                          color: Constants.hintColor, fontSize: 15.sp)),
-                ),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (widget.item.empCID != 0 ||
-                    widget.item.company_gender != 0 ||
-                    // widget.item.company_salary != 0 ||
-                    widget.item.is_ctc_pay == 1 ||
-                    widget.item.is_work_pay == 1 ||
-                    (widget.item.company_workstatus != 0 ||
-                        widget.item.company_workstatus != null))
-                  GestureDetector(
-                    onTap: () {
-                      widget.onCancel();
-                      Navigator.pop(context);
-                      empid.clear();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 15.h),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text("Cancel",
-                          style: GoogleFonts.varela(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                //if (remarkController.text.isNotEmpty)
-                if (widget.item.company_gender == 1
-                    ? isMale || isFemale
-                    : !isMale)
-                  InkWell(
-                    onTap: () async {
-                      NewChangeStatusModel changeStatusModel =
-                          NewChangeStatusModel(
-                              empId: empid.text.isEmpty ? null : empid.text,
-                              doj: widget.item.doj,
-                              hrStatusId: widget.item.hr_status_id,
-                              /* widget.secStatusId ==
-                                      16 //TODO:: ID of "not join"..
-                                  ? 0
-                                  : widget.statusId, */
-                              statusId: widget.secStatusId,
-                              salary: salary.text.isNotEmpty
-                                  ? double.tryParse(salary.text)
-                                  : null,
-                              commercial_gender: isMale
-                                  ? "Male"
-                                  : isFemale
-                                      ? "Female"
-                                      : null,
-                              isExp: fresher
-                                  ? 0
-                                  : experience
-                                      ? 1
-                                      : null,
-                              attrStatus: "Under Clause",
-                              /*  attrStatus: widget.item.is_ref == 1  //TODO: old
-                                  ? "Under Clause"
-                                  : null, */
-                              isJoinSubmitted: widget.item.company_workstatus == 1 &&
-                                      widget.item.empCID == 1 &&
-                                      (widget.item.is_ctc_pay == 1 ||
-                                          widget.item.is_work_pay == 1) &&
-                                      (fresher || experience) &&
-                                      empid.text.isNotEmpty &&
-                                      salary.text.isNotEmpty &&
-                                      widget.item.document_status == "Submitted"
-                                  ? 1
-                                  : widget.item.company_workstatus == 1 &&
-                                          (widget.item.empCID == 0 ||
-                                              widget.item.empCID == null) &&
-                                          (widget.item.is_ctc_pay == 0 ||
-                                              widget.item.is_work_pay == 0) &&
-                                          (fresher || experience) &&
-                                          empid.text.isEmpty &&
-                                          salary.text.isEmpty &&
-                                          widget.item.document_status ==
-                                              "Submitted"
-                                      ? 1
-                                      : (widget.item.company_workstatus == 0 ||
-                                                  widget.item.company_workstatus ==
-                                                      null) &&
-                                              widget.item.empCID == 1 &&
-                                              (widget.item.is_ctc_pay == 0 ||
-                                                  widget.item.is_work_pay ==
-                                                      0) &&
-                                              (!fresher || !experience) &&
-                                              empid.text.isNotEmpty &&
-                                              salary.text.isEmpty &&
-                                              widget.item.document_status ==
-                                                  "Submitted"
-                                          ? 1
-                                          : (widget.item.company_workstatus == 0 || widget.item.company_workstatus == null) &&
-                                                  (widget.item.empCID == 0 ||
-                                                      widget.item.empCID ==
-                                                          null) &&
-                                                  (widget.item.is_ctc_pay == 1 ||
-                                                      widget.item.is_work_pay ==
-                                                          1) &&
-                                                  (!fresher || !experience) &&
-                                                  empid.text.isEmpty &&
-                                                  salary.text.isNotEmpty &&
-                                                  widget.item.document_status ==
-                                                      "Submitted"
-                                              ? 1
-                                              : (widget.item.company_workstatus == 0 || widget.item.company_workstatus == null) &&
-                                                      (widget.item.empCID == 0 ||
-                                                          widget.item.empCID == null) &&
-                                                      (widget.item.is_ctc_pay == 0 || widget.item.is_work_pay == 0) &&
-                                                      (!fresher || !experience) &&
-                                                      empid.text.isEmpty &&
-                                                      salary.text.isEmpty &&
-                                                      widget.item.document_status == "Submitted"
-                                                  ? 1
-                                                  : null
-
-                              /* widget.item.company_salary == 1 &&
-                                            widget.item.company_workstatus ==
-                                                1 &&
-                                            widget.item.empCID == 1 &&
-                                            (fresher || experience) &&
-                                            empid.text.isNotEmpty &&
-                                            salary.text.isNotEmpty &&
-                                            widget.item.document_status ==
-                                                "Submitted"
-                                        ? 1
-                                        : widget.item.company_salary == 1 &&
-                                                widget.item.company_workstatus ==
-                                                    1 &&
-                                                (fresher || experience) &&
-                                                salary.text.isNotEmpty &&
-                                                widget.item.document_status ==
-                                                    "Submitted"
-                                            ? 1
-                                            : widget.item.company_workstatus == 1 &&
-                                                    widget.item.empCID == 1 &&
-                                                    (fresher || experience) &&
-                                                    empid.text.isNotEmpty &&
-                                                    widget.item.document_status ==
-                                                        "Submitted"
-                                                ? 1
-                                                : widget.item.company_salary == 1 &&
-                                                        widget.itzem.empCID ==
-                                                            1 &&zzzzzzzzzzzzzz
-                                                        salary
-                                                            .text.isNotEmpty &&
-                                                        empid.text.isNotEmpty &&
-                                                        widget.item.document_status ==
-                                                            "Submitted"
-                                                    ? 1
-                                                    : widget.item.company_salary == 0 &&
-                                                            widget.item.empCID ==
-                                                                1 &&
-                                                            salary
-                                                                .text.isEmpty &&
-                                                            empid.text
-                                                                .isNotEmpty &&
-                                                            widget.item.company_workstatus ==
-                                                                0 &&
-                                                            widget.item.document_status ==
-                                                                "Submitted"
-                                                        ? 1
-                                                        : widget.item.company_salary == 0 &&
-                                                                widget.item.empCID ==
-                                                                    0 &&
-                                                                salary.text
-                                                                    .isEmpty &&
-                                                                widget.item.company_workstatus ==
-                                                                    1 &&
-                                                                empid.text
-                                                                    .isEmpty &&
-                                                                (fresher || experience) &&
-                                                                widget.item.document_status == "Submitted"
-                                                            ? 1
-                                                            : widget.item.company_salary == 1 && widget.item.empCID == 0 && salary.text.isNotEmpty && widget.item.company_workstatus == 1 && empid.text.isEmpty && widget.item.document_status == "Submitted"
-                                                                ? 1
-                                                                : null */
-                              );
-                      Map<String, dynamic> jsonData =
-                          changeStatusModel.toJson();
-                      try {
-                        await JobPostApiService.NewchangeStatus(
-                            jsonData, widget.item.id!.toInt());
-                        ref.refresh(fetchAllApplicantProvider);
-                        ref.refresh(fetchAllReferalProvider);
-                        ref.refresh(fetchAllApplyProvider);
-                        widget.onTab();
-                        Navigator.pop(context);
-                      } catch (e) {
-                        print('Error: $e');
-                        // Handle error...
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 15.h),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 12.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                          widget.item.empCID == 0 &&
-                                  widget.item.company_gender == 0 &&
-                                  widget.item.company_salary == 0 &&
-                                  (widget.item.company_workstatus == 0 ||
-                                      widget.item.company_workstatus == null)
-                              ? "Yes"
-                              : "Submit",
-                          style: GoogleFonts.varela(
-                              color: Constants.blue,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  )
-                /*          InkWell(
-                          onTap: () async {
-                            NewChangeStatusModel changeStatusModel =
-                                NewChangeStatusModel(
-                                    empId:
-                                        empid.text.isEmpty ? null : empid.text,
-                                    doj: widget.item.doj,
-                                    hrStatusId: (fresher || experience) &&
-                                            empid.text.isNotEmpty &&
-                                            salary.text.isNotEmpty &&
-                                            widget.item.document_status ==
-                                                "Submitted"
-                                        ? 0
-                                        : widget.item.hr_status_id,
-                                    /* widget.secStatusId ==
-                                      16 //TODO:: ID of "not join"..
-                                  ? 0
-                                  : widget.statusId, */
-                                    statusId: widget.secStatusId,
-                                    salary: salary.text.isNotEmpty
-                                        ? double.tryParse(salary.text)
-                                        : null,
-                                    commercial_gender: isMale
-                                        ? "Male"
-                                        : isFemale
-                                            ? "Female"
-                                            : null,
-                                    isExp: fresher
-                                        ? 0
-                                        : experience
-                                            ? 1
-                                            : null);
-                            Map<String, dynamic> jsonData =
-                                changeStatusModel.toJson();
-                            try {
-                              await JobPostApiService.NewchangeStatus(
-                                  jsonData, widget.item.id!.toInt());
-                              ref.refresh(fetchAllApplicantProvider);
-                              ref.refresh(fetchAllReferalProvider);
-                              ref.refresh(fetchAllApplyProvider);
-                              Navigator.pop(context);
-                            } catch (e) {
-                              print('Error: $e');
-                              // Handle error...
-                            }
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(top: 15.h),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 5.h, horizontal: 12.w),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                                widget.item.empCID == 0 &&
-                                        widget.item.company_gender == 0 &&
-                                        widget.item.company_salary == 0 &&
-                                        (widget.item.company_workstatus == 0 ||
-                                            widget.item.company_workstatus ==
-                                                null)
-                                    ? "Yes"
-                                    : "Submit",
-                                style: GoogleFonts.varela(
-                                    color: Constants.blue,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                        )
-              */
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  InkWell customContainerMale(
-      {required final VoidCallback onPressed,
-      required bool isSelect,
-      required String title,
-      required String img,
-      required bool isimage,
-      bool? isSalary = false}) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-            //  width: MediaQuery.of(context).size.width / 2.5.w,
-
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color:
-                    // isSelect ? const Color(0xfff310d44) :
-                    isSelect ? Constants.lightdull : null,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Constants.subtitleclr)),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isimage)
-                  Image.asset(
-                    img,
-                    height: 20,
-                  ),
-                if (isimage)
-                  const SizedBox(
-                    width: 10,
-                  ),
-                Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.subtitleclr,
-                        fontSize: 15.sp,
-                        fontWeight:
-                            isSelect ? FontWeight.bold : FontWeight.normal)),
-              ],
-            )));
   }
 }

@@ -2412,6 +2412,7 @@ class _AddIntoductionState extends State<AddIntoduction>
         "middle_name": middleName.text.trim(),
         "last_name": lastName.text.trim(),
         "gender": genderValue,
+        
         // "languages": selectedLanguages,
         // "skills": fetchApiskill,
         "user_location": cityname,

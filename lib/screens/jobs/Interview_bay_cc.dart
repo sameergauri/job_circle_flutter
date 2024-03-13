@@ -24,9 +24,8 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
 import 'package:job_circle/tracking/interview_bay.dart';
+import 'package:job_circle/tracking/line_up.dart';
 import 'package:job_circle/tracking/select_status.dart';
-// import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 //import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
@@ -133,49 +132,20 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
     }
   }
 
-  final List<RefreshController> _refreshControllers = List.generate(
+  /* final List<RefreshController> _refreshControllers = List.generate(
     10,
     (index) => RefreshController(initialRefresh: false),
-  );
-
-  Future<void> _onRefresh(int index) async {
-    // Perform a global refresh (e.g., fetch new data for all tabs)
-    await Future.delayed(const Duration(seconds: 2));
-
-    ref.refresh(fetchAllApplicantProvider);
-    // Update the UI with new data
-
-    _refreshControllers[index]
-        .refreshCompleted(); // Call this to end the refresh animation
-  }
-
-  final List<RefreshController> _refreshControllers1 = List.generate(
-    10,
-    (index) => RefreshController(initialRefresh: false),
-  );
-
-  Future<void> _onRefresh1(int index) async {
-    // Perform a global refresh (e.g., fetch new data for all tabs)
-    await Future.delayed(const Duration(seconds: 2));
-
-    ref.refresh(fetchAllApplicantProvider);
-    // Update the UI with new data
-
-    _refreshControllers1[index]
-        .refreshCompleted(); // Call this to end the refresh animation
-  }
-  /* RefreshController refreshController = RefreshController();
+  ); */
 
   Future<void> _onRefresh() async {
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      ref.refresh(fetchAllApplicantProvider);
-      refreshController.refreshCompleted();
-      // Update the UI with new data
-    });
+
+    ref.refresh(fetchAllApplicantProvider);
+    // Update the UI with new data
+
     // Call this to end the refresh animation
-  } */
+  }
 
   @override
   void initState() {
@@ -574,7 +544,7 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(
-                              physics: const NeverScrollableScrollPhysics(),
+                              physics: const AlwaysScrollableScrollPhysics(),
                               labelPadding:
                                   const EdgeInsets.only(left: 5, right: 5),
                               labelColor: Colors.black,
@@ -683,17 +653,22 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                 .toList()
                               ..sort(); */
 
-                            if (substatusWithData.isEmpty ||
+                            if (
+                                // substatusWithData.isEmpty ||
                                 status == "Application") {
                               // No second tab bar needed if subStatuses is empty
-                              return SmartRefresher(
-                                controller: _refreshControllers[
-                                    statuses.indexOf(status)],
+                              return RefreshIndicator(
+                                triggerMode:
+                                    RefreshIndicatorTriggerMode.anywhere,
+                                displacement:
+                                    100.0, // Adjust the distance to trigger the refresh
+                                color: Colors.blue,
                                 onRefresh: () async {
-                                  await _onRefresh(statuses.indexOf(status));
+                                  await _onRefresh();
                                 },
                                 child: ListView.builder(
-                                  physics: const BouncingScrollPhysics(),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: applicants.length,
                                   itemBuilder: (context, index) {
@@ -711,6 +686,386 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                         index,
                                         dropDownItemList!);
                                   },
+                                ),
+                              );
+                            } else if (status == "Interview bay") {
+                              List<String?> uniqueCompanyNames = dataList
+                                  .where(
+                                      (element) => element.hr_status_id == 14)
+                                  .map((applicant) =>
+                                      applicant.short_name ??
+                                      applicant.companyName)
+                                  .toSet()
+                                  .toList();
+
+                              return DefaultTabController(
+                                length: uniqueCompanyNames.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: uniqueCompanyNames
+                                            .map((subStatus) => customTab(
+                                                subStatus.toString(),
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.companyName.toString() == subStatus ||
+                                                        applicant.short_name.toString() ==
+                                                            subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.companyName.toString() == subStatus || applicant.short_name.toString() == subStatus) && (applicant.hr_status == status || applicant.s2HrStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        uniqueCompanyNames.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.companyName
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.short_name
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.hr_status == status ||
+                                                  applicant.s2HrStatus ==
+                                                      status))
+                                          .toList();
+
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
+                                        },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            } else if (status == "Line-up") {
+                              List<String?> uniqueCompanyNames = dataList
+                                  .where(
+                                      (element) => element.hr_status_id == 20)
+                                  .map((applicant) =>
+                                      applicant.short_name ??
+                                      applicant.companyName)
+                                  .toSet()
+                                  .toList();
+
+                              return DefaultTabController(
+                                length: uniqueCompanyNames.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: uniqueCompanyNames
+                                            .map((subStatus) => customTab(
+                                                subStatus.toString(),
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.companyName.toString() == subStatus ||
+                                                        applicant.short_name.toString() ==
+                                                            subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.companyName.toString() == subStatus || applicant.short_name.toString() == subStatus) && (applicant.hr_status == status || applicant.s2HrStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        uniqueCompanyNames.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.companyName
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.short_name
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.hr_status == status ||
+                                                  applicant.s2HrStatus ==
+                                                      status))
+                                          .toList();
+
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
+                                        },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            } else if (status == "Assign") {
+                              List<String?> uniquSourceName = dataList
+                                  .where(
+                                      (element) => element.hr_status_id == 12)
+                                  .map((applicant) => applicant.source_name)
+                                  .toSet()
+                                  .toList();
+
+                              return DefaultTabController(
+                                length: uniquSourceName.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: uniquSourceName
+                                            .map((subStatus) => customTab(
+                                                "${subStatus!.split(" ").first} ${subStatus.split(" ")[1].substring(0, 1)}",
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.source_name
+                                                            .toString() ==
+                                                        subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(
+                                                                _searchController
+                                                                    .text
+                                                                    .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.source_name.toString() == subStatus) && (applicant.hr_status == status || applicant.s2HrStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children: uniquSourceName.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.source_name
+                                                      .toString() ==
+                                                  subStatus) &&
+                                              (applicant.hr_status == status ||
+                                                  applicant.s2HrStatus ==
+                                                      status))
+                                          .toList();
+
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
+                                        },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                               );
                             } else {
@@ -818,27 +1173,38 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                               subStatus)
                                           .toList(); */
 
-                                      return ListView.builder(
-                                        physics: const BouncingScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: filteredApplicants.length,
-                                        itemBuilder: (context, index) {
-                                          final applicant =
-                                              filteredApplicants[index];
-
-                                          return listViewItem_new(
-                                              profilemodel.report_to!.toInt(),
-                                              context,
-                                              applicant,
-                                              true,
-                                              statuses,
-                                              profilemodel.id != null
-                                                  ? profilemodel.id!.toInt()
-                                                  : 467,
-                                              "${profilemodel.first_name} ${profilemodel.last_name}",
-                                              index,
-                                              dropDownItemList!);
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
                                         },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
                                       );
                                     }).toList(),
                                   ),
@@ -899,6 +1265,9 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
         .where((element) =>
             element.statusId == item.hr_status_id || element.statusId == 13)
         .toList();
+
+    List<DropDownItem>? dropDownItemForLineUp =
+        dropDownItemList!.where((element) => element.statusId == 20).toList();
 
     List<DropDownItem>? finalDropDownItemforTrainingDrop =
         dropDownItemList! //TODO: List where we have
@@ -1051,6 +1420,7 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                 leadID: item.id!.toInt(),
                                 id: id,
                                 sourcename: sourceName,
+                                reportTo: report_to,
                               )
                             : const SizedBox();
                       },
@@ -1112,6 +1482,7 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                           item: item,
                           id: id,
                           sourcename: sourceName,
+                          reportTo: report_to,
                         );
                       },
                     );
@@ -1153,6 +1524,9 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
                                   child: AssignData(
+                                      myLineUp: item.sourceId == profilemodel.id
+                                          ? true
+                                          : false,
                                       item: item,
                                       dropDownItemList: dropDownItemList!)),
                               Visibility(
@@ -1165,6 +1539,16 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                     finalDropDownItem: finalDropDownItem,
                                     finalInterviewRounds: finalInterviewRounds,
                                   )),
+                              Visibility(
+                                  visible: item.hr_status_id == 20 ||
+                                      item.s2DdHrStatusId ==
+                                          20, //TODO:: Line-up
+                                  child: LineUp(
+                                      mylineup: item.sourceId == profilemodel.id
+                                          ? true
+                                          : false,
+                                      item: item,
+                                      dropDownItemList: dropDownItemForLineUp)),
                               Visibility(
                                   visible: item.dd_hr_status_id == 13 ||
                                       item.s2DdHrStatusId == 13, //TODO:: Select
@@ -2936,6 +3320,7 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     PDFViewerScreen(
+                                                  isCC: true,
                                                   isCvDownloaded:
                                                       item.hr_status_id == 14
                                                           ? item.isCvDownload !=

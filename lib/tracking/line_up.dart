@@ -21,22 +21,22 @@ import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
-class AssignData extends ConsumerStatefulWidget {
+class LineUp extends ConsumerStatefulWidget {
   final Applicant item;
   final List<DropDownItem> dropDownItemList;
-  final bool myLineUp;
+  final bool mylineup;
 
-  const AssignData(
+  const LineUp(
       {super.key,
       required this.item,
       required this.dropDownItemList,
-      required this.myLineUp});
+      required this.mylineup});
 
   @override
-  _AssignDataState createState() => _AssignDataState();
+  _LineUpState createState() => _LineUpState();
 }
 
-class _AssignDataState extends ConsumerState<AssignData> {
+class _LineUpState extends ConsumerState<LineUp> {
   @override
   void dispose() {
     // Clear the controller when the state is disposed
@@ -182,36 +182,44 @@ class _AssignDataState extends ConsumerState<AssignData> {
                   horizontal: 8,
                 ),
                 decoration: BoxDecoration(
-                    color: Constants.borderColor,
+                    //  color: Constants.borderColor,
                     borderRadius: BorderRadius.circular(8)),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/designation.png",
+                            height: 15.sp,
+                          ),
+                          SizedBox(
+                            width: 4.sp,
+                          ),
+                          Text(widget.item.role_code != null &&
+                                  widget.item.role_code != ""
+                              ? "${widget.item.role_code}"
+                              : "${widget.item.lead_level}"),
+                        ],
+                      ),
+                    ),
+                    Row(
                       children: [
+                        Image.asset(
+                          "assets/images/process.png",
+                          height: 15.sp,
+                        ),
+                        SizedBox(
+                          width: 4.sp,
+                        ),
                         Text(
-                          widget.item.short_name != null
-                              ? widget.item.short_name.toString()
-                              : widget.item.companyName.toString(),
+                          "${widget.item.process}",
                           style: GoogleFonts.varela(
                             color: Colors.black54,
                           ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.item.role_code != null &&
-                                      widget.item.role_code != ""
-                                  ? "${widget.item.process} || ${widget.item.role_code}"
-                                  : "${widget.item.process} || ${widget.item.lead_level}",
-                              style: GoogleFonts.varela(
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
@@ -224,7 +232,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (widget.myLineUp)
+                  if (widget.mylineup)
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -264,302 +272,167 @@ class _AssignDataState extends ConsumerState<AssignData> {
                         ],
                       ),
                     ),
-                  if (widget.myLineUp)
-                    PopupMenuButton<String>(
-                      // position: PopupMenuPosition.over,
-                      onSelected: (value) async {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        int checkRemark = 0;
-                        String? dialoguehint;
-                        for (var app in widget.dropDownItemList) {
-                          if (app.statusDd.toString() == value &&
-                              app.statusDdId != null) {
-                            if (app.status_dd_remark == 1) {
-                              setState(() {
-                                checkRemark = 1;
-                                dialoguehint = app.statusDd.toString();
-                              });
-                            }
-                            break;
-                          }
-                        }
+                  if (widget.mylineup)
+                    Wrap(
+                      children: List.generate(widget.dropDownItemList.length,
+                          (index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            widget.dropDownItemList[index].pri_status_remark ==
+                                    1 //TODO:: if true revok else interviewBay
+                                ? showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return WillPopScope(
+                                        onWillPop: () async {
+                                          return Future.value(false);
+                                        },
+                                        child: CustomDialogueForRemark(
+                                            onCancel: () {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            },
+                                            hint: widget.dropDownItemList[index]
+                                                .statusDd
+                                                .toString(),
+                                            callBack: (p0) {
+                                              remark.text = p0;
+                                            },
+                                            item: widget.item,
+                                            controller: remark,
+                                            onTab: () {
+                                              setState(() async {
+                                                NewChangeStatusModel
+                                                    changeStatusModel =
+                                                    NewChangeStatusModel(
+                                                        remark: remark.text,
+                                                        statusId: 0,
+                                                        hrStatusId: widget
+                                                            .dropDownItemList[
+                                                                index]
+                                                            .priStatusId,
+                                                        interviewRounds: widget
+                                                            .item
+                                                            .inteviewrounds!
+                                                            .first
+                                                            .replaceAll('[', '')
+                                                            .replaceAll(']', '')
+                                                            .replaceAll(
+                                                                '"', ''));
+                                                Map<String, dynamic> jsonData =
+                                                    changeStatusModel.toJson();
+                                                try {
+                                                  await JobPostApiService
+                                                      .NewchangeStatus(
+                                                          jsonData,
+                                                          widget.item.id!
+                                                              .toInt());
 
-                        // widget.item.status_remark == 1
-                        checkRemark == 1
-                            ? showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) {
-                                  return WillPopScope(
-                                    onWillPop: () async {
-                                      // Return false to prevent dialog from closing with back button
-                                      return Future.value(false);
+                                                  ref.refresh(
+                                                      fetchAllApplicantProvider);
+                                                  ref.refresh(
+                                                      fetchAllReferalProvider);
+                                                  ref.refresh(
+                                                      fetchAllApplyProvider);
+                                                  ref.refresh(
+                                                      fetchAllTalentPoolProvider);
+                                                  ref.refresh(
+                                                      fetchAllExecutiveProvide);
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 5), () {
+                                                    setState(() {
+                                                      isLoading = false;
+                                                    });
+                                                  });
+                                                  Navigator.pop(context);
+                                                } catch (e) {
+                                                  print('Error: $e');
+                                                  // Handle error...
+                                                }
+                                              });
+                                            }),
+                                      );
                                     },
-                                    child: CustomDialogueForRemark(
-                                        onCancel: () {
+                                  )
+                                : showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      isLoading = true;
+
+                                      return CustomDialogueForNew(
+                                        cancel: () {
                                           setState(() {
                                             isLoading = false;
                                           });
                                         },
-                                        hint: dialoguehint!,
-                                        callBack: (p0) {
-                                          remark.text = p0;
-                                        },
+                                        title: 'Register ',
+                                        title2: "for an Interview.",
+                                        company_name:
+                                            widget.item.companyName.toString(),
+                                        nature_of_work:
+                                            widget.item.natureOfWork.toString(),
+                                        process: widget.item.process.toString(),
+                                        role: widget.item.lead_level.toString(),
+                                        companyId:
+                                            widget.item.short_list_for!.toInt(),
                                         item: widget.item,
-                                        controller: remark,
-                                        onTab: () {
-                                          setState(() async {
-                                            int subValue = 0;
-                                            int getstatusId = 0;
-                                            for (var app
-                                                in widget.dropDownItemList) {
-                                              if (app.statusDd.toString() ==
-                                                      value &&
-                                                  app.statusDdId != null) {
-                                                subValue =
-                                                    app.statusDdId!.toInt();
-                                                getstatusId =
-                                                    app.statusId!.toInt();
-                                                if (app.status_dd_remark ==
-                                                    1) {}
-                                                break;
-                                              }
-                                            }
+                                        refreshCallback: () {
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
+                                          ref.refresh(fetchAllReferalProvider);
+                                          ref.refresh(fetchAllApplyProvider);
+                                          ref.refresh(
+                                              fetchAllApplicantProvider);
+                                          ref.refresh(
+                                              fetchAllTalentPoolProvider);
+                                          ref.refresh(fetchAllExecutiveProvide);
 
-                                            // Now you can use both value and subValue for further operations
-                                            NewChangeStatusModel
-                                                changeStatusModel =
-                                                NewChangeStatusModel(
-                                                    remark: remark.text,
-                                                    statusId: subValue ==
-                                                            6 //TODO:: Not Reachable and busy
-                                                        ? subValue
-                                                        : subValue ==
-                                                                5 //TODO:: Ringing
-                                                            ? subValue
-                                                            : subValue ==
-                                                                    7 //TODO:: Disconnecting
-                                                                ? subValue
-                                                                : 0,
-                                                    hrStatusId: subValue == 6
-                                                        ? getstatusId
-                                                        : subValue == 5
-                                                            ? getstatusId
-                                                            : subValue == 7
-                                                                ? getstatusId
-                                                                : subValue,
-                                                    /* subValue ==
-                                                          14 //TODO: intervewbay..
-                                                      ? subValue
-                                                      : subValue ==
-                                                              5 //TODO for ringing
-                                                          ? getstatusId
-                                                          : subValue ==
-                                                                  6 //TODO: busy....
-                                                              ? getstatusId
-                                                              : 0, */
-                                                    interviewRounds: widget.item
-                                                        .inteviewrounds!.first
-                                                        .replaceAll('[', '')
-                                                        .replaceAll(']', '')
-                                                        .replaceAll('"', ''));
-                                            Map<String, dynamic> jsonData =
-                                                changeStatusModel.toJson();
-                                            try {
-                                              await JobPostApiService
-                                                  .NewchangeStatus(jsonData,
-                                                      widget.item.id!.toInt());
-
-                                              ref.refresh(
-                                                  fetchAllApplicantProvider);
-                                              ref.refresh(
-                                                  fetchAllReferalProvider);
-                                              ref.refresh(
-                                                  fetchAllApplyProvider);
-                                              ref.refresh(
-                                                  fetchAllTalentPoolProvider);
-                                              ref.refresh(
-                                                  fetchAllExecutiveProvide);
-                                              Future.delayed(
-                                                  const Duration(seconds: 2),
-                                                  () {
-                                                setState(() {
-                                                  isLoading = false;
-                                                });
-                                              });
-                                              Navigator.pop(context);
-                                            } catch (e) {
-                                              print('Error: $e');
-                                              // Handle error...
-                                            }
-                                            /*   Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: ((context) => Recruitz(
-                                                          key: _talentPollKey,
-                                                        )))); */
-                                          });
-                                        }),
+                                          isLoading = false;
+                                        },
+                                        statusDdId: widget
+                                            .dropDownItemList[index].statusDdId!
+                                            .toInt(),
+                                      );
+                                    },
                                   );
-                                },
-                              )
-                            : setState(() async {
-                                isLoading = true;
-                                int subValue = 0;
-                                int getstatusId = 0;
-                                for (var app in widget.dropDownItemList) {
-                                  if (app.statusDd.toString() == value &&
-                                      app.statusDdId != null) {
-                                    subValue = app.statusDdId!.toInt();
-                                    getstatusId = app.statusId!.toInt();
-                                    if (subValue == 14) {
-                                      showDialogue = true;
-                                    }
-                                    break;
-                                  }
-                                }
-
-                                // Now you can use both value and subValue for further operations
-                                NewChangeStatusModel changeStatusModel =
-                                    NewChangeStatusModel(
-                                        statusId: subValue == 14
-                                            ? 1
-                                            : subValue == 6
-                                                ? subValue
-                                                : subValue == 5
-                                                    ? subValue
-                                                    : subValue == 7
-                                                        ? subValue
-                                                        : 0,
-                                        hrStatusId: subValue == 14
-                                            ? subValue
-                                            : subValue == 6
-                                                ? getstatusId
-                                                : subValue == 5
-                                                    ? getstatusId
-                                                    : subValue == 7
-                                                        ? getstatusId
-                                                        : subValue,
-                                        interviewRounds: widget
-                                            .item.inteviewrounds!.first
-                                            .replaceAll('[', '')
-                                            .replaceAll(']', '')
-                                            .replaceAll('"', ''));
-                                Map<String, dynamic> jsonData =
-                                    changeStatusModel.toJson();
-                                try {
-                                  subValue == 14
-                                      ? showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            isLoading = true;
-
-                                            return CustomDialogueForNew(
-                                              cancel: () {
-                                                setState(() {
-                                                  isLoading = false;
-                                                });
-                                              },
-                                              title: 'Register ',
-                                              title2: "for an Interview.",
-                                              company_name: widget
-                                                  .item.companyName
-                                                  .toString(),
-                                              nature_of_work: widget
-                                                  .item.natureOfWork
-                                                  .toString(),
-                                              process: widget.item.process
-                                                  .toString(),
-                                              role: widget.item.lead_level
-                                                  .toString(),
-                                              companyId: widget
-                                                  .item.short_list_for!
-                                                  .toInt(),
-                                              item: widget.item,
-                                              refreshCallback: () {
-                                                ref.refresh(
-                                                    fetchAllApplicantProvider);
-                                                ref.refresh(
-                                                    fetchAllReferalProvider);
-                                                ref.refresh(
-                                                    fetchAllApplyProvider);
-                                                ref.refresh(
-                                                    fetchAllApplicantProvider);
-                                                ref.refresh(
-                                                    fetchAllTalentPoolProvider);
-                                                ref.refresh(
-                                                    fetchAllExecutiveProvide);
-
-                                                isLoading = false;
-                                              },
-                                              statusDdId: subValue,
-                                            );
-                                          },
-                                        )
-                                      : await JobPostApiService.NewchangeStatus(
-                                          jsonData, widget.item.id!.toInt());
-                                  ref.refresh(fetchAllApplicantProvider);
-                                  ref.refresh(fetchAllReferalProvider);
-                                  ref.refresh(fetchAllApplyProvider);
-                                  ref.refresh(fetchAllTalentPoolProvider);
-                                  ref.refresh(fetchAllExecutiveProvide);
-                                  Future.delayed(const Duration(seconds: 2),
-                                      () {
-                                    isLoading = false;
-                                  });
-                                } catch (e) {
-                                  print('Error: $e');
-                                }
-                              });
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return widget.dropDownItemList
-                            .where((element) =>
-                                element.statusId == widget.item.hr_status_id)
-                            .map((option) {
-                          return customMenuItem(option, true);
-                        }).toList();
-                      },
-                      offset: const Offset(0, 32),
-                      elevation: 16,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Container(
-                        margin: EdgeInsets.only(top: 2.h),
-                        //height: 30,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: Constants.blue)),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        child: Row(
-                          children: [
-                            Text(
-                              widget.item.hr_sub_status != null
-                                  ? widget.item.hr_sub_status.toString()
-                                  : "Select",
-                              style: GoogleFonts.varela(
-                                color: Constants.blue,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Icon(
-                              Icons.arrow_drop_down,
-                              size: 13,
-                              color: Colors.black,
-                            )
-                          ],
-                        ),
-                      ),
-                    )
+                          },
+                          child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 4),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.h, horizontal: 8.w),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: widget.dropDownItemList[index]
+                                                  .priStatusId ==
+                                              17
+                                          ? Colors.red
+                                          : Constants.blue),
+                                  // color: Colors.red,
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              child: Text(
+                                widget.dropDownItemList[index].primaryStatus
+                                    .toString(),
+                                style: GoogleFonts.varela(
+                                    color: widget.dropDownItemList[index]
+                                                .priStatusId ==
+                                            17
+                                        ? Colors.red
+                                        : Constants.blue,
+                                    fontWeight: FontWeight.bold),
+                              )),
+                        );
+                      }),
+                    ),
                 ],
               ),
-              if (!widget.myLineUp)
+              if (!widget.mylineup)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -573,8 +446,15 @@ class _AssignDataState extends ConsumerState<AssignData> {
                             borderRadius: BorderRadius.circular(8.r)),
                         child: Row(
                           children: [
+                            Image.asset(
+                              "assets/images/source.png",
+                              height: 15.sp,
+                            ),
+                            SizedBox(
+                              width: 4.sp,
+                            ),
                             Text(
-                              "${widget.item.hr_sub_status ?? widget.item.s2HrSubStatus}",
+                              "${widget.item.source_name}",
                               style: GoogleFonts.varela(
                                   color: Constants.blue,
                                   fontWeight: FontWeight.bold),
@@ -633,7 +513,7 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                     "Note : ${widget.item.notes.toString()}",
                                     style: GoogleFonts.varela(fontSize: 12.sp)),
                               ),
-                              if (!note && widget.myLineUp)
+                              if (!note && widget.mylineup)
                                 widget.item.notes != null &&
                                         widget.item.notes != ""
                                     ? GestureDetector(

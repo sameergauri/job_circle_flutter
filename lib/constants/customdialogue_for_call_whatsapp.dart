@@ -128,21 +128,22 @@ class CustomAlertDialog extends ConsumerStatefulWidget {
   final Applicant item;
   final int id;
   final String sourcename;
+  final int reportTo;
   // Add any other required parameters
 
-  const CustomAlertDialog(
-      {super.key,
-      required this.phoneNumber1,
-      required this.phoneNumber2,
-      required this.isCall,
-      required this.firstName,
-      required this.lastName,
-      required this.leadID,
-      required this.item,
-      required this.id,
-      required this.sourcename,
-      
-      });
+  const CustomAlertDialog({
+    super.key,
+    required this.phoneNumber1,
+    required this.phoneNumber2,
+    required this.isCall,
+    required this.firstName,
+    required this.lastName,
+    required this.leadID,
+    required this.item,
+    required this.id,
+    required this.sourcename,
+    required this.reportTo
+  });
 
   @override
   ConsumerState<CustomAlertDialog> createState() => _CustomAlertDialogState();
@@ -193,7 +194,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                         children: [
                           InkWell(
                             onTap: () async {
-                               SharedPreferences pref =
+                              SharedPreferences pref =
                                   await Utils.getSharedPreferences();
                               var userType = await Utils.getPreferencesValue(
                                   pref, ESharedPreferences.user_type.name);
@@ -206,15 +207,17 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                 try {
                                   NewChangeStatusModel changeStatusModel =
                                       NewChangeStatusModel(
-                                          statusId: 6,
-                                          hrStatusId: 18,
-                                          sourceId: widget.id,
-                                           spoc: userType == 3 && userrole == "3"&&widget.item.status_id==3
+                                    statusId: 6,
+                                    hrStatusId: 18,
+                                    sourceId: widget.id,
+                                    spoc: userType == 3 &&
+                                            userrole == "3" &&
+                                            widget.item.status_id == 3
                                         ? widget.id
-                                        : widget.item.spoc,
-                                          sourceName: widget.sourcename,
-                                          dol: DateTime.now(),
-                                          );
+                                        : widget.reportTo,
+                                    sourceName: widget.sourcename,
+                                    dol: DateTime.now(),
+                                  );
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
 
@@ -223,7 +226,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
-                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllTalentPoolProvider);
                                   ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
@@ -266,7 +269,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                           ),
                           InkWell(
                             onTap: () async {
-                               SharedPreferences pref =
+                              SharedPreferences pref =
                                   await Utils.getSharedPreferences();
                               var userType = await Utils.getPreferencesValue(
                                   pref, ESharedPreferences.user_type.name);
@@ -283,13 +286,13 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
-                                              spoc: userType == 3 &&
+                                          spoc: userType == 3 &&
                                                   userrole == "3" &&
                                                   widget.item.status_id == 3
                                               ? widget.id
-                                              : widget.item.spoc,
+                                              : widget.reportTo,
                                           dol: DateTime.now(),
-                                           sourceName: widget.sourcename);
+                                          sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
 
@@ -298,7 +301,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
-                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllTalentPoolProvider);
                                   ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
@@ -362,7 +365,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                         children: [
                           InkWell(
                             onTap: () async {
-                               SharedPreferences pref =
+                              SharedPreferences pref =
                                   await Utils.getSharedPreferences();
                               var userType = await Utils.getPreferencesValue(
                                   pref, ESharedPreferences.user_type.name);
@@ -382,14 +385,13 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                           statusId: 6,
                                           hrStatusId: 18,
                                           sourceId: widget.id,
-                                               spoc: userType == 3 &&
+                                          spoc: userType == 3 &&
                                                   userrole == "3" &&
                                                   widget.item.status_id == 3
                                               ? widget.id
-                                              : widget.item.spoc,
+                                              : widget.reportTo,
                                           dol: DateTime.now(),
-                                           sourceName: widget.sourcename
-                                          );
+                                          sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
 
@@ -398,7 +400,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
-                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllTalentPoolProvider);
                                   ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');
@@ -440,7 +442,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                           ),
                           InkWell(
                             onTap: () async {
-                               SharedPreferences pref =
+                              SharedPreferences pref =
                                   await Utils.getSharedPreferences();
                               var userType = await Utils.getPreferencesValue(
                                   pref, ESharedPreferences.user_type.name);
@@ -459,14 +461,14 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
                                       NewChangeStatusModel(
                                           statusId: 6,
                                           hrStatusId: 18,
-                                               spoc: userType == 3 &&
+                                          spoc: userType == 3 &&
                                                   userrole == "3" &&
                                                   widget.item.status_id == 3
                                               ? widget.id
-                                              : widget.item.spoc,
+                                              : widget.reportTo,
                                           sourceId: widget.id,
                                           dol: DateTime.now(),
-                                           sourceName: widget.sourcename);
+                                          sourceName: widget.sourcename);
                                   Map<String, dynamic> jsonData =
                                       changeStatusModel.toJson();
 
@@ -475,7 +477,7 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialog> {
 
                                   // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
                                   ref.refresh(fetchAllApplicantProvider);
-                                    ref.refresh(fetchAllTalentPoolProvider);
+                                  ref.refresh(fetchAllTalentPoolProvider);
                                   ref.refresh(fetchAllExecutiveProvide);
                                 } catch (e) {
                                   print('Error: $e');

@@ -18,6 +18,7 @@ import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
@@ -340,6 +341,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                     ref.refresh(userDataProvider);
                     ref.refresh(experienceProvider);
                     ref.refresh(educationProvider);
+                    ref.refresh(fetchAllTalentPoolProvider);
                   },
                   text: "Verify & Proceed",
                 ),

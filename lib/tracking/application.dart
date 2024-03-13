@@ -67,7 +67,7 @@ class _ApplicantContainerWidgetState
                     dol: DateTime.now(),
                     spoc: userType == 3 && userrole == "3"
                         ? widget.id
-                        : widget.item.spoc,
+                        : widget.report_to,
                     sourceName: widget.sourcename);
                 Map<String, dynamic> jsonData = changeStatusModel.toJson();
 

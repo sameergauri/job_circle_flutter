@@ -109,8 +109,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     var number = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_mobile.name);
     final url = Uri.parse(
-        // 'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobsByUser?userId=$userid&mobile=$number&page=1&size=100'
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&mobile=$number&page=1&size=1000'
+
+        // 'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&page=1&size=100'
+        );
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -792,19 +794,13 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      item.apply_feedback1 != null ||
-                                              item.s2ApplyFeedback2 != null ||
-                                              item.apply_feedback1 != ""
-                                          ? FittedBox(
+                                  item.is_ref == 1
+                                      ? Row(
+                                          children: [
+                                            FittedBox(
                                               fit: BoxFit.scaleDown,
                                               child: Text(
-                                                item.apply_feedback1 != null
-                                                    ? item.apply_feedback1
-                                                        .toString()
-                                                    : item.s2ApplyFeedback1
-                                                        .toString(),
+                                                "Application referred for interview.",
                                                 style: GoogleFonts.varela(
                                                     color: Constants.blue,
                                                     fontWeight: FontWeight.w600,
@@ -812,16 +808,43 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                 softWrap: true,
                                               ),
                                             )
-                                          : Text(
-                                              "Status Not Found",
-                                              style: GoogleFonts.varela(
-                                                  color: Constants.blue,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14.sp),
-                                              softWrap: true,
-                                            ),
-                                    ],
-                                  ),
+                                          ],
+                                        )
+                                      : Row(
+                                          children: [
+                                            item.apply_feedback1 != null ||
+                                                    item.s2ApplyFeedback2 !=
+                                                        null ||
+                                                    item.apply_feedback1 != ""
+                                                ? FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Text(
+                                                      item.apply_feedback1 !=
+                                                              null
+                                                          ? item.apply_feedback1
+                                                              .toString()
+                                                          : item
+                                                              .s2ApplyFeedback1
+                                                              .toString(),
+                                                      style: GoogleFonts.varela(
+                                                          color: Constants.blue,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 14.sp),
+                                                      softWrap: true,
+                                                    ),
+                                                  )
+                                                : Text(
+                                                    "Status Not Found",
+                                                    style: GoogleFonts.varela(
+                                                        color: Constants.blue,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 14.sp),
+                                                    softWrap: true,
+                                                  ),
+                                          ],
+                                        ),
                                   if (item.apply_feedback2 != null ||
                                       item.s2ApplyFeedback2 != null)
                                     Text(

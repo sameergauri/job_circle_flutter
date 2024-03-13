@@ -177,7 +177,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
               children: [
                 InkWell(
                   onTap: () {
-                    // submit();
+                    AddLineUp();
                   },
                   child: Container(
                     margin: const EdgeInsets.only(top: 10, bottom: 10),
@@ -1760,6 +1760,217 @@ class _AddResumeState extends ConsumerState<AddResume> {
     }
   }
 
+//TODO:: Add Line Up Function......
+
+  void AddLineUpToApiFunction() async {
+    SharedPreferences pref = await Utils.getSharedPreferences();
+    final userRole =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
+
+    final userType = await Utils.getPreferencesValue(
+        pref, ESharedPreferences.user_type.name);
+
+    final userId =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      ApplicationAPI api = ApplicationAPI();
+      applicationList =
+          await api.getUserForAddResume(int.parse(primary_number.text));
+      ListOfCoolingData = await api.fetchCoolingData();
+
+      CoolingModel? recentElement;
+      DateTime? mostRecentDol;
+
+      for (var element in ListOfCoolingData!) {
+        //TODO:: To check recent  dol from the list
+        if ((element.contactNo == int.parse(primary_number.text.trim()) ||
+                element.contactNo == int.tryParse(secondry.text.trim())) &&
+            element.dol != null &&
+            (mostRecentDol == null || element.dol!.isAfter(mostRecentDol))) {
+          recentElement = element;
+          mostRecentDol = element.dol;
+        }
+      }
+      // print(ListOfCoolingData);
+      if ((ListOfCoolingData!.any(
+          (element) => //TODO:: here check contact number and then dol == null that means lead is in application.
+              (element.contactNo == int.parse(primary_number.text.trim()) ||
+                  element.contactNo == int.tryParse(secondry.text.trim())) &&
+              element.dol == null))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in PipeLine ...",
+            );
+          },
+        );
+      } else if ((ListOfCoolingData!.any((element) =>
+          recentElement !=
+              null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
+          isDifferenceLessThan30Days(element.dol, DateTime.now())))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in PipeLine",
+            );
+          },
+        );
+      } else if ((ListOfCoolingData!.any(
+          (element) => //TODO:: here it check same contact number and thn if dol is more thne 30 days before thn check the status is no interviewBay.
+              (element.contactNo == int.parse(primary_number.text.trim()) ||
+                  element.contactNo == int.tryParse(secondry.text.trim())) &&
+              isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
+              element.status == "Interview Bay" &&
+              element.subStatus == null))) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pop(context);
+              },
+              subtitle: "The Candidate is Already in Interview Process",
+            );
+          },
+        );
+      } else {
+        if (widget.isRefer) {
+          final addResumeModel = JobApplicationModel(
+            resume: icon_data,
+            isRef: 1,
+            uid: 0,
+            rid: await Utils.getPreferencesValue(
+                null, ESharedPreferences.user_id.name),
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status_id: 3,
+            hrStatusId: 11,
+            //  status: "TP1", //TODO in use before changes in status ..
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            // subStatus: "Shortlist",
+            sourceId: 0,
+            //sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: widget.report_to == 0 ? 2 : widget.report_to,
+            // dol: DateTime.now()
+            // ... fill in other properties as needed
+          );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPoolProvider);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllExecutiveProvide);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
+
+          setState(() {
+            isLoading = false;
+          });
+        } else {
+          final addResumeModel = JobApplicationModel(
+            isRef: 2,
+            uid: 0,
+            resume: icon_data,
+            id: 0,
+            applicantName: firt_name.text,
+            lastName: last_name.text,
+            contactNo: int.parse(primary_number.text.trim()),
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            isExperienced: fresher ? 0 : 1,
+            companyName: widget.company_name,
+            process: widget.process,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            shortListFor: widget.company_id,
+            status_id: 0, //TODO : directly in interviewBay..
+            hrStatusId: 20,
+            /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
+            sourceId: widget.sourceId,
+            sourceName: widget.sourceName,
+            jobid: widget.jobId,
+            spoc: (userType == 3 && userRole == "3")
+                ? userId
+                : (userType == 3 && userRole == "1")
+                    ? widget.report_to
+                    : 2,
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            dol: DateTime.now(),
+            interview_rounds: widget.interviewRounds,
+            // ... fill in other properties as needed
+          );
+          final jsonData = addResumeModel.toJson();
+          await JobPostApiService.addResume(jsonData, context, false);
+          ref.refresh(fetchAllTalentPoolProvider);
+          ref.refresh(fetchAllApplicantProvider);
+          ref.refresh(fetchAllExecutiveProvide);
+          ref.refresh(fetchAllReferalProvider);
+          ref.refresh(fetchAllApplyProvider);
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            error: true,
+            onClose: () {
+              setState(() {
+                isLoading = false;
+              });
+              Navigator.pop(context);
+            },
+            subtitle: "Error While Uplaoding. Connect with tech Team.",
+          );
+        },
+      );
+    }
+  }
+
   bool isLoading = false;
 
   void submit() async {
@@ -1984,6 +2195,194 @@ class _AddResumeState extends ConsumerState<AddResume> {
       );
       Map<String, dynamic> jsonData = addResumeModel.toJson();
       JobPostApiService.addResume(jsonData, context); */
+    }
+  }
+
+  void AddLineUp() async {
+    if (firt_name.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            error: true,
+            subtitle: "First name is mandatory",
+            onClose: () {
+              Navigator.pop(context);
+              text1.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (last_name.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Last Name is mandatory");
+        },
+      );
+    } else if (primary_number.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text3.requestFocus();
+              },
+              subtitle: "Primary number is mandatory");
+        },
+      );
+    } else if (graduate == false && underGraduate == false) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                // text3.requestFocus();
+              },
+              subtitle: "Select any one option from education");
+        },
+      );
+    } else if (fresher == false && experience == false) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                // text3.requestFocus();
+              },
+              subtitle: "Select any one option from work status");
+        },
+      );
+    } else if (primary_number.text.length < 10) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                // text3.requestFocus();
+              },
+              subtitle: "Number should have 10 digit");
+        },
+      );
+    } else if (icon_data == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Add resume first");
+        },
+      );
+    } else if (!termAndConditionOne &&
+            widget
+                .isRefer //&& widget.is90  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+        ) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Agree terms & condition first");
+        },
+      );
+    } else if (primary_number.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (secondry.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (primary_number.text == widget.useAlternateNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              // text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (primary_number.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid number");
+        },
+      );
+    } else if (secondry.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid Secondary number");
+        },
+      );
+    } else if (secondry.text == widget.useAlternateNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else {
+      AddLineUpToApiFunction();
     }
   }
 

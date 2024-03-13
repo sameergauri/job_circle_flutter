@@ -117,67 +117,47 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                       ),
                       Row(
                         children: [
-                          widget.item.qualification == null
-                              ? Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/bag.png",
-                                      height: 12.h,
-                                      //  color: Constants.subtitleclr,
-                                    ),
-                                    const SizedBox(
-                                      width: 4,
-                                    ),
-                                    Text(
-                                      widget.item.isExperienced.toString(),
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/education_d.png",
-                                      height: 15.h,
-                                      //  color: Constants.subtitleclr,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      "${widget.item.qualification.toString()}  |  ",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Image.asset(
-                                      "assets/images/bag.png",
-                                      height: 12.h,
-                                      //  color: Constants.subtitleclr,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      " ${widget.item.isExperienced}",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                )
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/images/process.png",
+                                height: 12.h,
+                                //  color: Constants.subtitleclr,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                "${widget.item.process.toString()}  |  ",
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  // fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Image.asset(
+                                "assets/images/designation.png",
+                                height: 12.h,
+                                //  color: Constants.subtitleclr,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                " ${widget.item.role_code ?? widget.item.lead_level}",
+                                style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  // fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ],
                   ),
                 ],
               ),
-              Container(
+              /*  Container(
                 margin: EdgeInsets.only(top: 4.h),
                 width: double.maxFinite,
                 padding: const EdgeInsets.symmetric(
@@ -217,13 +197,16 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                     ),
                   ],
                 ),
-              ),
+              ), */
               //TODO:: Interview Rounds....
               Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runAlignment: WrapAlignment.center,
+                alignment: WrapAlignment.center,
                 children:
                     List.generate(widget.finalInterviewRounds.length, (index) {
                   return Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(4.0),
                     child: GestureDetector(
                       onTap: index >
                               widget.finalInterviewRounds
@@ -271,7 +254,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                                 widget.item.interview_rounds)
                                         ? Colors.grey
                                             .shade200 // Set color for items before the matching item
-                                        : Constants.themeBgColor,
+                                        : Colors.grey.shade300,
                               ),
                               color: widget.item.interview_rounds ==
                                       widget.finalInterviewRounds[index]
@@ -290,11 +273,19 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                   ? Constants.borderColor
                                   : Colors.white, */
                               borderRadius: BorderRadius.circular(8.r)),
-                          child: Text(
-                            widget.finalInterviewRounds[index],
-                            style:
-                                GoogleFonts.varela(color: Colors.grey.shade500),
-                          )),
+                          child: Text(widget.finalInterviewRounds[index],
+                              style: GoogleFonts.varela(
+                                color: widget.item.interview_rounds ==
+                                        widget.finalInterviewRounds[index]
+                                    ? Colors.grey
+                                        .shade500 // Set color when the condition is true
+                                    : index <
+                                            widget.finalInterviewRounds.indexOf(
+                                                widget.item.interview_rounds)
+                                        ? Colors.grey
+                                            .shade500 // Set color for items before the matching item
+                                        : Colors.black,
+                              ))),
                     ),
                   );
                 }),
@@ -513,7 +504,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                                     fetchAllReferalProvider);
                                                 ref.refresh(
                                                     fetchAllApplyProvider);
-                                                    ref.refresh(
+                                                ref.refresh(
                                                     fetchAllExecutiveProvide);
                                                 Future.delayed(
                                                     const Duration(seconds: 2),

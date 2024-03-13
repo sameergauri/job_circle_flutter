@@ -29,7 +29,8 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:job_circle/tracking/line_up.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart' hide RefreshIndicator;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:timelines/timelines.dart';
@@ -206,15 +207,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
     (index) => RefreshController(initialRefresh: false),
   );
 
-  Future<void> _onRefresh(int index) async {
+  Future<void> _onRefresh() async {
     // Perform a global refresh (e.g., fetch new data for all tabs)
     await Future.delayed(const Duration(seconds: 2));
 
     ref.refresh(fetchAllTalentPoolProvider);
-    // Update the UI with new data
-
-    _refreshControllers[index]
-        .refreshCompleted(); // Call this to end the refresh animation
   }
 
   int calculateAge(String dateOfBirth) {
@@ -611,14 +608,18 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                             } */
                             if (status == "Application") {
                               // No second tab bar needed if subStatuses is empty
-                              return SmartRefresher(
-                                controller: _refreshControllers[
-                                    statuses.indexOf(status)],
+                              return RefreshIndicator(
+                                triggerMode:
+                                    RefreshIndicatorTriggerMode.anywhere,
+                                displacement:
+                                    100.0, // Adjust the distance to trigger the refresh
+                                color: Colors.blue,
                                 onRefresh: () async {
-                                  await _onRefresh(statuses.indexOf(status));
+                                  await _onRefresh();
                                 },
                                 child: ListView.builder(
-                                  physics: const BouncingScrollPhysics(),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: applicants.length,
                                   itemBuilder: (context, index) {
@@ -637,6 +638,135 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       dropDownItemList!,
                                     );
                                   },
+                                ),
+                              );
+                            } else if (status == "Line-up") {
+                              List<String?> uniqueCompanyNames = dataList
+                                  .where(
+                                      (element) => element.hr_status_id == 20)
+                                  .map((applicant) =>
+                                      applicant.short_name ??
+                                      applicant.companyName)
+                                  .toSet()
+                                  .toList();
+
+                              return DefaultTabController(
+                                length: uniqueCompanyNames.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: uniqueCompanyNames
+                                            .map((subStatus) => customTab(
+                                                subStatus.toString(),
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.companyName.toString() == subStatus ||
+                                                        applicant.short_name.toString() ==
+                                                            subStatus)
+                                                    .where((element) =>
+                                                        element.applicantName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.companyName!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.companyName.toString() == subStatus || applicant.short_name.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        uniqueCompanyNames.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.companyName
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.short_name
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.executive_status ==
+                                                      status ||
+                                                  applicant.s2ExecutiveStatus ==
+                                                      status))
+                                          .toList();
+
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
+                                        },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                               );
                             } else if (status == "Not Selected/Not shortlist") {
@@ -720,27 +850,38 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                       status))
                                           .toList();
 
-                                      return ListView.builder(
-                                        physics: const BouncingScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: filteredApplicants.length,
-                                        itemBuilder: (context, index) {
-                                          final applicant =
-                                              filteredApplicants[index];
-
-                                          return listViewItem_new(
-                                              profilemodel.report_to!.toInt(),
-                                              context,
-                                              applicant,
-                                              true,
-                                              statuses,
-                                              profilemodel.id != null
-                                                  ? profilemodel.id!.toInt()
-                                                  : 467,
-                                              "${profilemodel.first_name} ${profilemodel.last_name}",
-                                              index,
-                                              dropDownItemList!);
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
                                         },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
                                       );
                                     }).toList(),
                                   ),
@@ -839,27 +980,38 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                       status))
                                           .toList();
 
-                                      return ListView.builder(
-                                        physics: const BouncingScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: filteredApplicants.length,
-                                        itemBuilder: (context, index) {
-                                          final applicant =
-                                              filteredApplicants[index];
-
-                                          return listViewItem_new(
-                                              profilemodel.report_to!.toInt(),
-                                              context,
-                                              applicant,
-                                              true,
-                                              statuses,
-                                              profilemodel.id != null
-                                                  ? profilemodel.id!.toInt()
-                                                  : 467,
-                                              "${profilemodel.first_name} ${profilemodel.last_name}",
-                                              index,
-                                              dropDownItemList!);
+                                      return RefreshIndicator(
+                                        triggerMode: RefreshIndicatorTriggerMode
+                                            .anywhere,
+                                        displacement:
+                                            100.0, // Adjust the distance to trigger the refresh
+                                        color: Colors.blue,
+                                        onRefresh: () async {
+                                          await _onRefresh();
                                         },
+                                        child: ListView.builder(
+                                          physics:
+                                              const AlwaysScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: filteredApplicants.length,
+                                          itemBuilder: (context, index) {
+                                            final applicant =
+                                                filteredApplicants[index];
+
+                                            return listViewItem_new(
+                                                profilemodel.report_to!.toInt(),
+                                                context,
+                                                applicant,
+                                                true,
+                                                statuses,
+                                                profilemodel.id != null
+                                                    ? profilemodel.id!.toInt()
+                                                    : 467,
+                                                "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                index,
+                                                dropDownItemList!);
+                                          },
+                                        ),
                                       );
                                     }).toList(),
                                   ),
@@ -874,11 +1026,20 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     // Your code to display the data when at least one item meets the condition
                   } else {
                     // Display a "no data" message
-                    return Center(
-                      child: Image.asset(
-                        "assets/images/nodata.png",
-                        //height: 200,
-                      ),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "assets/images/nodata.png",
+                          //height: 200,
+                        ),
+                        Text(
+                          "No data to display",
+                          style: GoogleFonts.varela(
+                              fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        )
+                      ],
                     );
                   }
                 },
@@ -891,8 +1052,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   return const Center(child: CircularProgressIndicator());
                 },
               )
-            : const Center(
-                child: Text("No data to display."),
+            : Center(
+                child: Text(
+                  "No data to display.",
+                  style: GoogleFonts.varela(),
+                ),
               ));
   }
 
@@ -920,6 +1084,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
     int selectedRoundIndex = item.interview_rounds != null
         ? finalinterviewRounds!.indexOf(item.interview_rounds.toString())
         : 0;
+
+    List<DropDownItem>? dropDownItemForLineUp =
+        dropDownItemList!.where((element) => element.statusId == 20).toList();
 
     return item.hr_status_id != 0
         ? SwipeTo(
@@ -972,6 +1139,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 leadID: item.id!.toInt(),
                                 id: id,
                                 sourcename: sourceName,
+                                reportTo: reportTo,
                               )
                             : const SizedBox();
                       },
@@ -1024,6 +1192,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                           item: item,
                           id: id,
                           sourcename: sourceName,
+                          reportTo: reportTo,
                         );
                       },
                     );
@@ -1065,11 +1234,24 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
                                   child: AssignData(
+                                      myLineUp: item.sourceId == profilemodel.id
+                                          ? true
+                                          : false,
                                       item: item,
                                       dropDownItemList: dropDownItemList!)),
                               Visibility(
+                                  visible: item.hr_status_id == 20 ||
+                                      item.s2DdHrStatusId == 12, //TODO:: LineUp
+                                  child: LineUp(
+                                      mylineup: item.sourceId == profilemodel.id
+                                          ? true
+                                          : false,
+                                      item: item,
+                                      dropDownItemList: dropDownItemForLineUp)),
+                              Visibility(
                                 visible: item.hr_status_id != 11 &&
-                                    item.hr_status_id != 12,
+                                    item.hr_status_id != 12 &&
+                                    item.hr_status_id != 20,
                                 child: customTalentPoolCard(item, context,
                                     finalinterviewRounds, selectedRoundIndex),
                               ),
@@ -1119,6 +1301,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     PDFViewerScreen(
+                                                  isCC: false,
                                                   isCvDownloaded:
                                                       item.hr_status_id == 14
                                                           ? item.isCvDownload !=
@@ -1277,10 +1460,20 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
                   ),
-                  if (item.hr_status_id == 13) //TODO:: view only for select
+                  if (item.hr_status_id == 13 ||
+                      item.hr_status_id ==
+                          14) //TODO:: view only for select and interview bay
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        Image.asset(
+                          "assets/images/process.png",
+                          height: 12.h,
+                          //  color: Constants.subtitleclr,
+                        ),
+                        SizedBox(
+                          width: 4.sp,
+                        ),
                         Text(
                           item.process.toString(),
                           style: GoogleFonts.varela(
@@ -1295,6 +1488,14 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                             // fontWeight: FontWeight.bold,
                           ),
                         ),
+                        Image.asset(
+                          "assets/images/designation.png",
+                          height: 12.h,
+                          //  color: Constants.subtitleclr,
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
                         Text(
                           item.role_code != null
                               ? item.role_code.toString()
@@ -1306,7 +1507,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                         ),
                       ],
                     ),
-                  if (item.hr_status_id != 13) //TODO:: not view for select
+                  if (item.hr_status_id != 13 &&
+                      item.hr_status_id !=
+                          14) //TODO:: not view for select and interview bay
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -1371,7 +1574,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
             ],
           ),
         ),
-        if (item.hr_status_id == 13) //TODO:: view only for select
+        if (item.hr_status_id == 13 ||
+            item.hr_status_id == 14) //TODO:: view only for select
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1400,62 +1604,66 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 4.h,
-                  ),
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            "assets/images/documentStatus.png",
-                            height: 15.sp,
-                          ),
-                          SizedBox(
-                            width: 4.w,
-                          ),
-                          Text(
-                            item.document_status.toString(),
-                            style: GoogleFonts.varela(
-                                // color: Colors.black54,
-                                color: Constants.subtitleclr,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13.sp),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 4.h,
-                  ),
-                  Row(
-                    // mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_month_outlined,
-                            size: 15.sp,
-                            color: Constants.blue,
-                          ),
-                          SizedBox(
-                            width: 4.w,
-                          ),
-                          Text(
-                            item.doj != null
-                                ? DateFormat('dd MMM yyyy').format(item.doj!)
-                                : "Pending",
-                            style: GoogleFonts.varela(
-                                // color: Colors.black54,
-                                color: Constants.subtitleclr,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13.sp),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
+                  if (item.hr_status_id != 14)
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                  if (item.hr_status_id != 14)
+                    Row(
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              "assets/images/documentStatus.png",
+                              height: 15.sp,
+                            ),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            Text(
+                              item.document_status.toString(),
+                              style: GoogleFonts.varela(
+                                  // color: Colors.black54,
+                                  color: Constants.subtitleclr,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  if (item.hr_status_id != 14)
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                  if (item.hr_status_id != 14)
+                    Row(
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              size: 15.sp,
+                              color: Constants.blue,
+                            ),
+                            SizedBox(
+                              width: 4.w,
+                            ),
+                            Text(
+                              item.doj != null
+                                  ? DateFormat('dd MMM yyyy').format(item.doj!)
+                                  : "Pending",
+                              style: GoogleFonts.varela(
+                                  // color: Colors.black54,
+                                  color: Constants.subtitleclr,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
                 ],
               ),
               SizedBox(
@@ -1488,33 +1696,37 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                         )
                       ],
                     ),
-                    SizedBox(
-                      height: 4.h,
-                    ),
-                    Icon(
-                      Icons.track_changes,
-                      size: 13.sp,
-                      color: Colors.transparent,
-                    ),
-                    SizedBox(
-                      height: 4.h,
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.currency_rupee_outlined,
-                          size: 15.sp,
-                          color: Constants.blue,
-                        ),
-                        Text(
-                          item.salary != null ? "${item.salary}" : "Pending",
-                          style: GoogleFonts.varela(
-                            fontSize: 13.sp,
-                            color: Constants.subtitleclr,
+                    if (item.hr_status_id != 14)
+                      SizedBox(
+                        height: 4.h,
+                      ),
+                    if (item.hr_status_id != 14)
+                      Icon(
+                        Icons.track_changes,
+                        size: 13.sp,
+                        color: Colors.transparent,
+                      ),
+                    if (item.hr_status_id != 14)
+                      SizedBox(
+                        height: 4.h,
+                      ),
+                    if (item.hr_status_id != 14)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.currency_rupee_outlined,
+                            size: 15.sp,
+                            color: Constants.blue,
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            item.salary != null ? "${item.salary}" : "Pending",
+                            style: GoogleFonts.varela(
+                              fontSize: 13.sp,
+                              color: Constants.subtitleclr,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -1528,7 +1740,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start, // Ad
             children: [
-              if (item.companyName != null && item.hr_status_id != 13)
+              if (item.companyName != null &&
+                  item.hr_status_id != 13 &&
+                  item.hr_status_id != 14)
                 Padding(
                   padding: EdgeInsets.only(top: 4.h, left: 4.w),
                   child: Row(
@@ -1555,7 +1769,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.process != null && item.hr_status_id != 13)
+              if (item.process != null &&
+                  item.hr_status_id != 13 &&
+                  item.hr_status_id != 14)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(
@@ -1582,7 +1798,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.totalSalary != null && item.hr_status_id != 13)
+              if (item.totalSalary != null &&
+                  item.hr_status_id != 13 &&
+                  item.hr_status_id != 14)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(
@@ -1605,7 +1823,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                     ],
                   ),
                 ),
-              if (item.workLocation != null && item.hr_status_id != 13)
+              if (item.workLocation != null &&
+                  item.hr_status_id != 13 &&
+                  item.hr_status_id != 14)
                 Padding(
                   padding: EdgeInsets.only(left: 4.w, top: 2.h),
                   child: Row(

@@ -23,6 +23,7 @@ class PDFViewerScreen extends ConsumerStatefulWidget {
   final String name;
   final int isCvDownloaded;
   final int? id;
+  final bool? isCC;
 
   const PDFViewerScreen(
       {super.key,
@@ -32,7 +33,8 @@ class PDFViewerScreen extends ConsumerStatefulWidget {
       required this.isref,
       required this.name,
       required this.isCvDownloaded,
-      this.id});
+      this.id,
+      this.isCC});
 
   @override
   ConsumerState<PDFViewerScreen> createState() => _PDFViewerScreenState();
@@ -180,8 +182,10 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
         ),
         actions: [
           if (widget.isref != true &&
-              widget.isCvDownloaded !=
-                  1) // Show download button if PDF is loaded and not downloaded yet
+              widget.isCvDownloaded != 1 &&
+              widget.isCC != null &&
+              widget
+                  .isCC!) // Show download button if PDF is loaded and not downloaded yet
             IconButton(
                 icon: const Icon(
                   Icons.download,
