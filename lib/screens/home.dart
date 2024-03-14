@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: selectedIndex,
           showUnselectedLabels: true,
           unselectedItemColor: Colors.black45,
-          selectedItemColor: Constants.themeBgColor,
+          selectedItemColor: Colors.black,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
           iconSize: 30,
           onTap: onNavigationChange,

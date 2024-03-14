@@ -18,6 +18,7 @@ import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
+import 'package:job_circle/screens/contact_us.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
@@ -32,6 +33,7 @@ import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../enums/enums.dart';
 import '../../models/active_state_model.dart';
@@ -300,10 +302,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
             jobSeeker = true;
             freelancer = false;
             both = false;
-          } else {
-            both = true;
-            jobSeeker = false;
-            freelancer = false;
           }
         });
         if (jobsController.isLoading) {
@@ -337,8 +335,14 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               ? InkWell(
                                   onTap: () async {
                                     Navigator.of(context).pop();
-                                    await Navigator.pushNamed(
-                                        context, ERoute.profile_summary.name);
+
+                                    data.usertype != 3
+                                        ? await Navigator.pushNamed(context,
+                                            ERoute.profile_summary.name)
+                                        : await Navigator.pushNamed(
+                                            context,
+                                            ERoute
+                                                .profile_summary_partner.name);
 
                                     closeDrawer(); // Call the function to close the drawer
                                   },
@@ -361,8 +365,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               : InkWell(
                                   onTap: () async {
                                     Navigator.of(context).pop();
-                                    await Navigator.pushNamed(
-                                        context, ERoute.profile_summary.name);
+                                    data.usertype != 3
+                                        ? await Navigator.pushNamed(context,
+                                            ERoute.profile_summary.name)
+                                        : await Navigator.pushNamed(
+                                            context,
+                                            ERoute
+                                                .profile_summary_partner.name);
 
                                     closeDrawer(); // Call the function to close the drawer
                                   },
@@ -384,13 +393,14 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             "${data.firstName.toString().toTitleCase()} ${data.lastName.toString().toTitleCase()}",
                             style: GoogleFonts.varela(
                                 fontSize: 16.sp,
-                                color: Constants.themeBgColor,
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(data.userLocation.toString(),
                               style: GoogleFonts.varela(
-                                  fontSize: 14.sp,
-                                  color: Constants.themeBgColor)),
+                                fontSize: 14.sp,
+                                color: Colors.black,
+                              )),
                           if (data.usertype == 1)
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -435,7 +445,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                         child: CustomContainerForUserSelection(
                                             "Freelancer", freelancer),
                                       ),
-                                      GestureDetector(
+                                      /*   GestureDetector(
                                         onTap: () async {
                                           await JobPostApiService
                                               .updateFreelancerActivity(
@@ -449,7 +459,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                         },
                                         child: CustomContainerForUserSelection(
                                             "Both", both),
-                                      )
+                                      ) */
                                     ],
                                   ),
                                 ],
@@ -540,7 +550,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       leading: Image.network(
                         "https://cdn-icons-png.flaticon.com/128/1570/1570887.png",
                         height: 22.h,
-                        color: Constants.themeBgColor,
+                        color: Colors.black,
                       ),
                       title: const Text('Account'),
                       children: [
@@ -550,7 +560,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           leading: Image.network(
                             "https://cdn-icons-png.flaticon.com/128/1159/1159679.png",
                             height: 22.h,
-                            color: Constants.themeBgColor,
+                            color: Colors.black,
                           ),
                           title: const Text('View & Generate Invoice'),
                           onTap: () {
@@ -576,7 +586,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           leading: Image.network(
                             "https://cdn-icons-png.flaticon.com/128/1019/1019709.png",
                             height: 22.h,
-                            color: Constants.themeBgColor,
+                            color: Colors.black,
                           ),
                           title: const Text('Payment Status'),
                           onTap: () {
@@ -600,7 +610,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           leading: Image.network(
                             "https://cdn-icons-png.flaticon.com/128/2830/2830155.png",
                             height: 22.h,
-                            color: Constants.themeBgColor,
+                            color: Colors.black,
                           ),
                           title: const Text('My Banking Detail'),
                           onTap: () {
@@ -622,13 +632,55 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         ),
                       ],
                     ),
+                  if (data.usertype == 1 && jobSeeker)
+                    ExpansionTile(
+                      leading: Image.asset(
+                        "assets/images/contactus.png",
+                        height: 20.h,
+                      ),
+                      title: const Text('Report Fraud'),
+                      children: [
+                        ListTile(
+                          minLeadingWidth: 0.0,
+                          minVerticalPadding: 5.1,
+                          leading: Image.asset(
+                            "assets/images/email.png",
+                            color: Colors.black,
+                            height: 25.sp,
+                          ),
+                          title: const Text('rahul@jobcircle.co.in'),
+                          onTap: () async {
+                            await launchUrl(
+                                Uri.parse("mailto:rahul@jobcircle.co.in?"));
+                            closeDrawer();
+                          },
+                        ),
+                      ],
+                    ),
+                  if (data.usertype == 1 && !jobSeeker)
+                    ListTile(
+                      minLeadingWidth: 0.0,
+                      minVerticalPadding: 5.1,
+                      leading: Image.asset(
+                        "assets/images/contactus.png",
+                        height: 20.h,
+                      ),
+                      title: const Text('Contact Us'),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ContactUS()));
+                        closeDrawer();
+                        // Navigator.pop(context);
+                      },
+                    ),
                   ListTile(
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
                     leading: Image.asset(
                       "assets/images/share.png",
                       height: 20.h,
-                      color: Constants.themeBgColor,
                     ),
                     title: const Text('Share App'),
                     onTap: () {
@@ -642,7 +694,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     leading: Image.asset(
                       "assets/images/logout.png",
                       height: 22.h,
-                      color: Constants.themeBgColor,
+                      color: Colors.red,
                     ),
                     title: const Text('LogOut'),
                     onTap: () {
@@ -675,11 +727,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                     Scaffold.of(context).openDrawer();
                   },
                   child: CircleAvatar(
+                      backgroundColor: Constants.bgColorWhite,
                       radius: 2.r,
                       child: data.profilePic != null
                           ? CircleAvatar(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 190, 190, 190),
+                              backgroundColor: Constants.borderColor,
                               radius: 35,
                               onBackgroundImageError: ((error, stackTrace) =>
                                   Image.asset("assets/images/cmpny.png",
@@ -2737,7 +2789,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       child: Text(title,
           style: GoogleFonts.varela(
               fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
-              color: isSelect ? Colors.white : Constants.themeBgColor)),
+              color: isSelect ? Colors.white : Colors.black)),
     );
   }
 

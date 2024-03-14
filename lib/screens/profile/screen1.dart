@@ -243,7 +243,7 @@ class _Screen1State extends ConsumerState<Screen1> {
     otpChar2Controller = TextEditingController();
     otpChar3Controller = TextEditingController();
     otpChar4Controller = TextEditingController();
-    startTimer();
+    // startTimer();
 
     ticker = Ticker((_) => updateTimerDisplay());
 
@@ -702,7 +702,8 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 10,
                   ),
                   CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify == 1 && //TODO:: Disable name field when user banking detail verification done...
+                      isDisabled: widget.prevPageModel!.is_verify ==
+                                  1 && //TODO:: Disable name field when user banking detail verification done...
                               widget.prevPageModel!.is_verify != null
                           ? false
                           : true,
@@ -715,7 +716,8 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 20.h,
                   ),
                   CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify == 1 && //TODO:: Disable name field when user banking detail verification done...
+                      isDisabled: widget.prevPageModel!.is_verify ==
+                                  1 && //TODO:: Disable name field when user banking detail verification done...
                               widget.prevPageModel!.is_verify != null
                           ? false
                           : true,
@@ -728,7 +730,8 @@ class _Screen1State extends ConsumerState<Screen1> {
                     height: 20,
                   ),
                   CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify == 1 &&  //TODO:: Disable name field when user banking detail verification done...
+                      isDisabled: widget.prevPageModel!.is_verify ==
+                                  1 && //TODO:: Disable name field when user banking detail verification done...
                               widget.prevPageModel!.is_verify != null
                           ? false
                           : true,
@@ -2017,7 +2020,7 @@ class _Screen1State extends ConsumerState<Screen1> {
     });
   }
 
-  void startTimer() {
+  /*  void startTimer() {   //TODO:: To avoid memory leak...
     var duration = const Duration(seconds: 1);
     currentSeconds = timerMaxSeconds;
     ticker = Ticker((elapsed) {
@@ -2027,7 +2030,7 @@ class _Screen1State extends ConsumerState<Screen1> {
       });
     });
     ticker.start();
-  }
+  } */
 
   void _onOTPDigitChanged(
       String value, FocusNode currentFocusNode, FocusNode nextFocusNode) {
@@ -2551,8 +2554,8 @@ class _Screen1State extends ConsumerState<Screen1> {
         "email": emailadr.text.toLowerCase(), // <-- Update here
         // "martial_status": martialStatusValue,
         "vaccination": vaccination,
-        "dateofbirth":
-            DateFormat("yyyy-MM-dd").format(dataOfBirthValue).toString(),
+        "dateofbirth": dataOfBirthValue.toIso8601String(),
+        // DateFormat("yyyy-MM-dd").format(dataOfBirthValue).toString(),
         "bio": bio.text.trim().isEmpty ? null : bio.text,
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),

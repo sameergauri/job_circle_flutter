@@ -795,7 +795,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                       : () {},
                                               child: CircleAvatar(
                                                   backgroundColor:
-                                                      Constants.themeBgColor,
+                                                      Constants.borderColor,
                                                   radius: 45,
                                                   /* onBackgroundImageError: ((error,
                                         stackTrace) =>
@@ -879,8 +879,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     child: Icon(
                                                       Icons.add,
                                                       size: 15.h,
-                                                      color: Constants
-                                                          .themeBgColor,
+                                                      color: Colors.black,
                                                     ),
                                                   ),
                                                 ),

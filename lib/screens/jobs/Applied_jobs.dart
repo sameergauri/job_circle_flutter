@@ -280,6 +280,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                         child: AppBar(
                           backgroundColor: Colors.white,
                           bottom: TabBar(
+                            unselectedLabelStyle: GoogleFonts.varela(
+                                fontWeight: FontWeight.normal),
+                            labelStyle:
+                                GoogleFonts.varela(fontWeight: FontWeight.bold),
                             labelPadding:
                                 const EdgeInsets.only(left: 5, right: 5),
                             labelColor: Colors.black,
@@ -304,8 +308,12 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                 .map(
                                   (e) => Tab(
                                     child: customTab(
-                                      e!,
-                                    ),
+                                        e!,
+                                        data
+                                            .where((element) =>
+                                                element.apply_status == e ||
+                                                element.s2ApplyStatus == e)
+                                            .length),
                                   ),
                                 )
                                 .toList(),
@@ -1004,6 +1012,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
 
   Widget customTab(
     String title,
+    int couont,
   ) {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
@@ -1018,6 +1027,10 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
             ),
             SizedBox(
               width: 5.w,
+            ),
+            Text(
+              "($couont)",
+              style: GoogleFonts.varela(),
             ),
           ],
         ));

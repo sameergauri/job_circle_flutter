@@ -124,7 +124,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
           unselectedItemColor: Colors.black45,
-          selectedItemColor: Theme.of(context).primaryColor,
+          selectedItemColor: Colors.black,
           selectedFontSize: 14,
           onTap: (value) {
             setState(() {

@@ -2,6 +2,7 @@
 // ignore_for_file: todo
 import 'dart:convert';
 
+import 'package:draggable_fab/draggable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -269,6 +270,11 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     return input;
   } */
 
+  bool isSearchEnable = false;
+
+  FocusNode searchNode = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -295,12 +301,109 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                   return DefaultTabController(
                     length: statuses.length,
                     child: Scaffold(
+                      floatingActionButton: DraggableFab(
+                        child: FloatingActionButton(
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            child: Icon(
+                              Icons.search,
+                              size: 30.sp,
+                              color: Constants.blue,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isSearchEnable = !isSearchEnable;
+                                _searchController.clear();
+                              });
+                              if (isSearchEnable) {
+                                searchNode.requestFocus();
+                              }
+                            }),
+                      ),
                       appBar: PreferredSize(
-                        preferredSize:
-                            const Size(double.maxFinite, kTextTabBarHeight),
+                        preferredSize: Size(
+                            double.maxFinite,
+                            isSearchEnable
+                                ? kTextTabBarHeight * 1.90.sp
+                                : kToolbarHeight),
                         child: AppBar(
+                          title: isSearchEnable
+                              ? SizedBox(
+                                  // margin: EdgeInsets.only(top: 10.h),
+                                  height:
+                                      MediaQuery.of(context).size.height / 26.h,
+                                  child: TextField(
+                                    focusNode: searchNode,
+                                    keyboardType: TextInputType.name,
+                                    //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    controller: _searchController,
+                                    style: GoogleFonts.varela(
+                                        color: Constants.subtitleclr,
+                                        fontSize: 14.sp),
+                                    cursorColor: Colors.grey.shade600,
+                                    decoration: InputDecoration(
+                                        filled: false,
+                                        fillColor: Constants.borderColor,
+                                        prefixIcon: const Icon(Icons.search),
+                                        prefixIconColor: Colors.grey.shade400,
+                                        contentPadding: const EdgeInsets.only(
+                                            top: 8,
+                                            bottom: 8,
+                                            left: 10,
+                                            right: 10),
+                                        counterText: '',
+                                        // labelText: "Remark",
+                                        labelStyle: const TextStyle(
+                                          color: Constants.themeBgColor,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade400),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade400),
+                                        ),
+                                        focusColor: const Color(0xffff0eceb),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        hintText: "Search",
+                                        hintStyle: GoogleFonts.sourceSansPro(
+                                            color: Constants.hintColor,
+                                            fontSize: 15.sp)),
+                                    onSubmitted: (value) {
+                                      setState(() {
+                                        isSearchEnable = !isSearchEnable;
+                                      });
+                                    },
+                                    onChanged: (value) {
+                                      // setState(() {});
+                                      _searchController.text.isEmpty
+                                          ? setState(() {
+                                              isSearchEnable = !isSearchEnable;
+                                            })
+                                          : setState(() {});
+                                    },
+                                  ),
+                                )
+                              : null,
                           backgroundColor: Colors.white,
                           bottom: TabBar(
+                            unselectedLabelStyle: GoogleFonts.varela(
+                                fontWeight: FontWeight.normal),
+                            labelStyle:
+                                GoogleFonts.varela(fontWeight: FontWeight.bold),
                             labelPadding:
                                 const EdgeInsets.only(left: 5, right: 5),
                             labelColor: Colors.black,
@@ -325,8 +428,30 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                 .map(
                                   (e) => Tab(
                                     child: customTab(
-                                      e!,
-                                    ),
+                                        e!,
+                                        data
+                                            .where((element) =>
+                                                element.referral_status == e ||
+                                                element.s2ReferralStatus == e)
+                                            .where((element) =>
+                                                element.applicantName!
+                                                    .toLowerCase()
+                                                    .contains(_searchController.text
+                                                        .toLowerCase()) ||
+                                                element.last_name!
+                                                    .toLowerCase()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.companyName!
+                                                    .toLowerCase()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.process!
+                                                    .toLowerCase()
+                                                    .contains(_searchController.text.toLowerCase()))
+                                            .length),
                                   ),
                                 )
                                 .toList(),
@@ -350,6 +475,15 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                         status
                                     : applicant.s2ReferralStatus.toString() ==
                                         status)
+                                .where((element) =>
+                                    element.applicantName!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()) ||
+                                    element.last_name!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()) ||
+                                    element.companyName!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()) ||
+                                    element.process!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()))
                                 .toList();
 
                             // Create widgets based on the applicants list
@@ -1249,9 +1383,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     );
   }
 
-  Widget customTab(
-    String title,
-  ) {
+  Widget customTab(String title, int count) {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
         decoration: BoxDecoration(
@@ -1265,6 +1397,10 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
             ),
             SizedBox(
               width: 5.w,
+            ),
+            Text(
+              "($count)",
+              style: GoogleFonts.varela(),
             ),
           ],
         ));

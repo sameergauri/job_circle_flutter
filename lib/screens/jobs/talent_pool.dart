@@ -477,6 +477,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(
+                              unselectedLabelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.normal),
+                              labelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold),
                               // physics: const (),
                               labelPadding:
                                   const EdgeInsets.only(left: 5, right: 5),
@@ -661,6 +665,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,
@@ -781,6 +790,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,
@@ -900,6 +914,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,

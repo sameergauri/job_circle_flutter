@@ -549,7 +549,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                   const EdgeInsets.only(left: 5, right: 5),
                               labelColor: Colors.black,
                               isScrollable: true,
+                              labelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold),
                               unselectedLabelColor: Colors.black,
+                              unselectedLabelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.normal),
                               indicatorSize: TabBarIndicatorSize.tab,
                               splashBorderRadius: BorderRadius.circular(8),
                               indicatorWeight: 7.h,
@@ -709,6 +713,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,
@@ -837,6 +846,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,
@@ -963,6 +977,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         labelPadding: const EdgeInsets.only(
                                             left: 5, right: 5),
                                         labelColor: Colors.black,
@@ -1081,6 +1100,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       //elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
+                                        unselectedLabelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.normal),
+                                   labelStyle: GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold),
                                         physics:
                                             const NeverScrollableScrollPhysics(),
                                         labelPadding: const EdgeInsets.only(
