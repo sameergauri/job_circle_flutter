@@ -73,9 +73,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
     );
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
-      setState(() {
-        profilemodel = ProfileSummaryModel.fromJson(dataResult);
-      });
+
+      profilemodel = ProfileSummaryModel.fromJson(dataResult);
     } else {
       // Handle the case when the API call fails
       setState(() {

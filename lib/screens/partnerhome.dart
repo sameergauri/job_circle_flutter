@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/jobs/cc_my_team.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,7 +68,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           //CC()
           // else
           //   const InterViewBayExecutive(),
-          role == "3" ? const LeadsTable() : const TalentPoolExecutive(),
+          role == "3" ? const CCMyTeam() : const TalentPoolExecutive(),
           //Recruitz(),
         ],
       ),

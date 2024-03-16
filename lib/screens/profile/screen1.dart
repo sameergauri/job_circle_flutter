@@ -2560,7 +2560,8 @@ class _Screen1State extends ConsumerState<Screen1> {
         "usertype": await Utils.getPreferencesValue(
             prefs, ESharedPreferences.user_type.name),
         "vaccination_certificate":
-            data != null && vaccination != "0" ? data : null
+            data != null && vaccination != "0" ? data : null,
+        "report_to": widget.prevPageModel!.report_to,
       }
     };
 

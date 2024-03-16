@@ -19,8 +19,10 @@ import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/contact_us.dart';
+import 'package:job_circle/screens/faq/interview_faq.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
+
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
@@ -552,7 +554,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         height: 22.h,
                         color: Colors.black,
                       ),
-                      title: const Text('Account'),
+                      title: Text(
+                        'Account',
+                        style: GoogleFonts.varela(
+                            fontSize: 14.sp, fontWeight: FontWeight.bold),
+                      ),
                       children: [
                         ListTile(
                           minLeadingWidth: 0.0,
@@ -562,7 +568,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             height: 22.h,
                             color: Colors.black,
                           ),
-                          title: const Text('View & Generate Invoice'),
+                          title: Text(
+                            'View & Generate Invoice',
+                            style: GoogleFonts.varela(
+                                fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -588,7 +598,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             height: 22.h,
                             color: Colors.black,
                           ),
-                          title: const Text('Payment Status'),
+                          title: Text(
+                            'Payment Status',
+                            style: GoogleFonts.varela(
+                                fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -612,7 +626,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             height: 22.h,
                             color: Colors.black,
                           ),
-                          title: const Text('My Banking Detail'),
+                          title: Text(
+                            'My Banking Detail',
+                            style: GoogleFonts.varela(
+                                fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -638,7 +656,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         "assets/images/contactus.png",
                         height: 20.h,
                       ),
-                      title: const Text('Report Fraud'),
+                      title: Text(
+                        'Report Fraud',
+                        style: GoogleFonts.varela(
+                            fontSize: 14.sp, fontWeight: FontWeight.bold),
+                      ),
                       children: [
                         ListTile(
                           minLeadingWidth: 0.0,
@@ -648,7 +670,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             color: Colors.black,
                             height: 25.sp,
                           ),
-                          title: const Text('rahul@jobcircle.co.in'),
+                          title: Text(
+                            'rahul@jobcircle.co.in',
+                            style: GoogleFonts.varela(
+                                fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
                           onTap: () async {
                             await launchUrl(
                                 Uri.parse("mailto:rahul@jobcircle.co.in?"));
@@ -665,7 +691,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         "assets/images/contactus.png",
                         height: 20.h,
                       ),
-                      title: const Text('Contact Us'),
+                      title: Text(
+                        'Contact Us',
+                        style: GoogleFonts.varela(
+                            fontSize: 14.sp, fontWeight: FontWeight.bold),
+                      ),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -675,6 +705,28 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         // Navigator.pop(context);
                       },
                     ),
+                  if (data.usertype == 3)
+                    ListTile(
+                      minLeadingWidth: 0.0,
+                      minVerticalPadding: 5.1,
+                      leading: Image.asset(
+                        "assets/images/faq.png",
+                        height: 24.h,
+                      ),
+                      title: Text(
+                        'Interview FAQ',
+                        style: GoogleFonts.varela(
+                            fontSize: 14.sp, fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        closeDrawer();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const InterviewFaq(),
+                            ));
+                      },
+                    ),
                   ListTile(
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
@@ -682,7 +734,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       "assets/images/share.png",
                       height: 20.h,
                     ),
-                    title: const Text('Share App'),
+                    title: Text(
+                      'Share App',
+                      style: GoogleFonts.varela(
+                          fontSize: 14.sp, fontWeight: FontWeight.bold),
+                    ),
                     onTap: () {
                       share();
                       Navigator.pop(context);
@@ -696,7 +752,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       height: 22.h,
                       color: Colors.red,
                     ),
-                    title: const Text('LogOut'),
+                    title: Text(
+                      'LogOut',
+                      style: GoogleFonts.varela(
+                          fontSize: 14.sp, fontWeight: FontWeight.bold),
+                    ),
                     onTap: () {
                       prefs.clear();
                       jobsController.searchController.clear();
