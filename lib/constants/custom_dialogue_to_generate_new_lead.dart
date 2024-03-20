@@ -9,11 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/changeStatusModel.dart';
-import 'package:job_circle/models/update_crpf_model.dart';
-import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/refer_now.dart';
+import 'package:job_circle/models/add_resume_model.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,26 +17,21 @@ import '../models/fetch_applied_job_model.dart';
 import '../themes/colors.dart';
 import 'custom_suggestion_textfield_for_new.dart';
 
-class CustomDialogueForNew extends ConsumerStatefulWidget {
+class DialogueToGenerateLeadFromLeadDetails extends ConsumerStatefulWidget {
   //final ValueSetter<String>? get;
 
-  final String title, company_name, process, role, nature_of_work, title2;
-  final int companyId;
+  final String title;
+  final bool isLineUp;
   final Applicant item;
   final Function refreshCallback;
   final Function cancel;
   final int statusDdId;
 
-  const CustomDialogueForNew({
+  const DialogueToGenerateLeadFromLeadDetails({
     super.key,
     required this.title,
-    required this.company_name,
-    required this.nature_of_work,
-    required this.process,
-    required this.role,
-    required this.companyId,
-    required this.title2,
     required this.cancel,
+    required this.isLineUp,
     required this.refreshCallback,
     //required this.company_resumeId,
 
@@ -49,11 +40,12 @@ class CustomDialogueForNew extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CustomDialogueForNew> createState() =>
-      _CustomDialogueForNewState();
+  ConsumerState<DialogueToGenerateLeadFromLeadDetails> createState() =>
+      _DialogueToGenerateLeadFromLeadDetailsState();
 }
 
-class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
+class _DialogueToGenerateLeadFromLeadDetailsState
+    extends ConsumerState<DialogueToGenerateLeadFromLeadDetails> {
   @override
   // ignore: override_on_non_overriding_member
   TextEditingController shorListController = TextEditingController();
@@ -116,46 +108,6 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
         FocusScope.of(context).requestFocus(processFocusNode);
       } else if (proces.text.isNotEmpty && natureOfWork.text.isEmpty) {
         FocusScope.of(context).requestFocus(functionalAreaFocusNode);
-      }
-    });
-  }
-
-  void getValueOfJobtitle(String getJobTitle) async {
-    setState(() {
-      jobTitle = getJobTitle;
-      if (shorListController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(cmpnyFocusNode);
-      } else if (proces.text.isEmpty) {
-        FocusScope.of(context).requestFocus(processFocusNode);
-      } else if (proces.text.isNotEmpty && natureOfWork.text.isEmpty) {
-        FocusScope.of(context).requestFocus(functionalAreaFocusNode);
-      }
-    });
-  }
-
-  String? pro;
-  void getValuOfProcess(String gteProcess) {
-    setState(() {
-      pro = gteProcess;
-      if (shorListController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(cmpnyFocusNode);
-      } else if (role.text.isEmpty) {
-        FocusScope.of(context).requestFocus(roleFocusNode);
-      } else {
-        FocusScope.of(context).requestFocus(functionalAreaFocusNode);
-      }
-    });
-  }
-
-  void getNatureOfWorkId(String ids) {
-    setState(() {
-      NatureOfWorkID = int.parse(ids);
-      if (shorListController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(cmpnyFocusNode);
-      } else if (role.text.isEmpty) {
-        FocusScope.of(context).requestFocus(roleFocusNode);
-      } else if (proces.text.isEmpty) {
-        FocusScope.of(context).requestFocus(processFocusNode);
       }
     });
   }
@@ -246,7 +198,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
 
   bool f2f = false, virtual = false;
 
-  bool isComp = false, isprocess = false, isRole = false, isNof = false;
+  bool isComp = true, isprocess = true, isRole = true, isNof = true;
 
   void closeCustomDialogue() {
     setState(() {
@@ -330,14 +282,14 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                   // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.title,
+                      "Add",
                       style: GoogleFonts.varela(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      "${capitalizeFirstLetter(widget.item.applicantName.toString())} ${capitalizeFirstLetter(widget.item.last_name.toString())}",
+                      " ${capitalizeFirstLetter(widget.item.applicantName.toString())} ${capitalizeFirstLetter(widget.item.last_name.toString())}",
                       style: GoogleFonts.varela(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
@@ -347,7 +299,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                       width: 4.w,
                     ),
                     Text(
-                      widget.title2,
+                      widget.title,
                       style: GoogleFonts.varela(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
@@ -356,85 +308,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                   ],
                 ),
                 const SizedBox(height: 4.0),
-                /*  Row(          //TODO:: Mode of Interview
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Mode of Interview",
-                      style: GoogleFonts.varela(
-                        fontSize: 14.0,
-                        // fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ), */
-                /*     Row(      //TODO:: Mode of Interview
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          virtual = true;
-                          f2f = false;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 1, right: 6),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          color: virtual ? Colors.grey.shade500 : Colors.white,
-                          border: Border.all(
-                            color: virtual == false
-                                ? Colors.grey.shade500
-                                : Colors.white,
-                          ),
-                        ),
-                        child: Text(
-                          "Virtual",
-                          style: GoogleFonts.varela(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  virtual ? Colors.white : Colors.grey.shade500,
-                              fontSize: 14.sp),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          f2f = true;
-                          virtual = false;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 1, right: 6),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          color: f2f ? Colors.grey.shade500 : Colors.white,
-                          border: Border.all(
-                            color: f2f == false
-                                ? Colors.grey.shade500
-                                : Colors.white,
-                          ),
-                        ),
-                        child: Text(
-                          "Face2Face",
-                          style: GoogleFonts.varela(
-                            fontWeight: FontWeight.bold,
-                            color: f2f ? Colors.white : Colors.grey.shade500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 6.h,
-                ), */
+
                 isComp
                     ? CustomJobFormForUpdateCRPF(
                         onTapCallback: onTextField1Tap1,
@@ -469,7 +343,8 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                           Text(
                             "Company Name",
                             style: GoogleFonts.varela(
-                                fontSize: 14.0, fontWeight: FontWeight.bold),
+                              fontSize: 14.0,
+                            ),
                           ),
                           InkWell(
                             onTap: () {
@@ -497,10 +372,11 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(widget.company_name),
-                                    Image.asset(
-                                      "assets/images/pencil.png",
-                                      height: 15.sp,
+                                    Text(shorListController.text),
+                                    Icon(
+                                      Icons.edit,
+                                      size: 15.h,
+                                      color: Colors.white,
                                     )
                                   ],
                                 )),
@@ -602,7 +478,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                           ],
                         )
                       : Container(
-                          margin: EdgeInsets.only(top: 4.h),
+                          margin: EdgeInsets.only(top: 4.h, bottom: 4.h),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -629,7 +505,11 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(ResumeId.text),
+                                        Text(
+                                          ResumeId.text,
+                                          style: GoogleFonts.varela(
+                                              color: Colors.black),
+                                        ),
                                         Image.asset(
                                           "assets/images/pencil.png",
                                           height: 15.sp,
@@ -646,7 +526,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                           onTapCallback: onTextField1Tap2,
                           companyID: isprocess && isComp
                               ? CompanyID
-                              : widget.companyId.toString(),
+                              : CompanyID.toString(),
                           controller: proces,
                           textfieldNumber: 1,
                           process: proces.text,
@@ -677,7 +557,8 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                         Text(
                           "Process",
                           style: GoogleFonts.varela(
-                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                            fontSize: 14.0,
+                          ),
                         ),
                         InkWell(
                           onTap: () {
@@ -700,10 +581,11 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(widget.process),
-                                  Image.asset(
-                                    "assets/images/pencil.png",
-                                    height: 15.sp,
+                                  Text(proces.text),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 15.h,
+                                    color: Colors.white,
                                   )
                                 ],
                               )),
@@ -718,12 +600,12 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                           onTapCallback: onTextField1Tap3,
                           companyID: isRole && isprocess && isComp
                               ? CompanyID
-                              : widget.companyId.toString(),
+                              : CompanyID,
                           controller: role,
                           textfieldNumber: 2,
                           process: isRole && isprocess && isComp
                               ? proces.text
-                              : widget.process,
+                              : proces.text,
                           role: role.text,
                           hint: "Sr. Executive",
                           title: "Job Title / Role",
@@ -750,7 +632,8 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                         Text(
                           "Role",
                           style: GoogleFonts.varela(
-                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                            fontSize: 14.0,
+                          ),
                         ),
                         InkWell(
                           onTap: () {
@@ -774,10 +657,11 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(widget.role),
-                                  Image.asset(
-                                    "assets/images/pencil.png",
-                                    height: 15.sp,
+                                  Text(role.text),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 15.h,
+                                    color: Colors.white,
                                   )
                                 ],
                               )),
@@ -792,15 +676,15 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                           onTapCallback: onTextField1Tap4,
                           companyID: isNof && isRole && isprocess && isComp
                               ? CompanyID
-                              : widget.companyId.toString(),
+                              : CompanyID,
                           controller: natureOfWork,
                           textfieldNumber: 3,
                           process: isNof && isRole && isprocess && isComp
                               ? proces.text
-                              : widget.process,
+                              : proces.text,
                           role: isNof && isRole && isprocess && isComp
                               ? role.text
-                              : widget.role,
+                              : role.text,
                           hint: "Sales",
                           title: "Functional Area",
                           getFunctionalAreaId: getFunctionalAreaIdCust,
@@ -824,7 +708,8 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                         Text(
                           "Functional Area",
                           style: GoogleFonts.varela(
-                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                            fontSize: 14.0,
+                          ),
                         ),
                         InkWell(
                           onTap: () {
@@ -846,10 +731,11 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(widget.nature_of_work),
-                                  Image.asset(
-                                    "assets/images/pencil.png",
-                                    height: 15.sp,
+                                  Text(natureOfWork.text),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 15.h,
+                                    color: Colors.white,
                                   )
                                 ],
                               )),
@@ -916,122 +802,41 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 pref, ESharedPreferences.role.name);
                             var userid = await Utils.getPreferencesValue(
                                 pref, ESharedPreferences.user_id.name);
-
-                            /* final addResumeModel = JobApplicationModel(  //TODO:: old code which is using old api ...
+                            final addResumeModel = JobApplicationModel(
+                              isRef: 2,
+                              uid: 0,
                               resume: widget.item.resume,
-                              isRef: widget.item.is_ref,
-                              rid: widget.item.rid,
-                              sub_source: widget.item.sub_source,
-                              uid: widget.item.uid,
-                              id: widget.item.id,
+                              id: 0,
                               applicantName: widget.item.applicantName,
                               lastName: widget.item.last_name,
                               contactNo: widget.item.contactNo,
                               qualification: widget.item.qualification,
-                              isExperienced:
-                                  widget.item.isExperienced == 1 ? 1 : 0,
-                              companyName: isComp == false
-                                  ? widget.company_name
-                                  : shorListController.text,
-                              process: isprocess == false
-                                  ? widget.process
-                                  : proces.text,
-                              level: isRole == false ? widget.role : role.text,
-                              naturofwork: isNof == false
-                                  ? widget.nature_of_work
-                                  : natureOfWork.text,
-                              shortListFor: isComp == false
-                                  ? widget.companyId
-                                  : int.parse(CompanyID.toString()),
-                              status: "IB5",
-
-                              // subStatus: "Shortlist",
+                              isExperienced: int.tryParse(
+                                  widget.item.isExperienced.toString()),
+                              companyName: widget.item.companyName,
+                              process: widget.item.process,
+                              level: widget.item.lead_level,
+                              naturofwork: widget.item.natureOfWork,
+                              shortListFor: int.tryParse(CompanyID.toString()),
+                              status_id: widget.isLineUp
+                                  ? 0
+                                  : 1, //TODO : Directly in line-up.
+                              hrStatusId: widget.isLineUp ? 20 : 14,
+                              /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
                               sourceId: widget.item.sourceId,
                               sourceName: widget.item.source_name,
-                              jobid: isComp == false
-                                  ? widget.item.jobId
-                                  : newJobID,
-                              spoc: spoc ?? widget.item.spoc,
-                              interview_rounds: isComp == false
-                                  ? widget.item.inteviewrounds!.first
-                                      .toString()
-                                      .replaceAll('"', '')
-                                      .replaceAll('[', '')
-                                      .replaceAll(']', '')
-                                  : firstInterviewRound,
-                              client_resume_id: ResumeId.text.isNotEmpty
-                                  ? ResumeId.text
-                                  : null,
-                              subStatus: virtual
-                                  ? "Virtual Interview"
-                                  : f2f
-                                      ? "On-Site Interview"
-                                      : "",
-                              dol: widget.item.dol,
+                              jobid: newJobID,
+                              spoc: widget.item.spoc,
                               alternateNo: widget.item.alternateNo,
-
-                              //dos: widget.item.dos
+                              dol: DateTime.now(),
+                              interview_rounds:
+                                  widget.isLineUp ? null : firstInterviewRound,
                               // ... fill in other properties as needed
-                            ); */
-                            final addCRPF = UpdateCRPFModel(
-                              company_name: isComp == false
-                                  ? widget.company_name
-                                  : shorListController.text,
-                              process: isprocess == false
-                                  ? widget.process
-                                  : proces.text,
-                              level: isRole == false ? widget.role : role.text,
-                              natur_of_work: isNof == false
-                                  ? widget.nature_of_work
-                                  : natureOfWork.text,
-                              short_list_for: isComp == false
-                                  ? widget.companyId
-                                  : int.parse(CompanyID.toString()),
-                              jobid: isComp == false
-                                  ? widget.item.jobId
-                                  : newJobID,
-                              // spoc: spoc ?? widget.item.spoc, //TODO spoc chnages as per srcpf
-                              spoc: userType == 3 && userrole == "3"
-                                  ? userid
-                                  : report_to,
-                              client_resume_id: ResumeId.text.isNotEmpty
-                                  ? ResumeId.text
-                                  : null,
-                              interview_rounds: isComp == false
-                                  ? widget.item.inteviewrounds!.first
-                                      .toString()
-                                      .replaceAll('"', '')
-                                      .replaceAll('[', '')
-                                      .replaceAll(']', '')
-                                  : firstInterviewRound,
                             );
-                            final jsonData = addCRPF.toJson();
-                            await JobPostApiService.NewChangeCRPF(
-                                jsonData, widget.item.id!.toInt());
-                            NewChangeStatusModel changeStatusModel =
-                                NewChangeStatusModel(
-                                    statusId: 1,
-                                    hrStatusId: widget.statusDdId,
-                                    spoc: userType == 3 && userrole == "3"
-                                        ? userid
-                                        : report_to,
-                                    sourceId: userid,
-                                    interviewRounds: widget
-                                        .item.inteviewrounds!.first
-                                        .replaceAll('[', '')
-                                        .replaceAll(']', '')
-                                        .replaceAll('"', ''));
-                            Map<String, dynamic> jsonData2 =
-                                changeStatusModel.toJson();
-                            try {
-                              await JobPostApiService.NewchangeStatus(
-                                  jsonData2, widget.item.id!.toInt());
-                              ref.refresh(fetchAllApplicantProvider);
-                              ref.refresh(fetchAllReferalProvider);
-                              ref.refresh(fetchAllApplyProvider);
-                            } catch (e) {
-                              print('Error: $e');
-                            }
+                            final jsonData = addResumeModel.toJson();
+                            await JobPostApiService.addResume(
+                                jsonData, context, false);
 
                             Navigator.pop(context);
                             closeCustomDialogue();

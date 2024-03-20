@@ -17,6 +17,7 @@ import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
+import 'package:job_circle/screens/Lead_details/lead_details.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
@@ -1100,10 +1101,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       //elevation: 0,
                                       backgroundColor: Constants.bgColorWhite,
                                       bottom: TabBar(
-                                        unselectedLabelStyle: GoogleFonts.varela(
-                                  fontWeight: FontWeight.normal),
-                                   labelStyle: GoogleFonts.varela(
-                                  fontWeight: FontWeight.bold),
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
                                         physics:
                                             const NeverScrollableScrollPhysics(),
                                         labelPadding: const EdgeInsets.only(
@@ -1546,43 +1548,160 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                               Visibility(
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
-                                  child: AssignData(
-                                      myLineUp: item.sourceId == profilemodel.id
-                                          ? true
-                                          : false,
-                                      item: item,
-                                      dropDownItemList: dropDownItemList!)),
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(       //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: AssignData(
+                                        myLineUp:
+                                            item.sourceId == profilemodel.id
+                                                ? true
+                                                : false,
+                                        item: item,
+                                        dropDownItemList: dropDownItemList!),
+                                  )),
                               Visibility(
                                   visible: item.hr_status_id == 14 ||
                                       item.s2DdHrStatusId ==
                                           14, //TODO:: InterViewBay
-                                  child: InterViewBayStatus(
-                                    item: item,
-                                    dropDownItemList: dropDownItemList!,
-                                    finalDropDownItem: finalDropDownItem,
-                                    finalInterviewRounds: finalInterviewRounds,
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(          //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: InterViewBayStatus(
+                                      item: item,
+                                      dropDownItemList: dropDownItemList!,
+                                      finalDropDownItem: finalDropDownItem,
+                                      finalInterviewRounds:
+                                          finalInterviewRounds,
+                                    ),
                                   )),
                               Visibility(
                                   visible: item.hr_status_id == 20 ||
                                       item.s2DdHrStatusId ==
                                           20, //TODO:: Line-up
-                                  child: LineUp(
-                                      mylineup: item.sourceId == profilemodel.id
-                                          ? true
-                                          : false,
-                                      item: item,
-                                      dropDownItemList: dropDownItemForLineUp)),
+
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(        //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: LineUp(
+                                        mylineup:
+                                            item.sourceId == profilemodel.id
+                                                ? true
+                                                : false,
+                                        item: item,
+                                        dropDownItemList:
+                                            dropDownItemForLineUp),
+                                  )),
                               Visibility(
                                   visible: item.dd_hr_status_id == 13 ||
                                       item.s2DdHrStatusId == 13, //TODO:: Select
-                                  child: SelectStatus(
-                                      item: item,
-                                      finalDropDownItemforJoinNot:
-                                          finalDropDownItemforJoinNot,
-                                      finalDropDownItemforReadyOffer:
-                                          finalDropDownItemforReadyOffer,
-                                      finalDropDownItemForTrainingDrop:
-                                          finalDropDownItemforTrainingDrop))
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(     //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: SelectStatus(
+                                        item: item,
+                                        finalDropDownItemforJoinNot:
+                                            finalDropDownItemforJoinNot,
+                                        finalDropDownItemforReadyOffer:
+                                            finalDropDownItemforReadyOffer,
+                                        finalDropDownItemForTrainingDrop:
+                                            finalDropDownItemforTrainingDrop),
+                                  ))
                               /*  Visibility(
                                 visible: item.hr_status_id ==
                                     10, //TODO:: Application

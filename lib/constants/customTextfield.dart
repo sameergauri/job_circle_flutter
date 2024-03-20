@@ -819,11 +819,11 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
         child: Container(
             width: double.maxFinite,
             // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
+            margin: const EdgeInsets.only(right: 5, bottom: 5),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               // ignore: use_full_hex_values_for_flutter_colors
-              color: isSelect ? Colors.grey.shade500 : Colors.grey.shade200,
+              color: isSelect ? Constants.borderColor : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
@@ -846,7 +846,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                       Text(controller!.text,
                           style: GoogleFonts.varela(
                               // fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 15.sp)),
                       const SizedBox(
                         width: 5,
@@ -855,10 +855,9 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         "assets/images/close.png",
                         height: 12,
                       ) */
-                      const Icon(
-                        Icons.edit,
-                        size: 15,
-                        color: Colors.white,
+                      Image.asset(
+                        "assets/images/pencil.png",
+                        height: 15.sp,
                       )
                     ],
                   )
@@ -999,7 +998,7 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                   title,
                   style: GoogleFonts.varela(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 customContainerSelect(true),
@@ -4127,7 +4126,7 @@ class _CustomJobFormForUpdateCRPFState
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               // ignore: use_full_hex_values_for_flutter_colors
-              color: isSelect ? Colors.grey.shade500 : Colors.grey.shade200,
+              color: isSelect ? Constants.borderColor : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
             /* decoration: BoxDecoration(
@@ -4150,7 +4149,7 @@ class _CustomJobFormForUpdateCRPFState
                       Text(controller!.text,
                           style: GoogleFonts.varela(
                               // fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 15.sp)),
                       const SizedBox(
                         width: 5,
@@ -4159,11 +4158,15 @@ class _CustomJobFormForUpdateCRPFState
                         "assets/images/close.png",
                         height: 12,
                       ) */
-                      const Icon(
+                      Image.asset(
+                        "assets/images/pencil.png",
+                        height: 15.sp,
+                      )
+                      /* const Icon(
                         Icons.edit,
                         size: 15,
                         color: Colors.white,
-                      )
+                      ) */
                     ],
                   )
                 : Text(widget.controller!.text,

@@ -1287,7 +1287,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     Row(
                       children: [
                         Container(
-                          margin: const EdgeInsets.only(top: 10, right: 5),
+                          margin: const EdgeInsets.only(top: 2, right: 5),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
@@ -1311,7 +1311,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ),
                         ),
                         Container(
-                          margin: const EdgeInsets.only(top: 10, right: 5),
+                          margin: const EdgeInsets.only(top: 2, right: 5),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
@@ -1324,7 +1324,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           ),
                         ),
                         Container(
-                          margin: const EdgeInsets.only(top: 10),
+                          margin: const EdgeInsets.only(top: 2),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(

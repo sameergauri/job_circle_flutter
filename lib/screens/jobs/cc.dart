@@ -1,8 +1,8 @@
 // ignore_for_file: use_super_parameters, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
-import 'package:job_circle/screens/jobs/my_pipeline_cc.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/my_pipeline_cc.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 
 import '../../themes/colors.dart';
@@ -171,6 +171,88 @@ class CustomTabBar extends StatelessWidget {
       child: SizedBox(
         height: 50,
         width: MediaQuery.of(context).size.width / tabs.length,
+        child: Center(
+          child: Text(
+            tabs[index],
+            style: TextStyle(
+              color: isSelected ? Colors.grey.shade500 : Colors.grey.shade400,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomTabBarForJobDetial extends StatelessWidget {
+  final List<String> tabs;
+  final int selectedIndex;
+  final Function(int) onTabChanged;
+    final PageController pageController; 
+
+  const CustomTabBarForJobDetial({
+    super.key,
+    required this.tabs,
+    required this.selectedIndex,
+    required this.onTabChanged,
+      required this.pageController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 5,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              tabs.length,
+              (index) => _buildTabItem(index, context),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 2,
+              width: MediaQuery.of(context).size.width / tabs.length,
+              transform: Matrix4.translationValues(
+                (MediaQuery.of(context).size.width / tabs.length) *
+                    selectedIndex,
+                0,
+                0,
+              ),
+              decoration: BoxDecoration(
+                color: Constants.borderColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabItem(int index, BuildContext context) {
+    final isSelected = index == selectedIndex;
+    return GestureDetector(
+      onTap: () => onTabChanged(index),
+      child: SizedBox(
+        height: 50,
+        // width: MediaQuery.of(context).size.width / 2.5,
         child: Center(
           child: Text(
             tabs[index],

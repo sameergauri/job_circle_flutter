@@ -14,19 +14,18 @@ class NatureOfWorkModel {
       this.spoc,
       this.spoc_fname,
       this.spoc_lname,
-      this.interview_rounds
-      });
+      this.interview_rounds});
 
   factory NatureOfWorkModel.fromJson(Map<String, dynamic> json) {
     return NatureOfWorkModel(
-        id: json['id'] ?? json['id'], // Handle both property orders
-        functional_area: json['functional_area'] ?? json['functional_area'],
-        spoc_fname: json['spoc_fname'] ?? "",
-        spoc_lname: json['spoc_lname'] ?? '',
-        spoc: json['spoc'] ?? 0,
-        interview_rounds: _parseSkills(json['inteviewrounds']),
-        // Handle both property orders
-        );
+      id: json['id'] ?? json['id'], // Handle both property orders
+      functional_area: json['functional_area'] ?? json['functional_area'],
+      spoc_fname: json['spoc_fname'] ?? "",
+      spoc_lname: json['spoc_lname'] ?? '',
+      spoc: json['spoc'] ?? 0,
+      interview_rounds: _parseSkills(json['interviewrounds']),
+      // Handle both property orders
+    );
   }
   static List<String>? _parseSkills(dynamic jsonSkills) {
     try {

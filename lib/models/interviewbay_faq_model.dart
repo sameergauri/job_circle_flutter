@@ -39,11 +39,9 @@ class InterviewFaqGetModel {
       icon: json['icon'],
       crpfid: json['crpfid'],
       shortCode: json['short_code'],
-      name: json['name'],
-      process:
-          json['process_code'].isEmpty ? json['process'] : json['process_code'],
-      roleName:
-          json['role_code'].isEmpty ? json['rolename'] : json['role_code'],
+      name: json['companyname'],
+      process: json['process'],
+      roleName: json['rolename'],
       companyId: json['compnayid'],
       firstName: json['first_name'],
       userId: json['user_id'],

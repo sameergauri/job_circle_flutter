@@ -92,104 +92,105 @@ class _ContactUSState extends ConsumerState<ContactUS> {
               ),
               body: Column(
                 children: [
-                  Container(
-                    // height: 300,
-                    margin: const EdgeInsets.only(),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
-                        color: Constants.blue,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
+                  if (data.firstName != null)
+                    Container(
+                      // height: 300,
+                      margin: const EdgeInsets.only(),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
+                      width: double.maxFinite,
+                      decoration: BoxDecoration(
+                          color: Constants.blue,
+                          boxShadow: [
+                            BoxShadow(
+                                offset: const Offset(0.5, 2),
+                                blurRadius: 2,
+                                spreadRadius: 2,
+                                color: Colors.grey.shade200)
+                          ],
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(20.r),
+                              bottomRight: Radius.circular(20.r))),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Constants.borderColor,
+                                radius: height / 17.r,
+                                child: CircleAvatar(
+                                    backgroundColor: Constants.themeBgColor,
+                                    radius: height / 18.r,
+                                    backgroundImage: data.profilePic != null
+                                        ? Image.network(
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profilePic}",
+                                            fit: BoxFit.fill,
+                                          ).image
+                                        : Image.asset(
+                                            data.gender != "Male"
+                                                ? "assets/images/leadfemal.png"
+                                                : "assets/images/leadmale.png",
+                                            //  height: 8.h,
+                                            fit: BoxFit.fill,
+                                          ).image),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 4.sp,
+                          ),
+                          Text("Sourcing Manager",
+                              style: GoogleFonts.varela(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white)),
+                          Text(
+                              "${data.firstName.toString()} ${data.lastName.toString()}",
+                              style: GoogleFonts.varela(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 20.sp)),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              IconButton(
+                                  onPressed: () async {
+                                    FlutterPhoneDirectCaller.callNumber(
+                                        "+91${data.officialNo}");
+                                  },
+                                  icon: const Icon(Icons.phone,
+                                      color: Colors.white)),
+                              IconButton(
+                                  onPressed: () async {
+                                    Uri url = Uri.parse(
+                                        "whatsapp://send?phone=91${data.officialNo}");
+                                    await canLaunchUrl(url)
+                                        ? await launchUrl(url)
+                                        : throw "could not launch $url";
+                                  },
+                                  icon: Image.asset(
+                                    "assets/images/whatsapp.png",
+                                    color: Colors.white,
+                                    height: 25.sp,
+                                  )),
+                              IconButton(
+                                  onPressed: () async {
+                                    await launchUrl(Uri.parse(
+                                        "mailto:${data.officialEmail}?"));
+                                  },
+                                  icon: Image.asset(
+                                    "assets/images/email.png",
+                                    color: Colors.white,
+                                    height: 25.sp,
+                                  ))
+                            ],
+                          )
                         ],
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20.r),
-                            bottomRight: Radius.circular(20.r))),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Constants.borderColor,
-                              radius: height / 17.r,
-                              child: CircleAvatar(
-                                  backgroundColor: Constants.themeBgColor,
-                                  radius: height / 18.r,
-                                  backgroundImage: data.profilePic != null
-                                      ? Image.network(
-                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profilePic}",
-                                          fit: BoxFit.fill,
-                                        ).image
-                                      : Image.asset(
-                                          data.gender != "Male"
-                                              ? "assets/images/leadfemal.png"
-                                              : "assets/images/leadmale.png",
-                                          //  height: 8.h,
-                                          fit: BoxFit.fill,
-                                        ).image),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 4.sp,
-                        ),
-                        Text("Sourcing Manager",
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.normal,
-                                color: Colors.white)),
-                        Text(
-                            "${data.firstName.toString()} ${data.lastName.toString()}",
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 20.sp)),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            IconButton(
-                                onPressed: () async {
-                                  FlutterPhoneDirectCaller.callNumber(
-                                      "+91${data.officialNo}");
-                                },
-                                icon: const Icon(Icons.phone,
-                                    color: Colors.white)),
-                            IconButton(
-                                onPressed: () async {
-                                  Uri url = Uri.parse(
-                                      "whatsapp://send?phone=91${data.officialNo}");
-                                  await canLaunchUrl(url)
-                                      ? await launchUrl(url)
-                                      : throw "could not launch $url";
-                                },
-                                icon: Image.asset(
-                                  "assets/images/whatsapp.png",
-                                  color: Colors.white,
-                                  height: 25.sp,
-                                )),
-                            IconButton(
-                                onPressed: () async {
-                                  await launchUrl(Uri.parse(
-                                      "mailto:${data.officialEmail}?"));
-                                },
-                                icon: Image.asset(
-                                  "assets/images/email.png",
-                                  color: Colors.white,
-                                  height: 25.sp,
-                                ))
-                          ],
-                        )
-                      ],
+                      ),
                     ),
-                  ),
                   //const Spacer(),
                   Container(
                     margin: EdgeInsets.only(top: 10.h),
@@ -211,7 +212,8 @@ class _ContactUSState extends ConsumerState<ContactUS> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Any Escalation (Level 2)",
+                            Text(
+                                "Any Escalation${data.firstName != null ? " yam(Level 2)" : ""}",
                                 style: GoogleFonts.varela(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,

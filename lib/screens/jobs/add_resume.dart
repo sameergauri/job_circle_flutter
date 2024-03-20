@@ -1436,7 +1436,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
       } else if ((ListOfCoolingData!.any((element) =>
           recentElement !=
               null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
-          isDifferenceLessThan30Days(element.dol, DateTime.now())))) {
+          isDifferenceLessThan30Days(mostRecentDol, DateTime.now())))) {
         showDialog(
           barrierDismissible: false,
           context: context,
@@ -1919,7 +1919,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             level: widget.role,
             naturofwork: widget.nature_of_work,
             shortListFor: widget.company_id,
-            status_id: 0, //TODO : directly in interviewBay..
+            status_id: 0, //TODO : Directly in line-up.
             hrStatusId: 20,
             /*  status: "IB4",  //TODO: before changes in status...
             subStatus: "Shortlist", */

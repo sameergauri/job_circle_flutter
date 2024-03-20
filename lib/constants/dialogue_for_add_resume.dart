@@ -5,6 +5,101 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/themes/colors.dart';
 
+class CustomDialogueToDeleteFAQ extends StatefulWidget {
+  final String subtitle;
+  final VoidCallback onClose;
+  final VoidCallback onSubmit;
+  final bool error;
+  const CustomDialogueToDeleteFAQ(
+      {super.key,
+      required this.subtitle,
+      required this.onClose,
+      required this.onSubmit,
+      required this.error});
+
+  @override
+  State<CustomDialogueToDeleteFAQ> createState() =>
+      _CustomDialogueToDeleteFAQState();
+}
+
+class _CustomDialogueToDeleteFAQState extends State<CustomDialogueToDeleteFAQ> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(8.r),
+            color: Colors.white),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Add your custom dialog content here
+
+            Text(
+              widget.subtitle,
+              style: GoogleFonts.varela(
+                  fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: widget.onClose,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, right: 6, bottom: 4),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      "No",
+                      style: GoogleFonts.varela(
+                          fontSize: 16.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: widget.onSubmit,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, right: 6, bottom: 4),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      "Yes",
+                      style: GoogleFonts.varela(
+                          fontSize: 16.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CustomDialogueForAddResume extends StatefulWidget {
   final String subtitle;
   final VoidCallback onClose;

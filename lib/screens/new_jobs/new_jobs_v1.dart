@@ -19,11 +19,10 @@ import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/contact_us.dart';
-import 'package:job_circle/screens/faq/interview_faq.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
-
 import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/screens/jobs/job_details_for_cc.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
@@ -705,7 +704,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         // Navigator.pop(context);
                       },
                     ),
-                  if (data.usertype == 3)
+                  /* if (data.usertype == 3)
                     ListTile(
                       minLeadingWidth: 0.0,
                       minVerticalPadding: 5.1,
@@ -726,7 +725,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               builder: (context) => const InterviewFaq(),
                             ));
                       },
-                    ),
+                    ), */
                   ListTile(
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
@@ -1371,19 +1370,39 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     var userrole =
                                         await Utils.getPreferencesValue(prefs,
                                             ESharedPreferences.role.name);
+                                    var userid =
+                                        await Utils.getPreferencesValue(prefs,
+                                            ESharedPreferences.user_id.name);
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
-                                        return JobDetails(
-                                          id: item.id,
-                                          Applies: false,
-                                          referal: false,
-                                          is_freelancer: data.usertype == 3
-                                              ? 3
-                                              : data.is_freelancer?.toInt() ??
-                                                  0,
-                                          userType: usertype,
-                                          userrole: userrole,
-                                        );
+                                        return data.usertype == 3
+                                            ? JobDetailsForCC(
+                                                id: item.id,
+                                                Applies: false,
+                                                referal: false,
+                                                userid: userid,
+                                                is_freelancer:
+                                                    data.usertype == 3
+                                                        ? 3
+                                                        : data.is_freelancer
+                                                                ?.toInt() ??
+                                                            0,
+                                                userType: usertype,
+                                                userrole: userrole,
+                                              )
+                                            : JobDetails(
+                                                id: item.id,
+                                                Applies: false,
+                                                referal: false,
+                                                is_freelancer:
+                                                    data.usertype == 3
+                                                        ? 3
+                                                        : data.is_freelancer
+                                                                ?.toInt() ??
+                                                            0,
+                                                userType: usertype,
+                                                userrole: userrole,
+                                              );
                                       },
                                     ));
                                     /*  Navigator.pushNamed(
@@ -2796,8 +2815,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                   visible:
                       jobsController.role != "1" && jobsController.role != "2",
                   child: FloatingActionButton(
-                    backgroundColor: Constants.themeBgColor,
-                    child: const Icon(Icons.add),
+                    backgroundColor: Constants.borderColor,
+                    child: const Icon(
+                      Icons.add,
+                      color: Constants.blue,
+                    ),
                     onPressed: () {
                       Navigator.push(
                           context,

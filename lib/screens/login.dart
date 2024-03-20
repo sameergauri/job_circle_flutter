@@ -22,7 +22,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-   GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
   bool isManual = true;
   TextEditingController otpcontroller = TextEditingController();
   final String _mobileNumber = '';
@@ -467,7 +467,7 @@ class _LoginState extends State<Login> {
         ),
         const SizedBox(height: 20),
         ThemeButton(
-          color: Constants.themeBgColor,
+          color: Constants.blue,
           radious: 8.r,
           text: "Get OTP",
           onPressed: () {

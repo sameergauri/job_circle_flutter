@@ -313,7 +313,7 @@ class _CustomDialogState extends State<CustomDialog> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Constants.themeBgColorLight,
+                  color: Constants.bgColorWhite,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 padding: const EdgeInsets.only(

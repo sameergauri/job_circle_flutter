@@ -34,6 +34,7 @@ class JobsModel {
   late final int? is_support_staff;
   final List<dynamic>? interviewrounds;
   final int? sponsored_position;
+  
 
   JobsModel({
     this.id,

@@ -324,7 +324,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
               SizedBox(
                 width: 300,
                 child: ThemeButton(
-                  color: Constants.themeBgColor,
+                  color: Constants.blue,
                   radious: 8.r,
                   // disabled: vrifyButtonDisabled,
                   onPressed: () async {

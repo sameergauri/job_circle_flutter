@@ -396,7 +396,7 @@ class _LineUpState extends ConsumerState<LineUp> {
                                           isLoading = false;
                                         },
                                         statusDdId: widget
-                                            .dropDownItemList[index].statusDdId!
+                                            .dropDownItemList[index].priStatusId!
                                             .toInt(),
                                       );
                                     },

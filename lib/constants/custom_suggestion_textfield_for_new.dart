@@ -398,19 +398,18 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
                     "${widget.title}",
                     style: GoogleFonts.sourceSansPro(
                       fontSize: 14.sp,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   Container(
                       height: MediaQuery.of(context).size.height / 25.h,
                       width: double.maxFinite,
                       // height: MediaQuery.of(context).size.height / 26.h,
-                      margin:
-                          const EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                      margin: const EdgeInsets.only(right: 5, bottom: 5),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade500,
+                        color: Constants.borderColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -420,15 +419,14 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
                           Text(widget.controller.text,
                               style: GoogleFonts.sourceSansPro(
                                   // fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 15.sp)),
                           const SizedBox(
                             width: 5,
                           ),
-                          const Icon(
-                            Icons.edit,
-                            size: 15,
-                            color: Colors.white,
+                          Image.asset(
+                            "assets/images/pencil.png",
+                            height: 15.sp,
                           )
                           /*  Image.asset(
                             "assets/images/close.png",
@@ -784,6 +782,9 @@ class _SuggestionTextFieldForNewState extends State<SuggestionTextFieldForNew> {
                                             suggestion.interview_rounds != null
                                                 ? suggestion
                                                     .interview_rounds!.first
+                                                    .replaceAll('[', '')
+                                                    .replaceAll(']', '')
+                                                    .replaceAll('"', '')
                                                 : "");
                                       });
                                     },
