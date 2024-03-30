@@ -163,6 +163,10 @@ class Applicant {
   String? s2ExecutiveFeedback1;
   String? s2ExecutiveFeedback2;
   String? s2ExecutiveStatus;
+  String? spoc_name;
+  int? official_no;
+  int? report_to_official_no;
+  String? client_resume_id;
 
   Applicant({
     this.showRejectTextField,
@@ -278,6 +282,10 @@ class Applicant {
     this.s2ExecutiveFeedback2,
     this.s2ExecutiveIcon,
     this.s2ExecutiveStatus,
+    this.spoc_name,
+    this.official_no,
+    this.report_to_official_no,
+    this.client_resume_id,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
@@ -289,7 +297,7 @@ class Applicant {
       status_code: json['status_code'],
       companyName: json['company_name'],
       remark: json['remark'],
-      short_name: json['short_name'],
+      short_name: json['short_name'] ?? json['company_name'],
       role_code: json['role_code'],
       sub_code: json['sub_code'],
       interview_rounds: json['interview_rounds'],
@@ -347,9 +355,9 @@ class Applicant {
       apply_feedback2: json['apply_feedback2'],
       apply_icon: json['apply_icon'],
       detail_id: json['detail_id'],
-      hr_status: json['hr_status'],
+      hr_status: json['hr_status'] ?? json['s2_hr_status'],
       apply_status: json['apply_status'],
-      hr_sub_status: json['hr_sub_status'],
+      hr_sub_status: json['hr_sub_status'] ?? json['s2_hr_sub_status'],
       referral_feedback1: json['referral_feedback1'],
       referral_feedback2: json['referral_feedback2'],
       referral_icon: json['referral_icon'],
@@ -395,10 +403,12 @@ class Applicant {
       s2ExecutiveFeedback2: json['s2_executive_feedback2'],
       s2ExecutiveIcon: json['s2_executive_icon'],
       s2ExecutiveStatus: json['s2_executive_status'],
+      spoc_name: json['spoc_name'],
+      official_no: json['official_no'],
+      report_to_official_no: json['report_to_official_no'],
+      client_resume_id:json['client_resume_id'],
     );
   }
-
-
 
   get interviewrounds => null;
   static List<String>? _parseSkills(dynamic jsonSkills) {
@@ -552,6 +562,7 @@ class Applicant {
       's2ExecutiveFeedback2': s2ExecutiveFeedback2,
       's2ExecutiveIcon': s2ExecutiveIcon,
       's2ExecutiveStatus': s2ExecutiveStatus,
+      'official_no': official_no,
     };
   }
 }

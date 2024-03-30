@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unused_result, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print, avoid_unnecessary_containers
+// ignore_for_file: unnecessary_null_comparison, unused_result, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print, avoid_unnecessary_containers, non_constant_identifier_names, prefer_typing_uninitialized_variables
 
 import 'dart:ui';
 
@@ -90,6 +90,7 @@ class _ApplicantContainerWidgetState
             }
           },
           child: Container(
+            
             child: Row(
               children: [
                 if (widget.item.gender != null)

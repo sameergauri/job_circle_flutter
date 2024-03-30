@@ -1,5 +1,5 @@
-// ignore_for_file: unused_result, use_build_context_synchronously, avoid_print
-
+// ignore_for_file: unused_result, use_build_context_synchronously, avoid_print, unused_local_variable, duplicate_ignore
+// ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

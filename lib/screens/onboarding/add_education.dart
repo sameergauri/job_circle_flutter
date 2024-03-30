@@ -12,7 +12,7 @@ import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+
 import 'package:job_circle/screens/onboarding/add_cv.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
@@ -1231,7 +1231,7 @@ class _AddEducationState extends ConsumerState<AddEducation> {
     await JobPostApiService.updateLanguages(
         widget.languageModel, widget.userID);
     ref.refresh(userDataProvider);
-    ref.refresh(userJobDataProvider);
+   
     ref.refresh(profileSummaryProvider);
     Navigator.pushAndRemoveUntil(
         context,

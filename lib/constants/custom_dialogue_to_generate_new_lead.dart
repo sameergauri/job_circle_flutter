@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, avoid_print, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously, unused_result
+// ignore_for_file: non_constant_identifier_names, avoid_print, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously, unused_result, unused_local_variable
 // ignore_for_file: todo
 import 'dart:ui';
 
@@ -26,6 +26,10 @@ class DialogueToGenerateLeadFromLeadDetails extends ConsumerStatefulWidget {
   final Function refreshCallback;
   final Function cancel;
   final int statusDdId;
+  final int report_to;
+  final int user_id;
+  final String user_role;
+  final String source_name;
 
   const DialogueToGenerateLeadFromLeadDetails({
     super.key,
@@ -33,6 +37,10 @@ class DialogueToGenerateLeadFromLeadDetails extends ConsumerStatefulWidget {
     required this.cancel,
     required this.isLineUp,
     required this.refreshCallback,
+    required this.report_to,
+    required this.source_name,
+    required this.user_id,
+    required this.user_role,
     //required this.company_resumeId,
 
     required this.item,
@@ -804,6 +812,7 @@ class _DialogueToGenerateLeadFromLeadDetailsState
                                 pref, ESharedPreferences.user_id.name);
                             final addResumeModel = JobApplicationModel(
                               isRef: 2,
+                              rid: widget.item.rid,
                               uid: 0,
                               resume: widget.item.resume,
                               id: 0,
@@ -813,25 +822,26 @@ class _DialogueToGenerateLeadFromLeadDetailsState
                               qualification: widget.item.qualification,
                               isExperienced: int.tryParse(
                                   widget.item.isExperienced.toString()),
-                              companyName: widget.item.companyName,
-                              process: widget.item.process,
-                              level: widget.item.lead_level,
-                              naturofwork: widget.item.natureOfWork,
+                              companyName: shorListController.text,
+                              process: proces.text,
+                              level: role.text,
+                              naturofwork: natureOfWork.text,
                               shortListFor: int.tryParse(CompanyID.toString()),
-                              status_id: widget.isLineUp
-                                  ? 0
-                                  : 1, //TODO : Directly in line-up.
-                              hrStatusId: widget.isLineUp ? 20 : 14,
+                              status_id: 1, //TODO : Directly in line-up.
+                              hrStatusId: 14,
                               /*  status: "IB4",  //TODO: before changes in status...
             subStatus: "Shortlist", */
-                              sourceId: widget.item.sourceId,
-                              sourceName: widget.item.source_name,
+                              sourceId: widget.user_role == "3"
+                                  ? widget.item.sourceId
+                                  : widget.user_id,
+                              sourceName: widget.user_role == "3"
+                                  ? widget.item.source_name
+                                  : widget.source_name,
                               jobid: newJobID,
                               spoc: widget.item.spoc,
                               alternateNo: widget.item.alternateNo,
                               dol: DateTime.now(),
-                              interview_rounds:
-                                  widget.isLineUp ? null : firstInterviewRound,
+                              interview_rounds: firstInterviewRound,
                               // ... fill in other properties as needed
                             );
                             final jsonData = addResumeModel.toJson();

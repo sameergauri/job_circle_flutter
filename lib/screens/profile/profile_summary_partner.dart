@@ -18,7 +18,6 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
@@ -28,8 +27,6 @@ import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../constants/customRow.dart';
 
 /* final fetchUserData = FutureProvider<ProfileSummaryModel>((ref) async {
   final response = await _ProfileSummaryState.bindProfileSummary();
@@ -84,7 +81,8 @@ final userDataProvider = FutureProvider<UserDataModel>((ref) async {
 });
 
 class ProfileSummaryPartner extends ConsumerStatefulWidget {
-  const ProfileSummaryPartner({super.key});
+  final String role;
+  const ProfileSummaryPartner({super.key, required this.role});
 
   @override
   ConsumerState<ProfileSummaryPartner> createState() =>
@@ -533,7 +531,6 @@ class _ProfileSummaryPartnerState extends ConsumerState<ProfileSummaryPartner>
                                                                               ref.refresh(profileSummaryProvider);
 
                                                                               ref.refresh(userDataProvider);
-                                                                              ref.refresh(userJobDataProvider);
 
                                                                               //  Navigator.pop(context);
                                                                               if (data != null) {
@@ -612,8 +609,7 @@ class _ProfileSummaryPartnerState extends ConsumerState<ProfileSummaryPartner>
                                                     icon_data = data1;
                                                     ref.refresh(
                                                         userDataProvider);
-                                                    ref.refresh(
-                                                        userJobDataProvider);
+
                                                     ref.refresh(
                                                         profileSummaryProvider);
                                                     //  Navigator.pop(context);
@@ -640,462 +636,32 @@ class _ProfileSummaryPartnerState extends ConsumerState<ProfileSummaryPartner>
                                         ),
                                       ],
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          /*  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.edit_outlined,
-                                      color:
-                                          Colors.transparent,
-                                    )), */
-                                          InkWell(
-                                            child: Container(
-                                              child: Icon(
-                                                Icons.edit_outlined,
-                                                size: 18.h,
-                                                color: Colors.transparent,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
+                                              style: GoogleFonts.varela(
+                                                fontSize: 18.sp,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                          ),
-                                          data.profileSummary.experience ==
-                                                  "Experience"
-                                              ? Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      if (data.profileSummary
-                                                                  .bio !=
-                                                              null &&
-                                                          data.profileSummary
-                                                                  .bio !=
-                                                              "")
-                                                        Text(
-                                                          data.profileSummary
-                                                              .bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      if (data.education
-                                                              .isNotEmpty &&
-                                                          !hasCurrentExperience)
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                                softWrap: true,
-                                                                // maxLines: 3,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      if (data.experiences
-                                                          .isNotEmpty)
-                                                        for (final experience
-                                                            in data.experiences)
-                                                          if (experience
-                                                                  .isCurrent ==
-                                                              1)
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      Text(
-                                                        '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
-                                                        softWrap: true,
-                                                        maxLines: 3,
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 12.sp,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              : Expanded(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      if (data.profileSummary
-                                                                  .bio !=
-                                                              null &&
-                                                          data.profileSummary
-                                                                  .bio !=
-                                                              "")
-                                                        Text(
-                                                          data.profileSummary
-                                                              .bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      if (data.education
-                                                              .isNotEmpty &&
-                                                          !hasCurrentExperience)
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                                softWrap: true,
-                                                                maxLines: 3,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      if (data.experiences
-                                                          .isNotEmpty)
-                                                        for (final experience
-                                                            in data.experiences)
-                                                          if (experience
-                                                                  .isCurrent ==
-                                                              1)
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
-                                                            style: TextStyle(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                          /*  InkWell(
-                                            onTap: () {
-                                              sendToBasicInfo(
-                                                  false, data.profileSummary);
-                                            },
-                                            child: Container(
-                                              child: Icon(
-                                                Icons.edit_outlined,
-                                                size: 18.h,
-                                                color: Colors.black,
+                                            Text(
+                                              widget.role.toTitleCase(),
+                                              style: GoogleFonts.varela(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                          ), */
-                                        ],
-                                      ),
-                                    ),
-                                    if (usertype == 1)
-                                      if (data.profileSummary.cv_link == null ||
-                                              (data.profileSummary.skills!
-                                                      .isEmpty &&
-                                                  data.experiences.isEmpty) ||
-                                              (data.profileSummary.languages!
-                                                  .isEmpty) ||
-                                              data.education
-                                                  .isEmpty /* ||
-                                  experienceList.isEmpty */
-                                          )
-                                        Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: data.profileSummary
-                                                            .cv_link ==
-                                                        null ||
-                                                    data.profileSummary.skills!
-                                                        .isEmpty ||
-                                                    (data.profileSummary
-                                                                .languages !=
-                                                            null &&
-                                                        data
-                                                            .profileSummary
-                                                            .languages!
-                                                            .isEmpty) ||
-                                                    data.education.isEmpty &&
-                                                        data.experiences.first
-                                                            .skills_exp!.isEmpty
-                                                ? 102
-                                                : 0,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              // color: Colors.brown.shade50,
-                                            ),
-                                            //  padding: const EdgeInsets.all(10.0),
-                                            child: Scrollbar(
-                                              child: ListView(
-                                                shrinkWrap: true,
-                                                physics:
-                                                    const BouncingScrollPhysics(),
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                children: [
-                                                  if (data.profileSummary
-                                                          .cv_link ==
-                                                      null)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 4,
-                                                              right: 4.0),
-                                                      child: CustomFieldBlock(
-                                                        iconColor: const Color
-                                                            .fromRGBO(
-                                                            37, 150, 190, 0),
-                                                        imageUrl:
-                                                            "https://cdn-icons-png.flaticon.com/128/3135/3135752.png",
-                                                        description:
-                                                            "Recruiters identify prospective candidates through their CV.",
-                                                        buttonText:
-                                                            "+ Upload Resume",
-                                                        onPressed: () async {
-                                                          resume = await uploadFile(
-                                                              ['pdf'],
-                                                              "cv",
-                                                              data.profileSummary
-                                                                  .cv_link);
-                                                          var payload = {
-                                                            "stage":
-                                                                "upload_cv",
-                                                            "data": {
-                                                              "id": await Utils
-                                                                  .getPreferencesValue(
-                                                                      null,
-                                                                      ESharedPreferences
-                                                                          .user_id
-                                                                          .name),
-                                                              "cv_link": resume
-                                                            }
-                                                          };
-                                                          await save(
-                                                              resume, payload);
-                                                          ref.refresh(
-                                                              userDataProvider);
-                                                          ref.refresh(
-                                                              profileSummaryProvider);
-                                                          ref.refresh(
-                                                              jobsProvider);
-                                                          setState(() {});
-                                                        },
-                                                      ),
-                                                    ),
-
-                                                  if (data
-                                                              .profileSummary
-                                                              .skills!
-                                                              .isEmpty &&
-                                                          data.experiences
-                                                              .isEmpty /*  &&
-                                                    data.profileSummary
-                                                            .experience ==
-                                                        "Fresher" */
-                                                      )
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 4,
-                                                              right: 4.0),
-                                                      child: CustomFieldBlock(
-                                                        imageUrl:
-                                                            "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
-                                                        description:
-                                                            "Your skills will connect you with relevant job opportunities",
-                                                        buttonText:
-                                                            "+ Add Skills",
-                                                        onPressed: () {
-                                                          List<String> skills =
-                                                              [];
-                                                          sendToSkills(
-                                                              skills,
-                                                              data.profileSummary,
-                                                              data.experiences);
-                                                        },
-                                                      ),
-                                                    ),
-
-                                                  // Block 4: Language
-
-                                                  if (data.profileSummary
-                                                              .languages !=
-                                                          null &&
-                                                      data.profileSummary
-                                                          .languages!.isEmpty)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 4.0,
-                                                              right: 4.0),
-                                                      child: CustomFieldBlock(
-                                                        imageUrl:
-                                                            "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
-                                                        description:
-                                                            "Specify the languages",
-                                                        buttonText:
-                                                            "+ Add Languages",
-                                                        onPressed: () {
-                                                          sendToLanguges([],
-                                                              data.profileSummary);
-                                                        },
-                                                      ),
-                                                    ),
-
-                                                  if (data.education.isEmpty)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              right: 4.0,
-                                                              left: 4),
-                                                      child: CustomFieldBlock(
-                                                        imageUrl:
-                                                            "https://cdn-icons-png.flaticon.com/128/123/123402.png",
-                                                        description:
-                                                            "Share Educational detail to maximize your potential.",
-                                                        buttonText:
-                                                            "+ Add Education",
-                                                        onPressed: () {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder:
-                                                                  (context) =>
-                                                                      Screen2(
-                                                                selectedLevel:
-                                                                    profilemodel
-                                                                        .education,
-                                                                educationList:
-                                                                    educationList,
-                                                                isFirst: false,
-                                                                underGraduate: data
-                                                                            .profileSummary
-                                                                            .education !=
-                                                                        "Graduate"
-                                                                    ? true
-                                                                    : false,
-                                                                isEdit: false,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
+                                          ],
                                         ),
+                                      ],
+                                    ),
                                     Visibility(
                                       visible: (usertype == 1 ? true : false),
                                       child: experience(

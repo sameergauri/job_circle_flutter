@@ -1,12 +1,15 @@
 // ignore_for_file: unused_import
-
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/Manager/manager_piepline.dart';
+import 'package:job_circle/screens/Manager/manager_team.dart';
 import 'package:job_circle/screens/jobs/cc_my_team.dart';
+import 'package:job_circle/screens/jobs/interview_bay_cc_new.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,11 +67,17 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
         children: [
           const NewJobsV1(),
           // const TalentPool(),
-          if (role == "3") const InterViewBayCC(),
+          // if (role == "3") const InterViewBayCC(), //TODO:: old my interview page
+          if (role == "3") const NewInterviewBayCC(),
+          if (role == "4") const ManagerPipeLine(),
           //CC()
           // else
           //   const InterViewBayExecutive(),
-          role == "3" ? const CCMyTeam() : const TalentPoolExecutive(),
+          role == "3"
+              ? const CCMyTeam()
+              : role == "4"
+                  ? const ManagerMyTeam()
+                  : const TalentPoolExecutive(),
           //Recruitz(),
         ],
       ),
@@ -95,7 +104,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
               label: 'Hiring',
               backgroundColor: Colors.blue,
             ),
-            if (role == "3")
+            if (role == "3" || role == "4")
               BottomNavigationBarItem(
                 icon: Image.asset(
                   "assets/images/recruitz.png",
@@ -118,7 +127,11 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
                 "assets/images/user-group.png",
                 height: 25.h,
               ),
-              label: role == "3" ? "Team" : "TalentPool",
+              label: role == "3"
+                  ? "Team"
+                  : role == "4"
+                      ? "Manager Team"
+                      : "TalentPool",
               backgroundColor: Colors.blue,
             ),
           ],

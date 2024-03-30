@@ -33,6 +33,8 @@ class LeadDetailPage extends ConsumerStatefulWidget {
   int? userType;
   String? userrole;
   int userid;
+  int report_to;
+  String source_name;
 
   LeadDetailPage(
       {super.key,
@@ -40,6 +42,8 @@ class LeadDetailPage extends ConsumerStatefulWidget {
       required this.userid,
       this.userType,
       this.userrole,
+      required this.report_to,
+      required this.source_name,
       required this.item});
 
   @override
@@ -746,19 +750,92 @@ class _LeadDetailPageState extends ConsumerState<LeadDetailPage>
                                     border: Border.all(color: Constants.borderColor),
                                   ), */
                             controller: _tabController,
-                            tabs: const [
-                              Row(
-                                children: [Text("Job Description")],
+                            tabs: [
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/job_desc.png",
+                                      height: 15.sp,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    const Text("Job Description")
+                                  ],
+                                ),
                               ),
-                              Tab(text: 'Interview FAQ'),
-                              Tab(
-                                text: "Recomended Job",
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/qa.png",
+                                      height: 15.sp,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    const Tab(text: 'Interview FAQ'),
+                                  ],
+                                ),
                               ),
-                              Tab(
-                                text: "History",
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/recomended.png",
+                                      height: 15.sp,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    const Tab(
+                                      text: "Recomended Job",
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Tab(
-                                text: "Resume",
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/history.png",
+                                      height: 15.sp,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    const Tab(
+                                      text: "History",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/resume.png",
+                                      height: 15.sp,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    const Tab(
+                                      text: "Resume",
+                                    ),
+                                  ],
+                                ),
                               )
                             ],
                           ),
@@ -766,12 +843,13 @@ class _LeadDetailPageState extends ConsumerState<LeadDetailPage>
                       ),
                       SizedBox(
                         //  padding: const EdgeInsets.only(left: 20),
-                        height: MediaQuery.of(context).size.height / 1.3.h,
+                        height: MediaQuery.of(context).size.height * 0.6,
                         width: double.maxFinite,
                         child: TabBarView(
                           controller: _tabController,
                           children: [
                             DescriptionForCC(
+                              user_type: usertype,
                               id: widget.id,
                               Applies: false,
                               referal: false,
@@ -779,12 +857,17 @@ class _LeadDetailPageState extends ConsumerState<LeadDetailPage>
                             InterviewFaqPage(
                               crpfid: jobDetailsModel.crpf_id!.toInt(),
                               userid: widget.userid,
+                              userType: widget.userType!.toInt(),
                               userRole: widget.userrole.toString(),
                             ),
                             const MatchingJobs(),
                             History(
                               no: widget.item.contactNo!.toInt(),
                               item: widget.item,
+                              report_to: widget.report_to,
+                              user_id: widget.userid,
+                              user_role: widget.userrole.toString(),
+                              source_name: widget.source_name,
                             ),
                             PDFViewForLeadDetail(
                               id: widget.item.id,

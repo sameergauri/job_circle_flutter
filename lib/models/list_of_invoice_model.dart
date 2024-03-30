@@ -10,7 +10,8 @@ class ListOfInvoiceModel {
   final int account_number;
   final String account_type;
   final String payment_status;
- // final String invoice_remark;
+  final String remark;
+  // final String invoice_remark;
   final List<Candidate> candidates;
 
   ListOfInvoiceModel(
@@ -23,7 +24,8 @@ class ListOfInvoiceModel {
       required this.account_number,
       required this.account_type,
       required this.candidates,
-   //   required this.invoice_remark,
+      required this.remark,
+      //   required this.invoice_remark,
       required this.payment_status});
 
   factory ListOfInvoiceModel.fromJson(Map<String, dynamic> json) {
@@ -38,13 +40,14 @@ class ListOfInvoiceModel {
       referralName: json['referralName'] ?? "",
       total_amount: json['total_amount'] ?? 0.0,
       invoice_date: invoiceDate,
-   //   invoice_remark: json['invoice_remark']??'',
+      //   invoice_remark: json['invoice_remark']??'',
       invoice_no: json['invoice_no'] ?? "",
       bank_name: json['bank_name'] ?? '',
       ifsc_code: json['ifsc_code'] ?? "",
       account_number: json['account_number'] ?? "",
       account_type: json['account_type'] ?? '',
       payment_status: json['payment_status'] ?? "",
+      remark: json["remark"]??"",
       candidates: candidates,
     );
   }

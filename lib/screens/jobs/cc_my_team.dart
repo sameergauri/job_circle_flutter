@@ -1,5 +1,5 @@
-// ignore_for_file: unnecessary_null_comparison, unused_field, unused_local_variable
-
+// ignore_for_file: unnecessary_null_comparison, unused_field, unused_local_variable, depend_on_referenced_packages, avoid_print, use_full_hex_values_for_flutter_colors
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:draggable_fab/draggable_fab.dart';
@@ -177,6 +177,20 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
 //
 //
 //
+
+            int totalPayout = leads
+                .where((lead) =>
+                    lead.hrSubStatus == "Join" &&
+                    lead.partner_payout != null &&
+                    lead.partner_payout != "")
+                .map<int>((lead) => lead.partner_payout!.toInt())
+                .fold<int>(
+                    0, (previousValue, payout) => previousValue + payout);
+
+//
+//
+//
+//
             return Scaffold(
               appBar: isSearchEnable
                   ? PreferredSize(
@@ -241,13 +255,49 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          "Join : ${leads.where((element) => element.hrSubStatus == "Join").length}",
-                                          style: GoogleFonts.varela(),
-                                        ),
-                                        Text(
-                                          "Awaiting : ${leads.where((element) => element.hrSubStatus == "Ready to Join" || element.hrSubStatus == "" || element.hrSubStatus == null).length}",
-                                          style: GoogleFonts.varela(),
+                                        Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Join",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  "Awaiting",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  "Select",
+                                                  style: GoogleFonts.varela(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Join").length}(Rs: $totalPayout)",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Ready to Join" || element.hrSubStatus == "" || element.hrSubStatus == null).length}",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  " : ${leads.length}",
+                                                  style: GoogleFonts.varela(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            )
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -255,35 +305,48 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          "OfferDecline : ${leads.where((element) => element.hrSubStatus == "Offer Decline").length}",
-                                          style: GoogleFonts.varela(),
+                                        Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Offer Drop",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  "Not Join",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  "Training Drop",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Offer Decline").length}",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Not Join").length}",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                                Text(
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Training Dropout").length}",
+                                                  style: GoogleFonts.varela(),
+                                                ),
+                                              ],
+                                            )
+                                          ],
                                         ),
-                                        Text(
-                                          "Not Join : ${leads.where((element) => element.hrSubStatus == "Not Join").length}",
-                                          style: GoogleFonts.varela(),
-                                        ),
-                                        Text(
-                                          "Training DropOut : ${leads.where((element) => element.hrSubStatus == "Training Dropout").length}",
-                                          style: GoogleFonts.varela(),
-                                        )
                                       ],
                                     ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Selects : ",
-                                      style: GoogleFonts.varela(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      "${leads.length}",
-                                      style: GoogleFonts.varela(
-                                          fontWeight: FontWeight.bold),
-                                    )
                                   ],
                                 ),
                               ],

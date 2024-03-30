@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_result, non_constant_identifier_names, use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print, use_build_context_synchronously
+// ignore_for_file: unused_field, unused_result, non_constant_identifier_names, use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print, use_build_context_synchronously, unused_local_variable
 // ignore_for_file: todo
 import 'dart:ui';
 
@@ -1449,7 +1449,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                 });
                 Navigator.pop(context);
               },
-              subtitle: "The Candidate is Already in PipeLine",
+              subtitle: "Dublicate Resume",
             );
           },
         );

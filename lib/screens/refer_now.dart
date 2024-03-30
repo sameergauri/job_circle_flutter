@@ -1,4 +1,4 @@
-// ignore_for_file: override_on_non_overriding_member, unused_field, unused_result, unused_local_variable, non_constant_identifier_names, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: override_on_non_overriding_member, unused_field, unused_result, unused_local_variable, non_constant_identifier_names, avoid_unnecessary_containers, avoid_print, use_full_hex_values_for_flutter_colors, use_build_context_synchronously
 // ignore_for_file: todo
 import 'dart:convert';
 
@@ -17,6 +17,7 @@ import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
+import 'package:job_circle/screens/jobs/job_details_for_candidate.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -650,17 +651,46 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
         : 0;
 
     return InkWell(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return JobDetails(
-              id: item.jobId,
-              Applies: false,
-              referal: true,
-              is_freelancer: 3,
-            );
-          },
-        ));
+      onTap: () async {
+        SharedPreferences pref = await Utils.getSharedPreferences();
+        var userType = await Utils.getPreferencesValue(
+            pref, ESharedPreferences.user_type.name);
+        var userrole =
+            await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
+        var userid = await Utils.getPreferencesValue(
+            pref, ESharedPreferences.user_id.name);
+
+        if (item.status_id == 1 ||
+            (item.hr_status_id == 12) ||
+            item.status_id == 4 ||
+            (item.status_id == 0 && item.hr_status_id == 20)) {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return JobDetailsForCandidate(
+                hint: 0,
+                userrole: userrole,
+                userid: userid,
+                userType: userType,
+                Applies: false,
+                referal: true,
+                is_freelancer: 3,
+                id: item.jobId,
+              );
+            },
+          ));
+        } else {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return JobDetails(
+                id: item.jobId,
+                Applies: false,
+                referal: true,
+                is_freelancer: 3,
+              );
+            },
+          ));
+        }
+
         /* Navigator.pushNamed(
           context,
           ERoute.jobsdetail.name,
@@ -1282,45 +1312,103 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomeScreen()));
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                                // border: Border.all(color: Constants.themeBgColor),
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  "assets/images/similar.png",
-                                  height: 15.h,
-                                ),
-                                const SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  "View More Jobs",
-                                  style: GoogleFonts.varela(
-                                      color: Constants.themeBgColor,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                        if (item.status_id == 1 ||
+                            (item.hr_status_id == 12) ||
+                            item.status_id == 4 ||
+                            (item.status_id == 0 && item.hr_status_id == 20))
+                          InkWell(
+                            onTap: () async {
+                              SharedPreferences pref =
+                                  await Utils.getSharedPreferences();
+                              var userType = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_type.name);
+                              var userrole = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.role.name);
+                              var userid = await Utils.getPreferencesValue(
+                                  pref, ESharedPreferences.user_id.name);
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return JobDetailsForCandidate(
+                                    userrole: userrole,
+                                    hint: 1,
+                                    userid: userid,
+                                    userType: userType,
+                                    Applies: false,
+                                    referal: true,
+                                    is_freelancer: 3,
+                                    id: item.jobId,
+                                  );
+                                },
+                              ));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                  // border: Border.all(color: Constants.themeBgColor),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/interview_tips.gif",
+                                    height: 15.h,
+                                  ),
+                                  const SizedBox(
+                                    width: 3,
+                                  ),
+                                  Text(
+                                    "Interview Tips",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        if (item.hr_status_id != 12 &&
+                            item.status_id != 1 &&
+                            item.hr_status_id != 20)
+                          InkWell(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                  // border: Border.all(color: Constants.themeBgColor),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/similar.png",
+                                    height: 15.h,
+                                  ),
+                                  const SizedBox(
+                                    width: 3,
+                                  ),
+                                  Text(
+                                    "View more jobs",
+                                    style: GoogleFonts.varela(
+                                        color: Constants.blue,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         const Spacer(),
                         RestrictedButton(
                           isChat: true,
                           onTap: () async {
                             Uri url = Uri.parse(
-                                "whatsapp://send?phone=91${item.spocContactNo}");
+                                "whatsapp://send?phone=91${item.report_to_official_no != 0 && item.report_to_official_no != null ? item.report_to_official_no : 7507810000}");
                             await canLaunchUrl(url)
                                 ? await launchUrl(url)
                                 : throw "could not launch $url";
@@ -1333,7 +1421,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                           isChat: false,
                           onTap: () async {
                             FlutterPhoneDirectCaller.callNumber(
-                                "+91${item.spocContactNo}");
+                                "+91${item.report_to_official_no != 0 && item.report_to_official_no != null ? item.report_to_official_no : 7507810000}");
                           },
                         ),
                       ],

@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_local_variable, unnecessary_null_comparison, non_constant_identifier_names, avoid_print, avoid_unnecessary_containers, deprecated_member_use
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -22,10 +24,12 @@ class DescriptionForCC extends StatefulWidget {
   int? id;
   bool Applies;
   bool referal;
+  final int user_type;
   DescriptionForCC(
       {super.key,
       required this.id,
       required this.Applies,
+      required this.user_type,
       required this.referal});
 
   @override
@@ -46,7 +50,6 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
   late Color currentAppBarColor = appBgColor;
   late double appBarElevate = 0;
   late Color appBarIconColor = Colors.white;
-  var usertype = 0;
 
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   var titleText = "";
@@ -155,8 +158,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
     //   const RestrictedButton();
     fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      usertype = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
+     
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (widget.id != null) {
         getJobDetails(widget.id);
@@ -972,7 +974,8 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.only(
                           left: 10, right: 5, top: 10, bottom: 10),
-                      margin: const EdgeInsets.only(top: 10, left: 1, right: 1),
+                      margin: const EdgeInsets.only(
+                          top: 10, left: 1, right: 1, bottom: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1055,7 +1058,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                                 : const SizedBox())),
                   ],
                 ),
-              if (usertype == EUserType.businessPartner.value &&
+              if (widget.user_type == EUserType.businessPartner.value &&
                   partner_request == EPartnerApproval.approved.value)
                 Container(
                   width: double.maxFinite,
@@ -1073,7 +1076,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                   margin: const EdgeInsets.only(top: 10, left: 1, right: 1),
                   child: Column(
                     children: [
-                      if (usertype == EUserType.businessPartner.value &&
+                      if (widget.user_type == EUserType.businessPartner.value &&
                           partner_request == EPartnerApproval.approved.value)
                         Row(children: [
                           const SizedBox(
@@ -1093,7 +1096,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                             thickness: 2,
                           )),
                         ]),
-                      if (usertype == EUserType.businessPartner.value &&
+                      if (widget.user_type == EUserType.businessPartner.value &&
                           partner_request == EPartnerApproval.approved.value)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -1126,7 +1129,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                           jobDetailsModel.specialClause == null ||
                           jobDetailsModel.specialClause == ""))
                 Visibility(
-                    visible: usertype != 3,
+                    visible: widget.user_type != 3,
                     child: Container(
                       margin: const EdgeInsets.only(top: 10),
                       padding: const EdgeInsets.only(
@@ -1404,7 +1407,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                       jobDetailsModel.specialClause != null ||
                       jobDetailsModel.specialClause != ""))
                 Visibility(
-                  visible: usertype != 3,
+                  visible: widget.user_type != 3,
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
                     padding: const EdgeInsets.only(

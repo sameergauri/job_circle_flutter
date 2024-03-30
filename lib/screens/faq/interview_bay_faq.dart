@@ -1,5 +1,5 @@
 // ignore_for_file: unused_result
-
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:draggable_fab/draggable_fab.dart';
@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/interviewbay_faq_model.dart';
 import 'package:job_circle/screens/faq/interview_faq_form.dart';
@@ -28,11 +27,13 @@ class InterviewFaqPage extends ConsumerStatefulWidget {
   final int crpfid;
   final int userid;
   final String userRole;
+  final int userType;
 
   const InterviewFaqPage(
       {super.key,
       required this.crpfid,
       required this.userid,
+      required this.userType,
       required this.userRole});
 
   @override
@@ -77,7 +78,8 @@ class _InterviewFaqPageState extends ConsumerState<InterviewFaqPage> {
     return finalData.when(data: (data) {
       return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: widget.userRole != "1"
+          floatingActionButton: widget.userType == 3 &&
+                  (widget.userRole == "3" || widget.userRole == "4")
               ? DraggableFab(
                   child: FloatingActionButton(
                     mini: true,
@@ -170,7 +172,8 @@ class _InterviewFaqPageState extends ConsumerState<InterviewFaqPage> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        IconButton(
+                                        /*  IconButton(  //TODO Question delete button..
+                                       
                                           icon: Icon(
                                             Icons.delete_outline_outlined,
                                             color: Colors.red,
@@ -212,23 +215,28 @@ class _InterviewFaqPageState extends ConsumerState<InterviewFaqPage> {
                                               },
                                             );
                                           },
-                                        ),
-                                        IconButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      InterviewFaqForm(
-                                                    id: faq.id!.toInt(),
-                                                  ),
+                                        ), */
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    InterviewFaqForm(
+                                                  id: faq.id!.toInt(),
                                                 ),
-                                              );
-                                            },
-                                            icon: Image.asset(
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
+                                            child: Image.asset(
                                               "assets/images/pencil.png",
                                               height: 16.sp,
-                                            )),
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     )
                                 ],

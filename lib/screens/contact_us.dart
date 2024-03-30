@@ -1,5 +1,5 @@
-// ignore_for_file: unnecessary_null_comparison
-
+// ignore_for_file: unnecessary_null_comparison, unused_local_variable, non_constant_identifier_names
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

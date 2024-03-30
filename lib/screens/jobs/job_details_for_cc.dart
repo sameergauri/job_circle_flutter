@@ -864,11 +864,47 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                 border: Border.all(color: Constants.borderColor),
                               ), */
                         controller: _tabController,
-                        tabs: const [
-                          Tab(text: 'Job Description'),
-                          Tab(text: 'Interview FAQ'),
-                          Tab(
-                            text: "Matching CV",
+                        tabs: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/job_desc.png",
+                                height: 15.sp,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              const Tab(text: 'Job Description'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/qa.png",
+                                height: 15.sp,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              const Tab(text: 'Interview FAQ'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/resume.png",
+                                height: 15.sp,
+                              ),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              const Tab(
+                                text: "Matching CV",
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -876,12 +912,13 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                   ),
                   SizedBox(
                     //  padding: const EdgeInsets.only(left: 20),
-                    height: MediaQuery.of(context).size.height / 1.4.h,
+                    height: MediaQuery.of(context).size.height * 0.6,
                     width: double.maxFinite,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
                         DescriptionForCC(
+                          user_type: usertype,
                           id: widget.id,
                           Applies: widget.Applies,
                           referal: widget.referal,
@@ -890,6 +927,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                           crpfid: jobDetailsModel.crpf_id!.toInt(),
                           userid: widget.userid,
                           userRole: widget.userrole.toString(),
+                          userType: widget.userType!.toInt(),
                         ),
                         const MatchingJobs()
                       ],

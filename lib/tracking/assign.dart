@@ -450,56 +450,118 @@ class _AssignDataState extends ConsumerState<AssignData> {
                                 Map<String, dynamic> jsonData =
                                     changeStatusModel.toJson();
                                 try {
-                                  subValue == 14
+                                  subValue == 14 //TODO:: for interview bay
                                       ? showDialog(
                                           context: context,
                                           builder: (context) {
                                             isLoading = true;
 
-                                            return CustomDialogueForNew(
-                                              cancel: () {
-                                                setState(() {
-                                                  isLoading = false;
-                                                });
+                                            return WillPopScope(
+                                              onWillPop: () async {
+                                                // Return false to prevent dialog from closing with back button
+                                                return Future.value(false);
                                               },
-                                              title: 'Register ',
-                                              title2: "for an Interview.",
-                                              company_name: widget
-                                                  .item.companyName
-                                                  .toString(),
-                                              nature_of_work: widget
-                                                  .item.natureOfWork
-                                                  .toString(),
-                                              process: widget.item.process
-                                                  .toString(),
-                                              role: widget.item.lead_level
-                                                  .toString(),
-                                              companyId: widget
-                                                  .item.short_list_for!
-                                                  .toInt(),
-                                              item: widget.item,
-                                              refreshCallback: () {
-                                                ref.refresh(
-                                                    fetchAllApplicantProvider);
-                                                ref.refresh(
-                                                    fetchAllReferalProvider);
-                                                ref.refresh(
-                                                    fetchAllApplyProvider);
-                                                ref.refresh(
-                                                    fetchAllApplicantProvider);
-                                                ref.refresh(
-                                                    fetchAllTalentPoolProvider);
-                                                ref.refresh(
-                                                    fetchAllExecutiveProvide);
+                                              child: CustomDialogueForNew(
+                                                cancel: () {
+                                                  setState(() {
+                                                    isLoading = false;
+                                                  });
+                                                },
+                                                title: 'Register ',
+                                                title2: "for an Interview.",
+                                                company_name: widget
+                                                    .item.companyName
+                                                    .toString(),
+                                                nature_of_work: widget
+                                                    .item.natureOfWork
+                                                    .toString(),
+                                                process: widget.item.process
+                                                    .toString(),
+                                                role: widget.item.lead_level
+                                                    .toString(),
+                                                companyId: widget
+                                                    .item.short_list_for!
+                                                    .toInt(),
+                                                item: widget.item,
+                                                refreshCallback: () {
+                                                  ref.refresh(
+                                                      fetchAllApplicantProvider);
+                                                  ref.refresh(
+                                                      fetchAllReferalProvider);
+                                                  ref.refresh(
+                                                      fetchAllApplyProvider);
+                                                  ref.refresh(
+                                                      fetchAllApplicantProvider);
+                                                  ref.refresh(
+                                                      fetchAllTalentPoolProvider);
+                                                  ref.refresh(
+                                                      fetchAllExecutiveProvide);
 
-                                                isLoading = false;
-                                              },
-                                              statusDdId: subValue,
+                                                  isLoading = false;
+                                                },
+                                                statusDdId: subValue,
+                                              ),
                                             );
                                           },
                                         )
-                                      : await JobPostApiService.NewchangeStatus(
-                                          jsonData, widget.item.id!.toInt());
+                                      : subValue == 20
+                                          ? //TODO:: for Line-up
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                isLoading = true;
+
+                                                return WillPopScope(
+                                                  onWillPop: () async {
+                                                    // Return false to prevent dialog from closing with back button
+                                                    return Future.value(false);
+                                                  },
+                                                  child: CustomDialogueForNew(
+                                                    cancel: () {
+                                                      setState(() {
+                                                        isLoading = false;
+                                                      });
+                                                    },
+                                                    title: '',
+                                                    title2: "Line-up for...",
+                                                    company_name: widget
+                                                        .item.companyName
+                                                        .toString(),
+                                                    nature_of_work: widget
+                                                        .item.natureOfWork
+                                                        .toString(),
+                                                    process: widget.item.process
+                                                        .toString(),
+                                                    role: widget.item.lead_level
+                                                        .toString(),
+                                                    companyId: widget
+                                                        .item.short_list_for!
+                                                        .toInt(),
+                                                    item: widget.item,
+                                                    refreshCallback: () {
+                                                      ref.refresh(
+                                                          fetchAllApplicantProvider);
+                                                      ref.refresh(
+                                                          fetchAllReferalProvider);
+                                                      ref.refresh(
+                                                          fetchAllApplyProvider);
+                                                      ref.refresh(
+                                                          fetchAllApplicantProvider);
+                                                      ref.refresh(
+                                                          fetchAllTalentPoolProvider);
+                                                      ref.refresh(
+                                                          fetchAllExecutiveProvide);
+
+                                                      isLoading = false;
+                                                    },
+                                                    statusDdId: subValue,
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : await JobPostApiService
+                                              .NewchangeStatus(jsonData,
+                                                  widget.item.id!.toInt());
                                   ref.refresh(fetchAllApplicantProvider);
                                   ref.refresh(fetchAllReferalProvider);
                                   ref.refresh(fetchAllApplyProvider);

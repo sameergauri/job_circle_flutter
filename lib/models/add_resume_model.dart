@@ -51,6 +51,7 @@ class JobApplicationModel {
   final String? sub_source;
   final int? status_id;
   final int? hrStatusId;
+  final String? document_status;
 
   JobApplicationModel({
     this.alternateNo,
@@ -103,6 +104,7 @@ class JobApplicationModel {
     this.sub_source,
     this.status_id,
     this.hrStatusId,
+    this.document_status,
   });
 
   factory JobApplicationModel.fromJson(Map<String, dynamic> json) {
@@ -157,6 +159,7 @@ class JobApplicationModel {
       sub_source: json['sub_source'],
       status_id: json['statusId'],
       hrStatusId: json['hrStatusId'],
+      document_status: json['document_status'],
     );
   }
 
@@ -211,7 +214,8 @@ class JobApplicationModel {
       'rid': rid,
       'sub_source': sub_source,
       'statusId': status_id,
-      'hrStatusId': hrStatusId
+      'hrStatusId': hrStatusId,
+      'document_status': document_status,
     };
   }
 }

@@ -247,7 +247,7 @@ class JobPostApiService {
     try {
       var response = await http.put(Uri.parse(apiUrl),
           headers: {'Content-Type': 'application/json'},
-          body: json. encode(jsonData));
+          body: json.encode(jsonData));
 
       if (response.statusCode == 200) {
         // Successful request
@@ -273,6 +273,7 @@ class JobPostApiService {
           body: json.encode(jsonData));
 
       if (response.statusCode == 200) {
+        print(response.body);
         // Successful request
         // print(response.body);
         print('Status Updated Successfully');

@@ -7,7 +7,6 @@ import 'package:job_circle/routes/admin_router.dart';
 import 'package:job_circle/screens/home.dart' deferred as home;
 import 'package:job_circle/screens/jobs/job_details.dart'
     deferred as jobsdetails;
-import 'package:job_circle/screens/jobs/jobs.dart' deferred as jobs;
 import 'package:job_circle/screens/leads/leads.dart' deferred as leads;
 import 'package:job_circle/screens/login.dart' deferred as login;
 import 'package:job_circle/screens/otp.dart' deferred as otp;
@@ -40,7 +39,7 @@ Future<void> get lazyProfile => profile.loadLibrary();
 //Future<void> get lazyScreen3 => screen3.loadLibrary();
 Future<void> get lazyLogin => login.loadLibrary();
 Future<void> get lazyOTP => otp.loadLibrary();
-Future<void> get lazyJobs => jobs.loadLibrary();
+
 Future<void> get lazyJobDetails => jobsdetails.loadLibrary();
 Future<void> get lazyBusinessPartner => businesspartner.loadLibrary();
 Future<void> get lazyApplication => application.loadLibrary();
@@ -93,19 +92,15 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return screen2.Screen2();
         }), */
-  /*   ERoute.screen3.value: (context) => FutureBuilder(
+    /*   ERoute.screen3.value: (context) => FutureBuilder(
         future: lazyScreen3,
         builder: (snapshot, context) {
           return screen3.Screen3(
             expirieanceFlag: false,
           );
         }), */
-    ERoute.jobs.name: (context) => FutureBuilder(
-        future: lazyJobs,
-        builder: (snapshot, context) {
-          return jobs.Jobs();
-        }),
-   /*  ERoute.jobsdetail.name: (context) => FutureBuilder(  //TODO:: Navigate to jobDetails page...
+
+    /*  ERoute.jobsdetail.name: (context) => FutureBuilder(  //TODO:: Navigate to jobDetails page...
         future: lazyJobDetails,
         builder: (snapshot, context) {
           return jobsdetails.JobDetails(Applies: false, referal: false, is_freelancer: 0,);
@@ -135,11 +130,11 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return profileSummary.ProfileSummary();
         }),
-    ERoute.profile_summary_partner.name: (context) => FutureBuilder(
+    /*   ERoute.profile_summary_partner.name: (context) => FutureBuilder(
         future: lazyProfileSummaryPartner,
         builder: (snapshot, context) {
           return profileSummaryPartner.ProfileSummaryPartner();
-        }),
+        }), */
     ERoute.stats.name: (context) => FutureBuilder(
         future: lazyStatistic,
         builder: (snapshot, context) {

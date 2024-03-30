@@ -13,23 +13,24 @@ class GetBankingModel {
   final int uid;
   final String ifscCode;
   final String icon;
+  final String remark;
 
-  GetBankingModel({
-    required this.bankName,
-    required this.lastName,
-    required this.panCard,
-    required this.isVerify,
-    required this.panCardCopy,
-    required this.accountType,
-    required this.firstName,
-    required this.cancelCheque,
-    required this.accountNumber,
-    required this.mobile,
-    required this.id,
-    required this.uid,
-    required this.ifscCode,
-    required this.icon,
-  });
+  GetBankingModel(
+      {required this.bankName,
+      required this.lastName,
+      required this.panCard,
+      required this.isVerify,
+      required this.panCardCopy,
+      required this.accountType,
+      required this.firstName,
+      required this.cancelCheque,
+      required this.accountNumber,
+      required this.mobile,
+      required this.id,
+      required this.uid,
+      required this.ifscCode,
+      required this.icon,
+      required this.remark});
 
   factory GetBankingModel.fromJson(Map<String, dynamic> json) {
     return GetBankingModel(
@@ -47,6 +48,7 @@ class GetBankingModel {
       uid: json['uid'],
       ifscCode: json['ifsc_code'],
       icon: json['icon'],
+      remark: json['remark'] ?? "Incorrect data",
     );
   }
 }
@@ -181,7 +183,7 @@ class PostBankingModel {
   final String? panCard;
   final String? panCardCopy;
   final String? createdOn;
-  final String? updatedDate;
+  final DateTime? updatedDate;
   final int? bankId;
 
   PostBankingModel({
@@ -215,7 +217,7 @@ class PostBankingModel {
       'panCard': panCard,
       'panCardCopy': panCardCopy,
       'createdOn': createdOn,
-      'updatedDate': updatedDate,
+      'updatedDate': updatedDate!.toIso8601String(),
       'bankId': bankId,
     };
   }

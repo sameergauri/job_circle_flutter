@@ -353,6 +353,7 @@ class JobProvider extends ChangeNotifier {
     filteredJobs = filteredJobs.where((job) {
       final skillsAsString = job.skills?.join(", ") ?? "";
       final jobInfo = [
+        job.short_code!.toLowerCase(),
         job.companyName!.toLowerCase(),
         job.process!.toLowerCase(),
         job.roleName!.toLowerCase(),

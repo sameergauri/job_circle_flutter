@@ -1,5 +1,5 @@
 // ignore_for_file: must_be_immutable, unused_local_variable, unused_result, prefer_typing_uninitialized_variables, non_constant_identifier_names, avoid_print, avoid_unnecessary_containers, use_full_hex_values_for_flutter_colors, unrelated_type_equality_checks, use_build_context_synchronously
-
+// ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
 
@@ -20,7 +20,7 @@ import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/masterService.dart';
@@ -2616,7 +2616,7 @@ class _Screen1State extends ConsumerState<Screen1> {
       context,
     );
     ref.refresh(userDataProvider);
-    ref.refresh(userJobDataProvider);
+    
     ref.refresh(profileSummaryProvider);
 
     Utils.setCacheData('firstName', firstName.text);

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/Manager/manager_home.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/onboarding/add_intoduction.dart';
 import 'package:path/path.dart' as p;
@@ -143,6 +144,7 @@ class Utils {
       final String usertype = data['usertype'].toString();
 
       if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
+        //TODO:: New Candidate
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => AddIntoduction()),
@@ -162,6 +164,7 @@ class Utils {
         } */
         else {
           Navigator.pushAndRemoveUntil(
+              //TODO:: Existing candidate
               context,
               MaterialPageRoute(builder: (context) => HomeScreen()),
               (route) => false);
@@ -172,7 +175,7 @@ class Utils {
         // Future.delayed(const Duration(seconds: 1), () {
         //   // Navigator.pushReplacementNamed(context, nextRoute.value);
         // });
-      } else if (usertype.toString() ==
+      } else if (usertype.toString() == //TODO:: For Employee
               EUserType.businessPartner.value.toString() ||
           usertype.toString() == EUserType.employee.value.toString()) {
         //Future.delayed(const Duration(seconds: 1), () {
@@ -181,16 +184,17 @@ class Utils {
         // Navigator.pushReplacementNamed(
         //     context, ERoute.businesspartner_confirmation.name);
         // });
-      }
-      //  else if (usertype.toString() == EUserType.employee.value.toString()) {
-      //   Future.delayed(const Duration(seconds: 1), () {
-      //     Navigator.pushNamedAndRemoveUntil(
-      //         context, ERoute.jobs.name, (Route<dynamic> route) => false);
-      //     //Navigator.pushReplacementNamed(context, ERoute.jobs.name);
-      //   });
-      // }
-
-      else {
+      } /* else if (usertype.toString() == "5") {
+        //TODO:: For Manager
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const ManagerHomeScreen()),
+              (route) => false);
+          // nextRoute = ERoute.home;
+        });
+      } */ else {
         Future.delayed(const Duration(seconds: 1), () async {
           await Utils.setPreference(null, ESharedPreferences.user_type.name,
               EUserType.jobSeeker.value);

@@ -33,8 +33,10 @@ class BankingDetals extends ConsumerStatefulWidget {
   final String name;
   final String profilePic;
   final String gender;
-  const BankingDetals(
+  bool? fromInvoice;
+  BankingDetals(
       {super.key,
+      this.fromInvoice,
       required this.name,
       required this.profilePic,
       required this.gender});
@@ -327,7 +329,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                                   vertical: 8.h, horizontal: 16.w),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8.r),
-                                  color: Constants.themeBgColor),
+                                  color: Constants.blue),
                               height: 40.sp,
                               width: double.maxFinite,
                               child: Center(
@@ -504,7 +506,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                 Padding(
                   padding: EdgeInsets.only(top: 4.sp),
                   child: Text(
-                    "Reason : Incorrect data.",
+                    "Reason : ${data.remark}",
                     style: GoogleFonts.varela(fontSize: 14.sp),
                   ),
                 ),
@@ -595,7 +597,11 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
             title: "Specify The copy of Cancel Check", error: true));
       } else {
+        if (widget.fromInvoice == null || widget.fromInvoice == false) {
+          Navigator.pop(context);
+        }
         PostBankingModel postBankingModel = PostBankingModel(
+            updatedDate: DateTime.now(),
             accountNumber: int.tryParse(_ac_no.text),
             uid: userid,
             accountType: saving
@@ -615,7 +621,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
 
         // Assuming you have access to the ref and fetchBankingDetails in your widget tree
         ref.refresh(fetchBankingDetails);
-        Navigator.pop(context);
+
         setState(() {});
       }
     } catch (e) {

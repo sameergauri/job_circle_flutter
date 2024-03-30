@@ -26,6 +26,7 @@ import 'package:job_circle/tracking/application.dart';
 import 'package:job_circle/tracking/assign.dart';
 import 'package:job_circle/tracking/interview_bay.dart';
 import 'package:job_circle/tracking/line_up.dart';
+import 'package:job_circle/tracking/negative.dart';
 import 'package:job_circle/tracking/select_status.dart';
 //import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,30 +123,15 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
       ApplicationAPI api = ApplicationAPI();
       // applicationList = await getApplicationStatusList();
       dropDownItemList = await getDropDownData();
-
-      // Use the applicationList as needed
-      // For example, you can print the groupName of each Application object:
-      // for (var application in applicationList) {
-      // print(applicationList.map((e) => e.value));
-      // }
     } catch (e) {
       print('Error fetching data: $e');
     }
   }
 
-  /* final List<RefreshController> _refreshControllers = List.generate(
-    10,
-    (index) => RefreshController(initialRefresh: false),
-  ); */
-
   Future<void> _onRefresh() async {
     // Perform a global refresh (e.g., fetch new data for all tabs)
-    await Future.delayed(const Duration(seconds: 2));
 
     ref.refresh(fetchAllApplicantProvider);
-    // Update the UI with new data
-
-    // Call this to end the refresh animation
   }
 
   @override
@@ -162,8 +148,6 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
       duration: const Duration(milliseconds: 300),
     );
     fetchTabData();
-    // await fetchAllApplicants(profilemodel.id!.toInt());
-    //  _applicantsFuture = fetchApplicantsByUserId(552);
   }
 
   @override
@@ -201,21 +185,14 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&page=1&size=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobs?userId1=$userid&page=1&size=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         final List<dynamic> contentList = jsonData['resultData']['content'];
-
-        // Convert the list of Map to a list of Applicant objects
-        List<Applicant> applicants = contentList
-            //.where((element) => element.is_join_submitted!=1)  //TODO:: to hide join submitted data....
-            /*  .where((element) =>
-                element.is_status_hide != 1 || element.is_status_hide!=null || element.s2_is_status_hide != 1 ||
-                element.s2_is_status_hide != null) */
-            .map((json) => Applicant.fromJson(json))
-            .toList();
+        List<Applicant> applicants =
+            contentList.map((json) => Applicant.fromJson(json)).toList();
         return applicants;
       } else {
         print('Failed to fetch data. Status Code: ${response.statusCode}');
@@ -226,41 +203,6 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
       return [];
     }
   }
-
-/*   String convertSalaryFormat(String input) {
-    // Extract numeric values from the input string
-    List<int> salaryValues = [
-      for (var value in input.split('-'))
-        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
-          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
-    ];
-
-    if (salaryValues.length == 2) {
-      int startValue = salaryValues[0];
-      int endValue = salaryValues[1];
-
-      if (input.contains('Per Month')) {
-        if (startValue >= 1000) {
-          double shortStartValue = startValue / 100000.0;
-          double shortEndValue = endValue / 100000.0;
-          return '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k Per Month';
-        } else {
-          return '$startValue - $endValue Per Month';
-        }
-      } else if (input.contains("Lac's P.A")) {
-        if (startValue >= 100000) {
-          double shortStartValue = startValue / 1000000.0;
-          double shortEndValue = endValue / 10000000.0;
-          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)} Lac's P.A";
-        } else {
-          return '$startValue - $endValue Per Year';
-        }
-      }
-    }
-
-    // Handle other cases, or return the input as it is if it doesn't match any pattern
-    return input;
-  } */
 
   int calculateAge(String dateOfBirth) {
     DateTime now = DateTime.now();
@@ -279,21 +221,8 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
 
   List<String> getStatuses(List<Applicant> applicants) {
     return applicants
-
-        /*  .where((element) => element.s2DdStatusId != 22)//TODO: all id for the tab which we dont want to display..
-        .where((element) => element.s2DdStatusId != 19)
-        .where((element) => element.s2DdStatusId != 21)
-        .where((element) => element.s2DdStatusId != 14)
-        .where((element) => element.s2DdStatusId != 20)
-        .where((element) => element.status_id != 22)
-        .where((element) => element.status_id != 19)
-        .where((element) => element.status_id != 21)
-        .where((element) => element.status_id != 14)
-        .where((element) => element.status_id != 20) */
-
-        /*  .where((element) => element.status_id != 16)*/
-
-        .map((e) => e.hr_status != null ? e.hr_status.toString() : e.s2HrStatus)
+        .map((e) => e.status)
+        // .where((element) => element == "Application" || element == "Assign")
         .where((status) => status != null)
         .map(
             (status) => status!) // Non-null assertion to handle non-null values
@@ -301,33 +230,6 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
         .toList()
       ..sort();
   }
-
-  /*  List<String> getStatuses(List<Applicant> applicants) {  //TODO: old code to get status before status modification..
-    return applicants
-        .where((e) => e.status_code!.contains('IB'))
-        .where((element) =>
-            element.status_code !=
-            "IB8") //TODO: to remove disqualify and reject from tab bar
-        .where((element) => element.status_code != "IB6")
-        .map((e) => e.status.toString())
-        .toSet()
-        .toList()
-      ..sort();
-  } */
-
-/*   List<String> getStatuses(List<Applicant> applicants) {
-    return applicants
-        .map((e) => e.status.toString())
-        .toSet()
-        .toList()
-        .where((status) =>
-            status == 'Application' ||
-            status == 'Assign' ||
-            status == 'Screening Reject' ||
-            status == 'S-Reject')
-        .toList()
-      ..sort();
-  } */
 
   bool isSelect = false;
   bool isSearchVisible = false;
@@ -378,19 +280,6 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
       });
     }
   }
-
-  /* var refreshKey = GlobalKey<RefreshIndicatorState>();
-
-  Future<Null> refreshList() async {
-    refreshKey.currentState?.show(atTop: false);
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      ref.refresh(fetchAllApplicantProvider);
-    });
-
-    return null;
-  } */
 
   bool isSearchEnable = false;
 
@@ -545,28 +434,53 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                             elevation: 0,
                             backgroundColor: Constants.bgColorWhite,
                             bottom: TabBar(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              labelPadding:
-                                  const EdgeInsets.only(left: 5, right: 5),
-                              labelColor: Colors.black,
-                              isScrollable: true,
-                              labelStyle: GoogleFonts.varela(
-                                  fontWeight: FontWeight.bold),
-                              unselectedLabelColor: Colors.black,
-                              unselectedLabelStyle: GoogleFonts.varela(
-                                  fontWeight: FontWeight.normal),
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              splashBorderRadius: BorderRadius.circular(8),
-                              indicatorWeight: 7.h,
-                              indicatorPadding: EdgeInsets.only(
-                                  bottom: 8.h, left: 3.w, right: 3.w),
-                              indicator: BoxDecoration(
-                                color: Constants.borderColor,
-                                borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: Constants.borderColor),
-                              ),
-                              tabs: statuses
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                labelPadding:
+                                    const EdgeInsets.only(left: 5, right: 5),
+                                labelColor: Colors.black,
+                                isScrollable: true,
+                                labelStyle: GoogleFonts.varela(
+                                    fontWeight: FontWeight.bold),
+                                unselectedLabelColor: Colors.black,
+                                unselectedLabelStyle: GoogleFonts.varela(
+                                    fontWeight: FontWeight.normal),
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                splashBorderRadius: BorderRadius.circular(8),
+                                indicatorWeight: 7.h,
+                                indicatorPadding: EdgeInsets.only(
+                                    bottom: 8.h, left: 3.w, right: 3.w),
+                                indicator: BoxDecoration(
+                                  color: Constants.borderColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border:
+                                      Border.all(color: Constants.borderColor),
+                                ),
+                                tabs: [
+                                  ...statuses.map((status) => customTab(
+                                      status.toString(),
+                                      data
+                                          .where((applicant) =>
+                                              applicant.hr_status.toString() ==
+                                                  status ||
+                                              applicant.s2HrStatus.toString() ==
+                                                  status)
+                                          .where((element) =>
+                                              element.applicantName!
+                                                  .toLowerCase()
+                                                  .contains(_searchController.text
+                                                      .toLowerCase()) ||
+                                              element.last_name!
+                                                  .toLowerCase()
+                                                  .contains(_searchController.text
+                                                      .toLowerCase()) ||
+                                              element.companyName!
+                                                  .toLowerCase()
+                                                  .contains(_searchController.text.toLowerCase()) ||
+                                              element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                          .length // Show status in the top-level tab bar
+                                      )),
+                                ]
+                                /* tabs: statuses
                                   .map(
                                     (status) => customTab(
                                         status,
@@ -595,8 +509,8 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                             .length // Show status in the top-level tab bar
                                         ),
                                   )
-                                  .toList(),
-                            ),
+                                  .toList(), */
+                                ),
                           ),
                         ),
                         body: TabBarView(
@@ -1300,7 +1214,7 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
             .where((element) => element.priStatusId == 19)
             .toList();
 
-    List<dynamic> finalInterviewRounds = item.inteviewrounds
+    List<String> finalInterviewRounds = item.inteviewrounds
             ?.map((round) => round
                 .replaceAll('[', '')
                 .replaceAll(']', '')
@@ -1320,6 +1234,9 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
             .toSet()
             .toList() ??
         []; */
+    int selectedRoundIndex = item.interview_rounds != null
+        ? finalInterviewRounds.indexOf(item.interview_rounds.toString())
+        : 0;
 
     DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
     DateTime today = DateTime.now();
@@ -1567,7 +1484,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  LeadDetailPage(       //TODO:: Send to lead Details page
+                                                  LeadDetailPage(
+                                                    report_to: report_to,
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
                                                     userid: userid,
                                                     id: item.jobId,
                                                     userrole: userrole,
@@ -1606,7 +1526,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  LeadDetailPage(          //TODO:: Send to lead Details page
+                                                  LeadDetailPage(
+                                                    report_to: report_to,
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
                                                     userid: userid,
                                                     id: item.jobId,
                                                     userrole: userrole,
@@ -1618,8 +1541,9 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       item: item,
                                       dropDownItemList: dropDownItemList!,
                                       finalDropDownItem: finalDropDownItem,
-                                      finalInterviewRounds:
+                                      finalinterviewRounds:
                                           finalInterviewRounds,
+                                      selectedRoundIndex: selectedRoundIndex,
                                     ),
                                   )),
                               Visibility(
@@ -1646,7 +1570,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  LeadDetailPage(        //TODO:: Send to lead Details page
+                                                  LeadDetailPage(
+                                                    report_to: report_to,
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
                                                     userid: userid,
                                                     id: item.jobId,
                                                     userrole: userrole,
@@ -1685,7 +1612,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  LeadDetailPage(     //TODO:: Send to lead Details page
+                                                  LeadDetailPage(
+                                                    report_to: report_to,
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
                                                     userid: userid,
                                                     id: item.jobId,
                                                     userrole: userrole,
@@ -1701,6 +1631,56 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                             finalDropDownItemforReadyOffer,
                                         finalDropDownItemForTrainingDrop:
                                             finalDropDownItemforTrainingDrop),
+                                  )),
+                              Visibility(
+                                  visible: item.hr_status_id == 15 ||
+                                      item.hr_status_id == 16 ||
+                                      item.hr_status_id == 17 ||
+                                      item.hr_status_id == 18 ||
+                                      item.hr_status_id == 19,
+                                  //TODO:: Hiring Hold/Closed
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(
+                                                    report_to: report_to,
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: NegativeStatus(
+                                      item: item,
+                                      finalinterviewRounds:
+                                          finalInterviewRounds,
+                                      selectedRoundIndex: selectedRoundIndex,
+                                      /*  finalDropDownItemforJoinNot:
+                                            finalDropDownItemforJoinNot,
+                                        finalDropDownItemforReadyOffer:
+                                            finalDropDownItemforReadyOffer,
+                                        finalDropDownItemForTrainingDrop:
+                                            finalDropDownItemforTrainingDrop */
+                                    ),
                                   ))
                               /*  Visibility(
                                 visible: item.hr_status_id ==

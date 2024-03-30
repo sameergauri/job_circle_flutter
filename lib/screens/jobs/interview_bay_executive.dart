@@ -1,4 +1,4 @@
-// ignore_for_file: override_on_non_overriding_member, unused_field, unused_result, unused_local_variable, non_constant_identifier_names, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: override_on_non_overriding_member, unused_field, unused_result, unused_local_variable, non_constant_identifier_names, avoid_unnecessary_containers, avoid_print, use_build_context_synchronously
 // ignore_for_file: todo
 import 'dart:convert';
 

@@ -1,5 +1,5 @@
-// ignore_for_file: unnecessary_null_comparison, unused_result, unused_local_variable, avoid_print
-
+// ignore_for_file: unnecessary_null_comparison, unused_result, unused_local_variable, avoid_print, non_constant_identifier_names, avoid_unnecessary_containers
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:draggable_fab/draggable_fab.dart';
@@ -32,9 +32,21 @@ final getLeadHistory =
 });
 
 class History extends ConsumerStatefulWidget {
-  int no;
-  Applicant item;
-  History({super.key, required this.no, required this.item});
+  final int no;
+  final Applicant item;
+  final int report_to;
+  final String source_name;
+  final int user_id;
+  final String user_role;
+
+  const History(
+      {super.key,
+      required this.no,
+      required this.item,
+      required this.report_to,
+      required this.source_name,
+      required this.user_id,
+      required this.user_role});
 
   @override
   ConsumerState<History> createState() => _HistoryState();
@@ -179,6 +191,10 @@ class _HistoryState extends ConsumerState<History> {
                                 context: context,
                                 builder: (context) {
                                   return DialogueToGenerateLeadFromLeadDetails(
+                                      report_to: widget.report_to,
+                                      source_name: widget.source_name,
+                                      user_id: widget.user_id,
+                                      user_role: widget.user_role,
                                       title: "for an Interview.",
                                       cancel: () {
                                         setState(() {

@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, unused_result, empty_catches, unused_element, use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:ui';
 

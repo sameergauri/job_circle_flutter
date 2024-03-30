@@ -1,5 +1,5 @@
-// ignore_for_file: unused_result, avoid_print, unused_field, override_on_non_overriding_member, unused_local_variable
-
+// ignore_for_file: unused_result, avoid_print, unused_field, override_on_non_overriding_member, unused_local_variable, prefer_final_fields, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, avoid_unnecessary_containers, use_build_context_synchronously
+// ignore_for_file: todo
 import 'dart:convert';
 
 import 'package:draggable_fab/draggable_fab.dart';
@@ -21,6 +21,7 @@ import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/Lead_details/lead_details.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
 import 'package:job_circle/screens/jobs/pdf.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -316,6 +317,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
   final TextEditingController _searchController = TextEditingController();
   List<Applicant>? _filteredData;
 
+  String? selectedItemForSelect = "All";
+  String? selectedItemForBay = "All";
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -330,7 +334,37 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
         child: fetchApplicants != null
             ? fetchApplicants.when(
                 data: (fetchdata) {
+                  List<String?> itemforbay = fetchdata
+                      .where((element) =>
+                          element.hr_status_id == 14 &&
+                          element.status_id ==
+                              1) //TODO:: List of all source_name and freelancer_name
+                      .map((element) => [
+                            element.short_name != null &&
+                                    element.short_name != ""
+                                ? element.short_name
+                                : "All",
+                          ]) // Map both sourceName and refername
+                      .expand((element) => element) // Flatten the list of lists
+                      .toSet()
+                      .toList();
+
+                  List<String?> itemforSelect = fetchdata
+                      .where((element) =>
+                          element.hr_status_id ==
+                          13) //TODO:: List of all source_name and freelancer_name
+                      .map((element) => [
+                            element.short_name != null &&
+                                    element.short_name != ""
+                                ? element.short_name
+                                : "All",
+                          ]) // Map both sourceName and refername
+                      .expand((element) => element) // Flatten the list of lists
+                      .toSet()
+                      .toList();
                   /* fetchApplicants = ref
+
+                  
               .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */ //TODO: to refresh data from api.
                   List<Applicant>? dataList = fetchdata;
 
@@ -503,8 +537,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                         status,
                                         data
                                             .where((applicant) =>
-                                                applicant.executive_status
-                                                        .toString() ==
+                                                applicant.executive_status.toString() ==
                                                     status ||
                                                 applicant.s2ExecutiveStatus
                                                         .toString() ==
@@ -512,16 +545,19 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                             .where((element) =>
                                                 element.applicantName!
                                                     .toLowerCase()
-                                                    .contains(_searchController.text
-                                                        .toLowerCase()) ||
-                                                element.last_name!
-                                                    .toLowerCase()
                                                     .contains(_searchController
                                                         .text
                                                         .toLowerCase()) ||
-                                                element.companyName!
+                                                element.contactNo
+                                                    .toString()
+                                                    .toString()
+                                                    .contains(_searchController
+                                                        .text
+                                                        .toLowerCase()) ||
+                                                element.last_name!
                                                     .toLowerCase()
                                                     .contains(_searchController.text.toLowerCase()) ||
+                                                element.companyName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
                                                 element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
                                             .length // Show status in the top-level tab bar
                                         ),
@@ -537,23 +573,26 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
 
                             final applicants = data
                                 .where((element) =>
-                                    element.applicantName!
-                                        .toLowerCase()
-                                        .contains(_searchController.text
-                                            .toLowerCase()) ||
+                                    element.applicantName!.toLowerCase().contains(
+                                        _searchController.text.toLowerCase()) ||
                                     element.last_name!.toLowerCase().contains(
                                         _searchController.text
                                             .toLowerCase()) || //TODO:: For searrch.....
                                     element.companyName!.toLowerCase().contains(
                                         _searchController.text.toLowerCase()) ||
+                                    element.contactNo
+                                        .toString()
+                                        .toString()
+                                        .contains(_searchController.text
+                                            .toLowerCase()) ||
                                     element.process!.toLowerCase().contains(
                                         _searchController.text.toLowerCase()))
-                                .where((applicant) => applicant
-                                            .executive_status !=
-                                        null
-                                    ? applicant.executive_status.toString() ==
-                                        status
-                                    : applicant.s2ExecutiveStatus == status)
+                                .where((applicant) =>
+                                    applicant.executive_status != null
+                                        ? applicant.executive_status
+                                                .toString() ==
+                                            status
+                                        : applicant.s2ExecutiveStatus == status)
                                 .toList();
 
                             final subStatuses = data
@@ -701,12 +740,14 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                         applicant.short_name.toString() ==
                                                             subStatus)
                                                     .where((element) =>
-                                                        element.applicantName!
+                                                        element.applicantName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                                        element.last_name!
                                                             .toLowerCase()
                                                             .contains(_searchController.text
                                                                 .toLowerCase()) ||
-                                                        element.last_name!
-                                                            .toLowerCase()
+                                                        element.contactNo
+                                                            .toString()
+                                                            .toString()
                                                             .contains(_searchController
                                                                 .text
                                                                 .toLowerCase()) ||
@@ -832,12 +873,13 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                                 .toLowerCase()) ||
                                                         element.last_name!
                                                             .toLowerCase()
-                                                            .contains(_searchController
-                                                                .text
+                                                            .contains(_searchController.text
                                                                 .toLowerCase()) ||
-                                                        element.companyName!
-                                                            .toLowerCase()
+                                                        element.contactNo
+                                                            .toString()
+                                                            .toString()
                                                             .contains(_searchController.text.toLowerCase()) ||
+                                                        element.companyName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
                                                         element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
                                                     .where((applicant) => (applicant.hr_status.toString() == subStatus || applicant.s2HrStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
                                                     .length)))
@@ -895,6 +937,445 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                 dropDownItemList!);
                                           },
                                         ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            } else if (status == "Interview bay") {
+                              // Second tab bar needed for subStatuses
+                              return DefaultTabController(
+                                length: substatusWithData.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: substatusWithData
+                                            .map((subStatus) => customTab(
+                                                subStatus == "" &&
+                                                        status ==
+                                                            "Interview bay"
+                                                    ? "In Process"
+                                                    : subStatus == "" &&
+                                                            status == "Select"
+                                                        ? "Hired"
+                                                        : subStatus,
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.executive_status
+                                                                .toString() ==
+                                                            status ||
+                                                        applicant.s2ExecutiveStatus
+                                                                .toString() ==
+                                                            status)
+                                                    .where((element) =>
+                                                        selectedItemForBay == "All" ||
+                                                        element.short_name ==
+                                                            selectedItemForBay)
+                                                    .where((element) =>
+                                                        element.applicantName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController.text
+                                                                .toLowerCase()) ||
+                                                        element.contactNo
+                                                            .toString()
+                                                            .toString()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.companyName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.hr_sub_status.toString() == subStatus || applicant.s2HrSubStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        substatusWithData.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.hr_sub_status
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.s2HrSubStatus
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.executive_status ==
+                                                      status ||
+                                                  applicant.s2ExecutiveStatus ==
+                                                      status))
+                                          .where((element) =>
+                                              selectedItemForBay == "All" ||
+                                              element.short_name ==
+                                                  selectedItemForBay)
+                                          .toList();
+
+                                      return Column(
+                                        children: [
+                                          Expanded(
+                                            child: RefreshIndicator(
+                                              triggerMode:
+                                                  RefreshIndicatorTriggerMode
+                                                      .anywhere,
+                                              displacement:
+                                                  100.0, // Adjust the distance to trigger the refresh
+                                              color: Colors.blue,
+                                              onRefresh: () async {
+                                                await _onRefresh();
+                                              },
+                                              child: ListView.builder(
+                                                physics:
+                                                    const AlwaysScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                itemCount:
+                                                    filteredApplicants.length,
+                                                itemBuilder: (context, index) {
+                                                  final applicant =
+                                                      filteredApplicants[index];
+
+                                                  return listViewItem_new(
+                                                      profilemodel.report_to!
+                                                          .toInt(),
+                                                      context,
+                                                      applicant,
+                                                      true,
+                                                      statuses,
+                                                      profilemodel.id != null
+                                                          ? profilemodel.id!
+                                                              .toInt()
+                                                          : 467,
+                                                      "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                      index,
+                                                      dropDownItemList!);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                    left: 10, bottom: 10),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.r),
+                                                ),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    25.sp,
+                                                width: 100,
+                                                child: DropdownButton<String>(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.r),
+                                                  padding: EdgeInsets.zero,
+                                                  underline: const SizedBox(),
+                                                  // Your DropdownButton code here
+                                                  style: GoogleFonts.varela(
+                                                      color: Colors.black),
+                                                  elevation: 0,
+                                                  // isDense: false,
+                                                  value: selectedItemForBay,
+                                                  onChanged:
+                                                      (String? newValue) {
+                                                    setState(() {
+                                                      selectedItemForBay =
+                                                          newValue;
+                                                    });
+                                                  },
+                                                  items: [
+                                                    // Default item to display when nothing is selected
+                                                    DropdownMenuItem<String>(
+                                                      value: "All",
+                                                      child: Text(
+                                                        'All',
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                      ),
+                                                    ),
+                                                    // Other items
+                                                    ...itemforbay.map<
+                                                            DropdownMenuItem<
+                                                                String>>(
+                                                        (String? value) {
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: value,
+                                                        child: Text(
+                                                          value ?? value!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                        ),
+                                                      );
+                                                    }),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            } else if (status == "Select") {
+                              // Second tab bar needed for subStatuses
+                              return DefaultTabController(
+                                length: substatusWithData.length,
+                                child: Scaffold(
+                                  appBar: PreferredSize(
+                                    preferredSize: Size(double.maxFinite,
+                                        kToolbarHeight / 1.4.sp),
+                                    child: AppBar(
+                                      // title: const Text("Hello"),
+                                      elevation: 0,
+                                      backgroundColor: Constants.bgColorWhite,
+                                      bottom: TabBar(
+                                        unselectedLabelStyle:
+                                            GoogleFonts.varela(
+                                                fontWeight: FontWeight.normal),
+                                        labelStyle: GoogleFonts.varela(
+                                            fontWeight: FontWeight.bold),
+                                        labelPadding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        labelColor: Colors.black,
+                                        isScrollable: true,
+                                        unselectedLabelColor: Colors.black,
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        splashBorderRadius:
+                                            BorderRadius.circular(8),
+                                        indicatorWeight: 7.h,
+                                        indicatorPadding: EdgeInsets.only(
+                                            bottom: 8.h, left: 3.w, right: 3.w),
+                                        indicator: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Constants.borderColor),
+                                        ),
+                                        /*  onTap: (value) {
+                                  setState(() {
+                                    isSelect = !isSelect;
+                                  });
+                                }, */
+                                        tabs: substatusWithData
+                                            .map((subStatus) => customTab(
+                                                subStatus,
+                                                (data
+                                                    .where((applicant) =>
+                                                        applicant.executive_status.toString() == status ||
+                                                        applicant.s2ExecutiveStatus.toString() ==
+                                                            status)
+                                                    .where((element) =>
+                                                        selectedItemForSelect == "All" ||
+                                                        element.short_name ==
+                                                            selectedItemForSelect)
+                                                    .where((element) =>
+                                                        element.applicantName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                                        element.last_name!
+                                                            .toLowerCase()
+                                                            .contains(_searchController
+                                                                .text
+                                                                .toLowerCase()) ||
+                                                        element.contactNo
+                                                            .toString()
+                                                            .toString()
+                                                            .contains(_searchController.text.toLowerCase()) ||
+                                                        element.companyName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                                                        element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
+                                                    .where((applicant) => (applicant.hr_sub_status.toString() == subStatus || applicant.s2HrSubStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
+                                                    .length)))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  body: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children:
+                                        substatusWithData.map((subStatus) {
+                                      // Filter applicants based on the current status and sub_status
+                                      final filteredApplicants = applicants
+                                          .where((applicant) =>
+                                              (applicant.hr_sub_status
+                                                          .toString() ==
+                                                      subStatus ||
+                                                  applicant.s2HrSubStatus
+                                                          .toString() ==
+                                                      subStatus) &&
+                                              (applicant.executive_status ==
+                                                      status ||
+                                                  applicant.s2ExecutiveStatus ==
+                                                      status))
+                                          .where((element) =>
+                                              selectedItemForSelect == "All" ||
+                                              element.short_name ==
+                                                  selectedItemForSelect)
+                                          .toList();
+
+                                      return Column(
+                                        children: [
+                                          Expanded(
+                                            child: RefreshIndicator(
+                                              triggerMode:
+                                                  RefreshIndicatorTriggerMode
+                                                      .anywhere,
+                                              displacement:
+                                                  100.0, // Adjust the distance to trigger the refresh
+                                              color: Colors.blue,
+                                              onRefresh: () async {
+                                                await _onRefresh();
+                                              },
+                                              child: ListView.builder(
+                                                physics:
+                                                    const AlwaysScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                itemCount:
+                                                    filteredApplicants.length,
+                                                itemBuilder: (context, index) {
+                                                  final applicant =
+                                                      filteredApplicants[index];
+
+                                                  return listViewItem_new(
+                                                      profilemodel.report_to!
+                                                          .toInt(),
+                                                      context,
+                                                      applicant,
+                                                      true,
+                                                      statuses,
+                                                      profilemodel.id != null
+                                                          ? profilemodel.id!
+                                                              .toInt()
+                                                          : 467,
+                                                      "${profilemodel.first_name} ${profilemodel.last_name}",
+                                                      index,
+                                                      dropDownItemList!);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                    left: 10, bottom: 10),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.r),
+                                                ),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    25.sp,
+                                                width: 100,
+                                                child: DropdownButton<String>(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.r),
+                                                  padding: EdgeInsets.zero,
+                                                  underline: const SizedBox(),
+                                                  // Your DropdownButton code here
+                                                  style: GoogleFonts.varela(
+                                                      color: Colors.black),
+                                                  elevation: 0,
+                                                  // isDense: false,
+                                                  value: selectedItemForSelect,
+                                                  onChanged:
+                                                      (String? newValue) {
+                                                    setState(() {
+                                                      selectedItemForSelect =
+                                                          newValue;
+                                                    });
+                                                  },
+                                                  items: [
+                                                    // Default item to display when nothing is selected
+                                                    DropdownMenuItem<String>(
+                                                      value: "All",
+                                                      child: Text(
+                                                        'All',
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                      ),
+                                                    ),
+                                                    // Other items
+                                                    ...itemforSelect.map<
+                                                            DropdownMenuItem<
+                                                                String>>(
+                                                        (String? value) {
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: value,
+                                                        child: Text(
+                                                          value ?? value!,
+                                                          style: GoogleFonts
+                                                              .varela(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                        ),
+                                                      );
+                                                    }),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
                                       );
                                     }).toList(),
                                   ),
@@ -968,9 +1449,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                             .toLowerCase()
                                                             .contains(_searchController.text
                                                                 .toLowerCase()) ||
-                                                        element.companyName!
-                                                            .toLowerCase()
+                                                        element.contactNo
+                                                            .toString()
+                                                            .toString()
                                                             .contains(_searchController.text.toLowerCase()) ||
+                                                        element.companyName!.toLowerCase().contains(_searchController.text.toLowerCase()) ||
                                                         element.process!.toLowerCase().contains(_searchController.text.toLowerCase()))
                                                     .where((applicant) => (applicant.hr_sub_status.toString() == subStatus || applicant.s2HrSubStatus.toString() == subStatus) && (applicant.executive_status == status || applicant.s2ExecutiveStatus == status))
                                                     .length)))
@@ -1251,27 +1734,121 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                               Visibility(
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
-                                  child: AssignData(
-                                      myLineUp: item.sourceId == profilemodel.id
-                                          ? true
-                                          : false,
-                                      item: item,
-                                      dropDownItemList: dropDownItemList!)),
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                    report_to: reportTo,
+                                                  )));
+                                    },
+                                    child: AssignData(
+                                        myLineUp:
+                                            item.sourceId == profilemodel.id
+                                                ? true
+                                                : false,
+                                        item: item,
+                                        dropDownItemList: dropDownItemList!),
+                                  )),
                               Visibility(
                                   visible: item.hr_status_id == 20 ||
                                       item.s2DdHrStatusId == 12, //TODO:: LineUp
-                                  child: LineUp(
-                                      mylineup: item.sourceId == profilemodel.id
-                                          ? true
-                                          : false,
-                                      item: item,
-                                      dropDownItemList: dropDownItemForLineUp)),
+                                  child: GestureDetector(
+                                    onDoubleTap: () async {
+                                      SharedPreferences pref =
+                                          await Utils.getSharedPreferences();
+                                      var userType =
+                                          await Utils.getPreferencesValue(
+                                              pref,
+                                              ESharedPreferences
+                                                  .user_type.name);
+                                      var userrole =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.role.name);
+                                      var userid =
+                                          await Utils.getPreferencesValue(pref,
+                                              ESharedPreferences.user_id.name);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LeadDetailPage(
+                                                    source_name: sourceName,
+                                                    //TODO:: Send to lead Details page
+                                                    userid: userid,
+                                                    id: item.jobId,
+                                                    report_to: reportTo,
+                                                    userrole: userrole,
+                                                    userType: userType,
+                                                    item: item,
+                                                  )));
+                                    },
+                                    child: LineUp(
+                                        mylineup:
+                                            item.sourceId == profilemodel.id
+                                                ? true
+                                                : false,
+                                        item: item,
+                                        dropDownItemList:
+                                            dropDownItemForLineUp),
+                                  )),
                               Visibility(
                                 visible: item.hr_status_id != 11 &&
                                     item.hr_status_id != 12 &&
                                     item.hr_status_id != 20,
-                                child: customTalentPoolCard(item, context,
-                                    finalinterviewRounds, selectedRoundIndex),
+                                child: GestureDetector(
+                                  onDoubleTap: () async {
+                                    SharedPreferences pref =
+                                        await Utils.getSharedPreferences();
+                                    var userType =
+                                        await Utils.getPreferencesValue(pref,
+                                            ESharedPreferences.user_type.name);
+                                    var userrole =
+                                        await Utils.getPreferencesValue(
+                                            pref, ESharedPreferences.role.name);
+                                    var userid =
+                                        await Utils.getPreferencesValue(pref,
+                                            ESharedPreferences.user_id.name);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LeadDetailPage(
+                                                  source_name: sourceName,
+                                                  //TODO:: Send to lead Details page
+                                                  userid: userid,
+                                                  id: item.jobId,
+                                                  report_to: reportTo,
+                                                  userrole: userrole,
+                                                  userType: userType,
+                                                  item: item,
+                                                )));
+                                  },
+                                  child: customTalentPoolCard(item, context,
+                                      finalinterviewRounds, selectedRoundIndex),
+                                ),
                               ),
                             ],
                           );
@@ -1702,7 +2279,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                         ),
                         Expanded(
                           child: Text(
-                            "(${item.workLocation.toString()})",
+                            item.workLocation.toString(),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             softWrap: true,

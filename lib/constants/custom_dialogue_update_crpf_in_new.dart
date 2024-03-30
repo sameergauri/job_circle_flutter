@@ -431,10 +431,10 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                       ),
                     ),
                   ],
-                ),
+                ),*/
                 SizedBox(
-                  height: 6.h,
-                ), */
+                  height: 10.h,
+                ),
                 isComp
                     ? CustomJobFormForUpdateCRPF(
                         onTapCallback: onTextField1Tap1,
@@ -1010,7 +1010,7 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                                 jsonData, widget.item.id!.toInt());
                             NewChangeStatusModel changeStatusModel =
                                 NewChangeStatusModel(
-                                    statusId: 1,
+                                    statusId: widget.statusDdId == 20 ? 0 : 1,
                                     hrStatusId: widget.statusDdId,
                                     spoc: userType == 3 && userrole == "3"
                                         ? userid

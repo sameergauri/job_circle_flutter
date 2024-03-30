@@ -290,245 +290,252 @@ class _InvoiceState extends ConsumerState<Invoice> {
                 ),
               ),
               backgroundColor: Colors.white,
-              body: Container(
-                margin: EdgeInsets.symmetric(horizontal: 4.w),
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.black)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            formattedDate,
-                            style: GoogleFonts.varela(
-                                fontSize: 16.sp, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "To,",
-                                  style: GoogleFonts.varela(fontSize: 16.sp),
-                                ),
-                                Text(
-                                  "Job Circle",
-                                  style: GoogleFonts.varela(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "Thane ${"(W)"},\nMumbai-400601",
-                                  style: GoogleFonts.varela(fontSize: 16.sp),
-                                ),
-                                Text(
-                                  "Invoice No :  $nextInvoiceNumber",
-                                  // generateInvoiceNumber(data.first.userId.toString())
-
-                                  style: GoogleFonts.varela(fontSize: 16.sp),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      DynamicTable(data: tableData, totalAmount: totalAmount),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Amount in words : ",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "${amountToWords(totalAmount.toInt())} only",
+              body: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                  decoration:
+                      BoxDecoration(border: Border.all(color: Colors.black)),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              formattedDate,
                               style: GoogleFonts.varela(
                                   fontSize: 16.sp, fontWeight: FontWeight.bold),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      const Divider(),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Banking Detail",
-                            style: GoogleFonts.varela(
-                                fontSize: 16.sp, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 10.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Bank Name",
-                                      style: GoogleFonts.varela(
+                            Container(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "To,",
+                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                  ),
+                                  Text(
+                                    "Job Circle",
+                                    style: GoogleFonts.varela(
                                         fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Account Type",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Holder Name(As per Bank Record)",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Account No",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      "IFSC Code",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      " : ${data.isNotEmpty ? data.first.bankName ?? 'Unknown' : 'Unknown'}",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      " : ${data.isNotEmpty ? data.first.accountType ?? 'Unknown' : 'Unknown'}",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      " : ${data.isNotEmpty ? data.first.referralName ?? 'Unknown' : 'Unknown'}",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      " : ${data.isNotEmpty ? data.first.accountNumber ?? 'Unknown' : 'Unknown'}",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      " : ${data.isNotEmpty ? data.first.ifscCode ?? 'Unknown' : 'Unknown'}",
-                                      style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    "Thane ${"(W)"},\nMumbai-400601",
+                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                  ),
+                                  Text(
+                                    "Invoice No :  $nextInvoiceNumber",
+                                    // generateInvoiceNumber(data.first.userId.toString())
+
+                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      const Text(
-                        'I hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          InkWell(
-                            onTap: () async {
-                              try {
-                                Navigator.pop(context);
-
-                                JobPostApiService api = JobPostApiService();
-                                await api.updateInvoiceDetails(
-                                    partnerInvoiceNo: nextInvoiceNumber,
-                                    partnerTotalAmount: totalAmount,
-                                    invoiceDate: DateTime.now(),
-                                    payment_status: "Invoice Submitted",
-                                    id: filteredLeadIdList,
-                                    context: context);
-                                ref.refresh(fetchAllBillingDataProvider);
-                                ref.refresh(fetchAllInvoice);
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  CustomSnackbarfinal(
-                                    title: "Error submitting invoice",
-                                    error: true,
-                                  ),
-                                );
-                              }
-                            },
-
-                            /* onTap: () async {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  CustomSnackbarfinal(
-                                      title: "Invoice Submitted",
-                                      error: false));
-                              Navigator.pop(context);
-                              JobPostApiService api = JobPostApiService();
-                              api.updateInvoiceDetails(
-                                  partnerInvoiceNo: nextInvoiceNumber,
-                                  partnerTotalAmount: totalAmount.toInt(),
-                                  invoiceDate: DateTime.now(),
-                                  payment_status: "Invoice Submited",
-                                  id: filteredLeadIdList);
-                            }, */
-                            child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 8.w, vertical: 10.h),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 6.h, horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Constants.blue, width: 2.sp),
-                                  borderRadius: BorderRadius.circular(8.r)),
-                              child: Text("Submit Invoice",
-                                  style: GoogleFonts.varela(
-                                      color: Constants.blue,
-                                      fontWeight: FontWeight.bold)),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        DynamicTable(data: tableData, totalAmount: totalAmount),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "Amount in words : ",
+                              style: GoogleFonts.varela(
+                                fontSize: 16.sp,
+                              ),
                             ),
-                          )
-                        ],
-                      ),
-                    ],
+                            Expanded(
+                              child: Text(
+                                "${amountToWords(totalAmount.toInt())} only",
+                                style: GoogleFonts.varela(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        const Divider(),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Banking Detail",
+                              style: GoogleFonts.varela(
+                                  fontSize: 16.sp, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(vertical: 10.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Bank Name",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account Type",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Holder Name(As per Bank Record)",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account No",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        "IFSC Code",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        " : ${data.isNotEmpty ? data.first.bankName ?? 'Unknown' : 'Unknown'}",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        " : ${data.isNotEmpty ? data.first.accountType ?? 'Unknown' : 'Unknown'}",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        " : ${data.isNotEmpty ? data.first.referralName ?? 'Unknown' : 'Unknown'}",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        " : ${data.isNotEmpty ? data.first.accountNumber ?? 'Unknown' : 'Unknown'}",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        " : ${data.isNotEmpty ? data.first.ifscCode ?? 'Unknown' : 'Unknown'}",
+                                        style: GoogleFonts.varela(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Text(
+                          'I hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              onTap: () async {
+                                try {
+                                  Navigator.pop(context);
+
+                                  JobPostApiService api = JobPostApiService();
+                                  await api.updateInvoiceDetails(
+                                      partnerInvoiceNo: nextInvoiceNumber,
+                                      partnerTotalAmount: totalAmount,
+                                      invoiceDate: DateTime.now(),
+                                      payment_status: "Invoice Submitted",
+                                      id: filteredLeadIdList,
+                                      context: context);
+                                  ref.refresh(fetchAllBillingDataProvider);
+                                  ref.refresh(fetchAllInvoice);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                      title: "Error submitting invoice",
+                                      error: true,
+                                    ),
+                                  );
+                                }
+                              },
+
+                              /* onTap: () async {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    CustomSnackbarfinal(
+                                        title: "Invoice Submitted",
+                                        error: false));
+                                Navigator.pop(context);
+                                JobPostApiService api = JobPostApiService();
+                                api.updateInvoiceDetails(
+                                    partnerInvoiceNo: nextInvoiceNumber,
+                                    partnerTotalAmount: totalAmount.toInt(),
+                                    invoiceDate: DateTime.now(),
+                                    payment_status: "Invoice Submited",
+                                    id: filteredLeadIdList);
+                              }, */
+                              child: Container(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 8.w, vertical: 10.h),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 6.h, horizontal: 12.w),
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Constants.blue, width: 2.sp),
+                                    borderRadius: BorderRadius.circular(8.r)),
+                                child: Text("Submit Invoice",
+                                    style: GoogleFonts.varela(
+                                        color: Constants.blue,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -630,6 +637,10 @@ class _InvoiceState extends ConsumerState<Invoice> {
     ];
 
     String words = '';
+    if (amount >= 100000) {
+      words += '${amountToWords(amount ~/ 100000)} Lakh ';
+      amount %= 100000;
+    }
 
     if (amount >= 1000) {
       words += '${amountToWords(amount ~/ 1000)} Thousand ';
@@ -798,7 +809,8 @@ class DynamicTable extends StatelessWidget {
         color: Colors.white,
         // padding: const EdgeInsets.all(20.0),
         child: Table(
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          defaultVerticalAlignment: TableCellVerticalAlignment.top,
+
           border: TableBorder.all(), // Add borders to the table
           columnWidths: const {
             0: FlexColumnWidth(

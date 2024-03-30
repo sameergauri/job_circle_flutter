@@ -28,7 +28,6 @@ import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -2218,7 +2217,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                               jsonData,
                               context,
                             );
-                            ref.refresh(userJobDataProvider);
+
                             ref.refresh(jobsProvider);
                             setState(() {
                               isLoading = false;
@@ -2623,7 +2622,7 @@ class _JobFormState extends ConsumerState<JobForm> {
                             : await InActiveCommercial();
                       });
                     }
-                    ref.refresh(userJobDataProvider);
+
                     // ref.refresh();
                     ref.refresh(jobsProvider);
                     setState(() {

@@ -695,7 +695,7 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
             Padding(
               padding: EdgeInsets.only(top: 4.sp),
               child: Text(
-                "Reason : Incorrect data.",
+                "Reason : ${filteredData.remark}",
                 style: GoogleFonts.varela(fontSize: 14.sp),
               ),
             ),

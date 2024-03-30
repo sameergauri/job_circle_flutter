@@ -121,8 +121,10 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
               child: CustomDialog(
                   fetchDataFromApi: () {},
                   onClose: () {
+                    // ref.refresh(fetchAllApplicantProvider);
                     Navigator.pop(context);
                     Navigator.pop(context);
+                    ref.refresh(fetchAllApplicantProvider);
                   },
                   isFisrt: false,
                   title: "CV downloaded",
@@ -146,8 +148,10 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
               child: CustomDialog(
                   fetchDataFromApi: () {},
                   onClose: () {
+                    // ref.refresh(fetchAllApplicantProvider);
                     Navigator.pop(context);
                     Navigator.pop(context);
+                    ref.refresh(fetchAllApplicantProvider);
                   },
                   isFisrt: false,
                   title: "Fail!",
@@ -193,6 +197,7 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
                 ),
                 onPressed: () async {
                   await downloadFileToDownloadsFolder(fileUrl, fileName);
+                  ref.refresh(fetchAllApplicantProvider);
                 }),
         ],
       ),

@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 class CCTeamModel {
   final int? statusId;
   final int? hrStatusId;
@@ -16,6 +18,9 @@ class CCTeamModel {
   final int? sourceId;
   final String? lastName;
   final DateTime? dol;
+  final String? attr_status;
+  final double? partner_payout;
+  final String? spoc_name;
 
   CCTeamModel({
     this.statusId,
@@ -35,6 +40,9 @@ class CCTeamModel {
     this.sourceId,
     this.lastName,
     this.dol,
+    this.attr_status,
+    this.partner_payout,
+    this.spoc_name,
   });
 
   factory CCTeamModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +64,9 @@ class CCTeamModel {
       sourceId: json['source_id'],
       lastName: json['last_name'],
       dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      attr_status: json['attr_status'] ?? "Pending",
+      partner_payout: json['client_payout'],
+      spoc_name: json['spoc_name'],
     );
   }
 }

@@ -120,111 +120,41 @@ class _LineUpState extends ConsumerState<LineUp> {
                       ),
                       Row(
                         children: [
-                          widget.item.qualification == null
-                              ? Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/bag.png",
-                                      height: 12.h,
-                                    ),
-                                    const SizedBox(
-                                      width: 4,
-                                    ),
-                                    Text(
-                                      widget.item.isExperienced.toString(),
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/education_d.png",
-                                      height: 15.h,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      "${widget.item.qualification.toString()}  |  ",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                    Image.asset(
-                                      "assets/images/bag.png",
-                                      height: 12.h,
-                                    ),
-                                    const SizedBox(
-                                      width: 2,
-                                    ),
-                                    Text(
-                                      " ${widget.item.isExperienced}",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                )
+                          Image.asset(
+                            "assets/images/process.png",
+                            height: 12.h,
+                            //  color: Constants.subtitleclr,
+                          ),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(
+                            "${widget.item.process.toString()}  |  ",
+                            style: GoogleFonts.varela(
+                              color: Colors.black54,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Image.asset(
+                            "assets/images/designation.png",
+                            height: 12.h,
+                            //  color: Constants.subtitleclr,
+                          ),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(
+                            " ${widget.item.role_code != null && widget.item.role_code != "" ? widget.item.role_code : widget.item.lead_level}",
+                            style: GoogleFonts.varela(
+                              color: Colors.black54,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ],
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 4.h),
-                width: double.maxFinite,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 4,
-                  horizontal: 8,
-                ),
-                decoration: BoxDecoration(
-                    //  color: Constants.borderColor,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Row(
-                  //  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/images/designation.png",
-                            height: 15.sp,
-                          ),
-                          SizedBox(
-                            width: 4.sp,
-                          ),
-                          Text(widget.item.role_code != null &&
-                                  widget.item.role_code != ""
-                              ? "${widget.item.role_code}"
-                              : "${widget.item.lead_level}"),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Image.asset(
-                          "assets/images/process.png",
-                          height: 15.sp,
-                        ),
-                        SizedBox(
-                          width: 4.sp,
-                        ),
-                        Text(
-                          "${widget.item.process}",
-                          style: GoogleFonts.varela(
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
               ),
               SizedBox(
                 height: 4.h,
@@ -396,7 +326,8 @@ class _LineUpState extends ConsumerState<LineUp> {
                                           isLoading = false;
                                         },
                                         statusDdId: widget
-                                            .dropDownItemList[index].priStatusId!
+                                            .dropDownItemList[index]
+                                            .priStatusId!
                                             .toInt(),
                                       );
                                     },
@@ -432,7 +363,7 @@ class _LineUpState extends ConsumerState<LineUp> {
                     ),
                 ],
               ),
-              if (!widget.mylineup)
+              /*  if (!widget.mylineup)  //TODO:: source name as per source
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -462,7 +393,7 @@ class _LineUpState extends ConsumerState<LineUp> {
                           ],
                         )),
                   ],
-                ),
+                ), */
               if (widget.item.notes != null && widget.item.notes != "")
                 const Divider(),
               Container(

@@ -231,6 +231,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => BankingDetals(
+                                            fromInvoice: true,
                                                 gender: widget.gender,
                                                 name: widget.name,
                                                 profilePic: widget.profilePic,
@@ -416,9 +417,11 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
   }
 
   Container CustomCard(ViewAndGenerateBillingModel filteredData) {
-    String formattedAmount = filteredData.partnerPayout!
-        .toStringAsFixed(0)
-        .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '');
+    String formattedAmount = filteredData.partnerPayout != null
+        ? filteredData.partnerPayout!
+            .toStringAsFixed(0)
+            .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '')
+        : "";
 
     DateTime dateTime = DateTime.parse(filteredData.doj.toString());
     String formattedDate = DateFormat("d MMM yyyy").format(dateTime);

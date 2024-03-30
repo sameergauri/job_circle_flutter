@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/models/active_state_model.dart';
 import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
@@ -29,6 +30,7 @@ import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
 import 'package:job_circle/screens/new_jobs/location_selector.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/screens/profile/profile_summary_partner.dart';
 import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -37,7 +39,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../enums/enums.dart';
-import '../../models/active_state_model.dart';
 import '../../themes/colors.dart';
 import '../jobs/career_assets.dart';
 import '../jobs/matching_jobs.dart';
@@ -249,14 +250,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
   List<String> myString = [];
   late Timer timer;
 
-  void startSearchFieldAnimation() {
-    /*  timer = Timer.periodic(const Duration(seconds: 2), (Timer t) {
-      setState(() {
-        currentSearchFieldIndex =
-            (currentSearchFieldIndex + 1) % searchFields.length;
-      });
-    }); */
-  }
+  void startSearchFieldAnimation() {}
 
   final FocusNode _dearchFocus = FocusNode();
 
@@ -298,11 +292,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
             //TODO:: 1 = JobSeeker, 2 = Freelancer, 0 = Both. // login type for user.
             freelancer = true;
             jobSeeker = false;
-            both = false;
           } else if (data.is_freelancer == 1) {
             jobSeeker = true;
             freelancer = false;
-            both = false;
           }
         });
         if (jobsController.isLoading) {
@@ -340,10 +332,17 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     data.usertype != 3
                                         ? await Navigator.pushNamed(context,
                                             ERoute.profile_summary.name)
-                                        : await Navigator.pushNamed(
+                                        : Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    ProfileSummaryPartner(
+                                                        role: data.role
+                                                            .toString()))));
+                                    /*  await Navigator.pushNamed(
                                             context,
                                             ERoute
-                                                .profile_summary_partner.name);
+                                                .profile_summary_partner.name); */
 
                                     closeDrawer(); // Call the function to close the drawer
                                   },
@@ -369,10 +368,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     data.usertype != 3
                                         ? await Navigator.pushNamed(context,
                                             ERoute.profile_summary.name)
-                                        : await Navigator.pushNamed(
+                                        : Navigator.push(
                                             context,
-                                            ERoute
-                                                .profile_summary_partner.name);
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProfileSummaryPartner(
+                                                        role: data.role
+                                                            .toString())));
 
                                     closeDrawer(); // Call the function to close the drawer
                                   },
@@ -422,7 +424,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
 
                                           setState(() {
                                             jobSeeker = true;
-                                            both = false;
                                             freelancer = false;
                                           });
                                           ref.refresh(profileSummaryProvider);
@@ -438,7 +439,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
 
                                           setState(() {
                                             jobSeeker = false;
-                                            both = false;
                                             freelancer = true;
                                           });
                                           ref.refresh(profileSummaryProvider);
@@ -446,21 +446,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                         child: CustomContainerForUserSelection(
                                             "Freelancer", freelancer),
                                       ),
-                                      /*   GestureDetector(
-                                        onTap: () async {
-                                          await JobPostApiService
-                                              .updateFreelancerActivity(
-                                                  0, data.id!.toInt());
-                                          setState(() {
-                                            jobSeeker = false;
-                                            both = true;
-                                            freelancer = false;
-                                          });
-                                          ref.refresh(profileSummaryProvider);
-                                        },
-                                        child: CustomContainerForUserSelection(
-                                            "Both", both),
-                                      ) */
                                     ],
                                   ),
                                 ],
@@ -470,82 +455,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       ),
                     ),
                   ),
-                  /* UserAccountsDrawerHeader(
-                    margin: EdgeInsets.only(left: 10.w),
-                    decoration:
-                        const BoxDecoration(color: Constants.themeBgColorLight),
-                    accountName: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${data.firstName.toString()} ${data.lastName.toString()}",
-                          style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(data.userLocation.toString(),
-                            style: GoogleFonts.varela(
-                                fontSize: 14.sp, color: Constants.themeBgColor))
-                      ],
-                    ),
-                    accountEmail: null,
-
-                    //  currentAccountPictureSize: const Size.square(40),
-                    currentAccountPicture: InkWell(
-                        onTap: () async {
-                          Navigator.of(context).pop();
-                          await Navigator.pushNamed(
-                              context, ERoute.profile_summary.name);
-
-                          closeDrawer(); // Call the function to close the drawer
-                        },
-                        child: data.profilePic == null
-                            ? CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.asset("assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.asset(
-                                        "assets/images/company.png",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)
-                                    .image)
-                            : CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 190, 190, 190),
-                                radius: 43,
-                                onBackgroundImageError: ((error, stackTrace) =>
-                                    Image.network(
-                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profilePic}",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.contain)),
-                                backgroundImage: Image.network(
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profilePic}",
-                                ).image,
-                              )),
-                  ), */
-                  /*  ListTile(   //TODO: not in use for now.
-                    minLeadingWidth: 0.0,
-                    minVerticalPadding: 5.1,
-                    leading: Image.asset(
-                      "assets/images/career.png",
-                      height: 18.h,
-                      color: Constants.themeBgColor,
-                    ),
-                    title: const Text('Career Assets'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      nav();
-                    },
-                  ), */
-
                   if (data.usertype == 1 && !jobSeeker)
                     ExpansionTile(
                       leading: Image.network(
@@ -608,13 +517,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const ListOfInvoice()));
-                            /*  Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PaymentStatus())); */
-                            closeDrawer();
-                            // Navigator.pop(context);
                           },
                         ),
                         ListTile(
@@ -644,7 +546,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                           gender: data.gender.toString(),
                                         )));
                             closeDrawer();
-                            // Navigator.pop(context);
                           },
                         ),
                       ],
@@ -704,28 +605,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         // Navigator.pop(context);
                       },
                     ),
-                  /* if (data.usertype == 3)
-                    ListTile(
-                      minLeadingWidth: 0.0,
-                      minVerticalPadding: 5.1,
-                      leading: Image.asset(
-                        "assets/images/faq.png",
-                        height: 24.h,
-                      ),
-                      title: Text(
-                        'Interview FAQ',
-                        style: GoogleFonts.varela(
-                            fontSize: 14.sp, fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        closeDrawer();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InterviewFaq(),
-                            ));
-                      },
-                    ), */
                   ListTile(
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
@@ -932,101 +811,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               data)),
                   ],
                 ),
-              )
-              /* TabBar(
-                labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                controller: _tabController,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.black,
-                // indicatorSize: TabBarIndicatorSize.tab,
-                splashBorderRadius: BorderRadius.circular(8.r),
-                //indicatorSize: TabBarIndicatorSize.label,
-                // indicatorWeight: 5,
-                indicatorPadding: EdgeInsets.only(
-                    top: 10.h, bottom: 13.h, left: 5.w, right: 5.w),
-                indicator: isTabFilterSelected(data)
-                    ? BoxDecoration(
-                        color: Constants.borderColor,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Constants.borderColor),
-                      )
-                    : BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Colors.transparent),
-                      ),
-
-                onTap: (value) {
-                  setState(() {
-                    cutTab = value;
-
-                    if (value == 1 && data.usertype == 1) {
-                      jobsController.toggleFavoriteJobs(data);
-                    }
-
-                    if (value == 1 && data.usertype != 1) {
-                      jobsController.toggleMyJobsFilter(data);
-                    }
-
-                    if (value == 2) {
-                      jobsController.toggleFreshersFilter(data);
-                    }
-                  });
-                },
-
-                isScrollable: true,
-                tabs: [
-                  Tab(
-                    child: InkWell(
-                      onTap: () async {
-                        FilterDialog filterDialog = FilterDialog(
-                          (List<JobsModel> updatedfilteredJobsData) {},
-                          storedSelectedOptions,
-                          storedSelectedCategory,
-                          storedSelectedColumn,
-                          onFilterDialogClosed,
-                        );
-                        filterDialog.showFilterDialog(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(color: Constants.borderColor)),
-                        height: 28.h,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text("Filter"),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            const Icon(
-                              Icons.filter_list,
-                              color: Colors.black,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (data.usertype != 1)
-                    Tab(
-                      child: customTab(
-                          "My Jobs", "assets/images/check.png", 1, data),
-                    ),
-                  if (data.usertype == 1)
-                    Tab(
-                      child: customTab(
-                          "Save Jobs", "assets/images/check.png", 1, data),
-                    ),
-                  Tab(
-                    child: customTab(
-                        "Fresher", "assets/images/check.png", 2, data),
-                  ),
-                ],
-              ) */
-              ,
+              ),
             ),
             toolbarHeight: MediaQuery.of(context).size.width *
                 0.11, //TODO : AppBar height and remove extra space above the appbar.
@@ -1160,7 +945,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           height: 10.h,
                         ),
                       ),
-
                       Visibility(
                         visible: isbannerVisible,
                         child: Container(
@@ -1223,52 +1007,13 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 "assets/images/nodata.png",
                                 //  height: 300.h,
                               ),
-                              /*  Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Text(
-                                  "No job found.",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.varela(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ) */
                             ],
                           ),
                         ),
                       ),
-                      // Visibility(
-                      //   visible: selectedLocation != null &&
-                      //       selectedLocation.isEmpty &&
-                      //       data.jobs.isNotEmpty,
-                      //   child: Center(
-                      //     child: Column(
-                      //       children: [
-                      //         Image.asset(
-                      //           "./assets/images/unboxing.gif",
-                      //           height: 125.0.h,
-                      //           width: 125.0.w,
-                      //         ),
-                      //         Padding(
-                      //           padding:
-                      //               const EdgeInsets.symmetric(
-                      //                   horizontal: 20),
-                      //           child: Text(
-                      //             "Please choose the city where you are currently searching for job opportunities.",
-                      //             textAlign: TextAlign.center,
-                      //             style: GoogleFonts.varela(
-                      //               fontSize: 15.sp,
-                      //               fontWeight: FontWeight.bold,
-                      //             ),
-                      //           ),
-                      //         )
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
-                      if (jobsController.filteredJobs.isNotEmpty)
+                      if (jobsController.filteredJobs.isNotEmpty &&
+                          jobsController.selectedLocation
+                              .isNotEmpty) //TODO:: changes done to avoid the select loc image and data at the same time.
                         Expanded(
                           child: SmartRefresher(
                             header: const WaterDropHeader(),
@@ -1325,33 +1070,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   return (job2.id ?? 0).compareTo(job1.id ?? 0);
                                 });
 
-                                //
-                                //
-                                //
-                                //
-                                //TODO:: Sorting jobs as per sponsored_position
-
-                                /*   filteredJobs.sort((job1, job2) {
-                                  // Sponsored jobs come first
-                                  if (job1.sponsored_position == 1 &&
-                                      job2.sponsored_position != 1) {
-                                    return -1; // job1 comes first
-                                  } else if (job1.sponsored_position != 1 &&
-                                      job2.sponsored_position == 1) {
-                                    return 1; // job2 comes first
-                                  }
-
-                                  // Sort by other criteria if sponsored position is the same or both are not sponsored
-                                  // In this case, sort by job ID in ascending order (assuming job ID is unique)
-                                  return (job2.id ?? 0).compareTo(job1.id ?? 0);
-                                }); */
-
                                 var item = filteredJobs[index];
-                                /*  var item = jobsController
-                                    .filteredJobs[index]; */
 
-                                /* 
-                                   */
                                 if (item.skills != null) {
                                   myString = item.skills!;
                                   updatedList = myString
@@ -1405,11 +1125,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                               );
                                       },
                                     ));
-                                    /*  Navigator.pushNamed(
-                                      context,
-                                      ERoute.jobsdetail.name,
-                                      arguments: {'id': item.id},
-                                    ); */
                                   },
                                   child: Stack(
                                     children: [
@@ -1433,14 +1148,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           8.r)),
-
-                                              /* shape:
-                                                  RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius
-                                                        .circular(10.r),
-                                              ), */
-
                                               margin: const EdgeInsets.only(
                                                   left: 10, right: 10, top: 1),
                                               child: Column(
@@ -1479,12 +1186,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                 color: Colors
                                                                     .white,
                                                               ),
-                                                              /*  Image.asset(
-                                                                  "assets/images/top.png",
-                                                                  height: 15.sp,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ), */
                                                               Text(
                                                                 "Urgent Hiring",
                                                                 style: GoogleFonts.varela(
@@ -1557,13 +1258,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                         width:
                                                                             5.w,
                                                                       ),
-                                                                      /* if (item.is_campus ==  //TODO: for campus....
-                                                                          1)
-                                                                        Image.asset(
-                                                                          "assets/images/campus.png",
-                                                                          height:
-                                                                              18.h,
-                                                                        ), */
                                                                     ],
                                                                   ),
                                                                   Row(
@@ -1822,24 +1516,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       ),
                                                                     ),
                                                                   )
-
-                                                                  /* Text(
-                                                                    item.location ??
-                                                                        '',
-                                                                    maxLines:
-                                                                        2,
-                                                                    overflow:
-                                                                        TextOverflow.ellipsis,
-                                                                    style: GoogleFonts
-                                                                        .varela(
-                                                                      fontSize:
-                                                                          18.sp,
-                                                                      color:
-                                                                          Constants.subtitleclr,
-                                                                    ),
-                                                                    softWrap:
-                                                                        true,
-                                                                  ), */
                                                                 ],
                                                               ),
                                                             ],
@@ -1950,21 +1626,25 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                               ),
                                                           ],
                                                         ),
-                                                        Container(
-                                                          margin: EdgeInsets
-                                                              .symmetric(
-                                                                  vertical:
-                                                                      5.h),
-                                                          color: Colors
-                                                              .grey.shade400,
-                                                          width:
-                                                              double.maxFinite,
-                                                          height: 0.5.h,
-                                                        ),
+                                                        if (data.role !=
+                                                            "HR-Manager")
+                                                          Container(
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    vertical:
+                                                                        5.h),
+                                                            color: Colors
+                                                                .grey.shade400,
+                                                            width: double
+                                                                .maxFinite,
+                                                            height: 0.5.h,
+                                                          ),
                                                         Column(
                                                           children: [
                                                             if (data.usertype ==
-                                                                3)
+                                                                    3 &&
+                                                                data.role !=
+                                                                    "HR-Manager")
                                                               Row(
                                                                 children: [
                                                                   data.usertype ==
@@ -2155,31 +1835,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                             jobId: item.id!.toInt(),
                                                                                           )));
                                                                             }
-
-                                                                            /*  showDialog(
-                                                                          context: context,
-                                                                          builder: (context) {
-                                                                            return CustomDialog(
-                                                                                fetchDataFromApi:
-                                                                                    () {},
-                                                                                onClose: () {
-                                                                                  Navigator.pop(
-                                                                                      context);
-                                                                                  /*  Navigator.pushAndRemoveUntil(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => HomeScreen(),
-                                                                                      ),
-                                                                                      (route) => false); */
-                                                                                },
-                                                                                isFisrt:
-                                                                                    false,
-                                                                                title:
-                                                                                    "Error",
-                                                                                subtitle:
-                                                                                    "Resume is not uploaded in your profile");
-                                                                          },
-                                                                        ); */
                                                                           }
                                                                         } else {
                                                                           showDialog(
@@ -2225,31 +1880,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                           jobId: item.id!.toInt(),
                                                                                         )));
                                                                           }
-
-                                                                          /*  showDialog(
-                                                                          context: context,
-                                                                          builder: (context) {
-                                                                            return CustomDialog(
-                                                                                fetchDataFromApi:
-                                                                                    () {},
-                                                                                onClose: () {
-                                                                                  Navigator.pop(
-                                                                                      context);
-                                                                                  /*  Navigator.pushAndRemoveUntil(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => HomeScreen(),
-                                                                                      ),
-                                                                                      (route) => false); */
-                                                                                },
-                                                                                isFisrt:
-                                                                                    false,
-                                                                                title:
-                                                                                    "Error",
-                                                                                subtitle:
-                                                                                    "Resume is not uploaded in your profile");
-                                                                          },
-                                                                        ); */
                                                                         }
                                                                       }
                                                                     },
@@ -2366,22 +1996,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                 ],
                                               ),
                                             ),
-
-                                            /*  item.is_campus == 1  // TODO: left corner Ribbin indicator.... for campus hiring..
-                                                ? Positioned(
-                                                    top: 0,
-                                                    left: 10,
-                                                    child: Banner(
-                                                        color:
-                                                            const Color.fromARGB(
-                                                                255, 68, 6, 1),
-                                                        message: "Campus",
-                                                        textStyle:
-                                                            GoogleFonts.varela(),
-                                                        location: BannerLocation
-                                                            .topStart),
-                                                  )
-                                                : const SizedBox() */
                                           ],
                                         ),
                                       ),
@@ -2511,64 +2125,58 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                               builder:
                                                                   (context) {
                                                                 return AlertDialog(
-                                                                  title: const Text(
-                                                                      'Inavtive'),
-                                                                  content:
-                                                                      const Text(
-                                                                          'Clicking on the OK button will inctivate the job'),
+                                                                  content: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Text(
+                                                                        'Hiring Closed',
+                                                                        style: GoogleFonts.varela(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize: 18.sp,
+                                                                            color: Constants.navyblue),
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                   actions: [
-                                                                    ElevatedButton(
-                                                                      child: const Text(
-                                                                          'Cancel'),
-                                                                      onPressed:
+                                                                    InkWell(
+                                                                      onTap:
                                                                           () {
                                                                         Navigator.of(context)
                                                                             .pop();
                                                                       },
+                                                                      child:
+                                                                          Container(
+                                                                        margin: EdgeInsets.symmetric(
+                                                                            horizontal:
+                                                                                4.w),
+                                                                        padding: EdgeInsets.symmetric(
+                                                                            vertical:
+                                                                                4.h,
+                                                                            horizontal: 6.w),
+                                                                        decoration:
+                                                                            const BoxDecoration(),
+                                                                        child:
+                                                                            Text(
+                                                                          'Cancel',
+                                                                          style: GoogleFonts.varela(
+                                                                              color: Colors.red,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                    ElevatedButton(
-                                                                      child: const Text(
-                                                                          'OK'),
-                                                                      onPressed:
+                                                                    InkWell(
+                                                                      onTap:
                                                                           () async {
                                                                         Navigator.pop(
                                                                             context);
                                                                         // Perform any action here
                                                                         // Navigator.of(context).pop();
-                                                                        Autogenerated model = Autogenerated(
-                                                                            active:
-                                                                                0
-                                                                            /*  active: 0,
-                                id: jobDetailsModel.id,
-                                companyId: jobDetailsModel.compnayid,
-                                roleName:jobDetailsModel.rolename,
-                                natureOfWork:
-                                   jobDetailsModel.naturofwork,
-                                process:jobDetailsModel.process,
-                                noOfVacancy: jobDetailsModel.no_of_vacancy,
-                                ageGroup: jobDetailsModel.age_group,
-                                boundry_limits: jobDetailsModel.boundarylimits,
-                                education: jobDetailsModel.education,
-                                eligible: jobDetailsModel.eligible,
-                                gender: jobDetailsModel.gender,
-                                skills: jobDetailsModel.skills,
-                              keyResponsible: jobDetailsModel.key_responsible,
-                              minExperience: jobDetailsModel.minexperience.toString(),
-                              maxExperience: jobDetailsModel.maxexperience.toString(),
-                              minCtc: jobDetailsModel.minctc!.toInt(),
-                              maxCtc: jobDetailsModel.maxctc!.toInt(),
-                             // minAge:jobDetailsModel.minAge,
-                             // maxAge: jobDetailsModel.maxAge,
-                             isFresher: jobDetailsModel.isfresher,
-                             isMonthly: jobDetailsModel.ismonthly,
-                             empType: jobDetailsModel.emptype,
-                             shiftDesc: jobDetailsModel.shiftdesc,
-                             shiftTime: jobDetailsModel.shifttime,
-                             interviewRounds: jobDetailsModel.inteviewrounds,
-                             jobBenefits: jobDetailsModel.job_benifits,
-                            languageKnown: jobDetailsModel.languageknown, */
-
-                                                                            );
+                                                                        Autogenerated
+                                                                            model =
+                                                                            Autogenerated(active: 0);
                                                                         Map<String,
                                                                                 dynamic>
                                                                             jsonData =
@@ -2580,56 +2188,31 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             jobsProvider);
                                                                         // ref.refresh(profileSummaryProvider);
                                                                       },
+                                                                      child:
+                                                                          Container(
+                                                                        margin: EdgeInsets.symmetric(
+                                                                            horizontal:
+                                                                                4.w),
+                                                                        padding: EdgeInsets.symmetric(
+                                                                            vertical:
+                                                                                4.h,
+                                                                            horizontal: 6.w),
+                                                                        decoration:
+                                                                            const BoxDecoration(),
+                                                                        child:
+                                                                            Text(
+                                                                          'OK',
+                                                                          style: GoogleFonts.varela(
+                                                                              color: Constants.blue,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
                                                                     ),
                                                                   ],
                                                                 );
                                                               },
                                                             );
                                                           }),
-                                                      /*  CircularMenuItem(
-                                                          icon: Icons
-                                                              .bookmark_add_outlined,
-                                                          color: Colors
-                                                              .transparent,
-                                                          iconColor:
-                                                              Colors
-                                                                  .brown,
-                                                          iconSize: 18.h,
-                                                          onTap: () {
-                                                            setState(() {
-                                                              _color = Colors
-                                                                  .brown;
-                                                              _colorName =
-                                                                  'Brown';
-                                                            });
-                                                          }), */
-                                                      /*  CircularMenuItem(
-                                                          icon:
-                                                              Icons.share,
-                                                          color: Colors
-                                                              .transparent,
-                                                          iconColor:
-                                                              Colors
-                                                                  .green,
-                                                          iconSize: 18.h,
-                                                          onTap:
-                                                              () async {
-                                                            setState(() {
-                                                              _color = Colors
-                                                                  .green;
-                                                              _colorName =
-                                                                  'Green';
-                                                            });
-                                                            const url =
-                                                                "https://wa.me/?text=Hey buddy, try this super cool new app!";
-                                                            if (await canLaunch(
-                                                                url)) {
-                                                              await launch(
-                                                                  url);
-                                                            } else {
-                                                              throw 'Could not launch $url';
-                                                            }
-                                                          }), */
                                                       CircularMenuItem(
                                                           icon: Icons.edit,
                                                           color: Colors
@@ -2777,15 +2360,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   ),
                                 );
                               },
-                              /* itemCount: _searchController
-                                      .text.isEmpty
-                                  ? (selectedLocation != null &&
-                                          selectedLocation.isNotEmpty
-                                      ? filteredData.isNotEmpty
-                                          ? filteredData.length
-                                          : data.jobs.length
-                                      : data.jobs.length)
-                                  : searchResults.length, */
 
                               padding: const EdgeInsets.only(
                                   bottom: 5, left: 5, right: 5),
@@ -2793,15 +2367,6 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                             ),
                           ),
                         ),
-                      /*       if (_isLoadMoreRunning == true)
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                //  top: 10,
-                                bottom: 40),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          ), */
                     ],
                   ),
                 ),
@@ -2810,7 +2375,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniEndFloat,
-          floatingActionButton: data.usertype == 3
+          floatingActionButton: data.usertype == 3 && data.role != "HR-Manager"
               ? Visibility(
                   visible:
                       jobsController.role != "1" && jobsController.role != "2",
@@ -2859,7 +2424,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     );
   }
 
-  bool jobSeeker = false, freelancer = false, both = false;
+  bool jobSeeker = false, freelancer = false;
 
   Widget CustomContainerForUserSelection(String title, bool isSelect) {
     return Container(

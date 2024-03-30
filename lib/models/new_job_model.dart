@@ -34,41 +34,41 @@ class JobsModel {
   late final int? is_support_staff;
   final List<dynamic>? interviewrounds;
   final int? sponsored_position;
-  
+  final String? short_code;
 
-  JobsModel({
-    this.id,
-    this.companyId,
-    this.roleName,
-    this.companyName,
-    this.location,
-    this.process,
-    this.skills,
-    this.minCTC,
-    this.maxCTC,
-    this.minExperience,
-    this.maxExperience,
-    this.isFresher,
-    this.totalExperience,
-    this.totalSalary,
-    this.shiftTime,
-    this.languagesKnown,
-    this.natureOfWork,
-    this.isMonthly,
-    this.spoc,
-    this.city,
-    this.dol,
-    this.isFav,
-    this.favJobId,
-    this.userId,
-    this.payoutType,
-    this.active,
-    this.payment_clause,
-    this.is_campus,
-    this.is_support_staff,
-    this.interviewrounds,
-    this.sponsored_position,
-  });
+  JobsModel(
+      {this.id,
+      this.companyId,
+      this.roleName,
+      this.companyName,
+      this.location,
+      this.process,
+      this.skills,
+      this.minCTC,
+      this.maxCTC,
+      this.minExperience,
+      this.maxExperience,
+      this.isFresher,
+      this.totalExperience,
+      this.totalSalary,
+      this.shiftTime,
+      this.languagesKnown,
+      this.natureOfWork,
+      this.isMonthly,
+      this.spoc,
+      this.city,
+      this.dol,
+      this.isFav,
+      this.favJobId,
+      this.userId,
+      this.payoutType,
+      this.active,
+      this.payment_clause,
+      this.is_campus,
+      this.is_support_staff,
+      this.interviewrounds,
+      this.sponsored_position,
+      this.short_code});
 
   factory JobsModel.fromJson(Map<String, dynamic> json) {
     return JobsModel(
@@ -105,6 +105,7 @@ class JobsModel {
         json['interviewrounds'],
       ),
       sponsored_position: json['sponsored_position'],
+      short_code: json['short_code'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -139,44 +140,45 @@ class JobsModel {
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
       'interviewrounds': interviewrounds,
-      'sponsored_position': sponsored_position
+      'sponsored_position': sponsored_position,
+      'short_code': short_code,
     };
   }
 
   factory JobsModel.fromMap(Map<String, dynamic> map) {
     return JobsModel(
-      id: map['id'],
-      companyId: map['compnayid'],
-      roleName: map['rolename'],
-      companyName: map['companyname'],
-      location: map['location'],
-      process: map['process'],
-      skills: List<String>.from(map['skills'] ?? []),
-      minCTC: map['minctc']?.toDouble(),
-      maxCTC: map['maxctc']?.toDouble(),
-      minExperience: map['minexperience'],
-      maxExperience: map['maxexperience'],
-      isFresher: map['isfresher'],
-      totalExperience: map['total_experience'],
-      totalSalary: map['total_salary'],
-      shiftTime: map['shifttime'],
-      languagesKnown: List<String>.from(map['languageknown'] ?? []),
-      natureOfWork: map['naturofwork'],
-      isMonthly: map['ismonthly'],
-      spoc: map['spoc'],
-      city: map['city'],
-      dol: map['dol'] != null ? DateTime.parse(map['dol']) : null,
-      isFav: map['is_fav'],
-      favJobId: map['favJobId'],
-      userId: map['userId'],
-      payoutType: map['payout_type'],
-      active: map['active'],
-      payment_clause: map['payment_clause'],
-      is_support_staff: map['is_support_staff'],
-      is_campus: map['is_campus'],
-      interviewrounds: map['interviewrounds'],
-      sponsored_position: map['sponsored_position'],
-    );
+        id: map['id'],
+        companyId: map['compnayid'],
+        roleName: map['rolename'],
+        companyName: map['companyname'],
+        location: map['location'],
+        process: map['process'],
+        skills: List<String>.from(map['skills'] ?? []),
+        minCTC: map['minctc']?.toDouble(),
+        maxCTC: map['maxctc']?.toDouble(),
+        minExperience: map['minexperience'],
+        maxExperience: map['maxexperience'],
+        isFresher: map['isfresher'],
+        totalExperience: map['total_experience'],
+        totalSalary: map['total_salary'],
+        shiftTime: map['shifttime'],
+        languagesKnown: List<String>.from(map['languageknown'] ?? []),
+        natureOfWork: map['naturofwork'],
+        isMonthly: map['ismonthly'],
+        spoc: map['spoc'],
+        city: map['city'],
+        dol: map['dol'] != null ? DateTime.parse(map['dol']) : null,
+        isFav: map['is_fav'],
+        favJobId: map['favJobId'],
+        userId: map['userId'],
+        payoutType: map['payout_type'],
+        active: map['active'],
+        payment_clause: map['payment_clause'],
+        is_support_staff: map['is_support_staff'],
+        is_campus: map['is_campus'],
+        interviewrounds: map['interviewrounds'],
+        sponsored_position: map['sponsored_position'],
+        short_code: map['short_code']);
   }
 
   Map<String, dynamic> toMap() {
@@ -211,7 +213,8 @@ class JobsModel {
       'is_support_staff': is_support_staff,
       'is_campus': is_campus,
       'interviewrounds': interviewrounds,
-      'sponsored_position': sponsored_position
+      'sponsored_position': sponsored_position,
+      'short_code': short_code,
     };
   }
 

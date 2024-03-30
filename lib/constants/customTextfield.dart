@@ -737,6 +737,9 @@ class CustomJobFormTextField extends StatefulWidget {
   final String name;
   final String? pId;
   final void Function(String)? onSubmit;
+  final void Function(String)? getEmpID;
+  final void Function(String)? getSalary;
+  final void Function(String)? getGender;
   final void Function(String)? onGetResumeId;
   // final void Function(String)? onJobTitle;
   var onIDSelected;
@@ -761,6 +764,9 @@ class CustomJobFormTextField extends StatefulWidget {
     required this.name,
     this.getSuggestions,
     this.pId,
+    this.getSalary,
+    this.getEmpID,
+    this.getGender,
     required this.onChanged,
     required this.onIDSelected,
     this.firstText,
@@ -808,12 +814,6 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
             controller!.clear();
             handleBoolChange(false);
             widget.onTapCallback(controller);
-
-            // widget.focusNode.requestFocus;
-            // handleFocusNodeRequest();
-            //focusNode.requestFocus();
-            // handleFocusNodeChange();
-            //focusNode.requestFocus();
           });
         },
         child: Container(
@@ -909,8 +909,11 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
 
       for (var entry in content) {
         String name = entry['name'].toString();
-        if (name.toLowerCase().startsWith(pattern.toLowerCase()) &&
-            !uniqueNames.contains(name)) {
+        String code = entry['short_code'].toString();
+        if ((name.toLowerCase().startsWith(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name)) ||
+            (code.toLowerCase().startsWith(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name))) {
           uniqueNames.add(name);
           JobTitleModel jobTitle = JobTitleModel.fromJson(entry);
           suggestions.add(jobTitle);
@@ -1135,8 +1138,11 @@ class _CustomJobFormTextFieldState extends State<CustomJobFormTextField> {
                         // onIDSelected(suggestion.id.toString());
                         // widget.onJobTitle!(firstText.toString());
                         widget.onSubmit!(selectedId.toString());
-                        var selectedResumeId = suggestion.isResumeId;
-                        widget.onGetResumeId!(selectedResumeId);
+                        widget.getEmpID!(suggestion.active);
+                        widget.getGender!(suggestion.isgender);
+                        widget.getSalary!(suggestion.isSalary);
+
+                        widget.onGetResumeId!(suggestion.isResumeId);
 
                         // FocusScope.of(context).nextFocus();
                       });
@@ -4218,8 +4224,12 @@ class _CustomJobFormForUpdateCRPFState
 
       for (var entry in content) {
         String name = entry['name'].toString();
-        if (name.toLowerCase().startsWith(pattern.toLowerCase()) &&
-            !uniqueNames.contains(name)) {
+        String code = entry['shor_code'].toString();
+
+        if ((name.toLowerCase().startsWith(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name)) ||
+            (code.toLowerCase().startsWith(pattern.toLowerCase()) &&
+                !uniqueNames.contains(name))) {
           uniqueNames.add(name);
           JobTitleModel jobTitle = JobTitleModel.fromJson(entry);
           suggestions.add(jobTitle);

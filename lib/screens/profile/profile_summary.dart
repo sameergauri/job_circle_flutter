@@ -18,7 +18,7 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/new_jobs/new_jobs.dart';
+
 import 'package:job_circle/screens/profile/screen1.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
@@ -747,7 +747,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                               ref.refresh(profileSummaryProvider);
 
                                                                               ref.refresh(userDataProvider);
-                                                                              ref.refresh(userJobDataProvider);
+                                                                             
 
                                                                               //  Navigator.pop(context);
                                                                               if (data != null) {
@@ -862,8 +862,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     icon_data = data1;
                                                     ref.refresh(
                                                         userDataProvider);
-                                                    ref.refresh(
-                                                        userJobDataProvider);
+                                                   
                                                     ref.refresh(
                                                         profileSummaryProvider);
                                                     //  Navigator.pop(context);

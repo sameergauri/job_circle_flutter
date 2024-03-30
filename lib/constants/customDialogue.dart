@@ -599,30 +599,34 @@ class _CustomDialogState extends State<CustomDialog> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Add your custom dialog content here
-                                Text(
-                                  widget.title,
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
+                            Flexible(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Add your custom dialog content here
+                                  Text(
+                                    widget.title,
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10.0),
+                                  const SizedBox(height: 10.0),
 
-                                Text(
-                                  widget.subtitle,
-                                  style: const TextStyle(fontSize: 16.0),
-                                ),
-                                const SizedBox(height: 20.0),
-                                ElevatedButton(
-                                  onPressed: widget.onClose,
-                                  child: const Text('Close'),
-                                ),
-                              ],
+                                  Text(
+                                    widget.subtitle,
+                                    softWrap: true,
+                                    style: GoogleFonts.varela(fontSize: 16.0),
+                                    maxLines: 2,
+                                  ),
+                                  const SizedBox(height: 20.0),
+                                  ElevatedButton(
+                                    onPressed: widget.onClose,
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

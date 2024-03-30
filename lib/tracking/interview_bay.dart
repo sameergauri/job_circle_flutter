@@ -18,18 +18,21 @@ import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:timelines/timelines.dart';
 
 class InterViewBayStatus extends ConsumerStatefulWidget {
   final Applicant item;
   final List<DropDownItem> dropDownItemList;
-  final List<dynamic> finalInterviewRounds;
   final List<DropDownItem> finalDropDownItem;
+  final List<String>? finalinterviewRounds;
+  final int selectedRoundIndex;
   const InterViewBayStatus(
       {super.key,
       required this.item,
       required this.dropDownItemList,
       required this.finalDropDownItem,
-      required this.finalInterviewRounds});
+      required this.finalinterviewRounds,
+      required this.selectedRoundIndex});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -143,7 +146,7 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                 width: 2,
                               ),
                               Text(
-                                " ${widget.item.role_code ?? widget.item.lead_level}",
+                                " ${widget.item.role_code != null && widget.item.role_code != "" ? widget.item.role_code : widget.item.lead_level}",
                                 style: GoogleFonts.varela(
                                   color: Colors.black54,
                                   // fontWeight: FontWeight.bold,
@@ -198,202 +201,128 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                   ],
                 ),
               ), */
-              //TODO:: Interview Rounds....
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                runAlignment: WrapAlignment.center,
-                alignment: WrapAlignment.center,
-                children:
-                    List.generate(widget.finalInterviewRounds.length, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: GestureDetector(
-                      onTap: index >
-                              widget.finalInterviewRounds
-                                  .indexOf(widget.item.interview_rounds)
-                          ? () async {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              NewChangeStatusModel changeStatusModel =
-                                  NewChangeStatusModel(
-                                      statusId: widget.item.status_id,
-                                      interviewRounds:
-                                          widget.finalInterviewRounds[index]);
-                              Map<String, dynamic> jsonData =
-                                  changeStatusModel.toJson();
-                              try {
-                                await JobPostApiService.NewchangeStatus(
-                                    jsonData, widget.item.id!.toInt());
-                                ref.refresh(fetchAllApplicantProvider);
-                                ref.refresh(fetchAllReferalProvider);
-                                ref.refresh(fetchAllApplyProvider);
-                                ref.refresh(fetchAllExecutiveProvide);
-                                Future.delayed(const Duration(seconds: 2), () {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                });
-                              } catch (e) {
-                                print('Error: $e');
-                                // Handle error...
-                              }
-                            }
-                          : () {},
-                      child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: widget.item.interview_rounds ==
-                                        widget.finalInterviewRounds[index]
-                                    ? Colors.grey
-                                        .shade200 // Set color when the condition is true
-                                    : index <
-                                            widget.finalInterviewRounds.indexOf(
-                                                widget.item.interview_rounds)
-                                        ? Colors.grey
-                                            .shade200 // Set color for items before the matching item
-                                        : Colors.grey.shade300,
-                              ),
-                              color: widget.item.interview_rounds ==
-                                      widget.finalInterviewRounds[index]
-                                  ? Colors.grey
-                                      .shade200 // Set color when the condition is true
-                                  : index <
-                                          widget.finalInterviewRounds.indexOf(
-                                              widget.item.interview_rounds)
-                                      ? Colors.grey
-                                          .shade200 // Set color for items before the matching item
-                                      : Colors.white,
+              //TODO:: Drop out and on hold interview rounds....
+              if (widget.item.hr_sub_status == "Drop-out" ||
+                  widget.item.hr_sub_status == "On-Hold")
+                Container(
+                  margin: EdgeInsets.only(top: 4.h),
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                      color: Constants.borderColor,
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Constants.borderColor)),
+                  //  padding: const EdgeInsets.only(bottom: 5),
+                  height: MediaQuery.of(context).size.height / 15,
+                  child: Timeline.tileBuilder(
+                    //  scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(bottom: 10),
 
-                              /*  index == 0 ||
-                                      widget.item.interview_rounds ==
-                                          widget.finalInterviewRounds[index]
-                                  ? Constants.borderColor
-                                  : Colors.white, */
-                              borderRadius: BorderRadius.circular(8.r)),
-                          child: Text(widget.finalInterviewRounds[index],
-                              style: GoogleFonts.varela(
-                                color: widget.item.interview_rounds ==
-                                        widget.finalInterviewRounds[index]
-                                    ? Colors.grey
-                                        .shade500 // Set color when the condition is true
-                                    : index <
-                                            widget.finalInterviewRounds.indexOf(
-                                                widget.item.interview_rounds)
-                                        ? Colors.grey
-                                            .shade500 // Set color for items before the matching item
-                                        : Colors.black,
-                              ))),
+                    shrinkWrap: true,
+                    // padding: const EdgeInsets.only(top: 0),
+                    theme: TimelineThemeData(
+                      direction: Axis.horizontal,
+                      connectorTheme: const ConnectorThemeData(
+                        space: 8.0,
+                        thickness: 2.0,
+                      ),
                     ),
-                  );
-                }),
-              ),
-              //TODO:: DropOut ...
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Wrap(
-                    children: List.generate(
-                      widget.finalDropDownItem.length,
-                      (index) => GestureDetector(
-                        onTap: widget.finalDropDownItem[index]
-                                    .sec_status_remark ==
-                                1
+                    builder: TimelineTileBuilder.connected(
+                      contentsAlign: ContentsAlign.basic,
+                      connectionDirection: ConnectionDirection.before,
+                      itemCount: widget.finalinterviewRounds != null
+                          ? widget.finalinterviewRounds!.length
+                          : 0,
+                      itemExtentBuilder: (_, __) {
+                        return (MediaQuery.of(context).size.width - 50) /
+                            widget.finalinterviewRounds!.length.toDouble();
+                      },
+                      oppositeContentsBuilder: (context, index) {
+                        return Container();
+                      },
+                      contentsBuilder: (context, index) {
+                        return widget.finalinterviewRounds != null
+                            ? Text(widget.finalinterviewRounds![index])
+                            : const Text("");
+                      },
+                      indicatorBuilder: (_, index) {
+                        if (index == widget.selectedRoundIndex) {
+                          // Customize the selected round indicator
+                          return const OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.red,
+                          );
+                        } else if (index > widget.selectedRoundIndex) {
+                          // Customize indicators for other rounds
+                          return OutlinedDotIndicator(
+                            borderWidth: 4.0,
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: 8.r,
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 13.h,
+                            ),
+                          ); /* const DotIndicator(
+                                                              //   borderWidth: 4.0,
+                                                              color: Colors.green,
+                                                            ); */
+                        }
+                      },
+                      connectorBuilder: (_, index, type) {
+                        if (index == widget.selectedRoundIndex) {
+                          // Customize the selected round connector
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        } else if (index > widget.selectedRoundIndex) {
+                          // Customize connectors for other rounds
+                          return DashedLineConnector(
+                            color: Colors.grey.shade400,
+                          );
+                        } else {
+                          return const DashedLineConnector(
+                            color: Colors.green,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+
+              //
+              //
+              //
+              //
+              //
+              //
+              //TODO:: Interview Rounds....
+              if (widget.item.hr_sub_status != "Drop-out" &&
+                  widget.item.hr_sub_status != "On-Hold")
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runAlignment: WrapAlignment.center,
+                  alignment: WrapAlignment.center,
+                  children: List.generate(widget.finalinterviewRounds!.length,
+                      (index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: GestureDetector(
+                        onTap: index >
+                                widget.finalinterviewRounds!.indexOf(
+                                    widget.item.interview_rounds.toString())
                             ? () async {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return WillPopScope(
-                                      onWillPop: () async {
-                                        // Return false to prevent dialog from closing with back button
-                                        return Future.value(false);
-                                      },
-                                      child: CustomDialogueForRemark(
-                                        onCancel: () {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        },
-                                        hint: widget
-                                            .finalDropDownItem[index].secStatus
-                                            .toString(),
-                                        item: widget.item,
-                                        onTab: () async {
-                                          NewChangeStatusModel
-                                              changeStatusModel =
-                                              NewChangeStatusModel(
-                                            // hrStatusId: 0, // TODO:: Previous one before new modification
-                                            hrStatusId: widget
-                                                .finalDropDownItem[index]
-                                                .statusId,
-                                            remark: remark.text,
-                                            interviewRounds: widget
-                                                .item.interview_rounds
-                                                .toString(),
-                                            /*  hrStatusId:
-                                                          finalDropDownItem[index]
-                                                              .statusId, */
-                                            statusId: widget
-                                                .finalDropDownItem[index]
-                                                .secStatusId,
-                                          );
-                                          Map<String, dynamic> jsonData =
-                                              changeStatusModel.toJson();
-                                          try {
-                                            await JobPostApiService
-                                                .NewchangeStatus(jsonData,
-                                                    widget.item.id!.toInt());
-                                            ref.refresh(
-                                                fetchAllApplicantProvider);
-                                            ref.refresh(
-                                                fetchAllReferalProvider);
-                                            ref.refresh(fetchAllApplyProvider);
-                                            ref.refresh(
-                                                fetchAllExecutiveProvide);
-                                            Future.delayed(
-                                                const Duration(seconds: 2), () {
-                                              setState(() {
-                                                isLoading = false;
-                                              });
-                                            });
-                                            Navigator.pop(context);
-                                          } catch (e) {
-                                            print('Error: $e');
-                                            // Handle error...
-                                          }
-                                        },
-                                        controller: remark,
-                                        callBack: (p0) {
-                                          remark.text = p0;
-                                        },
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            : () async {
                                 setState(() {
                                   isLoading = true;
                                 });
                                 NewChangeStatusModel changeStatusModel =
                                     NewChangeStatusModel(
-                                  interviewRounds:
-                                      widget.item.interview_rounds.toString(),
-                                  /*  hrStatusId:
-                                                        finalDropDownItem[index]
-                                                            .statusId, */
-                                  // hrStatusId: 0, //TODO:: Previous one before new modification
-                                  hrStatusId:
-                                      widget.finalDropDownItem[index].statusId,
-                                  statusId: widget
-                                      .finalDropDownItem[index].secStatusId,
-                                );
+                                        statusId: widget.item.status_id,
+                                        interviewRounds: widget
+                                            .finalinterviewRounds![index]);
                                 Map<String, dynamic> jsonData =
                                     changeStatusModel.toJson();
                                 try {
@@ -413,183 +342,341 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                   print('Error: $e');
                                   // Handle error...
                                 }
-                              },
+                              }
+                            : () {},
                         child: Container(
-                            margin: EdgeInsets.only(right: 4.w),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 8),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: widget.finalDropDownItem[index].statusId ==
-                                        widget.item.dd_hr_status_id ||
-                                    widget.finalDropDownItem[index].statusId ==
-                                        widget.item.hr_status_id
-                                ? Text(
-                                    widget.finalDropDownItem[index].secStatus
-                                        .toString(),
-                                    style:
-                                        GoogleFonts.varela(color: Colors.blue),
-                                  )
-                                : null),
+                                border: Border.all(
+                                  color: widget.item.interview_rounds ==
+                                          widget.finalinterviewRounds![index]
+                                      ? Colors.grey
+                                          .shade200 // Set color when the condition is true
+                                      : index <
+                                              widget.finalinterviewRounds!
+                                                  .indexOf(widget
+                                                      .item.interview_rounds
+                                                      .toString())
+                                          ? Colors.grey
+                                              .shade200 // Set color for items before the matching item
+                                          : Colors.grey.shade300,
+                                ),
+                                color: widget.item.interview_rounds ==
+                                        widget.finalinterviewRounds![index]
+                                    ? Colors.grey
+                                        .shade200 // Set color when the condition is true
+                                    : index <
+                                            widget.finalinterviewRounds!
+                                                .indexOf(widget
+                                                    .item.interview_rounds
+                                                    .toString())
+                                        ? Colors.grey
+                                            .shade200 // Set color for items before the matching item
+                                        : Colors.white,
+
+                                /*  index == 0 ||
+                                      widget.item.interview_rounds ==
+                                          widget.finalInterviewRounds[index]
+                                  ? Constants.borderColor
+                                  : Colors.white, */
+                                borderRadius: BorderRadius.circular(8.r)),
+                            child: Text(widget.finalinterviewRounds![index],
+                                style: GoogleFonts.varela(
+                                  color: widget.item.interview_rounds ==
+                                          widget.finalinterviewRounds![index]
+                                      ? Colors.grey
+                                          .shade500 // Set color when the condition is true
+                                      : index <
+                                              widget.finalinterviewRounds!
+                                                  .indexOf(widget
+                                                      .item.interview_rounds
+                                                      .toString())
+                                          ? Colors.grey
+                                              .shade500 // Set color for items before the matching item
+                                          : Colors.black,
+                                ))),
+                      ),
+                    );
+                  }),
+                ),
+              if (widget.item.hr_sub_status != "Drop-out" &&
+                  widget.item.hr_sub_status != "On-Hold")
+                //TODO:: DropOut ...
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: List.generate(
+                        widget.finalDropDownItem.length,
+                        (index) => GestureDetector(
+                          onTap: widget.finalDropDownItem[index]
+                                      .sec_status_remark ==
+                                  1
+                              ? () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return WillPopScope(
+                                        onWillPop: () async {
+                                          // Return false to prevent dialog from closing with back button
+                                          return Future.value(false);
+                                        },
+                                        child: CustomDialogueForRemark(
+                                          onCancel: () {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          },
+                                          hint: widget.finalDropDownItem[index]
+                                              .secStatus
+                                              .toString(),
+                                          item: widget.item,
+                                          onTab: () async {
+                                            NewChangeStatusModel
+                                                changeStatusModel =
+                                                NewChangeStatusModel(
+                                              // hrStatusId: 0, // TODO:: Previous one before new modification
+                                              hrStatusId: widget
+                                                  .finalDropDownItem[index]
+                                                  .statusId,
+                                              remark: remark.text,
+                                              interviewRounds: widget
+                                                  .item.interview_rounds
+                                                  .toString(),
+                                              /*  hrStatusId:
+                                                          finalDropDownItem[index]
+                                                              .statusId, */
+                                              statusId: widget
+                                                  .finalDropDownItem[index]
+                                                  .secStatusId,
+                                            );
+                                            Map<String, dynamic> jsonData =
+                                                changeStatusModel.toJson();
+                                            try {
+                                              await JobPostApiService
+                                                  .NewchangeStatus(jsonData,
+                                                      widget.item.id!.toInt());
+                                              ref.refresh(
+                                                  fetchAllApplicantProvider);
+                                              ref.refresh(
+                                                  fetchAllReferalProvider);
+                                              ref.refresh(
+                                                  fetchAllApplyProvider);
+                                              ref.refresh(
+                                                  fetchAllExecutiveProvide);
+                                              Future.delayed(
+                                                  const Duration(seconds: 2),
+                                                  () {
+                                                setState(() {
+                                                  isLoading = false;
+                                                });
+                                              });
+                                              Navigator.pop(context);
+                                            } catch (e) {
+                                              print('Error: $e');
+                                              // Handle error...
+                                            }
+                                          },
+                                          controller: remark,
+                                          callBack: (p0) {
+                                            remark.text = p0;
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              : () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  NewChangeStatusModel changeStatusModel =
+                                      NewChangeStatusModel(
+                                    interviewRounds:
+                                        widget.item.interview_rounds.toString(),
+                                    /*  hrStatusId:
+                                                        finalDropDownItem[index]
+                                                            .statusId, */
+                                    // hrStatusId: 0, //TODO:: Previous one before new modification
+                                    hrStatusId: widget
+                                        .finalDropDownItem[index].statusId,
+                                    statusId: widget
+                                        .finalDropDownItem[index].secStatusId,
+                                  );
+                                  Map<String, dynamic> jsonData =
+                                      changeStatusModel.toJson();
+                                  try {
+                                    await JobPostApiService.NewchangeStatus(
+                                        jsonData, widget.item.id!.toInt());
+                                    ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllReferalProvider);
+                                    ref.refresh(fetchAllApplyProvider);
+                                    ref.refresh(fetchAllExecutiveProvide);
+                                    Future.delayed(const Duration(seconds: 2),
+                                        () {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    });
+                                  } catch (e) {
+                                    print('Error: $e');
+                                    // Handle error...
+                                  }
+                                },
+                          child: Container(
+                              margin: EdgeInsets.only(right: 4.w),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: widget.finalDropDownItem[index].statusId ==
+                                          widget.item.dd_hr_status_id ||
+                                      widget.finalDropDownItem[index]
+                                              .statusId ==
+                                          widget.item.hr_status_id
+                                  ? Text(
+                                      widget.finalDropDownItem[index].secStatus
+                                          .toString(),
+                                      style: GoogleFonts.varela(
+                                          color: Colors.blue),
+                                    )
+                                  : null),
+                        ),
                       ),
                     ),
-                  ),
-
-                  //TODO:: Select Reject
-                  Wrap(
-                    children: List.generate(
-                      widget.finalDropDownItem.length,
-                      (index) => GestureDetector(
-                        onTap: widget.finalDropDownItem[index].priStatusId !=
-                                13 //TODO : Select
-                            ? widget.finalDropDownItem[index]
-                                        .pri_status_remark ==
-                                    1
-                                ? () async {
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                    await showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) {
-                                        return WillPopScope(
-                                          onWillPop: () async {
-                                            // Return false to prevent dialog from closing with back button
-                                            return Future.value(false);
-                                          },
-                                          child: CustomDialogueForRemark(
-                                            onCancel: () {
-                                              setState(() {
-                                                isLoading = false;
-                                              });
-                                            },
-                                            hint: widget
-                                                .finalDropDownItem[index]
-                                                .primaryStatus
-                                                .toString(),
-                                            item: widget.item,
-                                            onTab: () async {
-                                              NewChangeStatusModel
-                                                  changeStatusModel =
-                                                  NewChangeStatusModel(
-                                                      interviewRounds: widget
-                                                          .item.interview_rounds
-                                                          .toString(),
-                                                      /*  hrStatusId:
-                                                                finalDropDownItem[
-                                                                        index]
-                                                                    .statusId, */
-                                                      hrStatusId: widget
-                                                          .finalDropDownItem[
-                                                              index]
-                                                          .priStatusId, //TODO : hrstatus id = 0 if click on reject...
-                                                      statusId:
-                                                          0 /*  widget
-                                                          .finalDropDownItem[index]
-                                                          .priStatusId */ //TODO for local..
-                                                      );
-                                              Map<String, dynamic> jsonData =
-                                                  changeStatusModel.toJson();
-                                              try {
-                                                await JobPostApiService
-                                                    .NewchangeStatus(
-                                                        jsonData,
-                                                        widget.item.id!
-                                                            .toInt());
-                                                ref.refresh(
-                                                    fetchAllApplicantProvider);
-                                                ref.refresh(
-                                                    fetchAllReferalProvider);
-                                                ref.refresh(
-                                                    fetchAllApplyProvider);
-                                                ref.refresh(
-                                                    fetchAllExecutiveProvide);
-                                                Future.delayed(
-                                                    const Duration(seconds: 2),
-                                                    () {
+                    if (widget.item.hr_sub_status != "Drop-out" &&
+                        widget.item.hr_sub_status != "On-Hold")
+                      //TODO:: Select Reject
+                      Wrap(
+                        children: List.generate(
+                          widget.finalDropDownItem.length,
+                          (index) => GestureDetector(
+                            onTap: widget
+                                        .finalDropDownItem[index].priStatusId !=
+                                    13 //TODO : Select
+                                ? widget.finalDropDownItem[index]
+                                            .pri_status_remark ==
+                                        1
+                                    ? () async {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        await showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (context) {
+                                            return WillPopScope(
+                                              onWillPop: () async {
+                                                // Return false to prevent dialog from closing with back button
+                                                return Future.value(false);
+                                              },
+                                              child: CustomDialogueForRemark(
+                                                callBack: (p0) {
+                                                  remark2.text = p0;
+                                                },
+                                                onCancel: () {
                                                   setState(() {
                                                     isLoading = false;
                                                   });
-                                                });
-                                                Navigator.pop(context);
-                                              } catch (e) {
-                                                print('Error: $e');
-                                                // Handle error...
-                                              }
-                                            },
-                                            controller: remark2,
-                                            callBack: (p0) {
-                                              remark2.text = p0;
-                                            },
-                                          ),
+                                                },
+                                                hint: widget
+                                                    .finalDropDownItem[index]
+                                                    .primaryStatus
+                                                    .toString(),
+                                                item: widget.item,
+                                                onTab: () async {
+                                                  NewChangeStatusModel
+                                                      changeStatusModel =
+                                                      NewChangeStatusModel(
+                                                          interviewRounds: widget
+                                                              .item
+                                                              .interview_rounds
+                                                              .toString(),
+                                                          /*  hrStatusId:
+                                                                finalDropDownItem[
+                                                                        index]
+                                                                    .statusId, */
+                                                          hrStatusId: widget
+                                                              .finalDropDownItem[
+                                                                  index]
+                                                              .priStatusId,
+                                                          remark: remark2
+                                                              .text, //TODO : hrstatus id = 0 if click on reject...
+                                                          statusId:
+                                                              0 /*  widget
+                                                          .finalDropDownItem[index]
+                                                          .priStatusId */ //TODO for local..
+                                                          );
+                                                  Map<String, dynamic>
+                                                      jsonData =
+                                                      changeStatusModel
+                                                          .toJson();
+                                                  try {
+                                                    await JobPostApiService
+                                                        .NewchangeStatus(
+                                                            jsonData,
+                                                            widget.item.id!
+                                                                .toInt());
+                                                    ref.refresh(
+                                                        fetchAllApplicantProvider);
+                                                    ref.refresh(
+                                                        fetchAllReferalProvider);
+                                                    ref.refresh(
+                                                        fetchAllApplyProvider);
+                                                    ref.refresh(
+                                                        fetchAllExecutiveProvide);
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            seconds: 2), () {
+                                                      setState(() {
+                                                        isLoading = false;
+                                                      });
+                                                    });
+                                                    Navigator.pop(context);
+                                                  } catch (e) {
+                                                    print('Error: $e');
+                                                    // Handle error...
+                                                  }
+                                                },
+                                                controller: remark2,
+                                              ),
+                                            );
+                                          },
                                         );
-                                      },
-                                    );
-                                  }
-                                : () async {
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                    NewChangeStatusModel changeStatusModel =
-                                        NewChangeStatusModel(
-                                            hrStatusId: widget
-                                                .finalDropDownItem[index]
-                                                .priStatusId,
-                                            interviewRounds: widget
-                                                .item.interview_rounds
-                                                .toString(),
-                                            /*  hrStatusId:
+                                      }
+                                    : () async {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        NewChangeStatusModel changeStatusModel =
+                                            NewChangeStatusModel(
+                                                hrStatusId: widget
+                                                    .finalDropDownItem[index]
+                                                    .priStatusId,
+                                                interviewRounds: widget
+                                                    .item.interview_rounds
+                                                    .toString(),
+                                                /*  hrStatusId:
                                                               finalDropDownItem[
                                                                       index]
                                                                   .statusId, */
-                                            statusId:
-                                                0 /*  widget
+                                                statusId:
+                                                    0 /*  widget
                                                 .finalDropDownItem[index]
                                                 .priStatusId */
-                                            );
-                                    Map<String, dynamic> jsonData =
-                                        changeStatusModel.toJson();
-                                    try {
-                                      await JobPostApiService.NewchangeStatus(
-                                          jsonData, widget.item.id!.toInt());
-                                      ref.refresh(fetchAllApplicantProvider);
-                                      ref.refresh(fetchAllReferalProvider);
-                                      ref.refresh(fetchAllApplyProvider);
-                                      ref.refresh(fetchAllExecutiveProvide);
-                                      Future.delayed(const Duration(seconds: 2),
-                                          () {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                      });
-                                    } catch (e) {
-                                      print('Error: $e');
-                                      // Handle error...
-                                    }
-                                  }
-                            : () async {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return WillPopScope(
-                                      onWillPop: () async {
-                                        // Return false to prevent dialog from closing with back button
-                                        return Future.value(false);
-                                      },
-                                      child: CustomDialogueForSelect(
-                                        onCancel: () {
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        },
-                                        item: widget.item,
-                                        refreshCallback: () {
+                                                );
+                                        Map<String, dynamic> jsonData =
+                                            changeStatusModel.toJson();
+                                        try {
+                                          await JobPostApiService
+                                              .NewchangeStatus(jsonData,
+                                                  widget.item.id!.toInt());
                                           ref.refresh(
                                               fetchAllApplicantProvider);
                                           ref.refresh(fetchAllReferalProvider);
@@ -601,55 +688,131 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                               isLoading = false;
                                             });
                                           });
-                                        },
-                                        finalDropDown:
-                                            widget.finalDropDownItem[index],
-                                      ),
+                                        } catch (e) {
+                                          print('Error: $e');
+                                          // Handle error...
+                                        }
+                                      }
+                                : () async {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return WillPopScope(
+                                          onWillPop: () async {
+                                            // Return false to prevent dialog from closing with back button
+                                            return Future.value(false);
+                                          },
+                                          child: CustomDialogueForSelect(
+                                            onCancel: () {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            },
+                                            item: widget.item,
+                                            refreshCallback: () {
+                                              ref.refresh(
+                                                  fetchAllApplicantProvider);
+                                              ref.refresh(
+                                                  fetchAllReferalProvider);
+                                              ref.refresh(
+                                                  fetchAllApplyProvider);
+                                              ref.refresh(
+                                                  fetchAllExecutiveProvide);
+                                              Future.delayed(
+                                                  const Duration(seconds: 2),
+                                                  () {
+                                                setState(() {
+                                                  isLoading = false;
+                                                });
+                                              });
+                                            },
+                                            finalDropDown:
+                                                widget.finalDropDownItem[index],
+                                          ),
+                                        );
+                                      },
                                     );
-                                  },
-                                );
-                                ref.refresh(fetchAllApplicantProvider);
-                                ref.refresh(fetchAllReferalProvider);
-                                ref.refresh(fetchAllApplyProvider);
-                                ref.refresh(fetchAllExecutiveProvide);
-                                /*    Navigator.pushReplacement(
+                                    ref.refresh(fetchAllApplicantProvider);
+                                    ref.refresh(fetchAllReferalProvider);
+                                    ref.refresh(fetchAllApplyProvider);
+                                    ref.refresh(fetchAllExecutiveProvide);
+                                    /*    Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: ((context) => CC(
                                                     key: _talentPollKey,
                                                   )))); */
-                              },
-                        child: Container(
-                            margin: EdgeInsets.only(right: 4.w),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4.h, horizontal: 8.w),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: widget.finalDropDownItem[index]
-                                            .priStatusId ==
-                                        13
-                                    ? Border.all(color: Constants.blue)
-                                    : Border.all(color: Colors.red),
-                                borderRadius: BorderRadius.circular(8.r)),
-                            child: Text(
-                              widget.finalDropDownItem[index].primaryStatus
-                                  .toString(),
-                              style: GoogleFonts.varela(
-                                  color: widget.finalDropDownItem[index]
-                                              .priStatusId ==
-                                          13
-                                      ? Constants.blue
-                                      : Colors.red,
-                                  fontWeight: FontWeight.bold),
-                            )),
+                                  },
+                            child: Container(
+                                margin: EdgeInsets.only(right: 4.w),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4.h, horizontal: 8.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: widget.finalDropDownItem[index]
+                                                .priStatusId ==
+                                            13
+                                        ? Border.all(color: Constants.blue)
+                                        : Border.all(color: Colors.red),
+                                    borderRadius: BorderRadius.circular(8.r)),
+                                child: Text(
+                                  widget.finalDropDownItem[index].primaryStatus
+                                      .toString(),
+                                  style: GoogleFonts.varela(
+                                      color: widget.finalDropDownItem[index]
+                                                  .priStatusId ==
+                                              13
+                                          ? Constants.blue
+                                          : Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                          ),
+                        ),
+                      )
+                  ],
+                ),
+//
+//
+//
+//
+              if (widget.item.hr_sub_status == "Drop-out" ||
+                  widget.item.hr_sub_status == "On-Hold")
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8.r),
+                    // border: Border.all(color: Colors.grey.shade400)
+                  ),
+                  margin: EdgeInsets.only(top: 4.h),
+                  padding: EdgeInsets.only(
+                      left: 4.w, right: 4.w, top: 6.h, bottom: 6.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.item.remark ?? "",
+                        style: GoogleFonts.varela(
+                          fontStyle: FontStyle.italic,
+                          // color: Constants.subtitleclr,
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
+                    ],
+                  ),
+                ),
 
-              if (widget.item.notes != null && widget.item.notes != "")
-                const Divider(),
+              //
+              //
+              //
+              //
+              if (widget.item.hr_sub_status != "Drop-out" &&
+                  widget.item.hr_sub_status != "On-Hold")
+                if (widget.item.notes != null && widget.item.notes != "")
+                  const Divider(),
               Container(
                   child: note
                       ? Container(
@@ -689,7 +852,10 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                                     color: Constants.hintColor,
                                     fontSize: 12.sp)),
                           ))
-                      : widget.item.notes != null && widget.item.notes != ""
+                      : widget.item.notes != null &&
+                              widget.item.notes != "" &&
+                              widget.item.hr_sub_status != "Drop-out" &&
+                              widget.item.hr_sub_status != "On-Hold"
                           ? SizedBox(
                               child: Row(
                               children: [
@@ -731,102 +897,107 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
                               ],
                             ))
                           : const SizedBox()),
-              note
+              note &&
+                      widget.item.hr_sub_status != "Drop-out" &&
+                      widget.item.hr_sub_status != "On-Hold"
                   ? SizedBox(
                       height: 8.h,
                     )
                   : const SizedBox(),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    note
-                        ? Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    note = false;
-                                  });
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text("Cancel",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.red,
-                                        fontSize: 12.sp,
-                                      )),
+              if (widget.item.hr_sub_status != "Drop-out" &&
+                  widget.item.hr_sub_status != "On-Hold")
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      note
+                          ? Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      note = false;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    child: Text("Cancel",
+                                        style: GoogleFonts.varela(
+                                          color: Colors.red,
+                                          fontSize: 12.sp,
+                                        )),
+                                  ),
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    note = false;
-                                  });
+                                GestureDetector(
+                                  onTap: () async {
+                                    setState(() {
+                                      note = false;
+                                    });
 
-                                  {
-                                    NewChangeStatusModel changeStatusModel =
-                                        NewChangeStatusModel(notes: notes.text);
-                                    Map<String, dynamic> jsonData =
-                                        changeStatusModel.toJson();
-                                    try {
-                                      await JobPostApiService.NewchangeStatus(
-                                          jsonData, widget.item.id!.toInt());
+                                    {
+                                      NewChangeStatusModel changeStatusModel =
+                                          NewChangeStatusModel(
+                                              notes: notes.text);
+                                      Map<String, dynamic> jsonData =
+                                          changeStatusModel.toJson();
+                                      try {
+                                        await JobPostApiService.NewchangeStatus(
+                                            jsonData, widget.item.id!.toInt());
 
-                                      ref.refresh(fetchAllApplicantProvider);
-                                      ref.refresh(fetchAllExecutiveProvide);
-                                      // ref.refresh(fetchAllReferalProvider);
-                                      // ref.refresh(fetchAllApplyProvider);
-                                      notes.clear();
-                                      //  Navigator.pop(context);
-                                    } catch (e) {
-                                      print('Error: $e');
-                                      //
+                                        ref.refresh(fetchAllApplicantProvider);
+                                        ref.refresh(fetchAllExecutiveProvide);
+                                        // ref.refresh(fetchAllReferalProvider);
+                                        // ref.refresh(fetchAllApplyProvider);
+                                        notes.clear();
+                                        //  Navigator.pop(context);
+                                      } catch (e) {
+                                        print('Error: $e');
+                                        //
+                                      }
                                     }
-                                  }
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text("Submit",
-                                      style: GoogleFonts.varela(
-                                          color: Constants.blue)),
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    child: Text("Submit",
+                                        style: GoogleFonts.varela(
+                                            color: Constants.blue)),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : widget.item.notes != null && widget.item.notes != ""
-                            ? const SizedBox()
-                            : GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    note = true;
-                                  });
-                                  noteFocusNote.requestFocus();
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.only(top: 6.h),
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.post_add_outlined,
-                                        size: 20.h,
-                                        color: Colors.grey,
-                                      ),
-                                      /* Text("Add Note",
+                              ],
+                            )
+                          : widget.item.notes != null && widget.item.notes != ""
+                              ? const SizedBox()
+                              : GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      note = true;
+                                    });
+                                    noteFocusNote.requestFocus();
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: 6.h),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.post_add_outlined,
+                                          size: 20.h,
+                                          color: Colors.grey,
+                                        ),
+                                        /* Text("Add Note",
                                           style: GoogleFonts.varela(
                                               fontSize: 12.sp,
                                               color: Colors.black)), */
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                  ],
-                ),
-              )
+                                )
+                    ],
+                  ),
+                )
             ],
           ),
         ),
