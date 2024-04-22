@@ -375,22 +375,22 @@ class _ManagerInterViewBayStatusState
               //
               //
               //
-              if (widget.item.hr_sub_status != "Drop-out" &&
+              /*  if (widget.item.hr_sub_status != "Drop-out" &&
                   widget.item.hr_sub_status != "On-Hold")
                 if (widget.item.notes != null && widget.item.notes != "")
                   const Divider(),
               if (widget.item.notes != null &&
                   widget.item.notes != "" &&
                   (widget.item.hr_sub_status != "Drop-out" &&
-                      widget.item.hr_sub_status != "On-Hold"))
-                Row(
+                      widget.item.hr_sub_status != "On-Hold")) */
+              /*  Row(
                   children: [
                     Expanded(
                       child: Text("Note : ${widget.item.notes.toString()}",
                           style: GoogleFonts.varela(fontSize: 12.sp)),
                     ),
                   ],
-                ),
+                ), */
             ],
           ),
         ),

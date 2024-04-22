@@ -499,7 +499,7 @@ class _ManagerSelectState extends ConsumerState<ManagerSelect> {
                   ],
                 ),
               ),
-              if (widget.item.notes != null && widget.item.notes != "")
+              /*    if (widget.item.notes != null && widget.item.notes != "")
                 const Divider(),
               if (widget.item.notes != null && widget.item.notes != "")
                 Row(
@@ -509,7 +509,7 @@ class _ManagerSelectState extends ConsumerState<ManagerSelect> {
                           style: GoogleFonts.varela(fontSize: 12.sp)),
                     ),
                   ],
-                ),
+                ), */
             ],
           ),
         ),

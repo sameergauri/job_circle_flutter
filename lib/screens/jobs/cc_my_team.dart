@@ -1,8 +1,7 @@
-// ignore_for_file: unnecessary_null_comparison, unused_field, unused_local_variable, depend_on_referenced_packages, avoid_print, use_full_hex_values_for_flutter_colors
+// ignore_for_file: unnecessary_null_comparison, unused_field, unused_local_variable, depend_on_referenced_packages, avoid_print, use_full_hex_values_for_flutter_colors, unused_result
 // ignore_for_file: todo
 import 'dart:convert';
 
-import 'package:draggable_fab/draggable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -181,9 +180,9 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
             int totalPayout = leads
                 .where((lead) =>
                     lead.hrSubStatus == "Join" &&
-                    lead.partner_payout != null &&
-                    lead.partner_payout != "")
-                .map<int>((lead) => lead.partner_payout!.toInt())
+                    lead.client_payout != null &&
+                    lead.client_payout != "")
+                .map<int>((lead) => lead.client_payout!.toInt())
                 .fold<int>(
                     0, (previousValue, payout) => previousValue + payout);
 
@@ -192,36 +191,26 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
 //
 //
             return Scaffold(
-              appBar: isSearchEnable
-                  ? PreferredSize(
-                      preferredSize:
-                          const Size(double.maxFinite, kTextTabBarHeight),
-                      child: AppBar(
-                        title: customSearchField(context),
-                        elevation: 0,
-                        backgroundColor: Constants.bgColorWhite,
-                      ))
-                  : const PreferredSize(
-                      preferredSize: Size(0, 0), child: SizedBox()),
-              floatingActionButton: DraggableFab(
-                securityBottom: 0.0,
-                child: FloatingActionButton(
-                    backgroundColor: Colors.transparent,
+              appBar: PreferredSize(
+                  preferredSize:
+                      const Size(double.maxFinite, kTextTabBarHeight),
+                  child: AppBar(
+                    title: customSearchField(context),
                     elevation: 0,
-                    child: Icon(
-                      Icons.search,
-                      size: 30.sp,
-                      color: Constants.blue,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isSearchEnable = !isSearchEnable;
-                        _searchController.clear();
-                      });
-                      if (isSearchEnable) {
-                        searchNode.requestFocus();
-                      }
-                    }),
+                    backgroundColor: Constants.bgColorWhite,
+                  )),
+              // : const PreferredSize(
+              //     preferredSize: Size(0, 0), child: SizedBox()),
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.white,
+                mini: true,
+                onPressed: () {
+                  ref.refresh(fetchAllTeamData);
+                },
+                child: const Icon(
+                  Icons.refresh_outlined,
+                  color: Constants.blue,
+                ),
               ),
               body: Stack(
                 children: [
@@ -230,7 +219,7 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
                       /* left: 10.w,
                       right: 10.w, */
                       bottom: 30.h,
-                      top: isSearchEnable ? 0 : kToolbarHeight / 1.5,
+                      // top: isSearchEnable ? 0 : kToolbarHeight / 1.5,
                     ),
                     child: SfDataGridTheme(
                       data: SfDataGridThemeData(
@@ -266,7 +255,7 @@ class _CCMyTeamState extends ConsumerState<CCMyTeam> {
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
-                                                  "Awaiting",
+                                                  "Offer",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(

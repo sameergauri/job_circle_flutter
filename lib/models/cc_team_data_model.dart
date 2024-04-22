@@ -19,8 +19,13 @@ class CCTeamModel {
   final String? lastName;
   final DateTime? dol;
   final String? attr_status;
-  final double? partner_payout;
+  final double? client_payout;
   final String? spoc_name;
+  final int? contact_no;
+  final String? emp_id;
+  final double? salary;
+  final double? partner_payout;
+  final String? level;
 
   CCTeamModel({
     this.statusId,
@@ -41,8 +46,13 @@ class CCTeamModel {
     this.lastName,
     this.dol,
     this.attr_status,
-    this.partner_payout,
+    this.client_payout,
     this.spoc_name,
+    this.contact_no,
+    this.emp_id,
+    this.salary,
+    this.partner_payout,
+    this.level,
   });
 
   factory CCTeamModel.fromJson(Map<String, dynamic> json) {
@@ -64,9 +74,14 @@ class CCTeamModel {
       sourceId: json['source_id'],
       lastName: json['last_name'],
       dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
-      attr_status: json['attr_status'] ?? "Pending",
-      partner_payout: json['client_payout'],
+      attr_status: json['attr_status'],
+      client_payout: json['client_payout'],
       spoc_name: json['spoc_name'],
+      contact_no: json['contact_no'],
+      emp_id: json['emp_id'],
+      salary: json['salary'],
+      partner_payout: json['partner_payout'],
+      level:json['level'],
     );
   }
 }

@@ -716,11 +716,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             diff) {
                           if (profilemodel.cv_link != null) {
                             await JobPostApiService.postJobApply(
-                                context: context,
-                                jobId: int.parse(jobDetailsModel.id.toString()),
-                                // userId: int.parse(profilemodel.id.toString()
-                                userId: await Utils.getPreferencesValue(
-                                    null, ESharedPreferences.user_id.name));
+                              context: context,
+                              jobId: int.parse(jobDetailsModel.id.toString()),
+                              // userId: int.parse(profilemodel.id.toString()
+                              userId: await Utils.getPreferencesValue(
+                                  null, ESharedPreferences.user_id.name),
+                              number: await Utils.getPreferencesValue(
+                                  null, ESharedPreferences.user_mobile.name),
+                            );
                             ref.refresh(fetchAllApplyProvider);
                             ref.refresh(fetchAllTalentPoolProvider);
                           } else {
@@ -761,6 +764,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               jobId: jobDetailsModel.id!.toInt(),
                               userId: await Utils.getPreferencesValue(
                                   null, ESharedPreferences.user_id.name),
+                              number: await Utils.getPreferencesValue(
+                                  null, ESharedPreferences.user_mobile.name),
                               context: context);
                           ref.refresh(fetchAllApplyProvider);
                           ref.refresh(fetchAllTalentPoolProvider);
@@ -2264,12 +2269,24 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             child: Align(
                                 alignment: Alignment.topRight,
                                 child: jobDetailsModel.spoc_profile_pic != null
-                                    ? CircleAvatar(
-                                        radius: 30,
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(
-                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
-                                        ),
+                                    ? Stack(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 30,
+                                            backgroundImage:
+                                                CachedNetworkImageProvider(
+                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                            ),
+                                          ),
+                                          Positioned(
+                                            right: 0,
+                                            child: Image.asset(
+                                              "assets/images/verify.png",
+                                              height: 15,
+                                              //color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
                                       )
                                     : const SizedBox())),
                       ],

@@ -319,326 +319,318 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 15.w, right: 15.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (jobDetailsModel.name.toString().isNotEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            //crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // item['process'] != null)
-                              Image.asset(
-                                "assets/images/cmpny.png",
-                                height: 12.5.h,
-                              ),
-
-                              SizedBox(
-                                width: 6.w,
-                              ),
-                              Text(
-                                jobDetailsModel.name.toString(),
-                                // maxLines: 2,
-                                // overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.varela(
-                                    color: Colors.grey.shade700,
-                                    //color: Colors.black54,
-                                    fontSize: 13.sp),
-                              )
-                            ],
-                          ),
-                        jobDetailsModel.isfresher == "Fresher"
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/bag.png",
-                                    height: 12.5.h,
-                                  ),
-                                  SizedBox(
-                                    width: 7.w,
-                                  ),
-                                  SizedBox(
-                                    child: Text(
-                                      "Fresher can apply",
-                                      style: GoogleFonts.varela(
-                                          color: Colors.grey.shade700,
-                                          // color: Colors.black54,
-                                          //fontWeight: FontWeight.normal,
-                                          fontSize: 13.sp),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : jobDetailsModel.minexperience == null
-                                ? jobDetailsModel.maxexperience == null
-                                    ? const SizedBox()
-                                    : const SizedBox()
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "assets/images/bag.png",
-                                        height: 12.5.h,
-                                        //  color: Constants.subtitleclr,
-                                      ),
-                                      SizedBox(
-                                        width: 8.w,
-                                      ),
-                                      jobDetailsModel.maxexperience == "& above"
-                                          ? jobDetailsModel.minexperience == 0.6
-                                              ? Text(
-                                                  // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
-                                                  "6 Month & Above.",
-                                                  style: GoogleFonts.varela(
-                                                      // color: Colors.black54,
-                                                      color:
-                                                          Colors.grey.shade700,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      fontSize: 13.sp),
-                                                )
-                                              : Text(
-                                                  "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Years & above.",
-                                                  style: GoogleFonts.varela(
-                                                      // color: Colors.black54,
-                                                      color:
-                                                          Colors.grey.shade700,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      fontSize: 13.sp),
-                                                )
-                                          : Text(
-                                              "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} - ${jobDetailsModel.maxexperience.toString().replaceAll(".0", "")} Years",
-                                              style: GoogleFonts.varela(
-                                                  // color: Colors.black54,
-                                                  color: Colors.grey.shade700,
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 13.sp),
-                                            )
-                                    ],
-                                  ),
-
-                        if (jobDetailsModel.minctc != null &&
-                            jobDetailsModel.maxctc != null)
-                          Row(
-                            children: [
-                              Image.asset(
-                                "assets/images/wallet.png",
-                                height: 12.5.h,
-                              ),
-                              SizedBox(
-                                width: 5.5.w,
-                              ),
-                              Text(
-                                "${formatSalaryRange(jobDetailsModel.minctc!.toInt(), jobDetailsModel.maxctc!.toInt())} ${jobDetailsModel.ismonthly ?? ""}",
-                                style: GoogleFonts.varela(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 13.sp),
-                              )
-                            ],
-                          ),
-                        SizedBox(
-                          height: 2.h,
-                        ),
+          : Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (jobDetailsModel.name.toString().isNotEmpty)
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          //crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            // item['process'] != null)
                             Image.asset(
-                              "assets/images/loc.png",
+                              "assets/images/cmpny.png",
                               height: 12.5.h,
                             ),
+
                             SizedBox(
                               width: 6.w,
                             ),
-                            jobDetailsModel.location == "WFH"
-                                ? Text(
-                                    "Work from home",
+                            Text(
+                              jobDetailsModel.name.toString(),
+                              // maxLines: 2,
+                              // overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.varela(
+                                  color: Colors.grey.shade700,
+                                  //color: Colors.black54,
+                                  fontSize: 13.sp),
+                            )
+                          ],
+                        ),
+                      jobDetailsModel.isfresher == "Fresher"
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  "assets/images/bag.png",
+                                  height: 12.5.h,
+                                ),
+                                SizedBox(
+                                  width: 7.w,
+                                ),
+                                SizedBox(
+                                  child: Text(
+                                    "Fresher can apply",
+                                    style: GoogleFonts.varela(
+                                        color: Colors.grey.shade700,
+                                        // color: Colors.black54,
+                                        //fontWeight: FontWeight.normal,
+                                        fontSize: 13.sp),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : jobDetailsModel.minexperience == null
+                              ? jobDetailsModel.maxexperience == null
+                                  ? const SizedBox()
+                                  : const SizedBox()
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/bag.png",
+                                      height: 12.5.h,
+                                      //  color: Constants.subtitleclr,
+                                    ),
+                                    SizedBox(
+                                      width: 8.w,
+                                    ),
+                                    jobDetailsModel.maxexperience == "& above"
+                                        ? jobDetailsModel.minexperience == 0.6
+                                            ? Text(
+                                                // "${item["minexperience"].replaceAll(".0", "")} Years & above.",
+                                                "6 Month & Above.",
+                                                style: GoogleFonts.varela(
+                                                    // color: Colors.black54,
+                                                    color: Colors.grey.shade700,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 13.sp),
+                                              )
+                                            : Text(
+                                                "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} Years & above.",
+                                                style: GoogleFonts.varela(
+                                                    // color: Colors.black54,
+                                                    color: Colors.grey.shade700,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 13.sp),
+                                              )
+                                        : Text(
+                                            "${jobDetailsModel.minexperience.toString().replaceAll(".0", "")} - ${jobDetailsModel.maxexperience.toString().replaceAll(".0", "")} Years",
+                                            style: GoogleFonts.varela(
+                                                // color: Colors.black54,
+                                                color: Colors.grey.shade700,
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 13.sp),
+                                          )
+                                  ],
+                                ),
+
+                      if (jobDetailsModel.minctc != null &&
+                          jobDetailsModel.maxctc != null)
+                        Row(
+                          children: [
+                            Image.asset(
+                              "assets/images/wallet.png",
+                              height: 12.5.h,
+                            ),
+                            SizedBox(
+                              width: 5.5.w,
+                            ),
+                            Text(
+                              "${formatSalaryRange(jobDetailsModel.minctc!.toInt(), jobDetailsModel.maxctc!.toInt())} ${jobDetailsModel.ismonthly ?? ""}",
+                              style: GoogleFonts.varela(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 13.sp),
+                            )
+                          ],
+                        ),
+                      SizedBox(
+                        height: 2.h,
+                      ),
+                      Row(
+                        children: [
+                          Image.asset(
+                            "assets/images/loc.png",
+                            height: 12.5.h,
+                          ),
+                          SizedBox(
+                            width: 6.w,
+                          ),
+                          jobDetailsModel.location == "WFH"
+                              ? Text(
+                                  "Work from home",
+                                  // maxLines: 2,
+                                  // overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.varela(
+                                      color: Colors.grey.shade700,
+                                      //color: Colors.black54,
+                                      fontSize: 13.sp),
+                                )
+                              : Expanded(
+                                  child: Text(
+                                    jobDetailsModel.location.toString(),
                                     // maxLines: 2,
                                     // overflow: TextOverflow.ellipsis,
                                     style: GoogleFonts.varela(
                                         color: Colors.grey.shade700,
                                         //color: Colors.black54,
                                         fontSize: 13.sp),
-                                  )
-                                : Expanded(
-                                    child: Text(
-                                      jobDetailsModel.location.toString(),
-                                      // maxLines: 2,
-                                      // overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.varela(
-                                          color: Colors.grey.shade700,
-                                          //color: Colors.black54,
-                                          fontSize: 13.sp),
-                                    ),
-                                  )
-                          ],
-                        ),
+                                  ),
+                                )
+                        ],
+                      ),
 
-                        Row(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 2, right: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Constants.borderColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/verified.png",
-                                    height: 15.h,
-                                    color: Colors.black45,
-                                  ),
-                                  Text(
-                                    "Verified",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.black54),
-                                  ),
-                                ],
-                              ),
+                      Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 2, right: 5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Constants.borderColor,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(top: 2, right: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Constants.borderColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                "${jobDetailsModel.no_of_vacancy.toString()} Vacancies",
-                                style:
-                                    GoogleFonts.varela(color: Colors.black54),
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  "assets/images/verified.png",
+                                  height: 15.h,
+                                  color: Colors.black45,
+                                ),
+                                Text(
+                                  "Verified",
+                                  style:
+                                      GoogleFonts.varela(color: Colors.black54),
+                                ),
+                              ],
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Constants.borderColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/shifttimes.png",
-                                    height: 15.h,
-                                    color: Colors.black45,
-                                  ),
-                                  const SizedBox(
-                                    width: 3,
-                                  ),
-                                  Text(
-                                    jobDetailsModel.emptype.toString(),
-                                    style: GoogleFonts.varela(
-                                        color: Colors.black54),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        //TODO:: TabBar for cc
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: TabBar(
-                        indicatorColor: Constants.blue,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        labelPadding: const EdgeInsets.only(left: 5, right: 5),
-                        labelColor: Colors.black,
-                        // isScrollable: true,
-                        labelStyle:
-                            GoogleFonts.varela(fontWeight: FontWeight.bold),
-                        unselectedLabelColor: Colors.black,
-                        unselectedLabelStyle:
-                            GoogleFonts.varela(fontWeight: FontWeight.normal),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        splashBorderRadius: BorderRadius.circular(8),
-                        indicatorWeight: 5.h,
-                        indicatorPadding:
-                            EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
-                        /*  indicator: BoxDecoration(
-                                color: Constants.borderColor,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Constants.borderColor),
-                              ), */
-                        controller: _tabController,
-                        tabs: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/images/job_desc.png",
-                                height: 15.sp,
-                              ),
-                              const SizedBox(
-                                width: 2,
-                              ),
-                              const Tab(text: 'Job Description'),
-                            ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/images/qa.png",
-                                height: 15.sp,
-                              ),
-                              const SizedBox(
-                                width: 2,
-                              ),
-                              const Tab(text: 'Interview FAQ'),
-                            ],
+                          Container(
+                            margin: const EdgeInsets.only(top: 2, right: 5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Constants.borderColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "${jobDetailsModel.no_of_vacancy.toString()} Vacancies",
+                              style: GoogleFonts.varela(color: Colors.black54),
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Constants.borderColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  "assets/images/shifttimes.png",
+                                  height: 15.h,
+                                  color: Colors.black45,
+                                ),
+                                const SizedBox(
+                                  width: 3,
+                                ),
+                                Text(
+                                  jobDetailsModel.emptype.toString(),
+                                  style:
+                                      GoogleFonts.varela(color: Colors.black54),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
+
+                      //TODO:: TabBar for cc
+                    ],
                   ),
-                  SizedBox(
-                    //  padding: const EdgeInsets.only(left: 20),
-                    height: MediaQuery.of(context).size.height / 1.4.h,
-                    width: double.maxFinite,
-                    child: TabBarView(
+                ),
+                Container(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TabBar(
+                      indicatorColor: Constants.blue,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      labelPadding: const EdgeInsets.only(left: 5, right: 5),
+                      labelColor: Colors.black,
+                      // isScrollable: true,
+                      labelStyle:
+                          GoogleFonts.varela(fontWeight: FontWeight.bold),
+                      unselectedLabelColor: Colors.black,
+                      unselectedLabelStyle:
+                          GoogleFonts.varela(fontWeight: FontWeight.normal),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      splashBorderRadius: BorderRadius.circular(8),
+                      indicatorWeight: 5.h,
+                      indicatorPadding:
+                          EdgeInsets.only(bottom: 8.h, left: 3.w, right: 3.w),
+                      /*  indicator: BoxDecoration(
+                            color: Constants.borderColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Constants.borderColor),
+                          ), */
                       controller: _tabController,
-                      children: [
-                        DescriptionForCC(
-                          user_type: usertype,
-                          id: widget.id,
-                          Applies: widget.Applies,
-                          referal: widget.referal,
+                      tabs: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/job_desc.png",
+                              height: 15.sp,
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            const Tab(text: 'Job Description'),
+                          ],
                         ),
-                        InterviewFaqPage(
-                          crpfid: jobDetailsModel.crpf_id!.toInt(),
-                          userid: widget.userid,
-                          userType: widget.userType!.toInt(),
-                          userRole: widget.userrole.toString(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/qa.png",
+                              height: 15.sp,
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            const Tab(text: 'Interview FAQ'),
+                          ],
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+                Expanded(
+                  //  padding: const EdgeInsets.only(left: 20),
+
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      DescriptionForCC(
+                        user_type: usertype,
+                        id: widget.id,
+                        Applies: widget.Applies,
+                        referal: widget.referal,
+                      ),
+                      InterviewFaqPage(
+                        crpfid: jobDetailsModel.crpf_id!.toInt(),
+                        userid: widget.userid,
+                        userType: widget.userType!.toInt(),
+                        userRole: widget.userrole.toString(),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
     );
   }

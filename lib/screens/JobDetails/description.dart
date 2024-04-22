@@ -158,7 +158,6 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
     //   const RestrictedButton();
     fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-     
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (widget.id != null) {
         getJobDetails(widget.id);
@@ -1049,11 +1048,24 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                         child: Align(
                             alignment: Alignment.topRight,
                             child: jobDetailsModel.spoc_profile_pic != null
-                                ? CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage: CachedNetworkImageProvider(
-                                      "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
-                                    ),
+                                ? Stack(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 30,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(
+                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${jobDetailsModel.spoc_profile_pic}",
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        child: Image.asset(
+                                          "assets/images/verify.png",
+                                          height: 15,
+                                          //color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
                                   )
                                 : const SizedBox())),
                   ],

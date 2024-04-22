@@ -170,12 +170,14 @@ class JobPostApiService {
   static Future<void> postJobApply(
       {required int jobId,
       required int userId,
+      required String number,
       required BuildContext context}) async {
     final url =
         Uri.parse('http://${GlobalConstants.API_Host_one}/leads/v1/applyJob');
     final body = {
       'jobId': jobId.toString(),
       'userId': userId.toString(),
+      'mobile': number
 
       /// 'status':'TP1',
       // Assuming 'status' is always '1' based on the provided URL.
@@ -250,6 +252,7 @@ class JobPostApiService {
           body: json.encode(jsonData));
 
       if (response.statusCode == 200) {
+        
         // Successful request
         // print(response.body);
         print('Status Updated Successfully');

@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unused_field, unused_local_variable, depend_on_referenced_packages, avoid_print, use_full_hex_values_for_flutter_colors
 // ignore_for_file: todo
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,16 +10,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/custom_dialogue_for_team.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/cc_team_data_model.dart';
+import 'package:job_circle/models/changeStatusModel.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-final fetchAllTeamData = FutureProvider<List<CCTeamModel>>((
+final fetchAllTeamManagerData = FutureProvider<List<CCTeamModel>>((
   ref,
 ) {
   Future.delayed(const Duration(seconds: 2));
@@ -46,7 +48,7 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
         await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
 
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllTeamDataByManagerId?userId=$userid&pageNumber=1&pageSize=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllTeamDataByManagerId?userId=$userid&pageNumber=1&pageSize=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -87,12 +89,14 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
 
   //
   Widget buildMonthAndYearSelector(List<CCTeamModel> filteredData) {
-    Set<int> uniqueMonthsAndYears = filteredData
+    Set<int> sortedMonthsAndYears = filteredData
         .where((element) => element.doj != null)
         .map((item) =>
             (DateTime.parse(item.doj.toString()).year * 100) +
             DateTime.parse(item.doj.toString()).month)
         .toSet();
+    List<int> uniqueMonthsAndYears = sortedMonthsAndYears.toList()
+      ..sort(((a, b) => b.compareTo(a)));
     return Container(
       padding: EdgeInsets.only(left: 5.w, right: 5.w),
       height: MediaQuery.of(context).size.height / 28.h,
@@ -182,12 +186,92 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
   //
   //
   //
+  //TODO :: Function to download excel file ...
+  Future<void> exportDataToCSV(
+      BuildContext context, List<CCTeamModel> data) async {
+    try {
+      /*  var status = await Permission.storage.request();
+      if (!status.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Storage permission required'),
+          ),
+        );
+        return;
+      } */
+
+      String extractInitials(String name) {
+        if (name.isEmpty) {
+          return '-';
+        }
+
+        List<String> words = name.split(' ');
+        String initials = '';
+        if (words.isNotEmpty) {
+          initials += words[0];
+          if (words.length > 1) {
+            initials += ' ${words[1][0]}';
+          }
+        }
+        return initials;
+      }
+
+      String csv =
+          'Emp Id, Candidate Name, Contact No, DOL, Company, Process, Designation, Joining Status, DOJ, Salary, C Payout, R Payout, Att Status, Source, Referral, CC\n';
+      for (var entry in data) {
+        String formattedDate = entry.doj != null
+            ? DateFormat('dd MMM yyyy').format(entry.doj!)
+            : '-';
+
+        String formattedDol = entry.dol != null
+            ? DateFormat('dd MMM yyyy').format(entry.dol!)
+            : '-';
+
+        String sourceInitials = extractInitials(entry.sourceName ?? '-');
+
+        csv +=
+            '${entry.emp_id ?? '-'}, ${entry.applicantName} ${entry.lastName}, ${entry.contact_no}, $formattedDol,'
+            '${entry.shortCode ?? entry.companyName}, ${entry.process},${entry.level ?? '-'}, ${entry.hrSubStatus ?? '-'},'
+            ' $formattedDate, ${entry.salary ?? '-'}, ${entry.client_payout ?? '-'}, ${entry.partner_payout ?? '-'},'
+            '${entry.attr_status ?? '-'}, $sourceInitials, ${entry.referralSource ?? '-'}, ${entry.spoc_name ?? '-'}\n';
+      }
+
+      // Define the base file name and extension
+      String basePath = '/storage/emulated/0/Download/billing_data';
+      String extension = '.csv';
+      int fileNumber = 0;
+      String filePath = '$basePath$extension';
+
+      // Check if the file already exists, if yes, append a counter to the file name
+      while (await File(filePath).exists()) {
+        fileNumber++;
+        filePath = '$basePath($fileNumber)$extension';
+      }
+
+      // Write the CSV data to the new file path
+      await File(filePath).writeAsString(csv);
+
+      ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+          title: "Billing Data downloaded successfully", error: false));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+          title: "Failed to download billing data", error: true));
+    }
+  }
+
+  bool? isRowSelected;
+  int selectedIndex = -1;
+
+  //
+  //
+  //
+  //
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
-    var fetchData = ref.watch(fetchAllTeamData);
+    var fetchData = ref.watch(fetchAllTeamManagerData);
     return fetchData != null
         ? fetchData.when(data: (data) {
 //
@@ -209,7 +293,55 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                         element.shortCode!
                             .toLowerCase()
                             .contains(_searchController.text.toLowerCase()))
-                    .where((item) => (selectedMonthAndYear == null ||
+                    .where((item) {
+                      if (selectedMonthAndYear == null) {
+                        return true;
+                        // Handle the case when selectedMonthYear is null
+
+                        // Or handle it based on your logic
+                      }
+                      if (item.hrSubStatus == "Join" ||
+                          item.hrSubStatus == "training Dropout") {
+                        return item.doj != null &&
+                            DateTime.parse(item.doj.toString()).month ==
+                                selectedMonthAndYear! % 100 &&
+                            DateTime.parse(item.doj.toString()).year ==
+                                selectedMonthAndYear! ~/ 100;
+                      } else if (item.hrSubStatus == null ||
+                          item.hrSubStatus == "ready to join") {
+                        // return true; // Include all data without checking doj and dol  //TODO old code
+                        return (DateTime.now().month ==
+                                    selectedMonthAndYear! ~/ 100 &&
+                                DateTime.parse(item.doj.toString()).month ==
+                                    selectedMonthAndYear! % 100 &&
+                                DateTime.parse(item.doj.toString()).year ==
+                                    selectedMonthAndYear! ~/ 100) ||
+                            (DateTime.now().month + 1 ==
+                                    selectedMonthAndYear! % 100 &&
+                                DateTime.now().year ==
+                                    selectedMonthAndYear! ~/
+                                        100); //TODO new code
+                      } else if (item.hrSubStatus == "Not Join" ||
+                          item.hrSubStatus == "Offer Decline") {
+                        if (item.doj == null) {
+                          // Check if dol is within the selected month and year
+                          return item.dol != null &&
+                              DateTime.parse(item.dol.toString()).month ==
+                                  selectedMonthAndYear! % 100 &&
+                              DateTime.parse(item.dol.toString()).year ==
+                                  selectedMonthAndYear! ~/ 100;
+                        } else {
+                          // Check if doj is within the selected month and year
+                          return DateTime.parse(item.doj.toString()).month ==
+                                  selectedMonthAndYear! % 100 &&
+                              DateTime.parse(item.doj.toString()).year ==
+                                  selectedMonthAndYear! ~/ 100;
+                        }
+                      }
+                      return false;
+                    })
+
+                    /* .where((item) => (selectedMonthAndYear == null ||  //TODO:: old condition before april 2024...
                         item.doj == null &&
                             DateTime.parse(DateTime.now().toString()).month ==
                                 selectedMonthAndYear! % 100 &&
@@ -219,14 +351,17 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                             DateTime.parse(item.doj.toString()).month ==
                                 selectedMonthAndYear! % 100 &&
                             DateTime.parse(item.doj.toString()).year ==
-                                selectedMonthAndYear! ~/ 100))
-                    .where(
-                        (element) => selectedItem == "All" || element.spoc_name == selectedItem)
+                                selectedMonthAndYear! ~/ 100)) */
                     .where((element) =>
-                        selectedCompanies.isEmpty || // Check if no companies are selected
+                        selectedItem == "All" ||
+                        element.spoc_name == selectedItem)
+                    .where((element) =>
+                        selectedCompanies
+                            .isEmpty || // Check if no companies are selected
                         selectedCompanies.contains(element.shortCode))
                     .where((element) =>
-                        selectedStatus.isEmpty || // Check if no companies are selected
+                        selectedStatus
+                            .isEmpty || // Check if no companies are selected
                         selectedStatus.contains(element.hrSubStatus))
                     .toList();
 //
@@ -236,18 +371,18 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
             int totalPayout = leads
                 .where((lead) =>
                     lead.hrSubStatus == "Join" &&
-                    lead.partner_payout != null &&
-                    lead.partner_payout != "")
-                .map<int>((lead) => lead.partner_payout!.toInt())
+                    lead.client_payout != null &&
+                    lead.client_payout != "")
+                .map<int>((lead) => lead.client_payout!.toInt())
                 .fold<int>(
                     0, (previousValue, payout) => previousValue + payout);
 
             int totalPayable = leads
                 .where((lead) =>
                     lead.attr_status == "Payable" &&
-                    lead.partner_payout != null &&
-                    lead.partner_payout != "")
-                .map<int>((lead) => lead.partner_payout!.toInt())
+                    lead.client_payout != null &&
+                    lead.client_payout != "")
+                .map<int>((lead) => lead.client_payout!.toInt())
                 .fold<int>(
                     0, (previousValue, payout) => previousValue + payout);
 
@@ -307,7 +442,52 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
 //
 //
 //
+            List<CCTeamModel> DataTodownload = data
+                .where((item) => (selectedMonthAndYear == null ||
+                    item.doj == null &&
+                        DateTime.parse(DateTime.now().toString()).month ==
+                            selectedMonthAndYear! % 100 &&
+                        DateTime.parse(DateTime.now().toString()).year ==
+                            selectedMonthAndYear! ~/ 100 ||
+                    item.doj != null &&
+                        DateTime.parse(item.doj.toString()).month ==
+                            selectedMonthAndYear! % 100 &&
+                        DateTime.parse(item.doj.toString()).year ==
+                            selectedMonthAndYear! ~/ 100))
+                .toList();
+
+            DataSource dataSource = DataSource(leads: leads, context: context);
+//
+//
+//
+//
+
             return Scaffold(
+              floatingActionButton: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                    backgroundColor: Colors.white,
+                    onPressed: () {
+                      ref.refresh(fetchAllTeamManagerData);
+                    },
+                    mini: true,
+                    child: const Icon(
+                      Icons.refresh_outlined,
+                      color: Constants.blue,
+                    ),
+                  ),
+                  FloatingActionButton(
+                    onPressed: () {
+                      exportDataToCSV(context, DataTodownload);
+                    },
+                    mini: true,
+                    backgroundColor: Colors.white,
+                    child: const Icon(Icons.download, color: Constants.blue),
+                  )
+                ],
+              ),
               appBar: PreferredSize(
                   preferredSize:
                       const Size(double.maxFinite, kTextTabBarHeight),
@@ -379,12 +559,244 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
               body: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(
-                      /* left: 10.w,
+                      padding: EdgeInsets.only(
+                        /* left: 10.w,
                       right: 10.w, */
-                      bottom: 30.h,
-                    ),
-                    child: SfDataGridTheme(
+                        bottom: 30.h,
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        child: Column(
+                          children: [
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                border: const TableBorder(
+                                  top: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  bottom: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  left: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  right: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  horizontalInside: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  verticalInside: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                ),
+                                headingRowColor:
+                                    MaterialStateProperty.all(Colors.blue),
+                                rows: dataSource.getDataRows(),
+                                // Exclude the first column from being generated as checkbox
+                                columnSpacing:
+                                    10, // Adjust spacing between columns
+                                columns: <DataColumn>[
+                                  DataColumn(
+                                    // width: 150.w,
+                                    label: _getTitleItemWidget(
+                                        label: "Applicant",
+                                        columnName: "applicantName",
+                                        compnyList: companyList),
+                                  ),
+                                  DataColumn(
+                                    // width: 150.w,
+                                    label: _getTitleItemWidget(
+                                        label: "Company",
+                                        columnName: "companyName",
+                                        compnyList:
+                                            companyList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                  DataColumn(
+                                    // width: 150.w,
+                                    label: _getTitleItemWidget(
+                                        label: "Process",
+                                        columnName: "process",
+                                        compnyList:
+                                            companyList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: _getTitleItemWidget(
+                                        label: "DOJ",
+                                        columnName: "doj",
+                                        compnyList:
+                                            companyList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: _getTitleItemWidget(
+                                        label: "Status",
+                                        columnName: "status",
+                                        compnyList:
+                                            statusList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: _getTitleItemWidget(
+                                        label: "Attration Status",
+                                        columnName: "attrStatus",
+                                        compnyList:
+                                            companyList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: _getTitleItemWidget(
+                                        label: "PayOut",
+                                        columnName: "payout",
+                                        compnyList:
+                                            companyList // Replace 'applicantName' with the actual column name
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                                margin: EdgeInsets.only(
+                                    top: 6.h, left: 10.w, right: 10.w),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border:
+                                        Border.all(color: Constants.navyblue)),
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Join",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      "Offer",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      "Selects",
+                                                      style: GoogleFonts.varela(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      " : ${leads.where((element) => element.hrSubStatus == "Join").length} (Rs: $totalPayout)",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      " : ${leads.where((element) => element.hrSubStatus == "Ready to Join" || element.hrSubStatus == "" || element.hrSubStatus == null).length}",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      " : ${leads.length}",
+                                                      style: GoogleFonts.varela(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Offer Drop",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      "Not Join",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      "Training Drop",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      " : ${leads.where((element) => element.hrSubStatus == "Offer Decline").length}",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      " : ${leads.where((element) => element.hrSubStatus == "Not Join").length}",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    ),
+                                                    Text(
+                                                      " : ${leads.where((element) => element.hrSubStatus == "Training Dropout").length}",
+                                                      style:
+                                                          GoogleFonts.varela(),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10.sp,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Payable : ${leads.where((element) => element.attr_status == "Payable").length} (Rs: $totalPayable)",
+                                          style: GoogleFonts.varela(
+                                              color: Constants.green),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      )
+
+                      /* SfDataGridTheme(
                       data: SfDataGridThemeData(
                         headerColor: Constants.blue,
                       ),
@@ -418,7 +830,7 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
-                                                  "Awaiting",
+                                                  "Offer",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
@@ -434,11 +846,11 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  " : ${leads.where((element) => element.hrSubStatus == "Ready to Join" || element.hrSubStatus == "" || element.hrSubStatus == null).length} (Rs: $totalPayout)",
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Join").length} (Rs: $totalPayout)",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
-                                                  " : ${leads.where((element) => element.hrSubStatus == "Join").length}",
+                                                  " : ${leads.where((element) => element.hrSubStatus == "Ready to Join" || element.hrSubStatus == "" || element.hrSubStatus == null).length}",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
@@ -464,7 +876,7 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "OfferDecline",
+                                                  "Offer Drop",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
@@ -472,7 +884,7 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                                                   style: GoogleFonts.varela(),
                                                 ),
                                                 Text(
-                                                  "Training DropOut",
+                                                  "Training Drop",
                                                   style: GoogleFonts.varela(),
                                                 ),
                                               ],
@@ -609,8 +1021,8 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
                           ),
                         ],
                       ),
-                    ),
-                  ),
+                    ), */
+                      ),
                   Positioned(
                       left: 20,
                       bottom: 0,
@@ -843,7 +1255,107 @@ class _ManagerMyTeamState extends ConsumerState<ManagerMyTeam> {
   }
 }
 
-class DataSource extends DataGridSource {
+class DataSource {
+  final List<CCTeamModel> leads;
+  BuildContext context;
+  DataSource({required this.leads, required this.context});
+
+  List<DataRow> getDataRows() {
+    return leads.map((lead) {
+      String fullName = '${lead.applicantName} ${lead.lastName}';
+      String formattedDate = lead.doj != null
+          ? DateFormat('dd MMM yy').format(lead.doj!)
+          : lead.hrSubStatus == "Join" ||
+                  lead.hrSubStatus == null ||
+                  lead.hrSubStatus == "Ready to Join"
+              ? "Pending"
+              : "NA";
+      String status = lead.hrSubStatus != null && lead.hrSubStatus != ""
+          ? lead.hrSubStatus!
+          : "Select";
+      String attStatus = lead.attr_status != null
+          ? lead.attr_status!
+          : lead.hrSubStatus == "Join" ||
+                  lead.hrSubStatus == null ||
+                  lead.hrSubStatus == "Ready to Join"
+              ? "Pending"
+              : "NA";
+      String payout = lead.client_payout != null && lead.client_payout != ""
+          ? lead.client_payout!.toStringAsFixed(0)
+          : lead.hrSubStatus == "Join" ||
+                  lead.hrSubStatus == null ||
+                  lead.hrSubStatus == "Ready to Join"
+              ? "Pending"
+              : "NA";
+
+      return DataRow(
+        cells: [
+          DataCell(Text(fullName)),
+          DataCell(Text(lead.shortCode.toString())),
+          DataCell(Text(lead.process.toString())),
+          DataCell(Text(formattedDate)),
+          DataCell(Text(status)),
+          DataCell(onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Row(
+                    children: [
+                      Text("Attrition status of ", style: GoogleFonts.varela()),
+                      Text(
+                        fullName,
+                        style: GoogleFonts.varela(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        customOnTabForAttrChange(
+                            lead, lead.id!.toInt(), "Pending"),
+                        customOnTabForAttrChange(
+                            lead, lead.id!.toInt(), "Under Clause"),
+                        customOnTabForAttrChange(
+                            lead, lead.id!.toInt(), "Not Payable"),
+                        customOnTabForAttrChange(
+                            lead, lead.id!.toInt(), "Payable"),
+                      ],
+                    )
+                  ],
+                );
+              },
+            );
+          }, Text(attStatus)),
+          DataCell(Text(payout)),
+        ],
+      );
+    }).toList();
+  }
+
+  ListTile customOnTabForAttrChange(
+      CCTeamModel lead, int leadId, String attrStatus) {
+    return ListTile(
+      onTap: () async {
+        try {
+          NewChangeStatusModel changeStatusModel =
+              NewChangeStatusModel(attrStatus: attrStatus);
+          Map<String, dynamic> jsonData = changeStatusModel.toJson();
+          await JobPostApiService.NewchangeStatus(jsonData, leadId);
+          Navigator.pop(context);
+          // Assuming you have access to the ref and fetchAllApplicantProvider in your widget tree
+        } catch (e) {
+          print('Error: $e');
+          // Handle error...
+        }
+      },
+      title: Text(attrStatus),
+    );
+  }
+}
+
+/* class DataSource extends DataGridSource {
   final BuildContext? context;
   List<CCTeamModel> leads;
   DataSource({required this.leads, this.context}) {
@@ -861,11 +1373,21 @@ class DataSource extends DataGridSource {
           dataGridRow.hrSubStatus != null && dataGridRow.hrSubStatus != ""
               ? dataGridRow.hrSubStatus.toString()
               : "Select";
-      String attStatus = dataGridRow.attr_status.toString();
+      String attStatus = dataGridRow.attr_status != null
+          ? dataGridRow.attr_status.toString()
+          : dataGridRow.hrSubStatus == "Join" ||
+                  dataGridRow.hrSubStatus == null ||
+                  dataGridRow.hrSubStatus == "Ready to Join"
+              ? "Pending"
+              : "NA";
       String payout =
-          dataGridRow.partner_payout != null && dataGridRow.partner_payout != ""
-              ? dataGridRow.partner_payout!.toStringAsFixed(0)
-              : "Pending";
+          dataGridRow.client_payout != null && dataGridRow.client_payout != ""
+              ? dataGridRow.client_payout!.toStringAsFixed(0)
+              : dataGridRow.hrSubStatus == "Join" ||
+                      dataGridRow.hrSubStatus == null ||
+                      dataGridRow.hrSubStatus == "Ready to Join"
+                  ? "Pending"
+                  : "NA";
       return DataGridRow(cells: [
         DataGridCell<String>(columnName: 'applicantName', value: fullName),
         DataGridCell<String>(
@@ -884,7 +1406,21 @@ class DataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => dataGridRows;
 
-//final id = leads.map((e) => e.rid!=null&&e.rid!=0).toList();
+ //final id = leads.map((e) => e.rid!=null&&e.rid!=0).toList();
+
+  List<String> attrStatusValues = [
+    'Payable',
+    'Not Payable',
+    'Pending',
+    'Other Source',
+  ];
+
+  List<String> attrStatusLabels = [
+    'Payable',
+    'Not Payable',
+    'Pending',
+    'Other Source',
+  ];
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
@@ -957,6 +1493,45 @@ class DataSource extends DataGridSource {
               ],
             ),
           );
+        } else if (dataGridCell.columnName == "attrStatus") {
+          return GestureDetector(
+            onDoubleTap: () {
+              PopupMenuButton<String>(
+                itemBuilder: (context) => dataGridRows
+                    .asMap()
+                    .entries
+                    .map<PopupMenuItem<String>>(
+                      (entry) => PopupMenuItem<String>(
+                        value: entry.value.toString(),
+                        child: Text(attrStatusLabels[entry.key]),
+                      ),
+                    )
+                    .toList(),
+                onSelected: (selectedValue) {
+                  int rowIndex = leads.indexOf(dataGridCell.value);
+                  /* _saveAttrStatus(rowIndex, selectedValue,
+                                          data.id!.toInt()); */
+                },
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.only(left: 5),
+              alignment: Alignment.centerLeft,
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey),
+                ),
+              ),
+              child: Text(
+                dataGridCell.value.toString(),
+                style: GoogleFonts.varela(
+                  color: Colors.grey.shade700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          );
         } else {
           return Container(
             padding: const EdgeInsets.only(left: 5),
@@ -1004,4 +1579,4 @@ class DataSource extends DataGridSource {
 
     return initials;
   }
-}
+} */

@@ -16,8 +16,10 @@ import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
+import 'package:job_circle/screens/Manager/manager_piepline.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/cc_my_team.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
@@ -342,6 +344,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                     ref.refresh(experienceProvider);
                     ref.refresh(educationProvider);
                     ref.refresh(fetchAllTalentPoolProvider);
+                    ref.refresh(fetchAllTeamData);
+                    ref.refresh(fetchAllManagerProvider);
                   },
                   text: "Verify & Proceed",
                 ),

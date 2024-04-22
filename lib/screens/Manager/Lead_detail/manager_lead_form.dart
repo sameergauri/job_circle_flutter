@@ -10,12 +10,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/constants/custom_suggestion_textfield.dart';
+import 'package:job_circle/constants/custom_suggestion_textfield_for_new.dart';
 import 'package:job_circle/models/add_resume_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/sub_status_model.dart';
+import 'package:job_circle/screens/Manager/Lead_detail/customCompanyformanager.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/manager_piepline.dart';
+import 'package:job_circle/screens/Manager/manager_team.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../../../common/utils.dart';
@@ -252,6 +255,7 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
   void getResumeID(String id) {
     setState(() {
       resumeID = id;
+      resumeController.clear();
     });
   }
 
@@ -309,9 +313,9 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
     });
   }
 
-  void getCompanyId(String id) {
+  void getCompanyId(int id) {
     setState(() {
-      company_id = int.tryParse(id.toString());
+      company_id = id;
       if (isEdit4 == false) {
         isEdit1 = false;
         isEdit2 = false;
@@ -443,7 +447,7 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
           startDate: initialDate,
           endDate: lastAllowedDate,
           selectionMode: SelectionMode.single,
-          cancelBtnText: "",
+          cancelBtnText: "Cancel",
           confirmBtnText: "Submit",
         );
       },
@@ -453,6 +457,8 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
         singleSelect = picked;
         dojController.text = formatDate(picked);
       });
+    } else {
+      dojController.clear();
     }
   }
 
@@ -591,7 +597,11 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
         firstNameController.text = widget.leads!.applicantName.toString();
         lastNameController.text = widget.leads!.last_name.toString();
         contactNoController.text = widget.leads!.contactNo.toString();
-        alternateNoController.text = widget.leads!.alternateNo.toString();
+        alternateNoController.text = (widget.leads!.alternateNo.toString());
+
+        if (alternateNoController.text == "null") {
+          alternateNoController.clear();
+        }
         //
         statusController.text = widget.leads!.status.toString();
         hrStatusId = widget.leads!.hr_status_id.toString();
@@ -599,6 +609,8 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
         feedbackController.text = widget.leads!.remark.toString();
         //
         //
+        newJobID = widget.leads!.jobId;
+        selectedSubStatusId = widget.leads!.status_id;
         subController.text = widget.leads!.sub_status.toString();
         dojController.text = widget.leads?.doj != null
             ? DateFormat('dd MMM yyyy')
@@ -675,8 +687,6 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
       selectedValue = widget.leads!.interview_rounds.toString();
 
       // dosController.text = widget.leads!.dos.toString();
-
-      selectedSubStatusId = widget.leads!.hr_status_id;
 
       eduController.text = widget.leads!.qualification.toString();
       remarkController.text = widget.leads!.remark.toString();
@@ -974,6 +984,9 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                                   processController.clear();
                                   roleController.clear();
                                   functionalAreaController.clear();
+                                  isEdit4 = false;
+                                  isEdit3 = false;
+                                  isEdit2 = false;
                                   isProcess = true;
                                   isRole = true;
                                   isFunctionalArea = true;
@@ -1025,18 +1038,9 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                                       )),
                                 ],
                               ))
-                          : CustomJobFormTextField(
-                              onTapCallback: () {},
-                              //focusNode: cmpnyFocusNode,
-                              isCompany: true,
-                              name: "company",
-                              /* onFocusNodeRequested: (p0) {
-                                  focusNode.requestFocus();
-                                }, */
+                          : CustomCompanyForManagerLeadForm(
                               title: "Client Name",
                               controller: companyController,
-                              // isEdit: isEdit,
-                              //  focusNode: focusNode,
                               onChanged: (p0) {
                                 isEdit4 = p0;
                                 setState(() {
@@ -1045,25 +1049,24 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                               },
                               getEmpID: (p0) {
                                 setState(() {
-                                  isEmp = p0;
+                                  isEmp = p0.toString();
                                 });
                               },
                               getGender: (p0) {
                                 setState(() {
-                                  isGender = p0;
+                                  isGender = p0.toString();
                                 });
                               },
                               getSalary: (p0) {
                                 setState(() {
-                                  isSalary = p0 == "1" ? true : false;
+                                  isSalary =
+                                      p0.toString() == "1" ? true : false;
                                 });
                               },
                               contextIn: context,
                               onSubmit: getCompanyId,
-                              hintText: "Aditya birla Health Insurance",
                               onGetResumeId: getResumeID,
-                              // getSuggestions: getSuggestions,
-                              onIDSelected: () {}),
+                            ),
                       if ((resumeID == "1" &&
                           resumeID != null &&
                           isProcess &&
@@ -1213,7 +1216,7 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                         isEdit4
                             ? SuggestionTextField(
                                 onTapCallback: onTextField1Tap2,
-                                companyID: shortListId,
+                                companyID: company_id.toString(),
                                 controller: processController,
                                 textfieldNumber: 1,
                                 process: processController.text,
@@ -1304,7 +1307,7 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                         isEdit1 && isEdit4
                             ? SuggestionTextField(
                                 onTapCallback: onTextField1Tap3,
-                                companyID: shortListId,
+                                companyID: company_id.toString(),
                                 controller: roleController,
                                 textfieldNumber: 2,
                                 process: processController.text,
@@ -1393,9 +1396,9 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                         ),
                       if (isFunctionalArea == true)
                         isEdit2 && isEdit1 && isEdit4
-                            ? SuggestionTextField(
+                            ? SuggestionTextFieldForNew(
                                 onTapCallback: onTextField1Tap4,
-                                companyID: shortListId,
+                                companyID: company_id.toString(),
                                 controller: functionalAreaController,
                                 textfieldNumber: 3,
                                 process: processController.text,
@@ -1576,64 +1579,82 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
                                 }).toList(),
                         ),
                       if (hrStatusId == '13')
-                        InkWell(
-                          onTap: () {
-                            singleSelectPicker();
-                          },
-                          child: Container(
-                            // width: MediaQuery.of(context).size.width / 2.5,
-                            height: MediaQuery.of(context).size.height / 25,
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            // width: MediaQuery.of(context).size.width / 1.8,
-                            // height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              // focusNode: dojFocusNode,
-                              enabled: false,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                singleSelectPicker();
                               },
-                              keyboardType: TextInputType.text,
-                              controller: dojController,
-                              /* onTap: () {
-                          selectDate();
-                        }, */
-                              style: GoogleFonts.varela(
-                                  color: Constants.subtitleclr,
-                                  fontSize: 14.sp),
-                              decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.calendar_month_outlined),
-                                  prefixIconColor: Constants.themeBgColor,
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  counterText: '',
-                                  labelText: "DOJ",
-                                  labelStyle: GoogleFonts.varela(
-                                    color: Constants.themeBgColor,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xffff0eceb),
-                                    ),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    borderSide: const BorderSide(
-                                      color: Constants.themeBgColor,
-                                    ),
-                                  ),
-                                  hintText: "26-Jan-2024",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.hintColor,
-                                      fontSize: 14.sp)),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width / 2.5,
+                                height: MediaQuery.of(context).size.height / 25,
+                                margin: EdgeInsets.only(bottom: 5.h),
+                                // width: MediaQuery.of(context).size.width / 1.8,
+                                // height: 35,
+                                color: Colors.white,
+                                child: TextFormField(
+                                  // focusNode: dojFocusNode,
+                                  enabled: false,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "This Text field Cant be empty";
+                                    }
+                                    return null;
+                                  },
+                                  keyboardType: TextInputType.text,
+                                  controller: dojController,
+                                  /* onTap: () {
+                              selectDate();
+                            }, */
+                                  style: GoogleFonts.varela(
+                                      color: Constants.subtitleclr,
+                                      fontSize: 14.sp),
+                                  decoration: InputDecoration(
+                                      prefixIcon: const Icon(
+                                          Icons.calendar_month_outlined),
+                                      prefixIconColor: Constants.themeBgColor,
+                                      contentPadding: const EdgeInsets.only(
+                                          top: 8,
+                                          bottom: 8,
+                                          left: 10,
+                                          right: 10),
+                                      counterText: '',
+                                      labelText: "DOJ",
+                                      labelStyle: GoogleFonts.varela(
+                                        color: Constants.themeBgColor,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb),
+                                        ),
+                                      ),
+                                      focusColor: const Color(0xffff0eceb),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        borderSide: const BorderSide(
+                                          color: Constants.themeBgColor,
+                                        ),
+                                      ),
+                                      hintText: "26-Jan-2024",
+                                      hintStyle: GoogleFonts.sourceSansPro(
+                                          color: Constants.hintColor,
+                                          fontSize: 14.sp)),
+                                ),
+                              ),
                             ),
-                          ),
+                            dojController.text.isNotEmpty
+                                ? IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        dojController.clear();
+                                      });
+                                    },
+                                    icon: const Icon(Icons.close))
+                                : const SizedBox()
+                          ],
                         ),
                       if (hrStatusId == '13' && selectedSubStatusId == 18)
                         const SizedBox(
@@ -2609,40 +2630,42 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
     }
 
     JobApplicationModel leadsModel = JobApplicationModel(
-        id: leadId,
-        applicantName: firstNameController.text,
-        lastName: lastNameController.text,
-        contactNo: int.tryParse(contactNoController.text),
-        alternateNo: alternateNoController.text.isNotEmpty
-            ? int.tryParse(alternateNoController.text)
-            : null,
-        qualification: isGraduate == true ? "Graduate" : "Under Graduate",
-        isExperienced: isExperienced,
-        companyName: companyController.text,
-        shortListFor: company_id,
-        process: processController.text,
-        role: roleController.text,
-        naturofwork: functionalAreaController.text,
-        interview_rounds: status_id == '13'
-            ? interviewRounds[interviewRounds.length - 1]
-            : selectedValue,
-        client_resume_id: resumeController.text,
-        hrStatusId: int.tryParse(hrStatusId.toString()),
-        status_id: hrsubid,
-        spoc: widget.leads!.spoc,
-        sourceId: widget.leads!.sourceId,
-        sourceName: sourceNameController.text,
-        jobid: newJobID,
-        dol: widget.leads!.dol,
-        remark: feedbackController.text,
-        resume: icon_data,
-        doj: hrStatusId == "13"
-            ? DateFormat('MM/dd/yyyy hh:mm a').parse(dojController.text)
-            : null,
-        uid: uid,
-        document_status: selectedValue
+      id: leadId,
+      applicantName: firstNameController.text,
+      lastName: lastNameController.text,
+      contactNo: int.tryParse(contactNoController.text),
+      alternateNo: alternateNoController.text.isNotEmpty
+          ? int.tryParse(alternateNoController.text)
+          : null,
+      qualification: isGraduate == true ? "Graduate" : "Under Graduate",
+      isExperienced: isExperienced,
+      companyName: companyController.text,
+      shortListFor: company_id,
+      process: processController.text,
+      level: roleController.text,
+      naturofwork: functionalAreaController.text,
+      interview_rounds: status_id == '13'
+          ? interviewRounds[interviewRounds.length - 1]
+          : selectedValue,
+      client_resume_id: resumeController.text,
+      hrStatusId: int.tryParse(hrStatusId.toString()),
+      status_id: hrsubid,
+      spoc: widget.leads!.spoc,
+      sourceId: widget.leads!.sourceId,
+      sourceName: sourceNameController.text,
+      jobid: newJobID,
+      dol: widget.leads!.dol,
+      remark: feedbackController.text,
+      resume: icon_data,
+      doj: hrStatusId == "13"
+          ? dojController.text.isNotEmpty
+              ? DateFormat('dd MMM yyyy').parse(dojController.text)
+              : null
+          : null,
+      uid: uid,
+      document_status: selectedValue,
 
-        /* lastName: lastNameController.text,
+      /* lastName: lastNameController.text,
       companyName: companyController.text,
       process: processController.text,
       level: roleController.text,
@@ -2725,32 +2748,34 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
           ? DateTime.tryParse(widget.leads!.lastWorkingDate.toString())
           : null, */
 
-        // statusId: status_id == '11'
-        //     ? 3
-        //     : (status_id == '13' && selectedSubStatusId == null)
-        //         ? 1
-        //         : (status_id == '14' && selectedSubStatusId == null)
-        //             ? 0
-        //             : (status_id == '15' && selectedSubStatusId == null)
-        //                 ? 0
-        //                 : (status_id == '16' && selectedSubStatusId == null)
-        //                     ? 0
-        //                     : (status_id == '17' && selectedSubStatusId == null)
-        //                         ? 0
-        //                         : (status_id == '18' &&
-        //                                 selectedSubStatusId == null)
-        //                             ? 0
-        //                             : (status_id == '19' &&
-        //                                     selectedSubStatusId == null)
-        //                                 ? 0
-        //                                 : selectedStatusId ??
-        //                                     widget.leads!.hrSubStatusId
+      // statusId: status_id == '11'
+      //     ? 3
+      //     : (status_id == '13' && selectedSubStatusId == null)
+      //         ? 1
+      //         : (status_id == '14' && selectedSubStatusId == null)
+      //             ? 0
+      //             : (status_id == '15' && selectedSubStatusId == null)
+      //                 ? 0
+      //                 : (status_id == '16' && selectedSubStatusId == null)
+      //                     ? 0
+      //                     : (status_id == '17' && selectedSubStatusId == null)
+      //                         ? 0
+      //                         : (status_id == '18' &&
+      //                                 selectedSubStatusId == null)
+      //                             ? 0
+      //                             : (status_id == '19' &&
+      //                                     selectedSubStatusId == null)
+      //                                 ? 0
+      //                                 : selectedStatusId ??
+      //                                     widget.leads!.hrSubStatusId
 
-        //                                     );
-        );
+      //                                     );
+    );
 
     Map<String, dynamic> requestBody = leadsModel.toJson();
     await JobPostApiService.addResume(requestBody, context, false);
+    ref.refresh(fetchAllTeamManagerData);
+    ref.refresh(fetchAllManagerProvider);
 
     /*  try {
       final response = await http.post(

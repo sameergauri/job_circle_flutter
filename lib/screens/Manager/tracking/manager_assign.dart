@@ -251,13 +251,13 @@ class _ManagerAssignState extends ConsumerState<ManagerAssign> {
                       )),
                 ],
               ),
-              if (widget.item.notes != null && widget.item.notes != "")
+              /*   if (widget.item.notes != null && widget.item.notes != "")
                 Row(
                   children: [
                     Text("Note : ${widget.item.notes.toString()}",
                         style: GoogleFonts.varela(fontSize: 12.sp)),
                   ],
-                ),
+                ), */
             ],
           ),
         ),

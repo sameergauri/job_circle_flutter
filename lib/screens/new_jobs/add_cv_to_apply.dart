@@ -133,6 +133,8 @@ class _AddCvtoApplyState extends ConsumerState<AddCvtoApply> {
                         jobId: widget.jobId,
                         userId: await Utils.getPreferencesValue(
                             null, ESharedPreferences.user_id.name),
+                              number: await Utils.getPreferencesValue(
+                            null, ESharedPreferences.user_mobile.name),
                         context: context);
 
                     ref.refresh(fetchAllApplyProvider);

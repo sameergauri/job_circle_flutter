@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+import 'package:job_circle/screens/jobs/cc_my_team.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -133,6 +134,8 @@ class _CustomDialogueForJoinState extends ConsumerState<CustomDialogueForJoin> {
                         ref.refresh(fetchAllApplicantProvider);
                          ref.refresh(fetchAllReferalProvider);
                         ref.refresh(fetchAllApplyProvider);
+                        ref.refresh(fetchAllTeamData);
+                       
                         Navigator.pop(context);
                         // First pop to close the dialog
                       } catch (e) {

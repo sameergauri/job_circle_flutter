@@ -17,6 +17,7 @@ import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 
+import '../screens/jobs/cc_my_team.dart';
 import '../service/job_post_api_service.dart';
 
 class CustomDialogueForSelect extends ConsumerStatefulWidget {
@@ -407,9 +408,9 @@ class _CustomDialogueForSelectState
                     onTap: () async {
                       int digitCount = salary.text.length;
                       if ((widget.item.is_ctc_pay == 1 ||
-                          widget.item.is_work_pay == 1) &&
-                              digitCount < 6 &&
-                              salary.text.isNotEmpty) {
+                              widget.item.is_work_pay == 1) &&
+                          digitCount < 6 &&
+                          salary.text.isNotEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             CustomSnackbarfinal(
                                 title: "Salary Should be CTC based",
@@ -463,6 +464,7 @@ class _CustomDialogueForSelectState
                           ref.refresh(fetchAllApplicantProvider);
                           ref.refresh(fetchAllReferalProvider);
                           ref.refresh(fetchAllApplyProvider);
+                          ref.refresh(fetchAllTeamData);
                           Navigator.pop(context);
                         } catch (e) {
                           print('Error: $e');

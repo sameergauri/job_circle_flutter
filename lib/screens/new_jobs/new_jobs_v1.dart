@@ -1822,6 +1822,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             await JobPostApiService.postJobApply(
                                                                                 jobId: item.id!.toInt(),
                                                                                 userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                                number: await Utils.getPreferencesValue(null, ESharedPreferences.user_mobile.name),
                                                                                 context: context);
                                                                             ref.refresh(fetchAllApplyProvider);
                                                                             ref.refresh(fetchAllTalentPoolProvider);
@@ -1865,6 +1866,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           await JobPostApiService.postJobApply(
                                                                               jobId: item.id!.toInt(),
                                                                               userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                              number: await Utils.getPreferencesValue(null, ESharedPreferences.user_mobile.name),
                                                                               context: context);
                                                                           ref.refresh(
                                                                               fetchAllApplyProvider);

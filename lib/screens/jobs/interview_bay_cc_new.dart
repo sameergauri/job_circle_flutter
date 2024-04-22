@@ -1713,7 +1713,9 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                         // Check if there are leads with hrStatus equal to status and hrSubStatus null
                         bool hasInSelected = fetchdata.any((lead) =>
                             lead.hr_status == status &&
-                            lead.hr_sub_status == null);
+                                lead.hr_sub_status == null ||
+                            lead.hr_sub_status ==
+                                ""); //TODO:: Made due to error that cause while swith page to interview cc due to empty substatus is null or "".
 
                         // Add "In-Process" if there are such leads
                         if (hasInSelected) {
