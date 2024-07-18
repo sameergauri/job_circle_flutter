@@ -2318,44 +2318,70 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             ),
                                                           ),
                                                         )
-                                                      : IconButton(
-                                                          onPressed: () async {
-                                                            if ((item.isFav ??
-                                                                    0) ==
-                                                                1) {
-                                                              await jobsController
-                                                                  .removeFromFav(
-                                                                      item.favJobId!
-                                                                          .toInt(),
-                                                                      data);
-                                                              setState(() {
-                                                                jobsController
-                                                                    .toggleLocationFilter(
-                                                                        jobs: jobsController
-                                                                            .jobs);
-                                                              });
-                                                            } else {
-                                                              await jobsController
-                                                                  .addToFav(
-                                                                      item.id ??
-                                                                          0,
-                                                                      data);
-                                                            }
-                                                          },
-                                                          icon: Icon(
-                                                              /*   jobs[index]["id"].toString() ==
-                            item[index]["id"].toString() */
-                                                              (item.isFav) == 1 &&
-                                                                      (item.userId ==
-                                                                          data
-                                                                              .id)
-                                                                  ? Icons
-                                                                      .bookmark
-                                                                  : Icons
-                                                                      .bookmark_add_outlined,
-                                                              size: 22.h,
-                                                              color: Colors.grey
-                                                                  .shade400)),
+                                                      : Column(
+                                                          children: [
+                                                            IconButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  if ((item.isFav ??
+                                                                          0) ==
+                                                                      1) {
+                                                                    await jobsController.removeFromFav(
+                                                                        item.favJobId!
+                                                                            .toInt(),
+                                                                        data);
+                                                                    setState(
+                                                                        () {
+                                                                      jobsController.toggleLocationFilter(
+                                                                          jobs:
+                                                                              jobsController.jobs);
+                                                                    });
+                                                                  } else {
+                                                                    await jobsController.addToFav(
+                                                                        item.id ??
+                                                                            0,
+                                                                        data);
+                                                                  }
+                                                                },
+                                                                icon: Icon(
+                                                                    /*   jobs[index]["id"].toString() ==
+                                                                                      item[index]["id"].toString() */
+                                                                    (item.isFav) ==
+                                                                                1 &&
+                                                                            (item.userId ==
+                                                                                data
+                                                                                    .id)
+                                                                        ? Icons
+                                                                            .bookmark
+                                                                        : Icons
+                                                                            .bookmark_add_outlined,
+                                                                    size: 22.h,
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade400)),
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                await FlutterShare.share(
+                                                                    title:
+                                                                        "Exciting Opportunities at ${item.companyName} for ${item.roleName}",
+                                                                    text:
+                                                                        "Exciting Opportunities at ${item.companyName} for ${item.roleName}",
+                                                                    linkUrl:
+                                                                        'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+                                                                    chooserTitle:
+                                                                        'Example Chooser Title');
+                                                              },
+                                                              child:
+                                                                  Image.asset(
+                                                                "assets/images/share.png",
+                                                                height: 15.h,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade400,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                 ],
                                               ))
                                     ],
